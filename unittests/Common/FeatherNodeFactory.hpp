@@ -5,12 +5,10 @@
 
 class FeatherNodeFactory {
 public:
-    using LocationGenFun = std::function<Nest::Location()>;
-
     static FeatherNodeFactory& instance();
 
     //! Initialize the context for a test
-    void init(LocationGenFun locGen);
+    void init();
     //! Reset all the context data
     void reset();
     //! Remove all the aux generated decls
@@ -48,8 +46,6 @@ private:
     bool hasBoolType();
 
 private:
-    //! The functor used to generate locations
-    LocationGenFun locationGen;
     //! The list of generated var decls, as auxiliary data
     unordered_map<Nest::TypeRef, Feather::VarDecl> generatedVarDecls_;
     //! The list of generated function decls, as auxiliary data

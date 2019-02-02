@@ -2,8 +2,10 @@
 #include "Common/RcBasic.hpp"
 #include "Common/TypeFactory.hpp"
 #include "Common/GeneralFixture.hpp"
+#include "Common/FeatherNodeFactory.hpp"
 #include "SprCommon/SampleTypes.hpp"
 #include "SprCommon/GenGenericParams.hpp"
+#include "SprCommon/GenCallableDecl.hpp"
 #include "SprCommon/Utils.hpp"
 
 #include "SparrowFrontend/SprDebug.h"
@@ -22,12 +24,8 @@ struct GenericsFixture : SparrowGeneralFixture {
     GenericsFixture();
     ~GenericsFixture();
 
-    //! Generate a Spr function for the given parameter generator
-    SprFunctionDecl genSprFunctionDecl(GenGenericParams& paramGenerator, bool ifClauseVal = true);
-
     //! Checks if the created instantiation is OK, matching the parameters and given bound values
-    static void checkInst(
-            Instantiation inst, const GenGenericParams& paramGenerator, NodeRange values);
+    static void checkInst(Instantiation inst, const ParamsData& paramsData, NodeRange values);
 
     //! The types that we are using while performing our tests
     SampleTypes types_;
@@ -37,38 +35,11 @@ GenericsFixture::GenericsFixture() {}
 
 GenericsFixture::~GenericsFixture() {}
 
-SprFunctionDecl GenericsFixture::genSprFunctionDecl(
-        GenGenericParams& paramGenerator, bool ifClauseVal) {
-    // Generate the parameters
-    Location loc = createLocation();
-    auto params = paramGenerator.genParameters();
-
-    // Optionally, generate a return type
-    NodeHandle returnType;
-    if (randomChance(50)) {
-        returnType = TypeNode::create(loc, *TypeFactory::arbDataType(modeRt));
-    }
-
-    // Leave the body empty
-    NodeHandle body;
-
-    // Add if clause only if it needs to be false
-    NodeHandle ifClause;
-    if (!ifClauseVal)
-        ifClause = SprFrontend::buildBoolLiteral(loc, false);
-
-    auto res =
-            SprFunctionDecl::create(loc, "mySprFunctionDecl", params, returnType, body, ifClause);
-    res.setContext(globalContext_);
-    return res;
-}
-
 //! Checks if the created instantiation is OK, matching the parameters and given bound values
 void GenericsFixture::checkInst(
-        Instantiation inst, const GenGenericParams& paramGenerator, NodeRange values) {
-    const auto& innerData = paramGenerator.innerData();
-
+        Instantiation inst, const ParamsData& paramsData, NodeRange values) {
     // The bound values must be the same
+    RC_ASSERT(inst);
     RC_ASSERT(inst.boundValues().size() == int(values.size()));
     for (int i = 0; i < inst.boundValues().size(); i++) {
         auto instValue = inst.boundValues()[i].kindCast<CtValueExp>();
@@ -100,30 +71,30 @@ void GenericsFixture::checkInst(
 
         // Dependent type -- expect using with the type corresponding to the bound value
         // (dereferencing types on both sides)
-        if (!innerData.types_[i]) {
+        if (!paramsData.types_[i]) {
             auto usingDecl = boundVar.kindCast<UsingDecl>();
             RC_ASSERT(usingDecl);
-            RC_ASSERT(usingDecl.name() == innerData.params_[i].name());
+            RC_ASSERT(usingDecl.name() == paramsData.params_[i].name());
             auto usedNode = usingDecl.usedNode();
             Type usedNodeType = getType(usedNode);
             Type expectedType = getType(values[i]);
             RC_ASSERT(usedNodeType == expectedType);
         }
         // If the parameter was a concept, expect a var-decl
-        else if (innerData.types_[i].kind() == typeKindConcept) {
+        else if (paramsData.types_[i].kind() == typeKindConcept) {
             auto varDecl = boundVar.kindCast<Feather::VarDecl>();
             RC_ASSERT(varDecl);
-            RC_ASSERT(varDecl.name() == innerData.params_[i].name());
+            RC_ASSERT(varDecl.name() == paramsData.params_[i].name());
             // the type is a model of the concept; it should be the one from the bound value
             Type expectedType = getType(values[i]);
             RC_ASSERT(sameTypeIgnoreMode(varDecl.type(), expectedType));
         } else {
             // Regular case -- expect using of the right type
-            RC_ASSERT(innerData.types_[i].mode() == modeCt);
+            RC_ASSERT(paramsData.types_[i].mode() == modeCt);
 
             auto usingDecl = boundVar.kindCast<UsingDecl>();
             RC_ASSERT(usingDecl);
-            RC_ASSERT(usingDecl.name() == innerData.params_[i].name());
+            RC_ASSERT(usingDecl.name() == paramsData.params_[i].name());
             auto usedNode = usingDecl.usedNode();
             RC_ASSERT(usedNode.type() == values[i].type());
         }
@@ -136,9 +107,9 @@ TEST_CASE_METHOD(GenericsFixture, "Test Generics.checkCreateGenericFun") {
     types_.init(*this);
 
     rc::prop("calling checkCreateGenericFun", [=]() {
-        GenGenericParams paramGenerator{
-                createLocation(), globalContext_, GenGenericParams::Options{}};
-        SprFunctionDecl fun = genSprFunctionDecl(paramGenerator);
+        ParamsData paramsData = *arbParamsData();
+        SprFunctionDecl fun = *arbFunction(paramsData);
+        fun.setContext(globalContext_);
 
         RC_ASSERT(fun.parameters());
         auto res = checkCreateGenericFun(fun, fun.parameters().children(), fun.ifClause());
@@ -146,8 +117,8 @@ TEST_CASE_METHOD(GenericsFixture, "Test Generics.checkCreateGenericFun") {
         // Now check the properties
 
         // If we have a concept, a CT type or a dependent type as parameter, we expect a generic
-        bool expectResult = paramGenerator.usesConcepts() || paramGenerator.hasCtParams() ||
-                            paramGenerator.hasDepedentParams();
+        bool expectResult = paramsData.usesConcepts() || paramsData.hasCtParams() ||
+                            paramsData.hasDepedentParams();
         bool hasResult = !!res;
         RC_ASSERT(expectResult == hasResult);
 
@@ -190,27 +161,30 @@ TEST_CASE_METHOD(GenericsFixture, "Test Generics.createNewInstantiation") {
     rc::prop("resulting instantiation matches properties", [=]() {
 
         // Generate a generic function as the basis for our generics
-        GenGenericParams paramGenerator{createLocation(), globalContext_, GenGenericParams::Options{}, &types_};
-        SprFunctionDecl fun = genSprFunctionDecl(paramGenerator);
+        ParamsData paramsData = *arbParamsData();
+        SprFunctionDecl fun = *arbFunction(paramsData);
+        fun.setContext(globalContext_);
 
         // Get the instantiation set from it
         auto res = checkCreateGenericFun(fun, fun.parameters().children(), fun.ifClause());
         RC_PRE(res);
         InstantiationsSet instSet = res.instSet();
         RC_ASSERT(instSet);
+        res.setContext(globalContext_);
 
         // Now generate some bound values -- several times
         constexpr int numGenerations = 10;
         for (int i = 0; i < numGenerations; i++) {
             // Generate random bound values
-            auto values = paramGenerator.genBoundValues();
+            auto values = *arbBoundValues(paramsData, types_);
+            semanticCheck(values, globalContext_);
             EvalMode mode = *rc::gen::element(modeRt, modeCt, modeUnspecified);
 
             // try to create a new instantiation
             auto inst = createNewInstantiation(instSet, values, mode);
 
             // Check the instantiation
-            checkInst(inst, paramGenerator, values);
+            checkInst(inst, paramsData, values);
 
             // At this point, the instantiation must be invalid and not evaluated
             RC_ASSERT(!inst.isValid());
@@ -220,18 +194,19 @@ TEST_CASE_METHOD(GenericsFixture, "Test Generics.createNewInstantiation") {
 }
 
 TEST_CASE_METHOD(GenericsFixture, "Test Generics.canInstantiate OK") {
-
-    types_.init(*this, SampleTypes::onlyNumeric | SampleTypes::addByteType);
+    types_.init(*this, SampleTypes::addByteType);
 
     rc::prop("canInstantiate will always return true", [=]() {
 
         // Generate a generic function as the basis for our generics
-        GenGenericParams paramGenerator{createLocation(), globalContext_, GenGenericParams::Options{}, &types_};
-        SprFunctionDecl fun = genSprFunctionDecl(paramGenerator);
+        ParamsData paramsData = *arbParamsData();
+        SprFunctionDecl fun = *arbFunction(paramsData);
+        fun.setContext(globalContext_);
 
         // Get the instantiation set from it
         auto res = checkCreateGenericFun(fun, fun.parameters().children(), fun.ifClause());
         RC_PRE(res);
+        res.setContext(globalContext_);
         InstantiationsSet instSet = res.instSet();
         RC_ASSERT(instSet);
 
@@ -239,7 +214,8 @@ TEST_CASE_METHOD(GenericsFixture, "Test Generics.canInstantiate OK") {
         constexpr int numGenerations = 10;
         for (int i = 0; i < numGenerations; i++) {
             // Generate random bound values
-            auto values = paramGenerator.genBoundValues();
+            auto values = *arbBoundValues(paramsData, types_);
+            semanticCheck(values, globalContext_);
 
             // Generate a random mode
             EvalMode mode = *rc::gen::element(modeRt, modeCt, modeUnspecified);
@@ -248,7 +224,7 @@ TEST_CASE_METHOD(GenericsFixture, "Test Generics.canInstantiate OK") {
             auto inst = canInstantiate(instSet, values, mode);
 
             // Check the instantiation
-            checkInst(inst, paramGenerator, values);
+            checkInst(inst, paramsData, values);
 
             // Instantiation must be valid and evaluated
             RC_ASSERT(inst.isValid());
@@ -264,8 +240,9 @@ TEST_CASE_METHOD(GenericsFixture, "Test Generics.canInstantiate OK") {
     rc::prop("canInstantiate will fail when no values are passed in", [=]() {
 
         // Generate a generic function as the basis for our generics
-        GenGenericParams paramGenerator{createLocation(), globalContext_, GenGenericParams::Options{}, &types_};
-        SprFunctionDecl fun = genSprFunctionDecl(paramGenerator);
+        ParamsData paramsData = *arbParamsData();
+        SprFunctionDecl fun = *arbFunction(paramsData);
+        fun.setContext(globalContext_);
 
         // Get the instantiation set from it
         auto res = checkCreateGenericFun(fun, fun.parameters().children(), fun.ifClause());
@@ -284,9 +261,10 @@ TEST_CASE_METHOD(GenericsFixture, "Test Generics.canInstantiate OK") {
     rc::prop("canInstantiate will fail on if-clause", [=]() {
 
         // Generate a generic function as the basis for our generics
-        GenGenericParams paramGenerator{createLocation(), globalContext_, GenGenericParams::Options{}, &types_};
-        // If clause is false
-        SprFunctionDecl fun = genSprFunctionDecl(paramGenerator, false);
+        ParamsData paramsData = *arbParamsData();
+        SprFunctionDecl fun = *arbFunction(paramsData, false);
+        RC_PRE(fun);
+        fun.setContext(globalContext_);
 
         // Get the instantiation set from it
         auto res = checkCreateGenericFun(fun, fun.parameters().children(), fun.ifClause());
@@ -294,7 +272,8 @@ TEST_CASE_METHOD(GenericsFixture, "Test Generics.canInstantiate OK") {
         InstantiationsSet instSet = res.instSet();
         RC_ASSERT(instSet);
 
-        auto values = paramGenerator.genBoundValues();
+        auto values = *arbBoundValues(paramsData, types_);
+        semanticCheck(values, globalContext_);
 
         // try to create a new instantiation
         EvalMode mode = *rc::gen::element(modeRt, modeCt, modeUnspecified);

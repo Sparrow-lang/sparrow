@@ -9,8 +9,6 @@
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
-#include <boost/bind.hpp>
-
 using namespace Nest;
 using namespace Feather;
 
@@ -33,8 +31,6 @@ FeatherNodesFixture::FeatherNodesFixture() {
     g_dataTypeDecls.push_back(createDatatypeNode(StringRef("FooType"), globalContext_));
     g_dataTypeDecls.push_back(createDatatypeNode(StringRef("BarType"), globalContext_));
     g_dataTypeDecls.push_back(createDatatypeNode(StringRef("NullType"), globalContext_));
-
-    FeatherNodeFactory::instance().init(boost::bind(&FeatherNodesFixture::createLocation, this));
 }
 FeatherNodesFixture::~FeatherNodesFixture() {
     FeatherNodeFactory::instance().reset();

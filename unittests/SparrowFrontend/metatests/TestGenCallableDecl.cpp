@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include "Common/GeneralFixture.hpp"
+#include "Common/FeatherNodeFactory.hpp"
 #include "SparrowFrontend/SprCommon/GenCallableDecl.hpp"
 #include "SparrowFrontend/SprCommon/SampleTypes.hpp"
 
@@ -15,7 +16,7 @@ struct GenCallableDeclFixture : SparrowGeneralFixture {
     GenCallableDeclFixture();
     ~GenCallableDeclFixture();
 
-    static void checkSemanticallyOk(NodeHandle decl);
+    void checkSemanticallyOk(NodeHandle decl);
 
     //! The types that we are using while performing our tests
     SampleTypes types_;
@@ -26,7 +27,11 @@ GenCallableDeclFixture::GenCallableDeclFixture() {}
 GenCallableDeclFixture::~GenCallableDeclFixture() {}
 
 void GenCallableDeclFixture::checkSemanticallyOk(NodeHandle decl) {
-    if (decl && !decl.semanticCheck()) {
+    if (!decl)
+        return;
+    decl.setContext(globalContext_);
+    FeatherNodeFactory::instance().setContextForAuxNodes(globalContext_);
+    if (!decl.semanticCheck()) {
         RC_LOG() << decl;
         printNode(decl);
         RC_ASSERT(!"decl failed semantic check");
@@ -40,34 +45,30 @@ void GenCallableDeclFixture::checkSemanticallyOk(NodeHandle decl) {
 TEST_CASE_METHOD(GenCallableDeclFixture, "Generated callable decls are OK") {
     types_.init(*this, SampleTypes::onlyNumeric | SampleTypes::addByteType);
     rc::prop("all generated function decls can be semantically checked", [=]() {
-        GenCallableDecl testedObj(createLocation(), globalContext_, types_);
-        const auto& paramsGen = testedObj.paramsGenerator();
+        auto res = *arbFunction();
+        checkSemanticallyOk(res);
 
-        checkSemanticallyOk(testedObj.genFunction());
-        checkSemanticallyOk(testedObj.genFunction(false));
+        res = *arbFunction(false);
+        checkSemanticallyOk(res);
     });
 
     rc::prop("all generated package decls can be semantically checked", [=]() {
-        GenCallableDecl testedObj(createLocation(), globalContext_, types_);
-        const auto& paramsGen = testedObj.paramsGenerator();
-
-        checkSemanticallyOk(testedObj.genGenPackage());
+        auto res = *arbGenPackage();
+        checkSemanticallyOk(res);
     });
 
     rc::prop("all generated generic datatype decls can be semantically checked", [=]() {
-        GenCallableDecl testedObj(createLocation(), globalContext_, types_);
-        const auto& paramsGen = testedObj.paramsGenerator();
-
-        checkSemanticallyOk(testedObj.genGenDatatype());
+        auto res = *arbGenDatatype();
+        checkSemanticallyOk(res);
     });
 
     rc::prop("all generated concept decls can be semantically checked", [=]() {
-        GenCallableDecl testedObj(createLocation(), globalContext_, types_);
-        checkSemanticallyOk(testedObj.genConcept());
+        auto res = *arbConcept();
+        checkSemanticallyOk(res);
     });
 
     rc::prop("all generated decls can be semantically checked", [=]() {
-        GenCallableDecl testedObj(createLocation(), globalContext_, types_);
-        checkSemanticallyOk(testedObj.genCallableDecl());
+        auto res = *arbCallableDecl();
+        checkSemanticallyOk(res);
     });
 }

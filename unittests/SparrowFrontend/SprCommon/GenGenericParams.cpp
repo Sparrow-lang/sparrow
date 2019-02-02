@@ -1,134 +1,159 @@
 #include "StdInc.h"
 #include "SparrowFrontend/SprCommon/GenGenericParams.hpp"
+#include "SparrowFrontend/SprCommon/GenValueForType.hpp"
 #include "SparrowFrontend/SprCommon/SampleTypes.hpp"
 #include "SparrowFrontend/SprCommon/Utils.hpp"
+#include "Common/LocationGen.hpp"
+#include "Common/FeatherNodeFactory.hpp"
 
 #include "SparrowFrontend/Nodes/Decl.hpp"
 #include "SparrowFrontend/Nodes/Exp.hpp"
 #include "SparrowFrontend/Helpers/SprTypeTraits.h"
+#include "SparrowFrontend/Helpers/StdDef.h"
 #include "Nest/Utils/cppif/StringRef.hpp"
 
 using namespace Feather;
 using namespace SprFrontend;
 using namespace rc;
 
-GenGenericParams::GenGenericParams(
-        const Location& loc, CompilationContext* ctx, Options options, const SampleTypes* types)
-    : options_(std::move(options))
-    , location_(loc)
-    , context_(ctx)
-    , types_(types) {}
+//! Generate a new parameter
+ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const Location& loc, StringRef name);
 
-NodeList GenGenericParams::genParameters() {
-    data_.numParams_ = 0;
+//! Generates a type to be used for a parameters
+TypeWithStorage genType(ParamsGenOptions options);
 
-    NodeList params = NodeList::create(location_, {}, true);
-    int numParams = *gen::inRange(0, maxNumParams);
-    for (int i = 0; i < numParams; i++) {
-        string name = concat("p", i + 1);
-        auto param = genParam(location_, name);
-        params.addChild(param);
-    }
 
-    return params;
-}
-
-vector<NodeHandle> GenGenericParams::genBoundValues() {
-    vector<NodeHandle> values;
-    values.reserve(data_.numParams_);
-    for (int i = 0; i < data_.numParams_; i++) {
-        auto t = data_.types_[i];
-        NodeHandle value;
-
-        // If this is a regular param (RT, non-concept), don't create a bound value for it
-        if (t && t.kind() != typeKindConcept && t.mode() == modeRt) {
-            values.push_back(nullptr);
-            continue;
-        }
-
-        // If this is a dependent param, create a corresponding type-node value
-        if (!t) {
-            int prevIdx = data_.dependentIndices_[i];
-            auto prevVal = values[prevIdx];
-
-            value = createTypeNode(context_, location_, prevVal.type());
-
-            int paramIdx = i;
-            RC_ASSERT(data_.dependentIndices_[paramIdx] >= 0);
-            while (data_.dependentIndices_[paramIdx] >= 0) {
-                paramIdx = data_.dependentIndices_[paramIdx];
-            }
-            t = data_.types_[paramIdx];
-            RC_ASSERT(t);
-            RC_ASSERT(t.kind() == typeKindConcept || t.mode() == modeCt);
-        } else {
-            // Get a normal value for type
-            value = genValueForType(location_, t);
-        }
-
-        // Ensure that these values are semantically checked
-        value.setContext(context_);
-        RC_ASSERT(value.semanticCheck());
-
-        values.push_back(value);
-    }
-    return values;
-}
-
-bool GenGenericParams::usesConcepts() const {
-    for (int i = 0; i < data_.numParams_; i++) {
-        auto t = data_.types_[i];
+bool ParamsData::usesConcepts() const {
+    for (int i = 0; i < numParams_; i++) {
+        auto t = types_[i];
         if (t && t.kind() == typeKindConcept)
             return true;
     }
     return false;
 }
 
-bool GenGenericParams::hasCtParams() const {
-    for (int i = 0; i < data_.numParams_; i++) {
-        auto t = data_.types_[i];
+bool ParamsData::hasCtParams() const {
+    for (int i = 0; i < numParams_; i++) {
+        auto t = types_[i];
         if (t && t.mode() == modeCt && t.kind() != typeKindConcept)
             return true;
     }
     return false;
 }
 
-bool GenGenericParams::hasDepedentParams() const {
-    for (int i = 0; i < data_.numParams_; i++) {
-        auto t = data_.types_[i];
+bool ParamsData::hasDepedentParams() const {
+    for (int i = 0; i < numParams_; i++) {
+        auto t = types_[i];
         if (!t)
             return true;
     }
     return false;
 }
 
-bool GenGenericParams::isGeneric() const {
+bool ParamsData::isGeneric() const {
     return usesConcepts() || hasCtParams() || hasDepedentParams();
 }
 
-ParameterDecl GenGenericParams::genParam(const Location& loc, StringRef name) {
-    int curIdx = data_.numParams_;
+rc::Gen<ParamsData> arbParamsData(ParamsGenOptions options) {
+    return rc::gen::exec([=]() -> ParamsData {
+        ParamsData res;
+        auto loc = g_LocationGen();
+
+        res.numParams_ = 0;
+        res.paramsNode_ = NodeList::create(loc, {}, true);
+        int numParams = *gen::inRange(0, maxNumParams);
+        for (int i = 0; i < numParams; i++) {
+            string name = concat("p", i + 1);
+            auto param = genParam(options, res, loc, name);
+            res.paramsNode_.addChild(param);
+        }
+        return res;
+    });
+}
+
+rc::Gen<vector<NodeHandle>> arbBoundValues(const ParamsData& params, const SampleTypes& types) {
+    return rc::gen::exec([=, &types]() -> vector<NodeHandle> {
+        vector<NodeHandle> values;
+        vector<Type> valTypes;
+        values.reserve(params.numParams_);
+        valTypes.reserve(params.numParams_);
+        for (int i = 0; i < params.numParams_; i++) {
+            auto t = params.types_[i];
+            NodeHandle value;
+            Type valueType = t;
+
+            // If this is a regular param (RT, non-concept), don't create a bound value for it
+            if (t && t.kind() != typeKindConcept && t.mode() == modeRt) {
+                values.push_back(nullptr);
+                valTypes.push_back(nullptr);
+                continue;
+            }
+
+            // If this is a dependent param, create a corresponding type-node value
+            if (!t) {
+                int prevIdx = params.dependentIndices_[i];
+                valueType = valTypes[prevIdx];
+
+                // If the previous value points to a concept bound val, extract the stored type
+                auto prevVal = values[prevIdx];
+                auto prevValAsCtValue = prevVal.kindCast<CtValueExp>();
+                if (prevValAsCtValue && prevValAsCtValue.valueType() == StdDef::typeType) {
+                    auto* t = Feather_getCtValueData<Type>(prevValAsCtValue);
+                    if (!t || !*t)
+                        REP_INTERNAL(prevValAsCtValue.location(), "No type was set for node");
+                    valueType = *t;
+                }
+                value = createTypeNode(nullptr, g_LocationGen(), valueType);
+            } else {
+                // Get a normal value for type
+                value = *arbBoundValueForType(t, types);
+            }
+
+            values.push_back(value);
+            valTypes.push_back(valueType);
+        }
+        return values;
+    });
+}
+
+void semanticCheck(const vector<NodeHandle>& boundValues, Nest::CompilationContext* ctx) {
+    // Set the context for all the bound values
+    for (auto val: boundValues)
+        if (val)
+            val.setContext(ctx);
+    // Also set the context for any other aux nodes
+    FeatherNodeFactory::instance().setContextForAuxNodes(ctx);
+    // Now do the semantic checking of the bound values
+    for (auto val: boundValues)
+        if (val)
+            RC_ASSERT(val.semanticCheck());
+}
+
+
+
+ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const Location& loc, StringRef name) {
+    int curIdx = paramsData.numParams_;
 
     // Should we have a dependent param?
     // If yes, pick up a parameter to use
     StringRef prevParamName{};
-    bool isDependent = options_.useDependent && data_.numParams_ > 0 && randomChance(25);
+    bool isDependent = options.useDependent && paramsData.numParams_ > 0 && randomChance(25);
     int dependentIdx = -1;
     if (isDependent) {
         dependentIdx = *gen::inRange(0, curIdx);
-        auto t = data_.types_[dependentIdx];
+        auto t = paramsData.types_[dependentIdx];
         if (t && t.mode() == modeRt) {
             // We cannot be dependent on a RT param; fallback
             isDependent = false;
             dependentIdx = -1;
         } else
-            prevParamName = data_.params_[dependentIdx].name();
+            prevParamName = paramsData.params_[dependentIdx].name();
     }
 
     // If not dependent, generate a type to use
     TypeWithStorage t;
     if (!isDependent)
-        t = genType();
+        t = genType(options);
 
     // Generate the type node for the parameter
     NodeHandle typeNode;
@@ -143,8 +168,7 @@ ParameterDecl GenGenericParams::genParam(const Location& loc, StringRef name) {
     NodeHandle init;
     if (randomChance(30)) {
         if (!isDependent) {
-            if (types_)
-                init = genValueForType(loc, t);
+            init = *arbValueForType(t);
         } else
             init = Identifier::create(loc, prevParamName);
     }
@@ -152,55 +176,24 @@ ParameterDecl GenGenericParams::genParam(const Location& loc, StringRef name) {
     // Finally, create the parameter
     auto res = ParameterDecl::create(loc, name, typeNode, init);
 
-    data_.params_[curIdx] = res;
-    data_.types_[curIdx] = t;
-    data_.dependentIndices_[curIdx] = dependentIdx;
-    data_.numParams_++;
+    paramsData.params_[curIdx] = res;
+    paramsData.types_[curIdx] = t;
+    paramsData.dependentIndices_[curIdx] = dependentIdx;
+    paramsData.numParams_++;
 
     return res;
 }
 
-TypeWithStorage GenGenericParams::genType() const {
-    bool useConcept = options_.useConcept && randomChance(30);
+TypeWithStorage genType(ParamsGenOptions options) {
+    bool useConcept = options.useConcept && randomChance(30);
     if (useConcept) {
         return *TypeFactory::arbConceptType();
     } else {
         EvalMode mode = modeUnspecified;
-        if (!options_.useCt)
+        if (!options.useCt)
             mode = modeRt;
-        if (!options_.useRt)
+        if (!options.useRt)
             mode = modeCt;
         return *TypeFactory::arbDataType(mode);
     }
-}
-
-NodeHandle GenGenericParams::genValueForType(const Location& loc, TypeWithStorage t) {
-    RC_ASSERT(types_ != nullptr);
-    // For concepts, we generate a type of the given concept
-    if (t.kind() == typeKindConcept) {
-        // Create a type node containing a type fulfilling the concept
-        auto tinst = *rc::gen::element(types_->i8Type_, types_->i16Type_, types_->i32Type_);
-        return createTypeNode(nullptr, loc, tinst);
-    }
-
-    // For non-concepts, generate a CT value of the given type
-    RC_ASSERT(t.kind() == typeKindData);
-    auto decl = t.referredNode();
-    auto nativeName = decl.getCheckPropertyString(propNativeName);
-    RC_ASSERT(*nativeName.begin == 'i');
-    nativeName.begin++;
-    int numBits = atoi(nativeName.begin);
-    RC_ASSERT(numBits > 0);
-    RC_ASSERT((numBits % 8) == 0);
-
-    // Get the data for the type
-    // We only generate 10 values for each type
-    int size = numBits / 8;
-    int coreVal = *rc::gen::inRange(0, 10);
-    char ch = char('0' + coreVal);
-    char buf[] = {ch, ch, ch, ch, 0};
-    buf[size] = 0;
-    StringRef data(buf, buf + size);
-
-    return Feather::CtValueExp::create(loc, t, data);
 }

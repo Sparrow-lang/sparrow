@@ -98,7 +98,7 @@ void SampleTypes::init(SparrowGeneralFixture& generalFixture, int flags) {
     mockConceptsService->baseConcepts_.emplace_back(make_pair(concept2, concept1Type_));
 }
 
-vector<DataType> SampleTypes::typesForConcept(ConceptType t) {
+vector<DataType> SampleTypes::typesForConcept(ConceptType t) const {
     if (t.referredNode() == concept1Type_.referredNode())
         return {fooType_, barType_};
     else if (t.referredNode() == concept2Type_.referredNode())

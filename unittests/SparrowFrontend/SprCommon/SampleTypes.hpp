@@ -42,7 +42,7 @@ struct SampleTypes {
 
     void init(SparrowGeneralFixture& generalFixture, int flags = none);
 
-    vector<DataType> typesForConcept(ConceptType t);
+    vector<DataType> typesForConcept(ConceptType t) const;
 
     DataType i8Type_;
     DataType i16Type_;

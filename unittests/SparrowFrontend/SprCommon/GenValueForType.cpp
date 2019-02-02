@@ -84,9 +84,9 @@ Gen<NodeHandle> arbValueConvertibleTo(TypeWithStorage t) {
     });
 }
 
-Gen<NodeHandle> arbBoundValueForType(TypeWithStorage t, SampleTypes& sampleTypes) {
+Gen<NodeHandle> arbBoundValueForType(TypeWithStorage t, const SampleTypes& sampleTypes) {
     if (t.kind() != SprFrontend::typeKindConcept)
-        return arbValueForType(t);
+        return gen::cast<NodeHandle>(FeatherNodeFactory::instance().arbCtValueExp(t));
     else {
         return rc::gen::exec([&sampleTypes, t]() -> NodeHandle {
             // Get a type that matches the concept

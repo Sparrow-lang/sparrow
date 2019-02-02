@@ -2,44 +2,28 @@
 
 #include "GenGenericParams.hpp"
 
+using Nest::CompilationContext;
 using SprFrontend::ConceptDecl;
 using SprFrontend::DataTypeDecl;
 using SprFrontend::PackageDecl;
 using SprFrontend::SprFunctionDecl;
 
-//! Generator class for callable decls.
-//! This knows to generate the following decls
-//!     - functions (generic or not)
-//!     - generic packages
-//!     - generic datatypes
-//!     - datatypes (with ctors)
-//!     - concepts
-//!
-//! It uses a GenGenericParams object to generate the parameters needed for the callable.
-//! Each time it generates a decls, it will reset the GenGenericParams object.
-class GenCallableDecl {
-public:
-    GenCallableDecl(const Location& loc, CompilationContext* ctx, const SampleTypes& types);
+//! Generator for an arbitrary (generic) function.
+//! Note: in some cases this may be a regular function (i.e., no params at all)
+//! If paramsData is given, it will fill it with the params data used to generate this function
+rc::Gen<SprFunctionDecl> arbFunction(bool ifClauseVal = true);
 
-    SprFunctionDecl genFunction(bool ifClauseVal = true);
-    PackageDecl genGenPackage();
-    DataTypeDecl genGenDatatype();
-    DataTypeDecl genConcreteDatatype();
-    ConceptDecl genConcept();
+//! Same as above, but with the given paramsData
+rc::Gen<SprFunctionDecl> arbFunction(const ParamsData& paramsData, bool ifClauseVal = true);
 
-    //! Generates any of the above
-    NodeHandle genCallableDecl();
+//! Generator for arbitrary generic packages
+rc::Gen<PackageDecl> arbGenPackage();
+//! Generator for arbitrary generic datatypes
+rc::Gen<DataTypeDecl> arbGenDatatype();
+//! Generator for arbitrary concrete datatypes
+rc::Gen<DataTypeDecl> arbConcreteDatatype();
+//! Generator for arbitrary concepts
+rc::Gen<ConceptDecl> arbConcept();
 
-    //! Returns the object used to generate the parameters for our decls
-    const GenGenericParams& paramsGenerator() const { return paramsGenerator_; }
-
-private:
-    //! Object used to generate the params for our decls
-    GenGenericParams paramsGenerator_;
-    //! The location at which we generate our decls
-    Location location_;
-    //! The compilation context to be set for the generated decls
-    CompilationContext* context_;
-    //! The sample types to be used when generating parameters
-    const SampleTypes& types_;
-};
+//! Generator or any callable decl (any of above)
+rc::Gen<NodeHandle> arbCallableDecl();

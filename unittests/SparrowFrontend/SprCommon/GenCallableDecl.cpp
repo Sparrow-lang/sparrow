@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "SparrowFrontend/SprCommon/GenCallableDecl.hpp"
 #include "SparrowFrontend/SprCommon/Utils.hpp"
+#include "Common/LocationGen.hpp"
 
 #include "SparrowFrontend/Nodes/Decl.hpp"
 #include "SparrowFrontend/Nodes/Builder.h"
@@ -11,21 +12,12 @@ using namespace Feather;
 using namespace SprFrontend;
 using namespace rc;
 
-GenCallableDecl::GenCallableDecl(
-        const Location& loc, CompilationContext* ctx, const SampleTypes& types)
-    : paramsGenerator_(loc, ctx, {}, &types)
-    , location_(loc)
-    , context_(ctx)
-    , types_(types) {}
-
-SprFunctionDecl GenCallableDecl::genFunction(bool ifClauseVal) {
-    paramsGenerator_ = GenGenericParams(location_, context_, {}, &types_);
-    auto params = paramsGenerator_.genParameters();
-
+namespace {
+SprFunctionDecl genFunction(const ParamsData& params, bool ifClauseVal) {
     // Optionally, generate a return type
     NodeHandle returnType;
     if (randomChance(50)) {
-        returnType = TypeNode::create(location_, *TypeFactory::arbDataType(modeRt));
+        returnType = TypeNode::create(g_LocationGen(), *TypeFactory::arbDataType(modeRt));
     }
 
     // Leave the body empty
@@ -34,72 +26,76 @@ SprFunctionDecl GenCallableDecl::genFunction(bool ifClauseVal) {
     // Add if clause only if it needs to be false
     NodeHandle ifClause;
     if (!ifClauseVal)
-        ifClause = SprFrontend::buildBoolLiteral(location_, false);
+        ifClause = SprFrontend::buildBoolLiteral(g_LocationGen(), false);
 
-    if (ifClause && !paramsGenerator_.isGeneric())
+    if (ifClause && !params.isGeneric())
         return {};
 
     auto res = SprFunctionDecl::create(
-            location_, "mySprFunctionDecl", params, returnType, body, ifClause);
-    res.setContext(context_);
+            g_LocationGen(), "mySprFunctionDecl", params.paramsNode_, returnType, body, ifClause);
     return res;
 }
-PackageDecl GenCallableDecl::genGenPackage() {
-    GenGenericParams::Options paramOptions;
-    paramOptions.useRt = false;
-    paramOptions.useConcept = false;
-    paramOptions.useDependent = false;
-    paramsGenerator_ = GenGenericParams(location_, context_, paramOptions, &types_);
-    auto params = paramsGenerator_.genParameters();
+} // namespace
 
-    auto body = NodeList::create(location_, NodeRange{}, true);
-
-    auto res = PackageDecl::create(location_, "MyPackageDecl", body, params);
-    res.setContext(context_);
-    return res;
-}
-DataTypeDecl GenCallableDecl::genGenDatatype() {
-    GenGenericParams::Options paramOptions;
-    paramOptions.useRt = false;
-    paramOptions.useConcept = false;
-    paramOptions.useDependent = false;
-    paramsGenerator_ = GenGenericParams(location_, context_, paramOptions, &types_);
-    auto params = paramsGenerator_.genParameters();
-    auto body = NodeList::create(location_, NodeRange{}, true);
-    auto res = DataTypeDecl::create(location_, "MyDatatypeDecl", params, {}, {}, body);
-    res.setProperty(propNoDefault, 1);
-    res.setContext(context_);
-    return res;
-}
-DataTypeDecl GenCallableDecl::genConcreteDatatype() {
-    // TODO
-    return {};
-}
-ConceptDecl GenCallableDecl::genConcept() {
-    auto numConcepts = int(TypeFactory::g_conceptDecls.size());
-    auto idx = *rc::gen::inRange(0, numConcepts);
-    return ConceptDecl(TypeFactory::g_conceptDecls[idx]);
-}
-
-NodeHandle GenCallableDecl::genCallableDecl() {
-    int declKind = *rc::gen::weightedElement<int>({
-            {10, 0},
-            {1, 1},
-            {2, 2},
-            {7, 3},
-            {3, 4},
+rc::Gen<SprFunctionDecl> arbFunction(bool ifClauseVal) {
+    return rc::gen::exec([=]() -> SprFunctionDecl {
+        auto params = *arbParamsData();
+        return genFunction(params, ifClauseVal);
     });
-    switch (declKind) {
-    case 0:
-        return genFunction();
-    case 1:
-        return genFunction(false);
-    case 2:
-        return genGenPackage();
-    case 3:
-        return genGenDatatype();
-    case 4:
-        return genConcept();
-    }
-    return {};
+}
+
+rc::Gen<SprFunctionDecl> arbFunction(const ParamsData& paramsData, bool ifClauseVal) {
+    return rc::gen::exec([=]() -> SprFunctionDecl { return genFunction(paramsData, ifClauseVal); });
+}
+
+rc::Gen<PackageDecl> arbGenPackage() {
+    return rc::gen::exec([]() -> PackageDecl {
+        ParamsGenOptions paramOptions;
+        paramOptions.useRt = false;
+        paramOptions.useConcept = false;
+        paramOptions.useDependent = false;
+        auto params = *arbParamsData(paramOptions);
+
+        auto body = NodeList::create(g_LocationGen(), NodeRange{}, true);
+
+        auto res = PackageDecl::create(g_LocationGen(), "MyPackageDecl", body, params.paramsNode_);
+        return res;
+    });
+}
+rc::Gen<DataTypeDecl> arbGenDatatype() {
+    return rc::gen::exec([]() -> DataTypeDecl {
+        ParamsGenOptions paramOptions;
+        paramOptions.useRt = false;
+        paramOptions.useConcept = false;
+        paramOptions.useDependent = false;
+        auto params = *arbParamsData(paramOptions);
+        auto body = NodeList::create(g_LocationGen(), NodeRange{}, true);
+        auto res = DataTypeDecl::create(
+                g_LocationGen(), "MyDatatypeDecl", params.paramsNode_, {}, {}, body);
+        res.setProperty(propNoDefault, 1);
+        return res;
+    });
+}
+rc::Gen<DataTypeDecl> arbConcreteDatatype() {
+    return rc::gen::exec([]() -> DataTypeDecl {
+        // TODO
+        return {};
+    });
+}
+rc::Gen<ConceptDecl> arbConcept() {
+    return rc::gen::exec([]() -> ConceptDecl {
+        auto numConcepts = int(TypeFactory::g_conceptDecls.size());
+        auto idx = *rc::gen::inRange(0, numConcepts);
+        return ConceptDecl(TypeFactory::g_conceptDecls[idx]);
+    });
+}
+
+rc::Gen<NodeHandle> arbCallableDecl() {
+    return rc::gen::weightedOneOf<NodeHandle>({
+            {10, rc::gen::cast<NodeHandle>(arbFunction())},
+            {1, rc::gen::cast<NodeHandle>(arbFunction(false))},
+            {2, rc::gen::cast<NodeHandle>(arbGenPackage())},
+            {7, rc::gen::cast<NodeHandle>(arbGenDatatype())},
+            {3, rc::gen::cast<NodeHandle>(arbConcept())},
+    });
 }

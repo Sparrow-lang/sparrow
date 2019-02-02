@@ -6,9 +6,6 @@
 struct SampleTypes;
 
 
-//! Generator for TestValueNode objects of the given type
-rc::Gen<Nest::NodeHandle> arbTestValueNode(Nest::TypeWithStorage t);
-
 //! Generator for arbitrary values for the given type.
 //! The type of the value matches perfectly the given type
 rc::Gen<Nest::NodeHandle> arbValueForType(Nest::TypeWithStorage t);
@@ -22,4 +19,4 @@ rc::Gen<Nest::NodeHandle> arbValueConvertibleTo(Nest::TypeWithStorage t);
 
 //! Given a CT type or a Concept type, this return a generator of bound values for the type
 //! The returned values will always be CT. For concepts we generate a type node.
-rc::Gen<Nest::NodeHandle> arbBoundValueForType(Nest::TypeWithStorage t, SampleTypes& sampleTypes);
+rc::Gen<Nest::NodeHandle> arbBoundValueForType(Nest::TypeWithStorage t, const SampleTypes& sampleTypes);

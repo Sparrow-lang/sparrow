@@ -10,8 +10,6 @@
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/Helpers/SprTypeTraits.h"
 
-#include <boost/bind.hpp>
-
 using namespace Feather;
 using namespace SprFrontend;
 using namespace rc;
@@ -36,7 +34,6 @@ GenValueForTypeFixture::GenValueForTypeFixture() {}
 GenValueForTypeFixture::~GenValueForTypeFixture() {}
 
 TEST_CASE_METHOD(GenValueForTypeFixture, "genValueForType functions generate expected results") {
-    FeatherNodeFactory::instance().init(boost::bind(&GenValueForTypeFixture::createLocation, this));
     types_.init(*this);
 
     rc::prop("generated values match the given type", [this]() {
@@ -70,10 +67,13 @@ TEST_CASE_METHOD(GenValueForTypeFixture, "genValueForType functions generate exp
             value = *arbBoundValueForType(t, types_);
             computeType(value);
             RC_ASSERT(value.type() == t);
+
+            // Because we would test their value, we require all these values to be CtValueExp
+            RC_ASSERT(value.kind() == CtValueExp::staticKind());
         }
     });
 
-    types_.init(*this, SampleTypes::onlyNumeric | SampleTypes::addByteType);
+    types_.init(*this, SampleTypes::addByteType);
 
     rc::prop("generated bound values for concepts are ok", [this]() {
         // Generate a concept type
@@ -85,6 +85,7 @@ TEST_CASE_METHOD(GenValueForTypeFixture, "genValueForType functions generate exp
 
         // The generated value must be a type value, and the inner type must convert to the given
         // concept
+        RC_ASSERT(value.kind() == CtValueExp::staticKind());
         RC_ASSERT(value.type() == SprFrontend::StdDef::typeType);
         auto genType = SprFrontend::getType(value);
         auto cvt = g_ConvertService->checkConversion(globalContext_, genType, t);

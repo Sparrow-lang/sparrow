@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Nest/Api/NodeKindRegistrar.h"
+#include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/cppif/Fwd.hpp"
 #include "Nest/Utils/cppif/Type.hpp"
 #include "Nest/Utils/cppif/NodeHandle.hpp"
@@ -14,7 +16,7 @@
 #define REQUIRE_NODE_KIND(node, kind)                                                              \
     if (node && node->nodeKind != kind)                                                            \
         REP_INTERNAL(NOLOC, "Expected AST node of kind %1%, found %2% (inside %3%)") % (#kind) %   \
-                NodeHandle(node).kindName() % __FUNCTION__;                                        \
+                Nest::NodeHandle(node).kindName() % __FUNCTION__;                                  \
     else                                                                                           \
         ;
 
@@ -28,7 +30,7 @@ public:                                                                         
     static int registerNodeKind();                                                                 \
     static int staticKind();                                                                       \
     T() = default;                                                                                 \
-    T(Node* n);                                                                                    \
+    T(Nest::Node* n);                                                                              \
     T clone();
 
 #define DEFINE_NODE_COMMON_IMPL(T, BaseType)                                                       \
@@ -47,7 +49,7 @@ public:                                                                         
         REQUIRE_NODE_KIND(n, staticKindValue);                                                     \
     }                                                                                              \
     int T::staticKind() { return staticKindValue; }                                                \
-    T T::clone() { return T(NodeHandle::clone()); }
+    T T::clone() { return T(Nest::NodeHandle::clone()); }
 
 namespace Nest {
 

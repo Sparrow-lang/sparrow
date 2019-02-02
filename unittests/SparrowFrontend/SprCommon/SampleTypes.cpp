@@ -12,7 +12,6 @@
 
 using namespace SprFrontend;
 
-
 void SampleTypes::init(SparrowGeneralFixture& generalFixture, int flags) {
     TypeFactory::g_dataTypeDecls.clear();
     TypeFactory::g_conceptDecls.clear();
@@ -55,7 +54,6 @@ void SampleTypes::init(SparrowGeneralFixture& generalFixture, int flags) {
     SprFrontend::StdDef::typeType = DataType::get(typeDecl, 0, modeCt);
     REQUIRE(typeDecl.computeType());
 
-
     // Create concept decls & types
     NodeHandle concept1 = generalFixture.createSimpleConcept("Concept1", ctx);
     NodeHandle concept2 = generalFixture.createSimpleConcept("Concept2", ctx);
@@ -68,8 +66,10 @@ void SampleTypes::init(SparrowGeneralFixture& generalFixture, int flags) {
     byteType_ = ConceptType::get(concept3);
 
     // Add the concepts to our list of decls
-    g_conceptDecls.push_back(concept1);
-    g_conceptDecls.push_back(concept2);
+    if ((flags & onlyNumeric) == 0) {
+        g_conceptDecls.push_back(concept1);
+        g_conceptDecls.push_back(concept2);
+    }
     if (flags & addByteType)
         g_conceptDecls.push_back(concept3);
 
@@ -96,4 +96,14 @@ void SampleTypes::init(SparrowGeneralFixture& generalFixture, int flags) {
 
     // Concept base
     mockConceptsService->baseConcepts_.emplace_back(make_pair(concept2, concept1Type_));
+}
+
+vector<DataType> SampleTypes::typesForConcept(ConceptType t) {
+    if (t.referredNode() == concept1Type_.referredNode())
+        return {fooType_, barType_};
+    else if (t.referredNode() == concept2Type_.referredNode())
+        return {fooType_, barType_};
+    else if (t.referredNode() == byteType_.referredNode())
+        return {i8Type_};
+    return {};
 }

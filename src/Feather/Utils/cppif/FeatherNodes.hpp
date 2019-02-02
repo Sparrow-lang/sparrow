@@ -532,7 +532,7 @@ struct CtValueExp : NodeHandle {
 
 private:
     static NodeHandle semanticCheckImpl(ThisNodeType node);
-    const char* toString();
+    static const char* toStringImpl(ThisNodeType node);
 };
 
 /**

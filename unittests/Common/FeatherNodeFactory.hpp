@@ -19,7 +19,7 @@ public:
     void setContextForAuxNodes(Nest::CompilationContext* ctx);
 
     rc::Gen<Feather::Nop> arbNop();
-    rc::Gen<Feather::TypeNode> arbTypeNode();
+    rc::Gen<Feather::TypeNode> arbTypeNode(Nest::TypeWithStorage expectedType = {});
 
     rc::Gen<Feather::CtValueExp> arbCtValueExp(Nest::TypeWithStorage expectedType = {});
     rc::Gen<Feather::NullExp> arbNullExp(Nest::TypeWithStorage expectedType = {});
@@ -44,6 +44,9 @@ private:
     //! To be called from generators
     Nest::NodeHandle genTypeNode(Nest::TypeWithStorage type);
 
+    //! Checks if we have a bool type
+    bool hasBoolType();
+
 private:
     //! The functor used to generate locations
     LocationGenFun locationGen;
@@ -53,6 +56,10 @@ private:
     unordered_map<Nest::TypeRef, Feather::FunctionDecl> generatedFunDecls_;
     //! The maximum depth of nodes we would like to build -- avoiding infinite recursion
     int maxDepth_{5};
+    //! Indicates if we checked whether we have a bool type
+    bool testedForBoolType_;
+    //! True if we have a bool type
+    bool hasBoolType_;
 };
 
 namespace rc {

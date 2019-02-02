@@ -1,8 +1,8 @@
 #pragma once
 
-#include <NodeCommonsH.h>
+#include "SparrowFrontend/NodeCommonsH.h"
 
-#include <Helpers/Convert.h>
+#include "SparrowFrontend/Helpers/Convert.h"
 
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 

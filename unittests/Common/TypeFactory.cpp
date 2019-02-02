@@ -21,12 +21,13 @@ Gen<DataType> arbDataType(EvalMode mode, int minRef, int maxRef) {
     const int numT = g_dataTypeDecls.size();
     REQUIRE(numT > 0);
     auto modeGen = mode == modeUnspecified ? gen::arbitrary<EvalMode>() : gen::just(mode);
-    return gen::apply(
-            [=](int idx, int numReferences, EvalMode mode) -> DataType {
-                REQUIRE(idx < g_dataTypeDecls.size());
-                return DataType::get(g_dataTypeDecls[idx], numReferences, mode);
-            },
-            gen::inRange(0, numT), gen::inRange(minRef, maxRef), modeGen);
+    return gen::exec([=]() -> DataType {
+        int idx = *gen::inRange(0, int(g_dataTypeDecls.size()));
+        int numReferences = *gen::inRange(minRef, maxRef);
+        EvalMode genMode = mode == modeUnspecified ? *gen::arbitrary<EvalMode>() : *gen::just(mode);
+        REQUIRE(idx < g_dataTypeDecls.size());
+        return DataType::get(g_dataTypeDecls[idx], numReferences, genMode);
+    });
 }
 
 Gen<ConstType> arbConstType(EvalMode mode, int minRef, int maxRef) {

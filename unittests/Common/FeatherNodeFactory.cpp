@@ -27,6 +27,21 @@ NodeHandle FeatherNodeFactory::genTypeNode(Nest::TypeWithStorage type) {
         return *arbExp(type);
 }
 
+bool FeatherNodeFactory::hasBoolType() {
+    if (testedForBoolType_)
+        return hasBoolType_;
+
+    hasBoolType_ = false;
+    for (auto decl : TypeFactory::g_dataTypeDecls) {
+        if (DeclNode(decl).name() == "i1") {
+            hasBoolType_ = true;
+            break;
+        }
+    }
+    testedForBoolType_ = true;
+    return hasBoolType_;
+}
+
 FeatherNodeFactory& FeatherNodeFactory::instance() {
     static FeatherNodeFactory theInstance;
     return theInstance;
@@ -42,6 +57,8 @@ void FeatherNodeFactory::reset() {
     generatedFunDecls_.clear();
     maxDepth_ = 5;
     locationGen = {};
+    testedForBoolType_ = false;
+    hasBoolType_ = false;
 }
 
 void FeatherNodeFactory::clearAuxNodes() {
@@ -57,21 +74,26 @@ void FeatherNodeFactory::setContextForAuxNodes(Nest::CompilationContext* ctx) {
     }
 }
 
-
 Gen<Nop> FeatherNodeFactory::arbNop() {
     return gen::exec([this] { return Nop::create(locationGen()); });
 }
 
-Gen<TypeNode> FeatherNodeFactory::arbTypeNode() {
-    return gen::exec(
-            [this] { return TypeNode::create(locationGen(), *TypeFactory::arbBasicStorageType()); });
+Gen<TypeNode> FeatherNodeFactory::arbTypeNode(Nest::TypeWithStorage expectedType) {
+    return gen::exec([=] {
+        auto t = genTypeIfNeeded(expectedType);
+        return TypeNode::create(locationGen(), t);
+    });
 }
 
 Gen<CtValueExp> FeatherNodeFactory::arbCtValueExp(Nest::TypeWithStorage expectedType) {
     return gen::exec([=] {
         auto t = genTypeIfNeeded(expectedType);
-        Nest::StringRefM data{int(Nest_sizeOf(t))};
-        // Leave the data to be random
+        auto dataSize = int(Nest_sizeOf(t));
+        Nest::StringRefM data{dataSize};
+        // Fill the data with a char
+        char ch = char('0' + *rc::gen::inRange(0, 10));
+        for (int i = 0; i < dataSize; i++)
+            data.begin[i] = ch;
         return CtValueExp::create(locationGen(), t, data);
     });
 }
@@ -106,7 +128,8 @@ Gen<Feather::VarRefExp> FeatherNodeFactory::arbVarRefExp(Nest::TypeWithStorage e
         return VarRefExp::create(locationGen(), varDecl);
     });
 }
-// Gen<Feather::FieldRefExp> FeatherNodeFactory::arbFieldRefExp(Nest::TypeWithStorage expectedType) {
+// Gen<Feather::FieldRefExp> FeatherNodeFactory::arbFieldRefExp(Nest::TypeWithStorage expectedType)
+// {
 //     return arbCtValueExp(expectedType);
 // }
 // Gen<Feather::FunRefExp> FeatherNodeFactory::arbFunRefExp(Nest::TypeWithStorage expectedType) {
@@ -130,14 +153,14 @@ Gen<Feather::FunCallExp> FeatherNodeFactory::arbFunCallExp(Nest::TypeWithStorage
         if (!funDecl) {
             vector<Nest::Node*> params;
             params.reserve(fType.numParams());
-            for (int i=0; i<fType.numParams(); i++) {
+            for (int i = 0; i < fType.numParams(); i++) {
                 params.push_back(VarDecl::create(loc, "p", TypeNode::create(loc, fType[i])));
             }
             auto retType = TypeNode::create(loc, fType.result());
             funDecl = FunctionDecl::create(loc, "f", retType, Nest::all(params), {});
 
             // Mark some functions as 'autoCt'
-            if (*gen::inRange(0, 4) == 3)
+            if (!expectedType && *gen::inRange(0, 4) == 3)
                 funDecl.setProperty(propAutoCt, 1);
         }
 
@@ -145,7 +168,7 @@ Gen<Feather::FunCallExp> FeatherNodeFactory::arbFunCallExp(Nest::TypeWithStorage
         maxDepth_--;
         vector<Nest::Node*> args;
         args.reserve(fType.numParams());
-        for (int i=0; i<fType.numParams(); i++)
+        for (int i = 0; i < fType.numParams(); i++)
             args.push_back(*arbExp(fType[i]));
         maxDepth_++;
 
@@ -158,8 +181,7 @@ Gen<Feather::MemLoadExp> FeatherNodeFactory::arbMemLoadExp(Nest::TypeWithStorage
         if (expectedType) {
             t = addRef(expectedType);
             REQUIRE(t.numReferences() > 0);
-        }
-        else
+        } else
             t = genTypeIfNeeded({}, true);
         REQUIRE(t.numReferences() > 0);
         NodeHandle address = *arbExp(t);
@@ -185,7 +207,8 @@ Gen<Feather::BitcastExp> FeatherNodeFactory::arbBitcastExp(Nest::TypeWithStorage
         return BitcastExp::create(locationGen(), typeNode, exp);
     });
 }
-Gen<Feather::ConditionalExp> FeatherNodeFactory::arbConditionalExp(Nest::TypeWithStorage expectedType) {
+Gen<Feather::ConditionalExp> FeatherNodeFactory::arbConditionalExp(
+        Nest::TypeWithStorage expectedType) {
     return gen::exec([=] {
         auto tDest = genTypeIfNeeded(expectedType);
         auto condMode = tDest.mode() == modeCt ? modeCt : modeUnspecified;
@@ -208,8 +231,7 @@ Gen<NodeHandle> FeatherNodeFactory::arbExp(Nest::TypeWithStorage expectedType) {
     int weightBitcastExp = 3;
     int weightConditionalExp = 1;
 
-    if (expectedType)
-    {
+    if (expectedType) {
         auto kind = expectedType.kind();
         if (kind != Feather_getDataTypeKind()) {
             weightMemLoadExp = 0;
@@ -220,16 +242,20 @@ Gen<NodeHandle> FeatherNodeFactory::arbExp(Nest::TypeWithStorage expectedType) {
             // weightFieldRefExp = 0;
             // weightFunRefExp = 0;
         }
-        if ( expectedType.numReferences() == 0) {
+        if (expectedType.numReferences() == 0) {
             weightNullExp = 0;
             weightVarRefExp = 0;
             // weightFieldRefExp = 0;
             // weightFunRefExp = 0;
             weightBitcastExp = 0;
+        } else {
+            weightCtValueExp = 0;
         }
     }
-    if ( maxDepth_ <= 0 )
+    if (maxDepth_ <= 0)
         weightFunCallExp = 0;
+    if (!hasBoolType())
+        weightConditionalExp = 0;
 
     return gen::weightedOneOf<NodeHandle>({
             {weightCtValueExp, gen::cast<NodeHandle>(arbCtValueExp(expectedType))},

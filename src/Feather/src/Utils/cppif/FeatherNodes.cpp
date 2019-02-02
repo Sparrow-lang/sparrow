@@ -633,16 +633,16 @@ NodeHandle CtValueExp::semanticCheckImpl(CtValueExp node) {
     node.setType(node.type().changeMode(modeCt, node.location()));
     return node;
 }
-const char* CtValueExp::toString() {
-    Type t = type();
+const char* CtValueExp::toStringImpl(ThisNodeType node) {
+    Type t = node.type();
     if (!t)
-        t = valueType();
+        t = node.valueType();
     if (!t)
         return "CtValue";
     ostringstream os;
     os << "CtValue(" << t << ": ";
 
-    StringRef valueDataStr = valueData();
+    StringRef valueDataStr = node.valueData();
 
     StringRef nativeName = t.hasStorage() ? Feather_nativeName(t) : StringRef{};
     if (0 == strcmp(t.description(), "Type/ct")) {

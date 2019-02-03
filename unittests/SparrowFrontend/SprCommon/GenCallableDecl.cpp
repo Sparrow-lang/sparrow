@@ -51,6 +51,7 @@ rc::Gen<SprFunctionDecl> arbFunction(const ParamsData& paramsData, bool ifClause
 rc::Gen<PackageDecl> arbGenPackage() {
     return rc::gen::exec([]() -> PackageDecl {
         ParamsGenOptions paramOptions;
+        paramOptions.minNumParams = 1;
         paramOptions.useRt = false;
         paramOptions.useConcept = false;
         paramOptions.useDependent = false;
@@ -65,6 +66,7 @@ rc::Gen<PackageDecl> arbGenPackage() {
 rc::Gen<DataTypeDecl> arbGenDatatype() {
     return rc::gen::exec([]() -> DataTypeDecl {
         ParamsGenOptions paramOptions;
+        paramOptions.minNumParams = 1;
         paramOptions.useRt = false;
         paramOptions.useConcept = false;
         paramOptions.useDependent = false;

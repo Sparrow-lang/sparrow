@@ -17,11 +17,11 @@ using namespace SprFrontend;
 using namespace rc;
 
 //! Generate a new parameter
-ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const Location& loc, StringRef name);
+ParameterDecl genParam(
+        ParamsGenOptions options, ParamsData& paramsData, const Location& loc, StringRef name);
 
 //! Generates a type to be used for a parameters
 TypeWithStorage genType(ParamsGenOptions options);
-
 
 bool ParamsData::usesConcepts() const {
     for (int i = 0; i < numParams_; i++) {
@@ -61,7 +61,7 @@ rc::Gen<ParamsData> arbParamsData(ParamsGenOptions options) {
 
         res.numParams_ = 0;
         res.paramsNode_ = NodeList::create(loc, {}, true);
-        int numParams = *gen::inRange(0, maxNumParams);
+        int numParams = *gen::inRange(options.minNumParams, maxNumParams);
         for (int i = 0; i < numParams; i++) {
             string name = concat("p", i + 1);
             auto param = genParam(options, res, loc, name);
@@ -116,22 +116,47 @@ rc::Gen<vector<NodeHandle>> arbBoundValues(const ParamsData& params, const Sampl
     });
 }
 
-void semanticCheck(const vector<NodeHandle>& boundValues, Nest::CompilationContext* ctx) {
+rc::Gen<vector<NodeHandle>> arbArguments(const ParamsData& params, const SampleTypes* sampleTypes, bool exactMatch) {
+    return rc::gen::exec([=]() -> vector<NodeHandle> {
+        vector<NodeHandle> values;
+        values.reserve(params.numParams_);
+        for (int i = 0; i < params.numParams_; i++) {
+            auto t = params.types_[i];
+
+            // If this is a dependent param, get the type we are referring to
+            if (!t) {
+                int prevIdx = params.dependentIndices_[i];
+                while (!params.types_[prevIdx])
+                    prevIdx = params.dependentIndices_[prevIdx];
+                t = params.types_[prevIdx];
+            }
+
+            NodeHandle value;
+            if (exactMatch)
+                value = *arbValueForType(t, sampleTypes);
+            else
+                value = *arbValueConvertibleTo(t, sampleTypes);
+            values.push_back(value);
+        }
+        return values;
+    });
+}
+
+void semanticCheck(const vector<NodeHandle>& values, Nest::CompilationContext* ctx) {
     // Set the context for all the bound values
-    for (auto val: boundValues)
+    for (auto val : values)
         if (val)
             val.setContext(ctx);
     // Also set the context for any other aux nodes
     FeatherNodeFactory::instance().setContextForAuxNodes(ctx);
     // Now do the semantic checking of the bound values
-    for (auto val: boundValues)
+    for (auto val : values)
         if (val)
             RC_ASSERT(val.semanticCheck());
 }
 
-
-
-ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const Location& loc, StringRef name) {
+ParameterDecl genParam(
+        ParamsGenOptions options, ParamsData& paramsData, const Location& loc, StringRef name) {
     int curIdx = paramsData.numParams_;
 
     // Should we have a dependent param?
@@ -167,10 +192,10 @@ ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const L
     // Optionally, use an initializer for the parameter
     NodeHandle init;
     if (randomChance(30)) {
-        if (!isDependent) {
-            init = *arbValueForType(t);
-        } else
+        if (isDependent)
             init = Identifier::create(loc, prevParamName);
+        else if (t.kind() != typeKindConcept)
+            init = *arbValueForType(t);
     }
 
     // Finally, create the parameter
@@ -187,7 +212,7 @@ ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const L
 TypeWithStorage genType(ParamsGenOptions options) {
     bool useConcept = options.useConcept && randomChance(30);
     if (useConcept) {
-        return *TypeFactory::arbConceptType();
+        return *TypeFactory::arbConceptType(modeRt);    // always use RT for concepts
     } else {
         EvalMode mode = modeUnspecified;
         if (!options.useCt)

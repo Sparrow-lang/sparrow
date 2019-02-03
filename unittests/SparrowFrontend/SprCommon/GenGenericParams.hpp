@@ -15,6 +15,7 @@ constexpr int maxNumParams = 10;
 
 //! The options used for generating generic params
 struct ParamsGenOptions {
+    int minNumParams{0};
     bool useConcept{true};
     bool useCt{true};
     bool useRt{true};
@@ -54,5 +55,10 @@ rc::Gen<ParamsData> arbParamsData(ParamsGenOptions options = {});
 //! Generator for bound values that match the given generated parameters
 rc::Gen<vector<NodeHandle>> arbBoundValues(const ParamsData& params, const SampleTypes& types);
 
-//! Semantic check a set of generated bound values
-void semanticCheck(const vector<NodeHandle>& boundValues, Nest::CompilationContext* ctx);
+//! Generator for arguments corresponding to the given params
+//! The arguments will be convertible to the params if exactMatch==false
+rc::Gen<vector<NodeHandle>> arbArguments(const ParamsData& params,
+        const SampleTypes* sampleTypes = nullptr, bool exactMatch = false);
+
+//! Semantic check a set of generated values
+void semanticCheck(const vector<NodeHandle>& values, Nest::CompilationContext* ctx);

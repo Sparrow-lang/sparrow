@@ -644,7 +644,7 @@ void handleGenericFunParam(GenericFunCallParams& callParams, int idx, NodeHandle
         // Evaluate the node and add the resulting CtValue as a bound argument
         ASSERT(Feather_isCt(arg));
         boundVal = Nest_ctEval(arg);
-        if (!boundVal || boundVal.kind() != nkFeatherExpCtValue)
+        if (!boundVal /*|| boundVal.kind() != nkFeatherExpCtValue*/)
             REP_INTERNAL(arg.location(),
                     "Invalid argument %1% when instantiating generic (arg is not CT evaluable)") %
                     (idx + 1);

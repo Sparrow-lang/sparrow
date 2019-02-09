@@ -65,28 +65,28 @@ bool filterCandidates(CompilationContext* context, const Location& loc, Callable
     ConversionType bestConv = convNone;
     int bestPrio = INT_MIN;
     for (size_t i = 0; i < candidates.size(); ++i) {
-        CallableData& cand = candidates[i];
+        Callable* cand = candidates[i];
 
         // Check if this can be called with the given args
         ConversionType conv =
-                args ? canCall(cand, context, loc, *args, evalMode, customCvtMode)
-                     : canCall(cand, context, loc, *argTypes, evalMode, customCvtMode);
+                args ? cand->canCall(context, loc, *args, evalMode, customCvtMode)
+                     : cand->canCall(context, loc, *argTypes, evalMode, customCvtMode);
         if (conv == convNone) {
-            cand.valid = false;
+            cand->invalidate();
             continue;
         }
 
-        int prio = Nest_getPropertyDefaultInt(cand.decl, propOverloadPrio, 0);
+        int prio = Nest_getPropertyDefaultInt(cand->decl(), propOverloadPrio, 0);
 
         if (prio > bestPrio || (prio == bestPrio && conv > bestConv)) {
             bestConv = conv;
             bestPrio = prio;
             for (size_t j = 0; j < i; ++j)
-                if (candidates[j].valid) {
-                    candidates[j].valid = false;
+                if (candidates[j]->valid()) {
+                    candidates[j]->invalidate();
                 }
         } else if (prio < bestPrio || conv < bestConv)
-            cand.valid = false;
+            cand->invalidate();
     }
 
     return bestConv != convNone;
@@ -99,33 +99,33 @@ void filterCandidatesErrReport(CompilationContext* context, const Location& loc,
         EvalMode evalMode, CustomCvtMode customCvtMode) {
     for (auto& cand : candidates) {
         // Report the candidate
-        REP_INFO(location(cand), "See possible candidate: %1%") % toString(cand);
+        REP_INFO(cand->location(), "See possible candidate: %1%") % cand->toString();
 
         if (args)
-            canCall(cand, context, loc, *args, evalMode, customCvtMode, true);
+            cand->canCall(context, loc, *args, evalMode, customCvtMode, true);
         else
-            canCall(cand, context, loc, *argTypes, evalMode, customCvtMode, true);
+            cand->canCall(context, loc, *argTypes, evalMode, customCvtMode, true);
     }
 }
 
 /// Selects the most specialized callable from a list of callables.
 /// If there is not such thing as a "most specialized", this will return null.
-CallableData* selectMostSpecialized(
+Callable* selectMostSpecialized(
         CompilationContext* context, Callables& candidates, bool noCustomCvt = false) {
     if (candidates.empty())
         return nullptr;
 
     // Check if we have only one valid candidate
     // If so, just return it
-    CallableData* oneCand = nullptr;
-    for (CallableData& cand : candidates) {
-        if (cand.valid) {
+    Callable* oneCand = nullptr;
+    for (Callable* cand : candidates) {
+        if (cand->valid()) {
             if (oneCand) {
                 // More than one valid candidate
                 oneCand = nullptr;
                 break;
             } else
-                oneCand = &cand;
+                oneCand = cand;
         }
     }
     if (oneCand)
@@ -133,13 +133,13 @@ CallableData* selectMostSpecialized(
 
     // Check which function is most specialized
     for (size_t i = 0; i < candidates.size(); ++i) {
-        if (!candidates[i].valid)
+        if (!candidates[i]->valid())
             continue;
         bool isMostSpecialized = true;
         for (size_t j = 0; j < candidates.size(); ++j) {
-            if (j == i || !candidates[j].valid)
+            if (j == i || !candidates[j]->valid())
                 continue;
-            int res = moreSpecialized(context, candidates[i], candidates[j], noCustomCvt);
+            int res = moreSpecialized(context, *candidates[i], *candidates[j], noCustomCvt);
             // if res < 0, the current function is more specialized than the
             // other function
             if (res >= 0) {
@@ -148,7 +148,7 @@ CallableData* selectMostSpecialized(
             }
         }
         if (isMostSpecialized)
-            return &candidates[i];
+            return candidates[i];
     }
     return nullptr;
 }
@@ -162,9 +162,9 @@ void selectMostSpecializedErrReport(
 
     REP_INFO(NOLOC, "Reason: Cannot select a 'most specialized' function");
 
-    for (const CallableData& cand : candidates) {
-        if (cand.valid) {
-            REP_INFO(location(cand), "See valid candidate: %1%") % toString(cand);
+    for (const Callable* cand : candidates) {
+        if (cand->valid()) {
+            REP_INFO(cand->location(), "See valid candidate: %1%") % cand->toString();
             // printNode(cand.decl);
         }
     }
@@ -222,9 +222,7 @@ Node* OverloadService::selectOverload(CompilationContext* context, const Locatio
     }
 
     // First, get all the candidates
-    Callables candidates;
-    candidates.reserve(numDecls * 2);
-    getCallables(decls, evalMode, candidates);
+    Callables candidates = g_CallableService->getCallables(decls, evalMode);
     if (candidates.empty()) {
         if (errReporting != OverloadReporting::none) {
             startError(errReporting, loc, argsTypes, funName);
@@ -252,7 +250,7 @@ Node* OverloadService::selectOverload(CompilationContext* context, const Locatio
     }
 
     // From the remaining candidates, try to select the most specialized one
-    CallableData* selectedFun = selectMostSpecialized(context, candidates);
+    Callable* selectedFun = selectMostSpecialized(context, candidates);
     if (!selectedFun) {
         if (errReporting != OverloadReporting::none) {
             startError(errReporting, loc, argsTypes, funName);
@@ -262,12 +260,12 @@ Node* OverloadService::selectOverload(CompilationContext* context, const Locatio
     }
 
     // Generate the call code for the selected fun
-    Node* res = generateCall(*selectedFun, context, loc);
+    Node* res = selectedFun->generateCall(context, loc);
     if (!res) {
         if (errReporting != OverloadReporting::none) {
             startError(errReporting, loc, argsTypes, funName);
             REP_INFO(NOLOC, "Cannot generate call code for selected overload: %1%") %
-                    toString(*selectedFun);
+                    selectedFun->toString();
         }
         return nullptr;
     }
@@ -292,8 +290,7 @@ bool OverloadService::selectConversionCtor(
     ASSERT(argType);
 
     // Get all the candidates
-    Callables candidates;
-    getCallables(fromIniList({destClass}), destMode, candidates,
+    Callables candidates = g_CallableService->getCallables(fromIniList({destClass}), destMode,
             [](NodeHandle decl) -> bool { return decl.hasProperty(propConvert); });
     if (candidates.empty())
         return false;
@@ -303,7 +300,7 @@ bool OverloadService::selectConversionCtor(
     filterCandidates(context, Location(), candidates, nullptr, &argTypes, destMode, noCustomCvt);
 
     // From the remaining candidates, try to select the most specialized one
-    CallableData* selectedFun = selectMostSpecialized(context, candidates, true);
+    Callable* selectedFun = selectMostSpecialized(context, candidates, true);
     if (!selectedFun)
         return false;
 
@@ -320,8 +317,8 @@ Node* OverloadService::selectCtToRtCtor(Node* ctArg) {
         return nullptr;
 
     // Select the possible ct-to-rt constructors
-    Callables candidates;
-    getCallables(fromIniList({cls}), modeRt, candidates, {}, "ctorFromCt");
+    Callables candidates =
+            g_CallableService->getCallables(fromIniList({cls}), modeRt, {}, "ctorFromCt");
     if (candidates.empty())
         return nullptr;
 
@@ -337,7 +334,7 @@ Node* OverloadService::selectCtToRtCtor(Node* ctArg) {
     }
 
     // From the remaining candidates, try to select the most specialized one
-    CallableData* call = selectMostSpecialized(ctArg->context, candidates, true);
+    Callable* call = selectMostSpecialized(ctArg->context, candidates, true);
     if (!call) {
         REP_ERROR(loc, "No matching overload found for calling ctorFromCt");
         selectMostSpecializedErrReport(ctArg->context, candidates);
@@ -345,11 +342,11 @@ Node* OverloadService::selectCtToRtCtor(Node* ctArg) {
     }
 
     // Generate the call to the ctor
-    auto cr = canCall(*call, ctArg->context, loc, fromIniList({ctArg}), modeRt, noCustomCvt);
+    auto cr = call->canCall(ctArg->context, loc, fromIniList({ctArg}), modeRt, noCustomCvt);
     ASSERT(cr);
     if (!cr)
         return nullptr;
-    return generateCall(*call, ctArg->context, loc);
+    return call->generateCall(ctArg->context, loc);
 }
 
 void setDefaultOverloadService() {

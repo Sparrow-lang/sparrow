@@ -9,6 +9,7 @@
 
 #include "Helpers/Convert.h"
 #include "Helpers/Overload.h"
+#include "Helpers/Impl/Callable.h"
 #include "Helpers/Generics.h"
 
 #include "Nest/Api/CompilerModule.h"
@@ -21,12 +22,14 @@ void SparrowFrontend_initModule() {
     // Create the service objects
     setDefaultConvertService();
     setDefaultOverloadService();
+    setDefaultCallableService();
     setDefaultConceptsService();
 }
 
 void SparrowFrontend_destroyModule() {
     g_ConvertService.reset();
     g_OverloadService.reset();
+    g_CallableService.reset();
     g_ConceptsService.reset();
 }
 

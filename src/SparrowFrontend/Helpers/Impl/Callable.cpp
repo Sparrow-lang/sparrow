@@ -20,7 +20,67 @@ using namespace SprFrontend;
 using namespace Feather;
 using namespace Nest;
 
+namespace SprFrontend {
+unique_ptr<ICallableService> g_CallableService;
+
 namespace {
+
+/// The type of a callable entity
+enum class CallableType {
+    function,
+    genericFun,
+    genericClass,
+    genericPackage,
+    concept,
+};
+
+/// Data build to evaluate a callable.
+/// Holds additional data about the callable, and data used in the process
+/// of determining whether the decl is callable, and generating the actual call
+struct CallableData {
+    /// The type of callable that we have
+    CallableType type;
+
+    /// Indicates if the callable is valid (it hasn't been excluded)
+    bool valid;
+
+    /// The decls we want to call
+    Feather::DeclNode decl;
+    /// The parameters of the decl to call
+    /// For Feather functions these are variables, for others, these are ParameterDecl
+    NodeRange params;
+    /// True if we need to call the function in autoCt mode
+    bool autoCt;
+
+    /// The arguments used to call the callable
+    /// If the callable has default parameters, this will be extended
+    /// Computed by 'canCall'
+    vector<NodeHandle> args;
+
+    /// The conversions needed for each argument
+    /// Computed by 'canCall'
+    vector<ConversionResult> conversions;
+
+    /// This is set for class-ctor callables to add an implicit this argument
+    /// when calling the underlying callable. This is the type of the argument
+    /// to be added.
+    Nest::TypeWithStorage implicitArgType;
+
+    /// Temporary data: the generic instantiation (generic case)
+    Node* genericInst;
+    /// Temporary data: the variable created for implicit this (class-ctor case)
+    Node* tmpVar;
+
+    CallableData()
+        : type(CallableType::function)
+        , valid(true)
+        , decl{nullptr}
+        , params{nullptr, nullptr}
+        , autoCt{false}
+        , implicitArgType(nullptr)
+        , genericInst(nullptr)
+        , tmpVar(nullptr) {}
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Callables
@@ -163,7 +223,39 @@ vector<NodeHandle> argsWithConversion(const CallableData& c) {
     return res;
 }
 
-CallableData mkFunCallable(FunctionDecl fun, TypeWithStorage implicitArgType = {}) {
+struct CallableImpl : Callable {
+    CallableData data_;
+
+    CallableImpl(CallableData data)
+        : Callable(data.decl)
+        , data_(std::move(data)) {}
+
+    /// Checks if we can call this with the given arguments
+    /// This method can cache some information needed by the 'generateCall'
+    ConversionType canCall(CompilationContext* context, const Location& loc, NodeRange args,
+            EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors = false) override;
+    /// Same as above, but makes the check only on type, and not on the actual
+    /// argument; doesn't cache any args
+    ConversionType canCall(CompilationContext* context, const Location& loc,
+            const vector<Type>& argTypes, EvalMode evalMode, CustomCvtMode customCvtMode,
+            bool reportErrors = false) override;
+
+    /// Generates the node that actually calls this callable
+    /// This must be called only if 'canCall' method returned a success conversion
+    /// type
+    NodeHandle generateCall(CompilationContext* context, const Location& loc) override;
+
+    /// Gets a string representation of the callable (i.e., function name)
+    string toString() const override;
+
+    //! Returns the number of parameters the callable has
+    int numParams() const override;
+
+    //! Get the type of the parameter with the given index.
+    Type paramType(int idx) const override;
+};
+
+CallableImpl* mkFunCallable(FunctionDecl fun, TypeWithStorage implicitArgType = {}) {
     auto params = fun.parameters();
     if (getResultParam(fun))
         params = params.skip(1); // Always hide the result param
@@ -175,48 +267,48 @@ CallableData mkFunCallable(FunctionDecl fun, TypeWithStorage implicitArgType = {
     res.params = params;
     res.autoCt = fun.hasProperty(propAutoCt);
     res.implicitArgType = implicitArgType;
-    return res;
+    return new CallableImpl{res};
 }
-CallableData mkGenericFunCallable(
+CallableImpl* mkGenericFunCallable(
         GenericFunction genericFun, TypeWithStorage implicitArgType = {}) {
     CallableData res;
     res.type = CallableType::genericFun;
     res.decl = genericFun;
     res.params = NodeRange(genericFun.originalParams());
     res.implicitArgType = implicitArgType;
-    return res;
+    return new CallableImpl{res};
 }
-CallableData mkGenericClassCallable(GenericDatatype genericDatatype) {
+CallableImpl* mkGenericClassCallable(GenericDatatype genericDatatype) {
     CallableData res;
     res.type = CallableType::genericClass;
     res.decl = genericDatatype;
     res.params = NodeRange(genericDatatype.instSet().params());
-    return res;
+    return new CallableImpl{res};
 }
-CallableData mkGenericPackageCallable(GenericPackage genericPackage) {
+CallableImpl* mkGenericPackageCallable(GenericPackage genericPackage) {
     CallableData res;
     res.type = CallableType::genericPackage;
     res.decl = genericPackage;
     res.params = NodeRange(genericPackage.instSet().params());
-    return res;
+    return new CallableImpl{res};
 }
-CallableData mkConceptCallable(ConceptDecl concept) {
+CallableImpl* mkConceptCallable(ConceptDecl concept) {
     CallableData res;
     res.type = CallableType::concept;
     res.decl = concept;
     res.params = NodeRange{ParameterDecl()};
-    return res;
+    return new CallableImpl{res};
 }
 
 //! Checks if the given decl satisfies the predicate
 //! If the predicate is empty, the decl always satisfies it
-bool predIsSatisfied(NodeHandle decl, const boost::function<bool(NodeHandle)>& pred) {
-    return pred.empty() || pred(decl);
+bool predIsSatisfied(NodeHandle decl, const std::function<bool(NodeHandle)>& pred) {
+    return !pred || pred(decl);
 }
 
 //! Get the class-ctor callables corresponding to the given class
 void getClassCtorCallables(Feather::StructDecl structDecl, EvalMode evalMode, Callables& res,
-        const boost::function<bool(NodeHandle)>& pred, const char* ctorName) {
+        const std::function<bool(NodeHandle)>& pred, const char* ctorName) {
     // Search for the ctors associated with the class
     auto decls = getClassAssociatedDecls(structDecl, ctorName);
 
@@ -229,21 +321,21 @@ void getClassCtorCallables(Feather::StructDecl structDecl, EvalMode evalMode, Ca
     if (evalMode != modeRt)
         implicitArgType = implicitArgType.changeMode(evalMode, structDecl.location());
 
-    res.reserve(res.size() + Nest_nodeArraySize(decls));
+    res.callables_.reserve(res.size() + Nest_nodeArraySize(decls));
     for (NodeHandle decl : decls) {
         if (!decl.computeType())
             continue;
         auto fun = decl.explanation().kindCast<Feather::FunctionDecl>();
         if (fun && predIsSatisfied(decl, pred))
-            res.push_back(mkFunCallable(fun, implicitArgType));
+            res.callables_.push_back(mkFunCallable(fun, implicitArgType));
 
         NodeHandle resDecl = resultingDecl(decl);
         auto genFun = resDecl.kindCast<GenericFunction>();
         if (genFun && predIsSatisfied(decl, pred))
-            res.push_back(mkGenericFunCallable(genFun, implicitArgType));
+            res.callables_.push_back(mkGenericFunCallable(genFun, implicitArgType));
         auto genDatatype = resDecl.kindCast<GenericDatatype>();
         if (genDatatype && predIsSatisfied(decl, pred))
-            res.push_back(mkGenericClassCallable(genDatatype));
+            res.callables_.push_back(mkGenericClassCallable(genDatatype));
     }
     Nest_freeNodeArray(decls);
 }
@@ -1051,67 +1143,15 @@ NodeHandle callGenericPackage(GenericPackage node, const Location& loc, Compilat
 
     return DeclExp::create(loc, NodeRange({instDecl}), nullptr);
 }
-} // namespace
 
-void SprFrontend::getCallables(NodeRange decls, EvalMode evalMode, Callables& res) {
-    getCallables(decls, evalMode, res, boost::function<bool(NodeHandle)>());
-}
-
-void SprFrontend::getCallables(NodeRange decls, EvalMode evalMode, Callables& res,
-        const boost::function<bool(NodeHandle)>& pred, const char* ctorName) {
-    auto declsEx = expandDecls(decls, nullptr);
-
-    for (NodeHandle d1 : declsEx) {
-        NodeHandle node = d1;
-
-        // If we have a resolved decl, get the callable for it
-        if (node) {
-            if (!node.computeType())
-                continue;
-
-            NodeHandle decl = resultingDecl(node);
-            if (!decl)
-                continue;
-
-            // Is this a normal function call?
-            auto funDecl = decl.kindCast<Feather::FunctionDecl>();
-            if (funDecl && predIsSatisfied(funDecl, pred))
-                res.emplace_back(mkFunCallable(funDecl));
-
-            // Is this a generic?
-            auto genFun = decl.kindCast<GenericFunction>();
-            if (genFun && predIsSatisfied(genFun, pred))
-                res.push_back(mkGenericFunCallable(genFun));
-            auto genDatatype = decl.kindCast<GenericDatatype>();
-            if (genDatatype && predIsSatisfied(genDatatype, pred))
-                res.push_back(mkGenericClassCallable(genDatatype));
-            auto genPackage = decl.kindCast<GenericPackage>();
-            if (genPackage && predIsSatisfied(genPackage, pred))
-                res.push_back(mkGenericPackageCallable(genPackage));
-
-            // Is this a concept?
-            auto concept = decl.kindCast<ConceptDecl>();
-            if (concept && predIsSatisfied(concept, pred))
-                res.emplace_back(mkConceptCallable(concept));
-
-            // Is this a temporary object creation?
-            auto structDecl = decl.kindCast<Feather::StructDecl>();
-            if (structDecl) {
-                getClassCtorCallables(structDecl, evalMode, res, pred, ctorName);
-            }
-        }
-    }
-}
-
-ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context,
-        const Location& loc, NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode,
-        bool reportErrors) {
+ConversionType CallableImpl::canCall(CompilationContext* context, const Location& loc,
+        NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors) {
     NodeVector args2;
 
     // If this callable requires an added this argument, add it
-    if (c.implicitArgType) {
+    if (data_.implicitArgType) {
         auto thisTempVar = Feather::VarDecl::create(
-                loc, "tmp.v", Feather::TypeNode::create(loc, c.implicitArgType));
+                loc, "tmp.v", Feather::TypeNode::create(loc, data_.implicitArgType));
         thisTempVar.setContext(context);
         if (!thisTempVar.computeType()) {
             if (reportErrors)
@@ -1126,7 +1166,7 @@ ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context
             return convNone;
         }
 
-        c.tmpVar = thisTempVar;
+        data_.tmpVar = thisTempVar;
 
         args2 = toVec(args);
         args2.insert(args2.begin(), thisArg);
@@ -1134,82 +1174,82 @@ ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context
     }
 
     // Complete the missing args with defaults
-    if (!completeArgsWithDefaults(c, args))
+    if (!completeArgsWithDefaults(data_, args))
         return convNone;
 
     // Check argument count (including hidden params)
-    size_t paramsCount = c.params.size();
-    if (paramsCount != c.args.size()) {
+    size_t paramsCount = data_.params.size();
+    if (paramsCount != data_.args.size()) {
         if (reportErrors)
             REP_INFO(NOLOC, "Different number of parameters; args=%1%, params=%2%") %
-                    c.args.size() % paramsCount;
+                    data_.args.size() % paramsCount;
         return convNone;
     }
 
     // Get the arg types to perform the check on types
-    vector<Type> argTypes(c.args.size(), nullptr);
-    for (size_t i = 0; i < c.args.size(); ++i)
-        argTypes[i] = c.args[i].type();
+    vector<Type> argTypes(data_.args.size(), nullptr);
+    for (size_t i = 0; i < data_.args.size(); ++i)
+        argTypes[i] = data_.args[i].type();
 
     // Check evaluation mode
-    if (!checkEvalMode(c, argTypes, evalMode, reportErrors))
+    if (!checkEvalMode(data_, argTypes, evalMode, reportErrors))
         return convNone;
 
-    if (c.type == CallableType::genericFun) {
-        return canCallGenericFun(c, context, loc, args, evalMode, customCvtMode, reportErrors);
+    if (data_.type == CallableType::genericFun) {
+        return canCallGenericFun(data_, context, loc, args, evalMode, customCvtMode, reportErrors);
     }
 
     // Do the checks on types
     ConversionType res =
-            canCall_common_types(c, context, argTypes, evalMode, customCvtMode, reportErrors);
+            canCall_common_types(data_, context, argTypes, evalMode, customCvtMode, reportErrors);
     if (!res)
         return convNone;
 
-    if (c.type == CallableType::genericClass) {
+    if (data_.type == CallableType::genericClass) {
         // Check if we can instantiate the generic with the given arguments
         // (with conversions applied)
         // Note: we overwrite the args with their conversions;
         // We don't use the old arguments anymore
-        c.args = argsWithConversion(c);
-        ASSERT(!c.genericInst);
-        GenericDatatype genNode = GenericDatatype(c.decl);
-        c.genericInst = canInstantiateGenericClassOrPackage(
-                genNode.original(), genNode.instSet(), NodeRange(c.args));
-        if (!c.genericInst && reportErrors) {
+        data_.args = argsWithConversion(data_);
+        ASSERT(!data_.genericInst);
+        GenericDatatype genNode = GenericDatatype(data_.decl);
+        data_.genericInst = canInstantiateGenericClassOrPackage(
+                genNode.original(), genNode.instSet(), NodeRange(data_.args));
+        if (!data_.genericInst && reportErrors) {
             REP_INFO(NOLOC, "Cannot instantiate generic class");
         }
-        if (!c.genericInst)
+        if (!data_.genericInst)
             return convNone;
-    } else if (c.type == CallableType::genericPackage) {
+    } else if (data_.type == CallableType::genericPackage) {
         // Check if we can instantiate the generic with the given arguments
         // (with conversions applied)
         // Note: we overwrite the args with their conversions;
         // We don't use the old arguments anymore
-        c.args = argsWithConversion(c);
-        ASSERT(!c.genericInst);
-        GenericPackage genNode = GenericPackage(c.decl);
-        c.genericInst = canInstantiateGenericClassOrPackage(
-                genNode.original(), genNode.instSet(), NodeRange(c.args));
-        if (!c.genericInst && reportErrors) {
+        data_.args = argsWithConversion(data_);
+        ASSERT(!data_.genericInst);
+        GenericPackage genNode = GenericPackage(data_.decl);
+        data_.genericInst = canInstantiateGenericClassOrPackage(
+                genNode.original(), genNode.instSet(), NodeRange(data_.args));
+        if (!data_.genericInst && reportErrors) {
             REP_INFO(NOLOC, "Cannot instantiate generic package");
         }
-        if (!c.genericInst)
+        if (!data_.genericInst)
             return convNone;
     }
 
     return res;
 }
-ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context,
-        const Location& loc, const vector<Type>& argTypes, EvalMode evalMode,
-        CustomCvtMode customCvtMode, bool reportErrors) {
+ConversionType CallableImpl::canCall(CompilationContext* context, const Location& loc,
+        const vector<Type>& argTypes, EvalMode evalMode, CustomCvtMode customCvtMode,
+        bool reportErrors) {
     vector<Type> argTypes2;
     const vector<Type>* argTypesToUse = &argTypes;
 
     // If this callable requires an added this argument, add it
-    if (c.implicitArgType) {
-        Type t = c.implicitArgType;
+    if (data_.implicitArgType) {
+        Type t = data_.implicitArgType;
         if (!Feather::isCategoryType(t))
-            t = MutableType::get(c.implicitArgType);
+            t = MutableType::get(data_.implicitArgType);
 
         argTypes2 = argTypes;
         argTypes2.insert(argTypes2.begin(), t);
@@ -1217,7 +1257,7 @@ ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context
     }
 
     // Check argument count (including hidden params)
-    size_t paramsCount = c.params.size();
+    size_t paramsCount = data_.params.size();
     if (paramsCount != argTypesToUse->size()) {
         if (reportErrors)
             REP_INFO(NOLOC, "Different number of parameters; args=%1%, params=%2%") %
@@ -1226,24 +1266,136 @@ ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context
     }
 
     // Check evaluation mode
-    if (!checkEvalMode(c, *argTypesToUse, evalMode, reportErrors))
+    if (!checkEvalMode(data_, *argTypesToUse, evalMode, reportErrors))
         return convNone;
 
-    return canCall_common_types(c, context, *argTypesToUse, evalMode, customCvtMode, reportErrors);
+    return canCall_common_types(
+            data_, context, *argTypesToUse, evalMode, customCvtMode, reportErrors);
 }
 
-int SprFrontend::moreSpecialized(CompilationContext* context, const CallableData& f1,
-        const CallableData& f2, bool noCustomCvt) {
+NodeHandle CallableImpl::generateCall(CompilationContext* context, const Location& loc) {
+    NodeHandle res;
+
+    // Regular function call case
+    if (data_.type == CallableType::function) {
+        if (!data_.decl.computeType())
+            return {};
+
+        // Get the arguments with conversions
+        auto argsCvt = argsWithConversion(data_);
+
+        // Check if the call is an intrinsic
+        ASSERT(data_.decl.kind() == nkFeatherDeclFunction);
+        res = handleIntrinsic(FunctionDecl(data_.decl), context, loc, argsCvt);
+        if (res) {
+            res.setContext(context);
+            return res;
+        } else {
+            // Otherwise, generate a function call
+            res = createFunctionCall(loc, context, data_.decl, NodeRange(argsCvt));
+        }
+    }
+
+    // Generic call case
+    if (data_.type == CallableType::genericFun) {
+        ASSERT(data_.genericInst);
+        res = callGenericFun(GenericFunction(data_.decl), loc, context, NodeRange(data_.args),
+                data_.genericInst);
+        res.setContext(context);
+    } else if (data_.type == CallableType::genericClass) {
+        ASSERT(data_.genericInst);
+        res = callGenericClass(GenericDatatype(data_.decl), loc, context, NodeRange(data_.args),
+                data_.genericInst);
+        res.setContext(context);
+    } else if (data_.type == CallableType::genericPackage) {
+        ASSERT(data_.genericInst);
+        res = callGenericPackage(
+                GenericPackage(data_.decl), loc, context, NodeRange(data_.args), data_.genericInst);
+        res.setContext(context);
+    }
+
+    // Concept check case
+    if (data_.type == CallableType::concept) {
+        ASSERT(data_.decl);
+
+        // Get the argument, and compile it
+        auto argsCvt = argsWithConversion(data_);
+        ASSERT(argsCvt.size() == 1);
+        NodeHandle arg = argsCvt.front();
+        ASSERT(arg);
+        if (!arg.semanticCheck())
+            return {};
+
+        // Check if the type of the argument fulfills the concept
+        bool conceptFulfilled =
+                g_ConceptsService->conceptIsFulfilled(ConceptDecl(data_.decl), arg.type());
+        res = Feather_mkCtValueT(loc, StdDef::typeBool, &conceptFulfilled);
+        res.setContext(context);
+        res = res.semanticCheck();
+    }
+
+    // If this callable is a class-ctor, wrap the exiting result in a temp-var
+    // construct
+    if (data_.implicitArgType) {
+        ASSERT(data_.tmpVar);
+
+        res = createTempVarConstruct(loc, context, res, data_.tmpVar);
+    }
+
+    return res;
+}
+
+int CallableImpl::numParams() const { return data_.params.size(); }
+
+Type CallableImpl::paramType(int idx) const { return getParamType(data_, idx, true); }
+
+string CallableImpl::toString() const {
+    ostringstream oss;
+    oss << data_.decl.name() << "(";
+    bool first = true;
+    for (auto p : data_.params) {
+        if (first)
+            first = false;
+        else
+            oss << ", ";
+
+        NodeHandle typeNode;
+        StringRef name;
+        auto var = p.kindCast<Feather::VarDecl>();
+        if (var) {
+            name = var.name();
+            typeNode = var.typeNode();
+        }
+        auto param = p.kindCast<ParameterDecl>();
+        if (param) {
+            name = param.name();
+            typeNode = param.typeNode();
+        }
+        Type type = typeNode ? tryGetTypeValue(typeNode) : Type();
+        if (name)
+            oss << name << ": ";
+        if (type)
+            oss << type;
+        else
+            oss << '?';
+    }
+    oss << ")";
+    return oss.str();
+}
+} // namespace
+
+int moreSpecialized(
+        CompilationContext* context, const Callable& f1, const Callable& f2, bool noCustomCvt) {
     // Check parameter count
-    size_t paramsCount = f1.params.size();
-    if (paramsCount != f2.params.size())
+    size_t paramsCount = f1.numParams();
+    if (paramsCount != f2.numParams())
         return 0;
 
     bool firstIsMoreSpecialized = false;
     bool secondIsMoreSpecialized = false;
     for (size_t i = 0; i < paramsCount; ++i) {
-        Type t1 = getParamType(f1, i, true);
-        Type t2 = getParamType(f2, i, true);
+        Type t1 = f1.paramType(i);
+        Type t2 = f2.paramType(i);
         // Ignore any params that are null
         // TODO (overloading): Fix this - we reach in this state for dependent params
         if (!t1 || !t2)
@@ -1275,111 +1427,57 @@ int SprFrontend::moreSpecialized(CompilationContext* context, const CallableData
         return 0;
 }
 
-NodeHandle SprFrontend::generateCall(
-        CallableData& c, CompilationContext* context, const Location& loc) {
-    NodeHandle res;
+Callables CallableService::getCallables(NodeRange decls, EvalMode evalMode,
+        const std::function<bool(NodeHandle)>& pred, const char* ctorName) {
+    Callables res;
+    auto declsEx = expandDecls(decls, nullptr);
 
-    // Regular function call case
-    if (c.type == CallableType::function) {
-        if (!c.decl.computeType())
-            return {};
+    for (NodeHandle d1 : declsEx) {
+        NodeHandle node = d1;
 
-        // Get the arguments with conversions
-        auto argsCvt = argsWithConversion(c);
+        // If we have a resolved decl, get the callable for it
+        if (node) {
+            if (!node.computeType())
+                continue;
 
-        // Check if the call is an intrinsic
-        ASSERT(c.decl.kind() == nkFeatherDeclFunction);
-        res = handleIntrinsic(FunctionDecl(c.decl), context, loc, argsCvt);
-        if (res) {
-            res.setContext(context);
-            return res;
-        } else {
-            // Otherwise, generate a function call
-            res = createFunctionCall(loc, context, c.decl, NodeRange(argsCvt));
+            NodeHandle decl = resultingDecl(node);
+            if (!decl)
+                continue;
+
+            // Is this a normal function call?
+            auto funDecl = decl.kindCast<Feather::FunctionDecl>();
+            if (funDecl && predIsSatisfied(funDecl, pred))
+                res.callables_.push_back(mkFunCallable(funDecl));
+
+            // Is this a generic?
+            auto genFun = decl.kindCast<GenericFunction>();
+            if (genFun && predIsSatisfied(genFun, pred))
+                res.callables_.push_back(mkGenericFunCallable(genFun));
+            auto genDatatype = decl.kindCast<GenericDatatype>();
+            if (genDatatype && predIsSatisfied(genDatatype, pred))
+                res.callables_.push_back(mkGenericClassCallable(genDatatype));
+            auto genPackage = decl.kindCast<GenericPackage>();
+            if (genPackage && predIsSatisfied(genPackage, pred))
+                res.callables_.push_back(mkGenericPackageCallable(genPackage));
+
+            // Is this a concept?
+            auto concept = decl.kindCast<ConceptDecl>();
+            if (concept && predIsSatisfied(concept, pred))
+                res.callables_.push_back(mkConceptCallable(concept));
+
+            // Is this a temporary object creation?
+            auto structDecl = decl.kindCast<Feather::StructDecl>();
+            if (structDecl) {
+                getClassCtorCallables(structDecl, evalMode, res, pred, ctorName);
+            }
         }
     }
-
-    // Generic call case
-    if (c.type == CallableType::genericFun) {
-        ASSERT(c.genericInst);
-        res = callGenericFun(
-                GenericFunction(c.decl), loc, context, NodeRange(c.args), c.genericInst);
-        res.setContext(context);
-    } else if (c.type == CallableType::genericClass) {
-        ASSERT(c.genericInst);
-        res = callGenericClass(
-                GenericDatatype(c.decl), loc, context, NodeRange(c.args), c.genericInst);
-        res.setContext(context);
-    } else if (c.type == CallableType::genericPackage) {
-        ASSERT(c.genericInst);
-        res = callGenericPackage(
-                GenericPackage(c.decl), loc, context, NodeRange(c.args), c.genericInst);
-        res.setContext(context);
-    }
-
-    // Concept check case
-    if (c.type == CallableType::concept) {
-        ASSERT(c.decl);
-
-        // Get the argument, and compile it
-        auto argsCvt = argsWithConversion(c);
-        ASSERT(argsCvt.size() == 1);
-        NodeHandle arg = argsCvt.front();
-        ASSERT(arg);
-        if (!arg.semanticCheck())
-            return {};
-
-        // Check if the type of the argument fulfills the concept
-        bool conceptFulfilled =
-                g_ConceptsService->conceptIsFulfilled(ConceptDecl(c.decl), arg.type());
-        res = Feather_mkCtValueT(loc, StdDef::typeBool, &conceptFulfilled);
-        res.setContext(context);
-        res = res.semanticCheck();
-    }
-
-    // If this callable is a class-ctor, wrap the exiting result in a temp-var
-    // construct
-    if (c.implicitArgType) {
-        ASSERT(c.tmpVar);
-
-        res = createTempVarConstruct(loc, context, res, c.tmpVar);
-    }
-
     return res;
 }
 
-const Location& SprFrontend::location(const CallableData& c) { return c.decl.location(); }
-
-string SprFrontend::toString(const CallableData& c) {
-    ostringstream oss;
-    oss << c.decl.name() << "(";
-    bool first = true;
-    for (auto p : c.params) {
-        if (first)
-            first = false;
-        else
-            oss << ", ";
-
-        NodeHandle typeNode;
-        StringRef name;
-        auto var = p.kindCast<Feather::VarDecl>();
-        if (var) {
-            name = var.name();
-            typeNode = var.typeNode();
-        }
-        auto param = p.kindCast<ParameterDecl>();
-        if (param) {
-            name = param.name();
-            typeNode = param.typeNode();
-        }
-        Type type = typeNode ? tryGetTypeValue(typeNode) : Type();
-        if (name)
-            oss << name << ": ";
-        if (type)
-            oss << type;
-        else
-            oss << '?';
-    }
-    oss << ")";
-    return oss.str();
+void setDefaultCallableService() {
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    g_CallableService.reset(new CallableService);
 }
+
+} // namespace SprFrontend

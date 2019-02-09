@@ -27,7 +27,7 @@ struct CallableFixture : SparrowGeneralFixture {
     ~CallableFixture();
 
     //! Ensures that the generated callable matches the original decl
-    void checkCallable(CallableData& c, NodeHandle decl, const ParamsData* paramsData = nullptr);
+    void checkCallable(Callable& c, NodeHandle decl, const ParamsData* paramsData = nullptr);
 
     //! The types that we are using while performing our tests
     SampleTypes types_;
@@ -37,52 +37,31 @@ CallableFixture::CallableFixture() {}
 
 CallableFixture::~CallableFixture() {}
 
-void CallableFixture::checkCallable(
-        CallableData& c, NodeHandle decl, const ParamsData* paramsData) {
-    RC_ASSERT(c.valid);
+void CallableFixture::checkCallable(Callable& c, NodeHandle decl, const ParamsData* paramsData) {
+    RC_ASSERT(c.valid());
+    RC_ASSERT(c.decl());
 
-    // Check callable type & callable decl
-    switch (c.type) {
-    case CallableType::function:
-        RC_ASSERT(decl.kind() == nkSparrowDeclSprFunction);
-        RC_ASSERT(c.decl.kind() == nkFeatherDeclFunction);
+    if (decl.kind() == nkSparrowDeclSprFunction) {
+        RC_ASSERT(c.decl().kind() == nkFeatherDeclFunction ||
+                  c.decl().kind() == nkSparrowDeclGenericFunction);
+        bool isGeneric = c.decl().kind() == nkSparrowDeclGenericFunction;
         if (paramsData)
-            RC_ASSERT(!paramsData->isGeneric());
-        break;
-    case CallableType::genericFun:
-        RC_ASSERT(decl.kind() == nkSparrowDeclSprFunction);
-        RC_ASSERT(c.decl.kind() == nkSparrowDeclGenericFunction);
+            RC_ASSERT(paramsData->isGeneric() == isGeneric);
+    } else if (decl.kind() == nkSparrowDeclSprDatatype) {
+        RC_ASSERT(c.decl().kind() == nkSparrowDeclGenericDatatype);
         if (paramsData)
             RC_ASSERT(paramsData->isGeneric());
-        break;
-    case CallableType::genericClass:
-        RC_ASSERT(decl.kind() == nkSparrowDeclSprDatatype);
-        RC_ASSERT(c.decl.kind() == nkSparrowDeclGenericDatatype);
+    } else if (decl.kind() == nkSparrowDeclPackage) {
+        RC_ASSERT(c.decl().kind() == nkSparrowDeclGenericPackage);
         if (paramsData)
             RC_ASSERT(paramsData->isGeneric());
-        break;
-    case CallableType::genericPackage:
-        RC_ASSERT(decl.kind() == nkSparrowDeclPackage);
-        RC_ASSERT(c.decl.kind() == nkSparrowDeclGenericPackage);
-        if (paramsData)
-            RC_ASSERT(paramsData->isGeneric());
-        break;
-    case CallableType::concept:
-        RC_ASSERT(decl.kind() == nkSparrowDeclSprConcept);
-        RC_ASSERT(c.decl == decl);
-        break;
+    } else if (decl.kind() == nkSparrowDeclSprConcept) {
+        RC_ASSERT(c.decl() == decl);
     }
 
     // Check params
     if (paramsData)
-        RC_ASSERT(c.params.size() == paramsData->numParams_);
-
-    // Check data that is not yet filled
-    RC_ASSERT(c.args.empty());
-    RC_ASSERT(c.conversions.empty());
-    RC_ASSERT(!c.implicitArgType);
-    RC_ASSERT(!c.genericInst);
-    RC_ASSERT(!c.tmpVar);
+        RC_ASSERT(c.numParams() == paramsData->numParams_);
 }
 
 namespace {
@@ -96,8 +75,6 @@ SprFunctionDecl genTypeOfFunction(const Location& loc) {
 }
 } // namespace
 
-
-
 TEST_CASE_METHOD(CallableFixture, "CallableFixture.getCallables") {
 
     types_.init(*this, SampleTypes::addByteType);
@@ -110,10 +87,9 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.getCallables") {
         decl.setContext(globalContext_);
         FeatherNodeFactory::instance().setContextForAuxNodes(globalContext_);
 
-        Callables res;
-        getCallables(NodeRange{decl}, modeRt, res);
+        Callables res = g_CallableService->getCallables(NodeRange{decl}, modeRt);
         RC_ASSERT(res.size() == 1);
-        checkCallable(res[0], decl, &paramsData);
+        checkCallable(*res[0], decl, &paramsData);
     });
 
     rc::prop("calling getCallables for any callable decls return results", [=]() {
@@ -123,10 +99,9 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.getCallables") {
         decl.setContext(globalContext_);
         FeatherNodeFactory::instance().setContextForAuxNodes(globalContext_);
 
-        Callables res;
-        getCallables(NodeRange{decl}, modeRt, res);
+        Callables res = g_CallableService->getCallables(NodeRange{decl}, modeRt);
         RC_ASSERT(res.size() == 1);
-        checkCallable(res[0], decl);
+        checkCallable(*res[0], decl);
     });
 }
 
@@ -152,13 +127,12 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.canCall") {
         semanticCheck(args, globalContext_);
 
         // Generate a callable to test with
-        Callables callables;
-        getCallables(NodeRange{decl}, modeRt, callables);
+        Callables callables = g_CallableService->getCallables(NodeRange{decl}, modeRt);
         RC_ASSERT(callables.size() == 1);
-        CallableData& c = callables[0];
+        Callable& c = *callables[0];
 
         // Ensure we can call the generic
-        auto cvt = canCall(c, globalContext_, createLocation(), args, modeRt, allowCustomCvt);
+        auto cvt = c.canCall(globalContext_, createLocation(), args, modeRt, allowCustomCvt);
         if (!cvt) {
             printNode(decl);
             cout << args << endl;
@@ -166,7 +140,6 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.canCall") {
             RC_ASSERT(cvt != convNone);
         }
     });
-
 
     rc::prop("calling generateCall works ok, if arguments match exactly", [=]() {
         ParamsGenOptions options;
@@ -182,13 +155,12 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.canCall") {
         semanticCheck(args, globalContext_);
 
         // Generate a callable to test with
-        Callables callables;
-        getCallables(NodeRange{decl}, modeRt, callables);
+        Callables callables = g_CallableService->getCallables(NodeRange{decl}, modeRt);
         RC_ASSERT(callables.size() == 1);
-        CallableData& c = callables[0];
+        Callable& c = *callables[0];
 
         // Ensure we can call the generic
-        auto cvt = canCall(c, globalContext_, createLocation(), args, modeRt, allowCustomCvt);
+        auto cvt = c.canCall(globalContext_, createLocation(), args, modeRt, allowCustomCvt);
         RC_ASSERT(cvt != convNone);
 
         // Generate the call code, and ensure that it semantically checks ok

@@ -4,8 +4,6 @@
 
 #include "SparrowFrontend/NodeCommonsH.h"
 
-FWD_CLASS1(SprFrontend, Callable);
-
 namespace SprFrontend {
 
 using Nest::Location;

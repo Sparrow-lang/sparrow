@@ -133,7 +133,7 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.canCall") {
         Callable& c = *callables[0];
 
         // Ensure we can call the generic
-        auto cvt = c.canCall(globalContext_, createLocation(), args, modeRt, allowCustomCvt);
+        auto cvt = c.canCall(CCLoc{globalContext_, createLocation()}, args, modeRt, allowCustomCvt);
         if (!cvt) {
             printNode(decl);
             cout << args << endl;
@@ -161,7 +161,7 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.canCall") {
         Callable& c = *callables[0];
 
         // Ensure we can call the generic
-        auto cvt = c.canCall(globalContext_, createLocation(), args, modeRt, allowCustomCvt);
+        auto cvt = c.canCall(CCLoc{globalContext_, createLocation()}, args, modeRt, allowCustomCvt);
         RC_ASSERT(cvt != convNone);
 
         // Generate the call code, and ensure that it semantically checks ok

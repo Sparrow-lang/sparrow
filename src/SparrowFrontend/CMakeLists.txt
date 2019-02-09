@@ -31,6 +31,7 @@ SET(sourceFiles
     "Nodes/SprProperties.cpp"
     "Nodes/Stmt.cpp"
     "Services/Callable/Callable.cpp"
+    "Services/Callable/CallableImpl.cpp"
     "Services/Callable/Callables.cpp"
     "Services/Callable/CallableServiceImpl.cpp"
     "Services/Concepts/ConceptsServiceImpl.cpp"

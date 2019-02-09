@@ -1,6 +1,6 @@
 #include <StdInc.h>
 #include "SparrowFrontend/Services/Callable/CallableServiceImpl.h"
-#include "SparrowFrontend/Services/Callable/Callable.h"
+#include "SparrowFrontend/Services/Callable/CallableImpl.h"
 #include "Nodes/Exp.hpp"
 #include "Helpers/Impl/Intrinsics.h"
 #include "Helpers/SprTypeTraits.h"

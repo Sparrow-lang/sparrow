@@ -67,8 +67,8 @@ bool filterCandidates(CompilationContext* context, const Location& loc, Callable
 
         // Check if this can be called with the given args
         ConversionType conv =
-                args ? cand->canCall(context, loc, *args, evalMode, customCvtMode)
-                     : cand->canCall(context, loc, *argTypes, evalMode, customCvtMode);
+                args ? cand->canCall(CCLoc{context, loc}, *args, evalMode, customCvtMode)
+                     : cand->canCall(CCLoc{context, loc}, *argTypes, evalMode, customCvtMode);
         if (conv == convNone) {
             cand->invalidate();
             continue;
@@ -100,9 +100,9 @@ void filterCandidatesErrReport(CompilationContext* context, const Location& loc,
         REP_INFO(cand->location(), "See possible candidate: %1%") % cand->toString();
 
         if (args)
-            cand->canCall(context, loc, *args, evalMode, customCvtMode, true);
+            cand->canCall(CCLoc{context, loc}, *args, evalMode, customCvtMode, true);
         else
-            cand->canCall(context, loc, *argTypes, evalMode, customCvtMode, true);
+            cand->canCall(CCLoc{context, loc}, *argTypes, evalMode, customCvtMode, true);
     }
 }
 
@@ -258,7 +258,7 @@ Node* OverloadServiceImpl::selectOverload(CompilationContext* context, const Loc
     }
 
     // Generate the call code for the selected fun
-    Node* res = selectedFun->generateCall(context, loc);
+    Node* res = selectedFun->generateCall(CCLoc{context, loc});
     if (!res) {
         if (errReporting != OverloadReporting::none) {
             startError(errReporting, loc, argsTypes, funName);
@@ -340,11 +340,11 @@ Node* OverloadServiceImpl::selectCtToRtCtor(Node* ctArg) {
     }
 
     // Generate the call to the ctor
-    auto cr = call->canCall(ctArg->context, loc, fromIniList({ctArg}), modeRt, noCustomCvt);
+    auto cr = call->canCall(CCLoc{ctArg->context, loc}, fromIniList({ctArg}), modeRt, noCustomCvt);
     ASSERT(cr);
     if (!cr)
         return nullptr;
-    return call->generateCall(ctArg->context, loc);
+    return call->generateCall(CCLoc{ctArg->context, loc});
 }
 
 } // namespace SprFrontend

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "SparrowFrontend/NodeCommonsH.h"
-#include "SparrowFrontend/Services/IConvertService.h"
-#include "SparrowFrontend/Nodes/Generics.hpp"
+#include "SparrowFrontend/Services/Convert/ConversionResult.h"
 
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
@@ -72,13 +71,12 @@ public:
 
     //! Checks if we can call this with the given arguments
     //! This method can cache some information needed by the 'generateCall'
-    virtual ConversionType canCall(CompilationContext* context, const Location& loc, NodeRange args,
-            EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors = false) = 0;
+    virtual ConversionType canCall(const CCLoc& ccloc, NodeRange args, EvalMode evalMode,
+            CustomCvtMode customCvtMode, bool reportErrors = false) = 0;
     //! Same as above, but makes the check only on type, and not on the actual argument; doesn't
     //! cache any args
-    virtual ConversionType canCall(CompilationContext* context, const Location& loc,
-            const vector<Type>& argTypes, EvalMode evalMode, CustomCvtMode customCvtMode,
-            bool reportErrors = false) = 0;
+    virtual ConversionType canCall(const CCLoc& ccloc, const vector<Type>& argTypes,
+            EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors = false) = 0;
 
     //! Returns the number of parameters the callable has
     virtual int numParams() const = 0;
@@ -88,7 +86,7 @@ public:
 
     //! Generates the node that actually calls this callable
     //! This must be called only if 'canCall' method returned a success conversion type
-    virtual NodeHandle generateCall(CompilationContext* context, const Location& loc) = 0;
+    virtual NodeHandle generateCall(const CCLoc& ccloc) = 0;
 
 protected:
     Callable(Feather::DeclNode decl)
@@ -100,12 +98,6 @@ protected:
     //! Note: a callable can be invalidated by the callers
     bool valid_{true};
 };
-
-Callable* mkFunCallable(Feather::FunctionDecl fun, TypeWithStorage implicitArgType = {});
-Callable* mkGenericFunCallable(GenericFunction genericFun, TypeWithStorage implicitArgType = {});
-Callable* mkGenericClassCallable(GenericDatatype genericDatatype);
-Callable* mkGenericPackageCallable(GenericPackage genericPackage);
-Callable* mkConceptCallable(ConceptDecl concept);
 
 /// Returns who of two candidates is more specialized.
 /// Returns:

@@ -8,6 +8,7 @@
 #include "Nest/Utils/cppif/NodeHandle.hpp"
 #include "Nest/Utils/cppif/NodeRange.hpp"
 #include "Nest/Utils/cppif/TypeWithStorage.hpp"
+#include "Nest/Utils/cppif/CCLoc.hpp"
 
 namespace SprFrontend {
 
@@ -19,5 +20,6 @@ using Nest::NodeRange;
 using Nest::StringRef;
 using Nest::Type;
 using Nest::TypeWithStorage;
+using Nest::CCLoc;
 
 } // namespace SprFrontend

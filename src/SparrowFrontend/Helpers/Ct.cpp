@@ -1,9 +1,9 @@
 #include <StdInc.h>
 #include "Ct.h"
-#include "Overload.h"
 #include "SprTypeTraits.h"
 #include "StdDef.h"
 #include <NodeCommonsCpp.h>
+#include "SparrowFrontend/Services/IOverloadService.h"
 
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"

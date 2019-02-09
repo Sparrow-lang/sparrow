@@ -1,14 +1,14 @@
 #include "StdInc.h"
-#include "Overload.h"
-#include "DeclsHelpers.h"
-#include "Convert.h"
-#include "CommonCode.h"
-#include "Impl/Callable.h"
-#include <Helpers/DeclsHelpers.h>
-#include <Helpers/StdDef.h>
-#include "SparrowFrontendTypes.hpp"
-#include <NodeCommonsCpp.h>
-#include "SprDebug.h"
+#include "SparrowFrontend/Services/Overload/OverloadServiceImpl.h"
+#include "SparrowFrontend/Services/Callable/Callable.h"
+#include "SparrowFrontend/Services/ICallableService.h"
+#include "SparrowFrontend/Helpers/DeclsHelpers.h"
+#include "SparrowFrontend/Helpers/CommonCode.h"
+#include "SparrowFrontend/Helpers/DeclsHelpers.h"
+#include "SparrowFrontend/Helpers/StdDef.h"
+#include "SparrowFrontend/SparrowFrontendTypes.hpp"
+#include "SparrowFrontend/NodeCommonsCpp.h"
+#include "SparrowFrontend/SprDebug.h"
 
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
@@ -17,8 +17,6 @@ using namespace SprFrontend;
 using namespace Nest;
 
 namespace SprFrontend {
-
-unique_ptr<IOverloadService> g_OverloadService;
 
 namespace {
 
@@ -171,7 +169,7 @@ void selectMostSpecializedErrReport(
 }
 } // namespace
 
-Node* OverloadService::selectOverload(CompilationContext* context, const Location& loc,
+Node* OverloadServiceImpl::selectOverload(CompilationContext* context, const Location& loc,
         EvalMode evalMode, Nest_NodeRange decls, Nest_NodeRange args,
         OverloadReporting errReporting, StringRef funName) {
     auto numDecls = Nest_nodeRangeSize(decls);
@@ -285,7 +283,7 @@ Node* OverloadService::selectOverload(CompilationContext* context, const Locatio
     return res;
 }
 
-bool OverloadService::selectConversionCtor(
+bool OverloadServiceImpl::selectConversionCtor(
         CompilationContext* context, Node* destClass, EvalMode destMode, Type argType) {
     ASSERT(argType);
 
@@ -307,7 +305,7 @@ bool OverloadService::selectConversionCtor(
     return true;
 }
 
-Node* OverloadService::selectCtToRtCtor(Node* ctArg) {
+Node* OverloadServiceImpl::selectCtToRtCtor(Node* ctArg) {
     const Location& loc = ctArg->location;
     ASSERT(ctArg->type);
     if (ctArg->type->mode != modeCt || !ctArg->type->hasStorage)
@@ -347,11 +345,6 @@ Node* OverloadService::selectCtToRtCtor(Node* ctArg) {
     if (!cr)
         return nullptr;
     return call->generateCall(ctArg->context, loc);
-}
-
-void setDefaultOverloadService() {
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    g_OverloadService.reset(new OverloadService);
 }
 
 } // namespace SprFrontend

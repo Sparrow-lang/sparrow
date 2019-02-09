@@ -1,13 +1,8 @@
 #pragma once
 
-#include "Convert.h"
-
 #include "SparrowFrontend/NodeCommonsH.h"
 
 namespace SprFrontend {
-
-using Nest::Location;
-using Nest::StringRef;
 
 /// Describes the error reporting to be used when overloading fails.
 enum class OverloadReporting {
@@ -54,22 +49,7 @@ struct IOverloadService {
     virtual Node* selectCtToRtCtor(Node* ctArg) = 0;
 };
 
-//! Implementation of the overload service
-struct OverloadService : IOverloadService {
-    Node* selectOverload(CompilationContext* context, const Location& loc, EvalMode evalMode,
-            Nest_NodeRange decls, Nest_NodeRange args, OverloadReporting errReporting,
-            StringRef funName) final;
-
-    bool selectConversionCtor(
-            CompilationContext* context, Node* destClass, EvalMode destMode, Type argType) final;
-
-    Node* selectCtToRtCtor(Node* ctArg) final;
-};
-
 //! The overload service instance that we are using across the Sparrow compiler
 extern unique_ptr<IOverloadService> g_OverloadService;
-
-//! Creates the default overload service
-void setDefaultOverloadService();
 
 } // namespace SprFrontend

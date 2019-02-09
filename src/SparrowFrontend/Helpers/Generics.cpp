@@ -20,8 +20,6 @@ using namespace Nest;
 
 namespace SprFrontend {
 
-unique_ptr<IConceptsService> g_ConceptsService;
-
 namespace {
 
 ////////////////////////////////////////////////////////////////////////////
@@ -174,7 +172,7 @@ GenericFunction checkCreateGenericFun(
 
 Instantiation searchInstantiation(InstantiationsSet instSet, NodeRange values) {
     for (NodeHandle inst1 : instSet.instantiations()) {
-        Instantiation inst = (Node*) inst1;
+        Instantiation inst = (Node*)inst1;
         auto boundValues = inst.boundValues();
         if (boundValues.size() < values.size())
             continue;
@@ -196,7 +194,8 @@ Instantiation searchInstantiation(InstantiationsSet instSet, NodeRange values) {
     return {};
 }
 
-Instantiation createNewInstantiation(InstantiationsSet instSet, NodeRange values, EvalMode evalMode) {
+Instantiation createNewInstantiation(
+        InstantiationsSet instSet, NodeRange values, EvalMode evalMode) {
     ASSERT(instSet);
     const Location& loc = instSet.location();
 
@@ -325,50 +324,4 @@ bool isConceptParam(Type paramType, NodeHandle boundValue) {
     ASSERT(isConceptType(paramType) || paramType == getType(boundValue));
     return isConceptType(paramType) || paramType.mode() != modeCt;
 }
-
-bool ConceptsService::conceptIsFulfilled(ConceptDecl concept, Type type) {
-    ASSERT(concept);
-    auto instSet = concept.instantiationsSet();
-
-    // We only support data-like types to fulfil concepts
-    // TODO (types): Expand this to all datatypes
-    if (!Feather::isDataLikeType(type))
-        return false;
-
-    if (!concept.isSemanticallyChecked() || !instSet)
-        REP_INTERNAL(concept.location(), "Invalid concept");
-    ASSERT(instSet);
-
-    NodeHandle typeValue = createTypeNode(concept.context(), concept.location(), type);
-    if (!typeValue.semanticCheck())
-        return false;
-
-    Instantiation inst =
-            canInstantiate(instSet, NodeRange({typeValue}), concept.context()->evalMode);
-    return inst;
-}
-
-bool ConceptsService::typeGeneratedFromGeneric(GenericDatatype genericDatatype, Type type) {
-    ASSERT(genericDatatype);
-    Feather::StructDecl structDecl = type.referredNode().kindCast<Feather::StructDecl>();
-    if (!structDecl)
-        return false;
-
-    // Simple check: location & name is the same
-    return 0 == Nest_compareLocations(&genericDatatype.location(), &structDecl.location()) &&
-           genericDatatype.name() == structDecl.name();
-}
-
-ConceptType ConceptsService::baseConceptType(ConceptDecl concept) {
-    auto baseConceptExp = concept.baseConcept();
-
-    ConceptType res = baseConceptExp ? ConceptType(getType(baseConceptExp)) : ConceptType::get();
-    return res;
-}
-
-void setDefaultConceptsService() {
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    g_ConceptsService.reset(new ConceptsService);
-}
-
 } // namespace SprFrontend

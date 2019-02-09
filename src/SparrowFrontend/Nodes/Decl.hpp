@@ -7,8 +7,8 @@
 
 namespace SprFrontend {
 
-using Nest::Node;
 using Nest::Location;
+using Nest::Node;
 using Nest::NodeHandle;
 using Nest::NodeRange;
 using Nest::StringRef;

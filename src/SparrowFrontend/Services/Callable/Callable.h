@@ -1,17 +1,14 @@
 #pragma once
 
 #include "SparrowFrontend/NodeCommonsH.h"
-
-#include "SparrowFrontend/Helpers/Convert.h"
+#include "SparrowFrontend/Services/IConvertService.h"
+#include "SparrowFrontend/Nodes/Generics.hpp"
 
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
-#include "Nest/Utils/cppif/NodeUtils.hpp"
-
 namespace SprFrontend {
 
-using Nest::NodeHandle;
-using Nest::NodeRange;
+struct Callables;
 
 /// Indicates whether we should apply custom conversions for the params
 enum CustomCvtMode {
@@ -104,32 +101,11 @@ protected:
     bool valid_{true};
 };
 
-//! A vector of callables.
-//! Provides deletion destructor; otherwise just a simple vector
-struct Callables {
-    using _VecType = vector<Callable*>;
-    using value_type = _VecType::value_type;
-    using iterator = _VecType::iterator;
-    using const_iterator = _VecType::const_iterator;
-
-    Callables() {}
-    ~Callables() {
-        for (auto c : callables_)
-            delete c;
-    }
-
-    iterator begin() { return callables_.begin(); }
-    iterator end() { return callables_.end(); }
-    const_iterator begin() const { return callables_.begin(); }
-    const_iterator end() const { return callables_.end(); }
-
-    bool empty() const { return callables_.empty(); }
-    int size() const { return int(callables_.size()); }
-    Callable* operator[](int idx) { return callables_[idx]; }
-    const Callable* operator[](int idx) const { return callables_[idx]; }
-
-    vector<Callable*> callables_;
-};
+Callable* mkFunCallable(Feather::FunctionDecl fun, TypeWithStorage implicitArgType = {});
+Callable* mkGenericFunCallable(GenericFunction genericFun, TypeWithStorage implicitArgType = {});
+Callable* mkGenericClassCallable(GenericDatatype genericDatatype);
+Callable* mkGenericPackageCallable(GenericPackage genericPackage);
+Callable* mkConceptCallable(ConceptDecl concept);
 
 /// Returns who of two candidates is more specialized.
 /// Returns:
@@ -138,28 +114,5 @@ struct Callables {
 ///     0 if neither is more specialized
 int moreSpecialized(CompilationContext* context, const Callable& f1, const Callable& f2,
         bool noCustomCvt = false);
-
-struct ICallableService {
-    virtual ~ICallableService() {}
-
-    //! Given some declarations, try to gets a list of Callable objects from it.
-    //! Returns an empty list if the declarations are not callable
-    //! We apply the given predicate to filter out decls we don't want.
-    virtual Callables getCallables(NodeRange decls, EvalMode evalMode,
-            const std::function<bool(NodeHandle)>& pred = {}, const char* ctorName = "ctor") = 0;
-};
-
-struct CallableService : ICallableService {
-    //! @copydoc ICallableService::getCallables()
-    Callables getCallables(NodeRange decls, EvalMode evalMode,
-            const std::function<bool(NodeHandle)>& pred = {},
-            const char* ctorName = "ctor") override;
-};
-
-//! The callable service instance that we are using across the Sparrow compiler
-extern unique_ptr<ICallableService> g_CallableService;
-
-//! Creates the default callable service
-void setDefaultCallableService();
 
 } // namespace SprFrontend

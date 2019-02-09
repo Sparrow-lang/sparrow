@@ -7,7 +7,6 @@
 #include "SparrowFrontend/SprDebug.h"
 #include "SparrowFrontend/Nodes/Decl.hpp"
 #include "SparrowFrontend/Helpers/StdDef.h"
-#include "SparrowFrontend/Helpers/Convert.h"
 #include "Nest/Utils/cppif/NodeRange.hpp"
 
 using namespace Nest;

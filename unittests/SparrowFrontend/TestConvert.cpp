@@ -4,7 +4,7 @@
 #include "Common/GeneralFixture.hpp"
 #include "SprCommon/SampleTypes.hpp"
 
-#include "SparrowFrontend/Helpers/Convert.h"
+#include "SparrowFrontend/Services/IConvertService.h"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 using namespace Feather;

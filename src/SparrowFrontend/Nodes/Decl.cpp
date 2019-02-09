@@ -6,10 +6,10 @@
 #include "SparrowFrontend/IntMods.h"
 #include "SparrowFrontend/Helpers/DeclsHelpers.h"
 #include "SparrowFrontend/Helpers/SprTypeTraits.h"
-#include "SparrowFrontend/Helpers/Convert.h"
 #include "SparrowFrontend/Helpers/CommonCode.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/Helpers/Generics.h"
+#include "SparrowFrontend/Services/IConvertService.h"
 
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
@@ -1003,7 +1003,9 @@ ConceptDecl ConceptDecl::create(const Location& loc, StringRef name, StringRef p
 
 StringRef ConceptDecl::paramName() const { return getCheckPropertyString("spr.paramName"); }
 
-InstantiationsSet ConceptDecl::instantiationsSet() const { return InstantiationsSet(children()[2]); };
+InstantiationsSet ConceptDecl::instantiationsSet() const {
+    return InstantiationsSet(children()[2]);
+};
 
 void ConceptDecl::setContextForChildrenImpl(ConceptDecl node) {
     commonSetContextForChildren(node, ContextChangeType::withSymTab);

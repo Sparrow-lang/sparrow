@@ -7,7 +7,6 @@
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/StdDef.h>
-#include <Helpers/Convert.h>
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"

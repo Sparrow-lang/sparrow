@@ -15,7 +15,8 @@
 #include "SparrowFrontend/Helpers/Generics.h"
 #include "SparrowFrontend/Helpers/SprTypeTraits.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
-#include "SparrowFrontend/Helpers/Impl/Callable.h"
+#include "SparrowFrontend/Services/ICallableService.h"
+#include "SparrowFrontend/Services/Callable/Callable.h"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 using namespace Feather;

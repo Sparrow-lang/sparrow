@@ -332,7 +332,6 @@ void Nest_semanticCheckQueuedNodes() {
     }
 }
 
-
 void Nest_ctProcess(Nest_Node* node) {
     node = Nest_semanticCheck(node);
     if (node)

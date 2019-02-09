@@ -5,7 +5,7 @@
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/Ct.h>
 #include <Helpers/StdDef.h>
-#include <Helpers/Convert.h>
+#include "SparrowFrontend/Services/IConvertService.h"
 #include <Nodes/Builder.h>
 #include <Nodes/Exp.hpp>
 #include "Feather/Api/Feather.h"
@@ -25,15 +25,13 @@ NodeHandle impl_injectBackendCode(
     return Feather::BackendCode::create(loc, val, mode);
 }
 
-NodeHandle impl_typeDescription(
-        CompilationContext* context, const Location& loc, NodeRange args) {
+NodeHandle impl_typeDescription(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
     Type t = getType(args[0]);
     return buildStringLiteral(loc, t.description());
 }
 
-NodeHandle impl_typeHasStorage(
-        CompilationContext* context, const Location& loc, NodeRange args) {
+NodeHandle impl_typeHasStorage(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
     Type t = getType(args[0]);
     return buildBoolLiteral(loc, t.hasStorage());
@@ -58,8 +56,7 @@ NodeHandle impl_typeNumRef(CompilationContext* context, const Location& loc, Nod
     return buildIntLiteral(loc, t.numReferences());
 }
 
-NodeHandle impl_typeChangeMode(
-        CompilationContext* context, const Location& loc, NodeRange args) {
+NodeHandle impl_typeChangeMode(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 2);
     Type t = getType(args[0]);
     int mode = getIntCtValue(args[1]);

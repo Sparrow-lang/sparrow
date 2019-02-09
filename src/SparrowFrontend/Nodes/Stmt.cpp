@@ -4,8 +4,8 @@
 #include "SparrowFrontend/Nodes/Exp.hpp"
 #include "SparrowFrontend/SprDebug.h"
 #include "SparrowFrontend/Helpers/DeclsHelpers.h"
-#include "SparrowFrontend/Helpers/Convert.h"
 #include "SparrowFrontend/Helpers/CommonCode.h"
+#include "SparrowFrontend/Services/IConvertService.h"
 
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 

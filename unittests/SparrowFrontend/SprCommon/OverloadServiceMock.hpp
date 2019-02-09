@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SparrowFrontend/Helpers/Overload.h"
+#include "SparrowFrontend/Services/IOverloadService.h"
 
 #include "Nest/Utils/cppif/StringRef.hpp"
 

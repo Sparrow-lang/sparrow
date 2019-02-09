@@ -5,12 +5,12 @@
 #include "SparrowFrontend/Nodes/Builder.h"
 #include "SparrowFrontend/SprDebug.h"
 #include "SparrowFrontend/Helpers/DeclsHelpers.h"
-#include "SparrowFrontend/Helpers/Convert.h"
 #include "SparrowFrontend/Helpers/SprTypeTraits.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/Helpers/Ct.h"
 #include "SparrowFrontend/Helpers/CommonCode.h"
-#include "SparrowFrontend/Helpers/Overload.h"
+#include "SparrowFrontend/Services/IConvertService.h"
+#include "SparrowFrontend/Services/IOverloadService.h"
 
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 

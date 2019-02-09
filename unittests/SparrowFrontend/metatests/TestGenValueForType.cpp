@@ -6,9 +6,9 @@
 #include "SparrowFrontend/SprCommon/SampleTypes.hpp"
 
 #include "SparrowFrontend/SprDebug.h"
-#include "SparrowFrontend/Helpers/Convert.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/Helpers/SprTypeTraits.h"
+#include "SparrowFrontend/Services/IConvertService.h"
 
 using namespace Feather;
 using namespace SprFrontend;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SparrowFrontend/Helpers/Generics.h"
+#include "SparrowFrontend/Services/IConceptsService.h"
 
 using Nest::NodeHandle;
 using Nest::Type;

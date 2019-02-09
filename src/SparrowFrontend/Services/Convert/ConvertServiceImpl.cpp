@@ -1,12 +1,13 @@
 #include <StdInc.h>
-#include "SprTypeTraits.h"
-#include "DeclsHelpers.h"
-#include "Overload.h"
-#include "StdDef.h"
-#include <NodeCommonsCpp.h>
-#include "SparrowFrontendTypes.hpp"
-#include "Nodes/SprProperties.h"
-#include <Helpers/Generics.h>
+#include "ConvertServiceImpl.h"
+#include "SparrowFrontend/Helpers/SprTypeTraits.h"
+#include "SparrowFrontend/Helpers/DeclsHelpers.h"
+#include "SparrowFrontend/Helpers/StdDef.h"
+#include "SparrowFrontend/NodeCommonsCpp.h"
+#include "SparrowFrontend/SparrowFrontendTypes.hpp"
+#include "SparrowFrontend/Nodes/SprProperties.h"
+#include "SparrowFrontend/Services/IOverloadService.h"
+#include "SparrowFrontend/Services/IConceptsService.h"
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
@@ -20,202 +21,13 @@ namespace SprFrontend {
 
 using namespace Feather;
 
-unique_ptr<IConvertService> g_ConvertService{};
-
-ConversionType combine(ConversionType lhs, ConversionType rhs) {
-    if (lhs == convConcept && rhs == convImplicit)
-        return convConceptWithImplicit;
-    if (rhs == convConcept && lhs == convImplicit)
-        return convConceptWithImplicit;
-    return worstConv(lhs, rhs);
-}
-
-ConversionType worstConv(ConversionType lhs, ConversionType rhs) {
-    return (ConversionType)min(lhs, rhs);
-}
-
-ConversionType bestConv(ConversionType lhs, ConversionType rhs) {
-    return (ConversionType)max(lhs, rhs);
-}
-
-ConversionResult::ConversionResult() {}
-
-ConversionResult::ConversionResult(ConversionType convType)
-    : convType_(convType) {}
-
-ConversionResult::ConversionResult(
-        ConversionType convType, ConvAction action, const Nest_SourceCode* sourceCode)
-    : convType_(convType)
-    , sourceCode_(sourceCode) {
-
-    if (convType != convNone && action.first != ActionType::none)
-        convertActions_.push_back(action);
-}
-ConversionResult::ConversionResult(const ConversionResult& nextConv, ConversionType convType,
-        ConvAction action, const Nest_SourceCode* sourceCode)
-    : convType_(combine(convType, nextConv.conversionType()))
-    , sourceCode_(sourceCode) {
-
-    if (convType != convNone) {
-        // Check if sourceCode matches
-        if (sourceCode) {
-            if (nextConv.sourceCode() && nextConv.sourceCode() != sourceCode) {
-                convType_ = convNone;
-                return;
-            }
-        } else
-            sourceCode_ = nextConv.sourceCode();
-
-        // Combine the actions
-        convertActions_.reserve(nextConv.convertActions_.size() + 1);
-        if (action.first != ActionType::none)
-            convertActions_.emplace_back(action);
-        convertActions_.insert(convertActions_.end(), nextConv.convertActions_.begin(),
-                nextConv.convertActions_.end());
-    }
-}
-
-void ConversionResult::addConversion(
-        ConversionType convType, ConvAction action, const Nest_SourceCode* sourceCode) {
-    // Combine the conversion types
-    convType_ = combine(convType_, convType);
-
-    if (convType != convNone) {
-        // Check if sourceCode matches
-        if (sourceCode) {
-            if (sourceCode_ && sourceCode_ != sourceCode) {
-                convType_ = convNone;
-                return;
-            }
-        }
-
-        // Add the action to the back
-        if (action.first != ActionType::none)
-            convertActions_.emplace_back(action);
-    }
-}
-
-void ConversionResult::addResult(ConversionResult cvt) {
-    if (cvt.sourceCode()) {
-        if (sourceCode_ && sourceCode_ != cvt.sourceCode()) {
-            convType_ = convNone;
-            return;
-        }
-    }
-    convType_ = combine(convType_, cvt.conversionType());
-    const auto& nextAct = cvt.convertActions();
-    convertActions_.insert(convertActions_.end(), nextAct.begin(), nextAct.end());
-}
-
-//! Apply one conversion action to the given node
-Node* applyOnce(Node* src, ConvAction action) {
-    Type destT = action.second;
-    switch (action.first) {
-    case ActionType::none:
-        return src;
-    case ActionType::modeCast:
-        return src; // Nothing to do when changing mode
-    case ActionType::dereference:
-        return Feather_mkMemLoad(src->location, src);
-    case ActionType::bitcast:
-        return Feather_mkBitcast(src->location, Feather_mkTypeNode(src->location, destT), src);
-    case ActionType::makeNull:
-        return Feather_mkNull(src->location, Feather_mkTypeNode(src->location, destT));
-    case ActionType::addRef: {
-        Type srcT = removeCatOrRef(TypeWithStorage(destT));
-        Node* var = Feather_mkVar(
-                src->location, StringRef("$tmpForRef"), Feather_mkTypeNode(src->location, srcT));
-        Node* varRef = Feather_mkVarRef(src->location, var);
-        Node* store = Feather_mkMemStore(src->location, src, varRef);
-        Node* cast =
-                Feather_mkBitcast(src->location, Feather_mkTypeNode(src->location, destT), varRef);
-        return Feather_mkNodeList(src->location, fromIniList({var, store, cast}));
-    }
-    case ActionType::customCvt: {
-        EvalMode destMode = destT.mode();
-        Node* destClass = destT.referredNode();
-        Node* refToClass = createTypeNode(
-                src->context, src->location, Feather_getDataType(destClass, 0, modeRt));
-        return Feather_mkChangeMode(src->location,
-                mkFunApplication(src->location, refToClass, fromIniList({src})), destMode);
-    }
-    }
-}
-
-Node* ConversionResult::apply(Node* src) const {
-    // If there is no conversion, return the original node
-    if (convType_ == convNone)
-        return src;
-
-    auto ctx = src->context;
-
-    // If there is a series of conversions, apply them in chain
-    for (ConvAction action : convertActions_) {
-        ASSERT(src);
-        src = applyOnce(src, action);
-    }
-    // If the original node had a context, set it to the result
-    if (ctx)
-        Nest_setContext(src, ctx);
-    return src;
-}
-
-Node* ConversionResult::apply(CompilationContext* context, Node* src) const {
-    auto res = apply(src);
-    Nest_setContext(res, context);
-    return res;
-}
-
-namespace {
-
-//! Default implementation of the convert service
-struct ConvertService : IConvertService {
-
-    ConversionResult checkConversion(CompilationContext* context, Type srcType, Type destType,
-            ConversionFlags flags = flagsDefault) final;
-    ConversionResult checkConversion(
-            Node* arg, Type destType, ConversionFlags flags = flagsDefault) final;
-
-private:
-    using KeyType = std::tuple<Type, Type, int, const Nest_SourceCode*>;
-
-    //! Cache of all the conversions tried so far
-    unordered_map<KeyType, ConversionResult> conversionMap_;
-
-    //! Method that checks for available conversions; use the cache for speeding up search.
-    //! It always returns an entry in our cache; therefore it's safe to return by const ref.
-    const ConversionResult& cachedCheckConversion(
-            CompilationContext* context, int flags, Type srcType, Type destType);
-
-    //! Checks all possible conversions (uncached)
-    ConversionResult checkConversionImpl(
-            CompilationContext* context, int flags, Type srcType, Type destType);
-
-    //! Checks all possible conversions between types of the same mode
-    bool checkConversionSameMode(ConversionResult& res, CompilationContext* context, int flags,
-            TypeWithStorage srcType, TypeWithStorage destType);
-
-    //! Checks the conversion to a concept (from data-like or other concept)
-    bool checkConversionToConcept(ConversionResult& res, CompilationContext* context, int flags,
-            TypeWithStorage srcType, TypeWithStorage destType);
-
-    //! Checks the conversion between data-like types
-    bool checkDataConversion(ConversionResult& res, CompilationContext* context, int flags,
-            TypeWithStorage srcType, TypeWithStorage destType);
-
-    //! Bring the number of references for the source type to the given value.
-    //! Add all the conversions to 'res'. Returns false if conversion is impossible.
-    //! The source type must be a data-like type.
-    bool adjustReferences(ConversionResult& res, TypeWithStorage src, int destKind, int destNumRef,
-            const char* destDesc, bool canAddRef);
-};
-
-ConversionResult ConvertService::checkConversion(
+ConversionResult ConvertServiceImpl::checkConversion(
         CompilationContext* context, Type srcType, Type destType, ConversionFlags flags) {
     return cachedCheckConversion(context, flags, srcType, destType);
 }
 
-ConversionResult ConvertService::checkConversion(Node* arg, Type destType, ConversionFlags flags) {
+ConversionResult ConvertServiceImpl::checkConversion(
+        Node* arg, Type destType, ConversionFlags flags) {
     ASSERT(arg);
     Type srcType = Nest_computeType(arg);
     if (!srcType)
@@ -225,7 +37,7 @@ ConversionResult ConvertService::checkConversion(Node* arg, Type destType, Conve
     return cachedCheckConversion(arg->context, flags, srcType, destType);
 }
 
-ConversionResult ConvertService::checkConversionImpl(
+ConversionResult ConvertServiceImpl::checkConversionImpl(
         CompilationContext* context, int flags, Type src, Type dest) {
     ASSERT(src);
     ASSERT(dest);
@@ -308,7 +120,7 @@ ConversionResult ConvertService::checkConversionImpl(
     return res;
 }
 
-bool ConvertService::checkConversionSameMode(ConversionResult& res, CompilationContext* context,
+bool ConvertServiceImpl::checkConversionSameMode(ConversionResult& res, CompilationContext* context,
         int flags, TypeWithStorage src, TypeWithStorage dest) {
     ASSERT(src);
     ASSERT(dest);
@@ -329,8 +141,8 @@ bool ConvertService::checkConversionSameMode(ConversionResult& res, CompilationC
     return false;
 }
 
-bool ConvertService::checkConversionToConcept(ConversionResult& res, CompilationContext* context,
-        int flags, TypeWithStorage src, TypeWithStorage dest) {
+bool ConvertServiceImpl::checkConversionToConcept(ConversionResult& res,
+        CompilationContext* context, int flags, TypeWithStorage src, TypeWithStorage dest) {
     ASSERT(src);
     ASSERT(dest);
 
@@ -392,7 +204,7 @@ bool ConvertService::checkConversionToConcept(ConversionResult& res, Compilation
     return false;
 }
 
-bool ConvertService::checkDataConversion(ConversionResult& res, CompilationContext* context,
+bool ConvertServiceImpl::checkDataConversion(ConversionResult& res, CompilationContext* context,
         int flags, TypeWithStorage src, TypeWithStorage dest) {
 
     // Precondition: we only support datatype-like conversions
@@ -461,6 +273,8 @@ bool ConvertService::checkDataConversion(ConversionResult& res, CompilationConte
     return false;
 }
 
+namespace {
+
 // DataType == 0, ConstType == 1, MutableType == 2, TempType == 3
 int typeKindToIndex(int typeKind) { return typeKind - typeKindData; }
 
@@ -489,7 +303,9 @@ TypeWithStorage changeCat(TypeWithStorage src, int typeKind, bool addRef = false
     return src;
 }
 
-bool ConvertService::adjustReferences(ConversionResult& res, TypeWithStorage src, int destKind,
+} // namespace
+
+bool ConvertServiceImpl::adjustReferences(ConversionResult& res, TypeWithStorage src, int destKind,
         int destNumRef, const char* destDesc, bool canAddRef) {
     int srcRefsBase = src.numReferences();
     int destRefsBase = destNumRef;
@@ -589,7 +405,7 @@ bool ConvertService::adjustReferences(ConversionResult& res, TypeWithStorage src
     return true;
 }
 
-const ConversionResult& ConvertService::cachedCheckConversion(
+const ConversionResult& ConvertServiceImpl::cachedCheckConversion(
         CompilationContext* context, int flags, Type srcType, Type destType) {
 
     // Try to find the conversion in the map -- first, try without a source code
@@ -616,75 +432,4 @@ const ConversionResult& ConvertService::cachedCheckConversion(
     return r.first->second;
 }
 
-} // namespace
-
-void setDefaultConvertService() {
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    g_ConvertService.reset(new ConvertService);
-}
-
-ostream& operator<<(ostream& os, ConversionType ct) {
-    switch (ct) {
-    case convNone:
-        os << "None";
-        break;
-    case convCustom:
-        os << "Custom";
-        break;
-    case convConceptWithImplicit:
-        os << "ConceptWithImplicit";
-        break;
-    case convConcept:
-        os << "Concept";
-        break;
-    case convImplicit:
-        os << "Implicit";
-        break;
-    case convDirect:
-        os << "Direct";
-        break;
-    }
-    return os;
-}
-ostream& operator<<(ostream& os, ActionType act) {
-    switch (act) {
-    case ActionType::none:
-        os << "none";
-        break;
-    case ActionType::modeCast:
-        os << "modeCast";
-        break;
-    case ActionType::dereference:
-        os << "dereference";
-        break;
-    case ActionType::bitcast:
-        os << "bitcast";
-        break;
-    case ActionType::makeNull:
-        os << "makeNull";
-        break;
-    case ActionType::addRef:
-        os << "addRef";
-        break;
-    case ActionType::customCvt:
-        os << "customCvt";
-        break;
-    default:
-        os << "?";
-    }
-    return os;
-}
-ostream& operator<<(ostream& os, const ConversionResult& cvt) {
-    os << cvt.conversionType() << " - [";
-    bool first = true;
-    for (auto act : cvt.convertActions()) {
-        if (first)
-            first = false;
-        else
-            os << " + ";
-        os << act.first << "(" << act.second << ")";
-    }
-    os << "]";
-    return os;
-}
 } // namespace SprFrontend

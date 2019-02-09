@@ -88,10 +88,10 @@ for instantiation. A dependent param will therefore be treated as a concept para
  *
  * @return A GenericFunction node, if this is a generic; null otherwise
  */
-GenericFunction checkCreateGenericFun(SprFunctionDecl originalFun, NodeRange params, NodeHandle ifClause);
+GenericFunction checkCreateGenericFun(
+        SprFunctionDecl originalFun, NodeRange params, NodeHandle ifClause);
 
 // For other generic types, we know we need generic whenever we have parameters.
-
 
 /**
  * Search an instantiation in an instSet.
@@ -126,7 +126,8 @@ Instantiation searchInstantiation(InstantiationsSet instSet, NodeRange values);
  *
  * @return The new instantiation node
  */
-Instantiation createNewInstantiation(InstantiationsSet instSet, NodeRange values, EvalMode evalMode);
+Instantiation createNewInstantiation(
+        InstantiationsSet instSet, NodeRange values, EvalMode evalMode);
 
 /**
  * Create a bound var for the given parameter / bound value
@@ -149,8 +150,8 @@ Instantiation createNewInstantiation(InstantiationsSet instSet, NodeRange values
  *
  * @return The created bound variable. Can be either a Feather::VarDecl or a UsingDecl
  */
-Feather::DeclNode createBoundVar(CompilationContext* context, ParameterDecl param, Type paramType, NodeHandle boundValue,
-        bool isCtGeneric);
+Feather::DeclNode createBoundVar(CompilationContext* context, ParameterDecl param, Type paramType,
+        NodeHandle boundValue, bool isCtGeneric);
 
 /**
  * Check if the given instantiation is valid.
@@ -201,33 +202,5 @@ Instantiation canInstantiate(InstantiationsSet instSet, NodeRange values, EvalMo
 //! For concept parameters, we store the type as a bound value.
 //! Used as a low-level primitive. Should not be called for CT-generics
 bool isConceptParam(Type paramType, NodeHandle boundValue);
-
-//! The interface for the service that deals with checking concepts.
-//! Used so that we can easily mock and replace this service.
-struct IConceptsService {
-    virtual ~IConceptsService() {}
-
-    //! Check if the given concept is fulfilled by the given type
-    virtual bool conceptIsFulfilled(ConceptDecl concept, Type type) = 0;
-    //! Check if the given type was generated from the given generic
-    //! This will make generics behave like concepts
-    virtual bool typeGeneratedFromGeneric(GenericDatatype genericDatatype, Type type) = 0;
-
-    //! Get the base concept type
-    virtual ConceptType baseConceptType(ConceptDecl concept) = 0;
-};
-
-//! Implementation of the convert service
-struct ConceptsService : IConceptsService {
-    bool conceptIsFulfilled(ConceptDecl concept, Type type) final;
-    bool typeGeneratedFromGeneric(GenericDatatype genericDatatype, Type type) final;
-    ConceptType baseConceptType(ConceptDecl concept) final;
-};
-
-//! The convert service instance that we are using across the Sparrow compiler
-extern unique_ptr<IConceptsService> g_ConceptsService;
-
-//! Creates the default concepts service
-void setDefaultConceptsService();
 
 } // namespace SprFrontend

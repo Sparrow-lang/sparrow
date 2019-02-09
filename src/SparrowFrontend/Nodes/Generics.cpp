@@ -4,8 +4,6 @@
 #include "SparrowFrontend/SprDebug.h"
 #include "SparrowFrontend/Helpers/DeclsHelpers.h"
 #include "SparrowFrontend/Helpers/SprTypeTraits.h"
-// #include "SparrowFrontend/Helpers/Convert.h"
-// #include "SparrowFrontend/Helpers/CommonCode.h"
 
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 

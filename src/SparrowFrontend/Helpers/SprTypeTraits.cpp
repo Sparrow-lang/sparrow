@@ -3,7 +3,7 @@
 #include "DeclsHelpers.h"
 #include "Overload.h"
 #include "StdDef.h"
-#include "Utils/cppif/SparrowFrontendTypes.hpp"
+#include "SparrowFrontendTypes.hpp"
 #include <NodeCommonsCpp.h>
 #include "SprDebug.h"
 

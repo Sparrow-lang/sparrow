@@ -5,7 +5,7 @@
 #include "Common/FeatherNodeFactory.hpp"
 #include "Common/RcBasic.hpp"
 
-#include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
+#include "SparrowFrontend/SparrowFrontendTypes.hpp"
 #include "SparrowFrontend/Helpers/SprTypeTraits.h"
 #include "Feather/Utils/FeatherUtils.h"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"

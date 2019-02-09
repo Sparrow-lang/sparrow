@@ -4,7 +4,7 @@
 #include "Overload.h"
 #include "StdDef.h"
 #include <NodeCommonsCpp.h>
-#include "Utils/cppif/SparrowFrontendTypes.hpp"
+#include "SparrowFrontendTypes.hpp"
 #include "Nodes/SprProperties.h"
 #include <Helpers/Generics.h>
 

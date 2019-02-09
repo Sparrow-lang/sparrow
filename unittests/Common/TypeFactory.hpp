@@ -3,7 +3,7 @@
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.h"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
-#include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
+#include "SparrowFrontend/SparrowFrontendTypes.hpp"
 #include "Nest/Api/EvalMode.h"
 #include "Nest/Utils/cppif/Fwd.hpp"
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
-#include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
+#include "SparrowFrontend/SparrowFrontendTypes.hpp"
 
 using Feather::DataType;
 using Nest::CompilationContext;

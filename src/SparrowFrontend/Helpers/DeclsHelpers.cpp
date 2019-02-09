@@ -1,10 +1,10 @@
 #include <StdInc.h>
 #include "DeclsHelpers.h"
 #include "SprTypeTraits.h"
-#include <NodeCommonsCpp.h>
-#include "Utils/cppif/SparrowFrontendTypes.hpp"
+#include "NodeCommonsCpp.h"
+#include "SparrowFrontendTypes.hpp"
 #include "Nest/Utils/PtrArray.h"
-#include <Mods.h>
+#include "Mods.h"
 
 using namespace SprFrontend;
 using namespace Nest;

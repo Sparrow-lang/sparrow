@@ -5,7 +5,7 @@
 #include "Nest/Api/Type.h"
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
-#include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
+#include "SparrowFrontend/SparrowFrontendTypes.hpp"
 
 namespace TypeFactory {
 

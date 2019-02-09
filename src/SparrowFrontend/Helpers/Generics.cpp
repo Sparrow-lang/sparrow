@@ -4,7 +4,7 @@
 #include "SprDebug.h"
 #include "Nodes/Exp.hpp"
 
-#include "Utils/cppif/SparrowFrontendTypes.hpp"
+#include "SparrowFrontendTypes.hpp"
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/CommonCode.h>
 #include <Helpers/Ct.h>

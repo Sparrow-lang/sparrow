@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "ConceptsServiceMock.hpp"
 
-#include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
+#include "SparrowFrontend/SparrowFrontendTypes.hpp"
 
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 

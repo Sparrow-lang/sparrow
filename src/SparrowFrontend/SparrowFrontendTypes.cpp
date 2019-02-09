@@ -1,7 +1,6 @@
 #include <StdInc.h>
 
-#include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
-#include "Utils/cppif/SparrowFrontendTypes.hpp"
+#include "SparrowFrontendTypes.hpp"
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 

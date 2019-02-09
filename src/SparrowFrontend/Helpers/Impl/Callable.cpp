@@ -8,7 +8,7 @@
 #include "Helpers/StdDef.h"
 #include "Helpers/DeclsHelpers.h"
 #include <Helpers/Ct.h>
-#include "Utils/cppif/SparrowFrontendTypes.hpp"
+#include "SparrowFrontendTypes.hpp"
 #include "SprDebug.h"
 
 #include "Feather/Utils/cppif/FeatherTypes.hpp"

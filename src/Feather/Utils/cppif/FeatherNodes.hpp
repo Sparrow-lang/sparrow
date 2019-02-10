@@ -4,6 +4,7 @@
 #include "Feather/Api/Feather.h"
 #include "Nest/Utils/cppif/NodeHandle.hpp"
 #include "Nest/Utils/cppif/NodeHelpers.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 
 namespace Feather {
 
@@ -524,11 +525,24 @@ struct CtValueExp : NodeHandle {
      */
     static CtValueExp create(const Location& loc, TypeWithStorage type, StringRef data);
 
+    template <typename T>
+    static CtValueExp createT(const Location& loc, TypeWithStorage type, const T& data) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        const auto* p = reinterpret_cast<const char*>(&data);
+        StringRef dataStr = {p, p + sizeof(data)};
+        return create(loc, type, dataStr);
+    }
+
     //! Gets the type of this value
     TypeWithStorage valueType() const;
 
     //! Getter to the raw binary data associated with this CT value
     StringRef valueData() const;
+
+    template <typename T> const T& valueDataT() const {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        return *reinterpret_cast<const T*>(valueData().begin);
+    }
 
 private:
     static NodeHandle semanticCheckImpl(ThisNodeType node);

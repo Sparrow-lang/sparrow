@@ -51,6 +51,7 @@ struct SampleTypes {
     DataType barType_; // fooType_ -> barType_
     DataType nullType_; // not visible
     DataType typeType_; // not visible
+    DataType boolType_; // not visible
     ConceptType concept1Type_;
     ConceptType concept2Type_;
     ConceptType byteType_;

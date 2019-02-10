@@ -29,6 +29,9 @@ void SampleTypes::init(SparrowGeneralFixture& generalFixture, int flags) {
     NodeHandle barTypeDecl = generalFixture.createDatatypeNode("BarType", ctx);
     NodeHandle nullTypeDecl = generalFixture.createDatatypeNode("NullType", ctx);
     NodeHandle typeDecl = generalFixture.createDatatypeNode("Type", ctx);
+    NodeHandle boolDecl = generalFixture.createDatatypeNode("Bool", ctx);
+
+    boolDecl.setProperty(propNativeName, "i1");
 
     // Add the declarations to our sets of type decls
     g_dataTypeDecls.push_back(i8TypeDecl);
@@ -45,10 +48,12 @@ void SampleTypes::init(SparrowGeneralFixture& generalFixture, int flags) {
     fooType_ = DataType::get(fooTypeDecl, 0, modeRt);
     barType_ = DataType::get(barTypeDecl, 0, modeRt);
     nullType_ = DataType::get(nullTypeDecl, 0, modeRt);
+    boolType_ = DataType::get(boolDecl, 0, modeRt);
 
     // Ensure we set the Null type
     SprFrontend::StdDef::typeNull = nullType_;
     SprFrontend::StdDef::clsNull = nullTypeDecl;
+    SprFrontend::StdDef::typeBool = boolType_;
 
     // Ensure we set the Type type -- but don't add it to our conversion types
     SprFrontend::StdDef::typeType = DataType::get(typeDecl, 0, modeCt);

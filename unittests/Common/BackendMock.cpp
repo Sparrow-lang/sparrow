@@ -43,6 +43,8 @@ unsigned int BackendMock::SizeOf(Nest_Backend* /*backend*/, TypeRef type) {
     auto node = Nest::Type(type).referredNode();
     if (node) {
         StringRef nativeName = node.getPropertyDefaultString(propNativeName, StringRef());
+        if (nativeName == "i1")
+            return 1;
         if (nativeName && *nativeName.begin == 'i') {
             nativeName.begin++;
             int numBits = atoi(nativeName.begin);

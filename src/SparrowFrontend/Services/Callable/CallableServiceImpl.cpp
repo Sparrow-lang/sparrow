@@ -1,23 +1,9 @@
 #include <StdInc.h>
 #include "SparrowFrontend/Services/Callable/CallableServiceImpl.h"
 #include "SparrowFrontend/Services/Callable/CallableImpl.h"
-#include "Nodes/Exp.hpp"
-#include "Helpers/Impl/Intrinsics.h"
-#include "Helpers/SprTypeTraits.h"
-#include "Helpers/CommonCode.h"
-#include "Helpers/Generics.h"
-#include "Helpers/StdDef.h"
-#include "Helpers/DeclsHelpers.h"
-#include <Helpers/Ct.h>
-#include "SparrowFrontendTypes.hpp"
-#include "SprDebug.h"
-
-#include "Feather/Utils/cppif/FeatherTypes.hpp"
-#include "Feather/Utils/cppif/FeatherNodes.hpp"
-
-using namespace SprFrontend;
-using namespace Feather;
-using namespace Nest;
+#include "SparrowFrontend/Services/Callable/ConceptCallable.h"
+#include "SparrowFrontend/Nodes/Generics.hpp"
+#include "SparrowFrontend/Helpers/DeclsHelpers.h"
 
 namespace SprFrontend {
 
@@ -99,7 +85,7 @@ Callables CallableServiceImpl::getCallables(NodeRange decls, EvalMode evalMode,
             // Is this a concept?
             auto concept = decl.kindCast<ConceptDecl>();
             if (concept && predIsSatisfied(concept, pred))
-                res.callables_.push_back(mkConceptCallable(concept));
+                res.callables_.push_back(new ConceptCallable(concept));
 
             // Is this a temporary object creation?
             auto structDecl = decl.kindCast<Feather::StructDecl>();

@@ -16,7 +16,9 @@
 #include "SparrowFrontend/Helpers/SprTypeTraits.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/Services/ICallableService.h"
+#include "SparrowFrontend/Services/IConceptsService.h"
 #include "SparrowFrontend/Services/Callable/Callable.h"
+#include "SparrowFrontend/Services/Callable/ConceptCallable.h"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 using namespace Feather;
@@ -169,5 +171,39 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.canCall") {
         // callCode.setContext(globalContext_);
         // RC_ASSERT(callCode.semanticCheck());
         // TODO: this doesn't work right with concepts & references
+    });
+}
+
+TEST_CASE_METHOD(CallableFixture, "CallableFixture.ConceptCallable") {
+
+    types_.init(*this, SampleTypes::addByteType);
+
+    rc::prop("test ConceptCallable properties", [=]() {
+        auto conceptDecl = *arbConcept();
+        auto callable = ConceptCallable(conceptDecl);
+
+        RC_ASSERT(callable.decl() == conceptDecl);
+
+        // Generate a random expression
+        auto exp = *FeatherNodeFactory::instance().arbExp();
+        exp.setContext(globalContext_);
+        FeatherNodeFactory::instance().setContextForAuxNodes(globalContext_);
+
+        // We can call the callable with this expression
+        CCLoc ccloc{globalContext_, createLocation()};
+        auto cvt = callable.canCall(ccloc, NodeRange{exp}, modeRt, CustomCvtMode::allowCustomCvt);
+        RC_ASSERT(cvt != convNone);
+
+        RC_ASSERT(callable.valid());
+        RC_ASSERT(callable.numParams() == 1);
+        RC_ASSERT(callable.paramType(0) == ConceptType::get());
+
+        // Generate the call, and check the result
+        auto callCode = callable.generateCall(ccloc);
+        RC_ASSERT(callCode.semanticCheck());
+        auto ctVal = callCode.kindCast<Feather::CtValueExp>();
+        RC_ASSERT(ctVal);
+        bool conceptFulfilled = g_ConceptsService->conceptIsFulfilled(conceptDecl, exp.type());
+        RC_ASSERT(ctVal.valueDataT<bool>() == conceptFulfilled);
     });
 }

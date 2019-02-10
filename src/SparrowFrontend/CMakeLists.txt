@@ -34,6 +34,7 @@ SET(sourceFiles
     "Services/Callable/CallableImpl.cpp"
     "Services/Callable/Callables.cpp"
     "Services/Callable/CallableServiceImpl.cpp"
+    "Services/Callable/ConceptCallable.cpp"
     "Services/Concepts/ConceptsServiceImpl.cpp"
     "Services/Convert/ConversionResult.cpp"
     "Services/Convert/ConvertServiceImpl.cpp"

@@ -17,6 +17,8 @@
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
+#include "Nest/Utils/cppif/SmallVector.hpp"
+
 using namespace SprFrontend;
 using namespace Feather;
 using namespace Nest;
@@ -86,7 +88,7 @@ bool completeArgsWithDefaults(CallableData& c, NodeRange args) {
  * @return True if the callable can be used in the given eval mode
  */
 bool checkEvalMode(
-        CallableData& c, const vector<Type>& argTypes, EvalMode evalMode, bool reportErrors) {
+        CallableData& c, Range<Type> argTypes, EvalMode evalMode, bool reportErrors) {
 
     // Nothing to check for concepts
     if (c.type == CallableType::concept)
@@ -114,7 +116,7 @@ bool checkEvalMode(
 }
 
 ConversionType canCall_common_types(CallableData& c, CompilationContext* context,
-        const vector<Type>& argTypes, EvalMode evalMode, CustomCvtMode customCvtMode,
+        Range<Type> argTypes, EvalMode evalMode, CustomCvtMode customCvtMode,
         bool reportErrors) {
     int paramsCount = c.params.size();
 
@@ -1013,9 +1015,10 @@ ConversionType CallableImpl::canCall(const CCLoc& ccloc, NodeRange args, EvalMod
     }
 
     // Get the arg types to perform the check on types
-    vector<Type> argTypes(data_.args.size(), nullptr);
-    for (size_t i = 0; i < data_.args.size(); ++i)
-        argTypes[i] = data_.args[i].type();
+    SmallVector<Type> argTypes;
+    argTypes.reserve(data_.args.size());
+    for (auto arg: data_.args)
+        argTypes.push_back(arg.type());
 
     // Check evaluation mode
     if (!checkEvalMode(data_, argTypes, evalMode, reportErrors))
@@ -1065,10 +1068,10 @@ ConversionType CallableImpl::canCall(const CCLoc& ccloc, NodeRange args, EvalMod
 
     return res;
 }
-ConversionType CallableImpl::canCall(const CCLoc& ccloc, const vector<Type>& argTypes,
+ConversionType CallableImpl::canCall(const CCLoc& ccloc, Range<Type> argTypes,
         EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors) {
-    vector<Type> argTypes2;
-    const vector<Type>* argTypesToUse = &argTypes;
+    SmallVector<Type> argTypes2;
+    Range<Type> argTypesToUse = argTypes;
 
     // If this callable requires an added this argument, add it
     if (data_.implicitArgType) {
@@ -1076,26 +1079,27 @@ ConversionType CallableImpl::canCall(const CCLoc& ccloc, const vector<Type>& arg
         if (!Feather::isCategoryType(t))
             t = MutableType::get(data_.implicitArgType);
 
-        argTypes2 = argTypes;
-        argTypes2.insert(argTypes2.begin(), t);
-        argTypesToUse = &argTypes2;
+        argTypes2.reserve(argTypes.size()+1);
+        argTypes2.push_back(t);
+        argTypes2.insert(argTypes);
+        argTypesToUse = Range<Type>(argTypes2);
     }
 
     // Check argument count (including hidden params)
     size_t paramsCount = data_.params.size();
-    if (paramsCount != argTypesToUse->size()) {
+    if (paramsCount != argTypesToUse.size()) {
         if (reportErrors)
             REP_INFO(NOLOC, "Different number of parameters; args=%1%, params=%2%") %
-                    argTypesToUse->size() % paramsCount;
+                    argTypesToUse.size() % paramsCount;
         return convNone;
     }
 
     // Check evaluation mode
-    if (!checkEvalMode(data_, *argTypesToUse, evalMode, reportErrors))
+    if (!checkEvalMode(data_, argTypesToUse, evalMode, reportErrors))
         return convNone;
 
     return canCall_common_types(
-            data_, ccloc.context_, *argTypesToUse, evalMode, customCvtMode, reportErrors);
+            data_, ccloc.context_, argTypesToUse, evalMode, customCvtMode, reportErrors);
 }
 
 NodeHandle CallableImpl::generateCall(const CCLoc& ccloc) {

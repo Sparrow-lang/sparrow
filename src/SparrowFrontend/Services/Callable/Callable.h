@@ -75,7 +75,7 @@ public:
             CustomCvtMode customCvtMode, bool reportErrors = false) = 0;
     //! Same as above, but makes the check only on type, and not on the actual argument; doesn't
     //! cache any args
-    virtual ConversionType canCall(const CCLoc& ccloc, const vector<Type>& argTypes,
+    virtual ConversionType canCall(const CCLoc& ccloc, Range<Type> argTypes,
             EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors = false) = 0;
 
     //! Returns the number of parameters the callable has

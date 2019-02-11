@@ -32,7 +32,7 @@ ConversionType ConceptCallable::canCall(const CCLoc& ccloc, NodeRange args, Eval
 
     return convConcept; // Always succeeds, regardless of the type of the argument
 }
-ConversionType ConceptCallable::canCall(const CCLoc& ccloc, const vector<Type>& argTypes,
+ConversionType ConceptCallable::canCall(const CCLoc& ccloc, Range<Type> argTypes,
         EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors) {
     // Always succeed
     return convConcept;

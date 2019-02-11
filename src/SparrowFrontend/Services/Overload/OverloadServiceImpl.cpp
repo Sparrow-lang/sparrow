@@ -58,7 +58,7 @@ void reportDeclsAlternatives(const Location& loc, Nest_NodeRange decls) {
 /// If there are callables with smaller overload prio, drop them in the favor of those with higher
 /// overload prio.
 bool filterCandidates(CompilationContext* context, const Location& loc, Callables& candidates,
-        Nest_NodeRange* args, const vector<Type>* argTypes, EvalMode evalMode,
+        Nest_NodeRange* args, Range<Type> argTypes, EvalMode evalMode,
         CustomCvtMode customCvtMode) {
     ConversionType bestConv = convNone;
     int bestPrio = INT_MIN;
@@ -68,7 +68,7 @@ bool filterCandidates(CompilationContext* context, const Location& loc, Callable
         // Check if this can be called with the given args
         ConversionType conv =
                 args ? cand->canCall(CCLoc{context, loc}, *args, evalMode, customCvtMode)
-                     : cand->canCall(CCLoc{context, loc}, *argTypes, evalMode, customCvtMode);
+                     : cand->canCall(CCLoc{context, loc}, argTypes, evalMode, customCvtMode);
         if (conv == convNone) {
             cand->invalidate();
             continue;
@@ -93,7 +93,7 @@ bool filterCandidates(CompilationContext* context, const Location& loc, Callable
 /// This is called if filterCandidates failed to select any valid candidate.
 /// This will report all the candidates, and why they could not be called.
 void filterCandidatesErrReport(CompilationContext* context, const Location& loc,
-        Callables& candidates, Nest_NodeRange* args, const vector<Type>* argTypes,
+        Callables& candidates, Nest_NodeRange* args, Range<Type> argTypes,
         EvalMode evalMode, CustomCvtMode customCvtMode) {
     for (auto& cand : candidates) {
         // Report the candidate
@@ -102,7 +102,7 @@ void filterCandidatesErrReport(CompilationContext* context, const Location& loc,
         if (args)
             cand->canCall(CCLoc{context, loc}, *args, evalMode, customCvtMode, true);
         else
-            cand->canCall(CCLoc{context, loc}, *argTypes, evalMode, customCvtMode, true);
+            cand->canCall(CCLoc{context, loc}, argTypes, evalMode, customCvtMode, true);
     }
 }
 
@@ -237,12 +237,12 @@ Node* OverloadServiceImpl::selectOverload(CompilationContext* context, const Loc
 
     // Check the candidates to be able to be called with the given arguments
     bool hasValidCandidates =
-            filterCandidates(context, loc, candidates, &args, nullptr, evalMode, customCvtMode);
+            filterCandidates(context, loc, candidates, &args, {}, evalMode, customCvtMode);
     if (!hasValidCandidates) {
         if (errReporting != OverloadReporting::none) {
             startError(errReporting, loc, argsTypes, funName);
             filterCandidatesErrReport(
-                    context, loc, candidates, &args, nullptr, evalMode, customCvtMode);
+                    context, loc, candidates, &args, {}, evalMode, customCvtMode);
         }
         return nullptr;
     }
@@ -295,7 +295,7 @@ bool OverloadServiceImpl::selectConversionCtor(
 
     // Check the candidates to be able to be called with the given arguments
     vector<Type> argTypes(1, argType);
-    filterCandidates(context, Location(), candidates, nullptr, &argTypes, destMode, noCustomCvt);
+    filterCandidates(context, Location(), candidates, nullptr, argTypes, destMode, noCustomCvt);
 
     // From the remaining candidates, try to select the most specialized one
     Callable* selectedFun = selectMostSpecialized(context, candidates, true);
@@ -323,11 +323,11 @@ Node* OverloadServiceImpl::selectCtToRtCtor(Node* ctArg) {
     // Check the candidates to be able to be called with the given arguments
     vector<Type> argTypes(1, ctArg->type);
     bool hasValidCandidates = filterCandidates(
-            ctArg->context, Location(), candidates, nullptr, &argTypes, modeRt, noCustomCvt);
+            ctArg->context, Location(), candidates, nullptr, argTypes, modeRt, noCustomCvt);
     if (!hasValidCandidates) {
         REP_ERROR(loc, "No matching overload found for calling ctorFromCt");
         filterCandidatesErrReport(
-                ctArg->context, loc, candidates, nullptr, &argTypes, modeRt, noCustomCvt);
+                ctArg->context, loc, candidates, nullptr, argTypes, modeRt, noCustomCvt);
         return nullptr;
     }
 

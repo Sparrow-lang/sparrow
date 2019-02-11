@@ -2,6 +2,7 @@
 
 #include "Nest/Api/NodeRange.h"
 #include "Nest/Utils/cppif/NodeHandle.hpp"
+#include "Nest/Utils/cppif/Range.hpp"
 
 namespace Nest {
 
@@ -87,80 +88,35 @@ private:
 
 // TODO: unify the range classes
 
-template <typename T> struct NodeRangeT {
+template <typename T> struct NodeRangeT : Range<T> {
     using NodeType = T;
+    using BaseType = Range<T>;
 
     //! Explicit pointer initialization
     explicit NodeRangeT(T* begin, T* end)
-        : beginPtr_(begin)
-        , endPtr_(end) {}
+        : BaseType(begin, end) {}
 
     //! Construct a from Nest_NodeRange data structure
     explicit NodeRangeT(Nest_NodeRange r)
-        : beginPtr_(fromRaw(r.beginPtr))
-        , endPtr_(fromRaw(r.endPtr)) {}
+        : BaseType(fromRaw(r.beginPtr), fromRaw(r.endPtr)) {}
     explicit NodeRangeT(Nest_NodeRangeM r)
-        : beginPtr_(r.beginPtr)
-        , endPtr_(r.endPtr) {}
+        : BaseType(r.beginPtr, r.endPtr) {}
 
     //! Construct from an initializer list
     explicit NodeRangeT(std::initializer_list<T> l)
-        : beginPtr_(l.begin())
-        , endPtr_(l.end()) {}
+        : BaseType(l.begin(), l.end()) {}
 
     //! Construct from a vector of nodes
     NodeRangeT(const vector<T>& l)
-        : beginPtr_(&*l.begin())
-        , endPtr_(&*l.end()) {}
+        : BaseType(l) {}
 
     //! Explicit range casting
     template <typename U>
     explicit NodeRangeT(NodeRangeT<U> src)
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        : beginPtr_(reinterpret_cast<T*>(src.beginPtr_))
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        , endPtr_(reinterpret_cast<T*>(src.endPtr_)) {}
+        : BaseType(src) {}
 
     //! Automatic conversion to Nest_NodeRange
-    operator Nest_NodeRange() const { return Nest_NodeRange{toRaw(beginPtr_), toRaw(endPtr_)}; }
-
-    //! Returns true if there are no nodes in this range
-    bool empty() const { return beginPtr_ == endPtr_; }
-
-    //! Gets the number of nodes in this range
-    int size() const { return endPtr_ - beginPtr_; }
-    //! Returns the node handle at the given index
-    T operator[](int idx) const {
-        ASSERT(idx < size());
-        return beginPtr_[idx];
-    }
-
-    //! Skip the given number of elements and return the remaining range
-    NodeRangeT skip(int num) const {
-        ASSERT(num >= 0);
-        ASSERT(num <= size());
-        return NodeRangeT{beginPtr_ + num, endPtr_};
-    }
-
-    //! Shrink the node range to the given size
-    NodeRangeT shrinkTo(int num) const {
-        ASSERT(num >= 0);
-        ASSERT(num <= size());
-        return NodeRangeT{beginPtr_, beginPtr_ + num};
-    }
-
-    const T* begin() const { return beginPtr_; }
-    const T* end() const { return endPtr_; }
-
-    //! Transform this into a vector
-    vector<T> toVec() const { return vector<T>{beginPtr_, endPtr_}; }
-
-    //! Get a string description out of this
-    const char* toString() const {
-        ostringstream ss;
-        ss << *this;
-        return strdup(ss.str().c_str());
-    }
+    operator Nest_NodeRange() const { return Nest_NodeRange{toRaw(BaseType::beginPtr_), toRaw(BaseType::endPtr_)}; }
 
 private:
     static const T* fromRaw(Nest_Node* const* x) {
@@ -171,9 +127,6 @@ private:
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         return reinterpret_cast<Nest_Node* const*>(x);
     }
-
-    const T* beginPtr_;
-    const T* endPtr_;
 };
 
 /**

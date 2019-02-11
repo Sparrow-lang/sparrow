@@ -12,14 +12,15 @@
 
 namespace SprFrontend {
 
+using Nest::CCLoc;
 using Nest::CompilationContext;
 using Nest::Location;
 using Nest::Node;
 using Nest::NodeHandle;
 using Nest::NodeRange;
+using Nest::Range;
 using Nest::StringRef;
 using Nest::Type;
 using Nest::TypeWithStorage;
-using Nest::CCLoc;
 
 } // namespace SprFrontend

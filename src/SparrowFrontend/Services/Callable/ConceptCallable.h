@@ -33,7 +33,7 @@ public:
             CustomCvtMode customCvtMode, bool reportErrors = false) override;
     /// Same as above, but makes the check only on type, and not on the actual
     /// argument; doesn't cache any args
-    ConversionType canCall(const CCLoc& ccloc, const vector<Type>& argTypes, EvalMode evalMode,
+    ConversionType canCall(const CCLoc& ccloc, Range<Type> argTypes, EvalMode evalMode,
             CustomCvtMode customCvtMode, bool reportErrors = false) override;
 
     /// Generates the node that actually calls this callable

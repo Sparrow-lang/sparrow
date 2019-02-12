@@ -155,7 +155,7 @@ protected:
 };
 
 template <typename T, int staticSize>
-ostream& operator<<(ostream& os, SmallVector<T, staticSize> r) {
+inline ostream& operator<<(ostream& os, SmallVector<T, staticSize> r) {
     os << '[';
     bool first = true;
     for (auto el : r) {

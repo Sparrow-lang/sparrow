@@ -90,8 +90,7 @@ protected:
     const T* endPtr_;
 };
 
-template <typename T>
-ostream& operator<<(ostream& os, Range<T> r) {
+template <typename T> inline ostream& operator<<(ostream& os, Range<T> r) {
     os << '[';
     bool first = true;
     for (auto el : r) {

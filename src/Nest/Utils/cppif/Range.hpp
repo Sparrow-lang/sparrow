@@ -35,9 +35,6 @@ template <typename T> struct Range {
     Range(const vector<T>& l)
         : beginPtr_(&*l.begin())
         , endPtr_(&*l.end()) {}
-    Range(const vector<const T>& l)
-        : beginPtr_(&*l.begin())
-        , endPtr_(&*l.end()) {}
 
     //! Explicit range casting
     template <typename U>

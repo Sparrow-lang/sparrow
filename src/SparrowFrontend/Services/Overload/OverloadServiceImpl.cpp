@@ -62,7 +62,7 @@ bool filterCandidates(CompilationContext* context, const Location& loc, Callable
         CustomCvtMode customCvtMode) {
     ConversionType bestConv = convNone;
     int bestPrio = INT_MIN;
-    for (size_t i = 0; i < candidates.size(); ++i) {
+    for (int i = 0; i < candidates.size(); ++i) {
         Callable* cand = candidates[i];
 
         // Check if this can be called with the given args
@@ -79,7 +79,7 @@ bool filterCandidates(CompilationContext* context, const Location& loc, Callable
         if (prio > bestPrio || (prio == bestPrio && conv > bestConv)) {
             bestConv = conv;
             bestPrio = prio;
-            for (size_t j = 0; j < i; ++j)
+            for (int j = 0; j < i; ++j)
                 if (candidates[j]->valid()) {
                     candidates[j]->invalidate();
                 }
@@ -130,11 +130,11 @@ Callable* selectMostSpecialized(
         return oneCand;
 
     // Check which function is most specialized
-    for (size_t i = 0; i < candidates.size(); ++i) {
+    for (int i = 0; i < candidates.size(); ++i) {
         if (!candidates[i]->valid())
             continue;
         bool isMostSpecialized = true;
-        for (size_t j = 0; j < candidates.size(); ++j) {
+        for (int j = 0; j < candidates.size(); ++j) {
             if (j == i || !candidates[j]->valid())
                 continue;
             int res = moreSpecialized(context, *candidates[i], *candidates[j], noCustomCvt);

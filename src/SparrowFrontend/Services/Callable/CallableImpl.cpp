@@ -163,7 +163,7 @@ ConversionType canCall_common_types(CallableData& c, CompilationContext* context
 
 vector<NodeHandle> argsWithConversion(const CallableData& c) {
     vector<NodeHandle> res(c.args.size(), NodeHandle());
-    for (int i = 0; i < c.args.size(); ++i)
+    for (int i = 0; i < int(c.args.size()); ++i)
         res[i] = c.conversions[i].apply(c.args[i].context(), c.args[i]);
     return res;
 }

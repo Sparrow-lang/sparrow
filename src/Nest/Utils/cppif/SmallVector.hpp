@@ -21,7 +21,7 @@ namespace Nest {
  */
 template <typename T, int staticSize = 7> struct SmallVector {
     using value_type = T;
-    using iterator = const T*;
+    using iterator = T*;
     using const_iterator = const T*;
 
     //! Default ctor

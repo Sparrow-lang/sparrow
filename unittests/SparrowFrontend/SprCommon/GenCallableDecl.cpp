@@ -31,10 +31,32 @@ SprFunctionDecl genFunction(const ParamsData& params, bool ifClauseVal) {
     if (ifClause && !params.isGeneric())
         return {};
 
+    static int nameIdx = 0;
+    auto name = concat("mySprFunctionDecl", nameIdx++);
+
     auto res = SprFunctionDecl::create(
-            g_LocationGen(), "mySprFunctionDecl", params.paramsNode_, returnType, body, ifClause);
+            g_LocationGen(), name, params.paramsNode_, returnType, body, ifClause);
     return res;
 }
+
+PackageDecl genGenPakage(const ParamsData& params, bool ifClauseVal) {
+    auto body = NodeList::create(g_LocationGen(), NodeRange{}, true);
+
+    // Add if clause only if it needs to be false
+    NodeHandle ifClause;
+    if (!ifClauseVal)
+        ifClause = SprFrontend::buildBoolLiteral(g_LocationGen(), false);
+
+    if (ifClause && !params.isGeneric())
+        return {};
+
+    static int nameIdx = 0;
+    auto name = concat("MyPackageDecl", nameIdx++);
+
+    auto res = PackageDecl::create(g_LocationGen(), name, body, params.paramsNode_, ifClause);
+    return res;
+}
+
 } // namespace
 
 rc::Gen<SprFunctionDecl> arbFunction(bool ifClauseVal) {
@@ -48,21 +70,22 @@ rc::Gen<SprFunctionDecl> arbFunction(const ParamsData& paramsData, bool ifClause
     return rc::gen::exec([=]() -> SprFunctionDecl { return genFunction(paramsData, ifClauseVal); });
 }
 
-rc::Gen<PackageDecl> arbGenPackage() {
-    return rc::gen::exec([]() -> PackageDecl {
+rc::Gen<PackageDecl> arbGenPackage(const ParamsData& paramsData, bool ifClauseVal) {
+    return rc::gen::exec([=]() -> PackageDecl { return genGenPakage(paramsData, ifClauseVal); });
+}
+
+rc::Gen<PackageDecl> arbGenPackage(bool ifClauseVal) {
+    return rc::gen::exec([=]() -> PackageDecl {
         ParamsGenOptions paramOptions;
         paramOptions.minNumParams = 1;
         paramOptions.useRt = false;
         paramOptions.useConcept = false;
         paramOptions.useDependent = false;
-        auto params = *arbParamsData(paramOptions);
-
-        auto body = NodeList::create(g_LocationGen(), NodeRange{}, true);
-
-        auto res = PackageDecl::create(g_LocationGen(), "MyPackageDecl", body, params.paramsNode_);
-        return res;
+        auto paramsData = *arbParamsData(paramOptions);
+        return genGenPakage(paramsData, ifClauseVal);
     });
 }
+
 rc::Gen<DataTypeDecl> arbGenDatatype() {
     return rc::gen::exec([]() -> DataTypeDecl {
         ParamsGenOptions paramOptions;

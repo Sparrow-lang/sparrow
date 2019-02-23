@@ -346,7 +346,7 @@ SprFunctionDecl createInstFn(CompilationContext* context, SprFunctionDecl origFu
         NodeRangeT<ParameterDecl> finalParams) {
     const Location& loc = origFun.location();
 
-    auto parameters = Feather::NodeList::create(loc, NodeRange(finalParams));
+    auto parameters = Feather::NodeList::create(loc, finalParams);
     auto returnType = origFun.returnType();
     auto body = origFun.body();
     returnType = returnType ? returnType.clone() : NodeHandle();
@@ -1230,7 +1230,7 @@ Callable* mkGenericFunCallable(GenericFunction genericFun, TypeWithStorage impli
     CallableData res;
     res.type = CallableType::genericFun;
     res.decl = genericFun;
-    res.params = NodeRange(genericFun.originalParams());
+    res.params = genericFun.originalParams();
     res.implicitArgType = implicitArgType;
     return new CallableImpl{res};
 }
@@ -1238,14 +1238,14 @@ Callable* mkGenericClassCallable(GenericDatatype genericDatatype) {
     CallableData res;
     res.type = CallableType::genericClass;
     res.decl = genericDatatype;
-    res.params = NodeRange(genericDatatype.instSet().params());
+    res.params = genericDatatype.instSet().params();
     return new CallableImpl{res};
 }
 Callable* mkGenericPackageCallable(GenericPackage genericPackage) {
     CallableData res;
     res.type = CallableType::genericPackage;
     res.decl = genericPackage;
-    res.params = NodeRange(genericPackage.instSet().params());
+    res.params = genericPackage.instSet().params();
     return new CallableImpl{res};
 }
 Callable* mkConceptCallable(ConceptDecl concept) {

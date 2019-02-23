@@ -194,11 +194,13 @@ Nest_SourceCode* _handleImport(const ImportInfo& import) {
 }
 
 void Nest_compilerInit() {
-    try {
-        _curPath = boost::filesystem::current_path();
-    } catch (const exception& e) {
-        REP_INTERNAL(NOLOC, "Cannot obtain the current path; aborting (%1%") % e.what();
-    }
+    // TODO (files): Check why this breaks AssertTest.spr
+    // try {
+    //     _curPath = boost::filesystem::current_path();
+    // } catch (const exception& e) {
+    //     REP_INTERNAL(NOLOC, "Cannot obtain the current path; aborting (%1%") % e.what();
+    // }
+    _toSemanticCheck = Nest_NodeArray{};
 }
 
 void Nest_compilerDestroy() {

@@ -1,6 +1,7 @@
 #include <StdInc.h>
 #include "SparrowFrontend/Services/Callable/CallableServiceImpl.h"
 #include "SparrowFrontend/Services/Callable/CallableImpl.h"
+#include "SparrowFrontend/Services/Callable/GenericPackageCallable.h"
 #include "SparrowFrontend/Services/Callable/ConceptCallable.h"
 #include "SparrowFrontend/Nodes/Generics.hpp"
 #include "SparrowFrontend/Helpers/DeclsHelpers.h"
@@ -80,7 +81,7 @@ Callables CallableServiceImpl::getCallables(NodeRange decls, EvalMode evalMode,
                 res.callables_.push_back(mkGenericClassCallable(genDatatype));
             auto genPackage = decl.kindCast<GenericPackage>();
             if (genPackage && predIsSatisfied(genPackage, pred))
-                res.callables_.push_back(mkGenericPackageCallable(genPackage));
+                res.callables_.push_back(new GenericPackageCallable(genPackage));
 
             // Is this a concept?
             auto concept = decl.kindCast<ConceptDecl>();

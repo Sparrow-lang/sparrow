@@ -11,7 +11,7 @@
 #include "Nest/Utils/Diagnostic.h"
 
 void Nest_initModule() {
-    // Any Nest initialization goes here
+    Nest_compilerInit();
 }
 
 void Nest_destroyModule() {

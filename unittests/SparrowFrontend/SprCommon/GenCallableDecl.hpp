@@ -17,7 +17,9 @@ rc::Gen<SprFunctionDecl> arbFunction(bool ifClauseVal = true);
 rc::Gen<SprFunctionDecl> arbFunction(const ParamsData& paramsData, bool ifClauseVal = true);
 
 //! Generator for arbitrary generic packages
-rc::Gen<PackageDecl> arbGenPackage();
+rc::Gen<PackageDecl> arbGenPackage(const ParamsData& paramsData, bool ifClauseVal = true);
+rc::Gen<PackageDecl> arbGenPackage(bool ifClauseVal = true);
+
 //! Generator for arbitrary generic datatypes
 rc::Gen<DataTypeDecl> arbGenDatatype();
 //! Generator for arbitrary concrete datatypes

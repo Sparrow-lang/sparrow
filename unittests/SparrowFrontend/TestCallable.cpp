@@ -15,10 +15,12 @@
 #include "SparrowFrontend/Helpers/Generics.h"
 #include "SparrowFrontend/Helpers/SprTypeTraits.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
+#include "SparrowFrontend/Helpers/DeclsHelpers.h"
 #include "SparrowFrontend/Services/ICallableService.h"
 #include "SparrowFrontend/Services/IConceptsService.h"
 #include "SparrowFrontend/Services/Callable/Callable.h"
 #include "SparrowFrontend/Services/Callable/ConceptCallable.h"
+#include "SparrowFrontend/Services/Callable/GenericPackageCallable.h"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 using namespace Feather;
@@ -205,5 +207,92 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.ConceptCallable") {
         RC_ASSERT(ctVal);
         bool conceptFulfilled = g_ConceptsService->conceptIsFulfilled(conceptDecl, exp.type());
         RC_ASSERT(ctVal.valueDataT<bool>() == conceptFulfilled);
+    });
+}
+
+namespace {
+GenericPackageCallable genGenericPackageCallable(
+        CompilationContext* ctx, ParamsData& outParamsData, bool ifClauseVal = true) {
+    ParamsGenOptions paramOptions;
+    paramOptions.minNumParams = 1;
+    paramOptions.useRt = false;
+    paramOptions.useConcept = false;
+    paramOptions.useDependent = false;
+    outParamsData = *arbParamsData(paramOptions);
+
+    // Get an arbitrary GenericPackage decl node
+    auto packageDecl = *arbGenPackage(outParamsData, ifClauseVal);
+    RC_ASSERT(packageDecl.parameters().children().size() > 0);
+    packageDecl.setContext(ctx);
+    FeatherNodeFactory::instance().setContextForAuxNodes(ctx);
+    RC_ASSERT(packageDecl.semanticCheck());
+    auto genPackageDecl = NodeHandle(resultingDecl(packageDecl)).kindCast<GenericPackage>();
+    RC_ASSERT(genPackageDecl);
+
+    return GenericPackageCallable(genPackageDecl);
+}
+} // namespace
+
+TEST_CASE_METHOD(CallableFixture, "CallableFixture.GenericPackageCallable") {
+
+    types_.init(*this, SampleTypes::addByteType);
+
+    rc::prop("test GenericPackageCallable properties", [=]() {
+        ParamsData paramsData;
+        GenericPackageCallable callable = genGenericPackageCallable(globalContext_, paramsData);
+
+        // Ensure that all the types of the callable match the params data
+        RC_ASSERT(callable.numParams() == paramsData.numParams_);
+        for (int i = 0; i < paramsData.numParams_; i++) {
+            RC_ASSERT(callable.paramType(i) == paramsData.types_[i]);
+        }
+
+        // Generate some args that match the given types
+        vector<NodeHandle> args = *arbArguments(paramsData, &types_);
+        semanticCheck(args, globalContext_);
+
+        // Check that we can call the callable with the given args
+        CCLoc ccloc{globalContext_, createLocation()};
+        auto cvt = callable.canCall(ccloc, args, modeRt, CustomCvtMode::allowCustomCvt, true);
+        RC_ASSERT(cvt != convNone);
+        RC_ASSERT(callable.valid());
+
+        // Generate the call, and check the result
+        // This generated a DeclExp pointing to a regular, non-generic package
+        auto callCode = callable.generateCall(ccloc);
+        RC_ASSERT(callCode);
+        RC_ASSERT(callCode.semanticCheck());
+        auto declExp = callCode.kindCast<DeclExp>();
+        RC_ASSERT(declExp);
+        RC_ASSERT(declExp.referredDecls().size() == 1);
+        auto referredDecl = declExp.referredDecls()[0];
+        RC_ASSERT(referredDecl);
+        auto instPackage = referredDecl.kindCast<PackageDecl>();
+        RC_ASSERT(instPackage);
+        RC_ASSERT(instPackage.name() == callable.decl().name());
+        RC_ASSERT(!instPackage.parameters());
+        RC_ASSERT(!instPackage.ifClause());
+    });
+
+    rc::prop("test GenericPackageCallable with false if clause", [=]() {
+        ParamsData paramsData;
+        GenericPackageCallable callable =
+                genGenericPackageCallable(globalContext_, paramsData, false);
+
+        // Ensure that all the types of the callable match the params data
+        RC_ASSERT(callable.numParams() == paramsData.numParams_);
+        for (int i = 0; i < paramsData.numParams_; i++) {
+            RC_ASSERT(callable.paramType(i) == paramsData.types_[i]);
+        }
+
+        // Generate some args that match the given types
+        vector<NodeHandle> args = *arbArguments(paramsData, &types_);
+        semanticCheck(args, globalContext_);
+
+        // Check that can call results in failure
+        CCLoc ccloc{globalContext_, createLocation()};
+        auto cvt = callable.canCall(ccloc, args, modeRt, CustomCvtMode::allowCustomCvt);
+        RC_ASSERT(cvt == convNone);
+        RC_ASSERT(callable.valid());
     });
 }

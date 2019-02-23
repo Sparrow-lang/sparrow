@@ -32,6 +32,8 @@ GenericPackage GenericPackage::create(
         if (isConceptType(param.type()))
             REP_ERROR_RET(nullptr, param.location(),
                     "Cannot use auto or concept parameters for package generics");
+        if (param.type().mode() != modeCt)
+            REP_ERROR_RET(nullptr, param.location(), "Generic package parameters must be CT");
     }
 
     return res;

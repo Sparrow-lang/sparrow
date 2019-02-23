@@ -41,6 +41,8 @@ struct NodeRange {
     //! Automatic conversion to Nest_NodeRange
     operator Nest_NodeRange() const { return range; }
 
+    operator Range<NodeHandle>() const { return Range<NodeHandle>(begin(), end()); }
+
     //! Returns true if there are no nodes in this range
     bool empty() const { return range.beginPtr == range.endPtr; }
 
@@ -95,6 +97,9 @@ template <typename T> struct NodeRangeT : Range<T> {
     //! Explicit pointer initialization
     explicit NodeRangeT(T* begin, T* end)
         : BaseType(begin, end) {}
+    //! Constructor from base class
+    NodeRangeT(BaseType base)
+        : BaseType(base) {}
 
     //! Construct a from Nest_NodeRange data structure
     explicit NodeRangeT(Nest_NodeRange r)
@@ -115,6 +120,8 @@ template <typename T> struct NodeRangeT : Range<T> {
     explicit NodeRangeT(NodeRangeT<U> src)
         : BaseType(src) {}
 
+    //! Automatic conversion to NodeRange
+    operator NodeRange() const { return NodeRange(Nest_NodeRange{toRaw(BaseType::beginPtr_), toRaw(BaseType::endPtr_)}); }
     //! Automatic conversion to Nest_NodeRange
     operator Nest_NodeRange() const { return Nest_NodeRange{toRaw(BaseType::beginPtr_), toRaw(BaseType::endPtr_)}; }
 

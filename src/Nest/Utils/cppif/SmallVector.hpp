@@ -76,6 +76,33 @@ template <typename T, int staticSize = 7> struct SmallVector {
             grow(sz - size());
     }
 
+    //! Resize the vector
+    void resize(int sz, const T& fillVall) {
+        reserve(sz);
+        if (sz < size()) {
+            if (numStaticElems_ >= 0)
+                numStaticElems_ = sz;
+            else
+                dynamicData_.resize(sz);
+        } else if (sz > size()) {
+            if (numStaticElems_ >= 0) {
+                T* p = staticArr(numStaticElems_);
+                int numNew = sz - size();
+                for (int i = 0; i < numNew; i++)
+                    ::new (p++) T(fillVall);
+                numStaticElems_ = sz;
+            } else
+                dynamicData_.resize(sz, fillVall);
+        }
+    }
+
+    void clear() {
+        if (numStaticElems_ >= 0)
+            destroyRange(staticArr(0), staticArr(numStaticElems_));
+        numStaticElems_ = 0;
+        dynamicData_.clear();
+    }
+
     //! Insert a range of elements at the end of the vector
     void insert(Range<T> elems) {
         int sz = elems.size();
@@ -102,9 +129,10 @@ template <typename T, int staticSize = 7> struct SmallVector {
     //! Pop the last element from the array
     void pop_back() {
         ASSERT(size() > 0);
-        if (isSmall())
+        if (isSmall()) {
+            staticArr(numStaticElems_ - 1)->~T();
             --numStaticElems_;
-        else {
+        } else {
             dynamicData_.pop_back();
         }
     }

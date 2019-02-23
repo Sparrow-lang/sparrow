@@ -121,9 +121,13 @@ template <typename T> struct NodeRangeT : Range<T> {
         : BaseType(src) {}
 
     //! Automatic conversion to NodeRange
-    operator NodeRange() const { return NodeRange(Nest_NodeRange{toRaw(BaseType::beginPtr_), toRaw(BaseType::endPtr_)}); }
+    operator NodeRange() const {
+        return NodeRange(Nest_NodeRange{toRaw(BaseType::beginPtr_), toRaw(BaseType::endPtr_)});
+    }
     //! Automatic conversion to Nest_NodeRange
-    operator Nest_NodeRange() const { return Nest_NodeRange{toRaw(BaseType::beginPtr_), toRaw(BaseType::endPtr_)}; }
+    operator Nest_NodeRange() const {
+        return Nest_NodeRange{toRaw(BaseType::beginPtr_), toRaw(BaseType::endPtr_)};
+    }
 
 private:
     static const T* fromRaw(Nest_Node* const* x) {

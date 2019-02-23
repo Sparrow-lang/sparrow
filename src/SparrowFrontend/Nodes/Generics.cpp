@@ -64,6 +64,8 @@ GenericDatatype GenericDatatype::create(
         if (isConceptType(param.type()))
             REP_ERROR_RET(nullptr, param.location(),
                     "Cannot use auto or concept parameters for class generics");
+        if (param.type().mode() != modeCt)
+            REP_ERROR_RET(nullptr, param.location(), "Generic datatype parameters must be CT");
     }
 
     return res;

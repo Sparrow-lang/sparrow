@@ -57,6 +57,25 @@ PackageDecl genGenPakage(const ParamsData& params, bool ifClauseVal) {
     return res;
 }
 
+DataTypeDecl genGenDatatype(const ParamsData& params, bool ifClauseVal) {
+    auto body = NodeList::create(g_LocationGen(), NodeRange{}, true);
+
+    // Add if clause only if it needs to be false
+    NodeHandle ifClause;
+    if (!ifClauseVal)
+        ifClause = SprFrontend::buildBoolLiteral(g_LocationGen(), false);
+
+    if (ifClause && !params.isGeneric())
+        return {};
+
+    static int nameIdx = 0;
+    auto name = concat("MyDataTypeDecl", nameIdx++);
+
+    auto res = DataTypeDecl::create(
+            g_LocationGen(), name, params.paramsNode_, nullptr, ifClause, body);
+    return res;
+}
+
 } // namespace
 
 rc::Gen<SprFunctionDecl> arbFunction(bool ifClauseVal) {
@@ -86,21 +105,22 @@ rc::Gen<PackageDecl> arbGenPackage(bool ifClauseVal) {
     });
 }
 
-rc::Gen<DataTypeDecl> arbGenDatatype() {
-    return rc::gen::exec([]() -> DataTypeDecl {
+rc::Gen<DataTypeDecl> arbGenDatatype(const ParamsData& paramsData, bool ifClauseVal) {
+    return rc::gen::exec([=]() -> DataTypeDecl { return genGenDatatype(paramsData, ifClauseVal); });
+}
+
+rc::Gen<DataTypeDecl> arbGenDatatype(bool ifClauseVal) {
+    return rc::gen::exec([=]() -> DataTypeDecl {
         ParamsGenOptions paramOptions;
         paramOptions.minNumParams = 1;
         paramOptions.useRt = false;
         paramOptions.useConcept = false;
         paramOptions.useDependent = false;
-        auto params = *arbParamsData(paramOptions);
-        auto body = NodeList::create(g_LocationGen(), NodeRange{}, true);
-        auto res = DataTypeDecl::create(
-                g_LocationGen(), "MyDatatypeDecl", params.paramsNode_, {}, {}, body);
-        res.setProperty(propNoDefault, 1);
-        return res;
+        auto paramsData = *arbParamsData(paramOptions);
+        return genGenDatatype(paramsData, ifClauseVal);
     });
 }
+
 rc::Gen<DataTypeDecl> arbConcreteDatatype() {
     return rc::gen::exec([]() -> DataTypeDecl {
         // TODO

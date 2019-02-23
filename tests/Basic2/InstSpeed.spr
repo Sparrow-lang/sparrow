@@ -4,7 +4,7 @@
 //import std.tuple;
 
 [noDefault]
-datatype Generic(t: Type, idx: Int)
+datatype Generic(t: Type, idx: Int ct)
     using _idx = idx
     x: t
 

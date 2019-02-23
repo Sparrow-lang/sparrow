@@ -29,6 +29,8 @@ struct ParamsData {
 
     //! The number of parameters generated so far
     int numParams_{0};
+    //! The index of the first parameter that has init attached to it
+    int idxStartInit_{0};
     //! The parameter declarations generated
     ParameterDecl params_[maxNumParams];
     //! The types of the parameters generated; null for dependent params

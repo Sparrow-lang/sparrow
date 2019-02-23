@@ -21,7 +21,9 @@ rc::Gen<PackageDecl> arbGenPackage(const ParamsData& paramsData, bool ifClauseVa
 rc::Gen<PackageDecl> arbGenPackage(bool ifClauseVal = true);
 
 //! Generator for arbitrary generic datatypes
-rc::Gen<DataTypeDecl> arbGenDatatype();
+rc::Gen<DataTypeDecl> arbGenDatatype(const ParamsData& paramsData, bool ifClauseVal = true);
+rc::Gen<DataTypeDecl> arbGenDatatype(bool ifClauseVal = true);
+
 //! Generator for arbitrary concrete datatypes
 rc::Gen<DataTypeDecl> arbConcreteDatatype();
 //! Generator for arbitrary concepts

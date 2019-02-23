@@ -5,7 +5,7 @@ var a = 2048;
 fun ctor
     cout << 42 << endl;
 
-datatype MyObj(n: Int)
+datatype MyObj(n: Int ct)
     using b = 1024;
     using c = n;
 

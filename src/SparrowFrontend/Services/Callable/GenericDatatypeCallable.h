@@ -10,25 +10,25 @@
 
 namespace SprFrontend {
 
-struct GenericPackage;
+struct GenericDatatype;
 
 /**
- * @brief      Callable implementation for calling a generic package
+ * @brief      Callable implementation for calling a generic datatype
  *
- * This represents a classic generic call. All the parameters of the packages need to be CT, and
+ * This represents a classic generic call. All the parameters of the datatypes need to be CT, and
  * therefore all the args need to be CT.
  *
  * The number of args need to match the number of parameters (possible by using default arguments).
  *
- * Generic package callables cannot be called by using just the arg types.
+ * Generic datatype callables cannot be called by using just the arg types.
  *
- * There are several reasons for which we cannot call a generic package:
+ * There are several reasons for which we cannot call a generic datatype:
  *     - number of arguments mismatch
  *     - argument types don't match the parameter types
  *     - cannot instantiate the generic (if clause)
- * In all other cases, we should be able to instantiate generic package callables.
+ * In all other cases, we should be able to instantiate generic datatype callables.
  *
- * A call to a generic package would yield a DeclExp pointing to the actual instantiated package.
+ * A call to a generic datatype would yield a DeclExp pointing to the actual instantiated datatype.
  *
  * Constraints:
  *     - does not support concept parameters
@@ -36,9 +36,9 @@ struct GenericPackage;
  *
  * @see        Callable
  */
-class GenericPackageCallable : public Callable {
+class GenericDatatypeCallable : public Callable {
 public:
-    GenericPackageCallable(GenericPackage decl);
+    GenericDatatypeCallable(GenericDatatype decl);
 
     ConversionType canCall(const CCLoc& ccloc, NodeRange args, EvalMode evalMode,
             CustomCvtMode customCvtMode, bool reportErrors = false) override;
@@ -62,8 +62,8 @@ private:
     //! The generic instantiation computed at the end of 'canCall'
     Instantiation genericInst_;
 
-    //! Create the instantiated package by cloning the original decl.
-    PackageDecl createInstantiatedPackage();
+    //! Create the instantiated datatype by cloning the original decl.
+    DataTypeDecl createInstantiatedDatatype();
 };
 
 } // namespace SprFrontend

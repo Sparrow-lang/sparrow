@@ -93,8 +93,8 @@ bool filterCandidates(CompilationContext* context, const Location& loc, Callable
 /// This is called if filterCandidates failed to select any valid candidate.
 /// This will report all the candidates, and why they could not be called.
 void filterCandidatesErrReport(CompilationContext* context, const Location& loc,
-        Callables& candidates, Nest_NodeRange* args, Range<Type> argTypes,
-        EvalMode evalMode, CustomCvtMode customCvtMode) {
+        Callables& candidates, Nest_NodeRange* args, Range<Type> argTypes, EvalMode evalMode,
+        CustomCvtMode customCvtMode) {
     for (auto& cand : candidates) {
         // Report the candidate
         REP_INFO(cand->location(), "See possible candidate: %1%") % cand->toString();
@@ -241,8 +241,7 @@ Node* OverloadServiceImpl::selectOverload(CompilationContext* context, const Loc
     if (!hasValidCandidates) {
         if (errReporting != OverloadReporting::none) {
             startError(errReporting, loc, argsTypes, funName);
-            filterCandidatesErrReport(
-                    context, loc, candidates, &args, {}, evalMode, customCvtMode);
+            filterCandidatesErrReport(context, loc, candidates, &args, {}, evalMode, customCvtMode);
         }
         return nullptr;
     }

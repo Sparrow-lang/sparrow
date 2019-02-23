@@ -21,6 +21,7 @@
 #include "SparrowFrontend/Services/Callable/Callable.h"
 #include "SparrowFrontend/Services/Callable/ConceptCallable.h"
 #include "SparrowFrontend/Services/Callable/GenericPackageCallable.h"
+#include "SparrowFrontend/Services/Callable/GenericDatatypeCallable.h"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 using namespace Feather;
@@ -33,6 +34,16 @@ struct CallableFixture : SparrowGeneralFixture {
 
     //! Ensures that the generated callable matches the original decl
     void checkCallable(Callable& c, NodeHandle decl, const ParamsData* paramsData = nullptr);
+
+    GenericPackageCallable genGenericPackageCallable(
+            ParamsData& outParamsData, bool ifClauseVal = true);
+    GenericDatatypeCallable genGenericDatatypeCallable(
+            ParamsData& outParamsData, bool ifClauseVal = true);
+
+    void checkCanCall(Callable& callable, NodeRange args);
+    void checkCannotCall(Callable& callable, NodeRange args);
+    void checkGenerateCall(GenericPackageCallable& callable);
+    void checkGenerateCall(GenericDatatypeCallable& callable);
 
     //! The types that we are using while performing our tests
     SampleTypes types_;
@@ -210,9 +221,8 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.ConceptCallable") {
     });
 }
 
-namespace {
-GenericPackageCallable genGenericPackageCallable(
-        CompilationContext* ctx, ParamsData& outParamsData, bool ifClauseVal = true) {
+GenericPackageCallable CallableFixture::genGenericPackageCallable(
+        ParamsData& outParamsData, bool ifClauseVal) {
     ParamsGenOptions paramOptions;
     paramOptions.minNumParams = 1;
     paramOptions.useRt = false;
@@ -222,77 +232,212 @@ GenericPackageCallable genGenericPackageCallable(
 
     // Get an arbitrary GenericPackage decl node
     auto packageDecl = *arbGenPackage(outParamsData, ifClauseVal);
+    // printNode(packageDecl);
     RC_ASSERT(packageDecl.parameters().children().size() > 0);
-    packageDecl.setContext(ctx);
-    FeatherNodeFactory::instance().setContextForAuxNodes(ctx);
+    packageDecl.setContext(globalContext_);
+    FeatherNodeFactory::instance().setContextForAuxNodes(globalContext_);
     RC_ASSERT(packageDecl.semanticCheck());
     auto genPackageDecl = NodeHandle(resultingDecl(packageDecl)).kindCast<GenericPackage>();
     RC_ASSERT(genPackageDecl);
 
-    return GenericPackageCallable(genPackageDecl);
+    auto callable = GenericPackageCallable(genPackageDecl);
+
+    // Ensure that all the types of the callable match the params data
+    RC_ASSERT(callable.numParams() == outParamsData.numParams_);
+    for (int i = 0; i < outParamsData.numParams_; i++) {
+        RC_ASSERT(callable.paramType(i) == outParamsData.types_[i]);
+    }
+
+    return callable;
 }
-} // namespace
+
+GenericDatatypeCallable CallableFixture::genGenericDatatypeCallable(
+        ParamsData& outParamsData, bool ifClauseVal) {
+    ParamsGenOptions paramOptions;
+    paramOptions.minNumParams = 1;
+    paramOptions.useRt = false;
+    paramOptions.useConcept = false;
+    paramOptions.useDependent = false;
+    outParamsData = *arbParamsData(paramOptions);
+
+    // Get an arbitrary GenericPackage decl node
+    auto datatypeDecl = *arbGenDatatype(outParamsData, ifClauseVal);
+    // printNode(datatypeDecl);
+    RC_ASSERT(datatypeDecl.parameters().children().size() > 0);
+    datatypeDecl.setContext(globalContext_);
+    FeatherNodeFactory::instance().setContextForAuxNodes(globalContext_);
+    RC_ASSERT(datatypeDecl.semanticCheck());
+    auto genDatatypeDecl = NodeHandle(resultingDecl(datatypeDecl)).kindCast<GenericDatatype>();
+    RC_ASSERT(genDatatypeDecl);
+
+    auto callable = GenericDatatypeCallable(genDatatypeDecl);
+
+    // Ensure that all the types of the callable match the params data
+    RC_ASSERT(callable.numParams() == outParamsData.numParams_);
+    for (int i = 0; i < outParamsData.numParams_; i++) {
+        RC_ASSERT(callable.paramType(i) == outParamsData.types_[i]);
+    }
+
+    return callable;
+}
+
+void CallableFixture::checkCanCall(Callable& callable, NodeRange args) {
+    // Check that we can call the callable with the given args
+    CCLoc ccloc{globalContext_, createLocation()};
+    auto cvt = callable.canCall(ccloc, args, modeRt, CustomCvtMode::allowCustomCvt, true);
+    RC_ASSERT(cvt != convNone);
+    RC_ASSERT(callable.valid());
+}
+
+void CallableFixture::checkCannotCall(Callable& callable, NodeRange args) {
+    // Check that we can call the callable with the given args
+    CCLoc ccloc{globalContext_, createLocation()};
+    auto cvt = callable.canCall(ccloc, args, modeRt, CustomCvtMode::allowCustomCvt);
+    RC_ASSERT(cvt == convNone);
+    RC_ASSERT(callable.valid());
+}
+
+void CallableFixture::checkGenerateCall(GenericPackageCallable& callable) {
+    // Generate the call
+    CCLoc ccloc{globalContext_, createLocation()};
+    auto callCode = callable.generateCall(ccloc);
+    RC_ASSERT(callCode);
+    RC_ASSERT(callCode.semanticCheck());
+
+    // This generated a DeclExp pointing to a regular, non-generic package
+    auto declExp = callCode.kindCast<DeclExp>();
+    RC_ASSERT(declExp);
+    RC_ASSERT(declExp.referredDecls().size() == 1);
+    auto referredDecl = declExp.referredDecls()[0];
+    RC_ASSERT(referredDecl);
+    auto instPackage = referredDecl.kindCast<PackageDecl>();
+    RC_ASSERT(instPackage);
+    RC_ASSERT(instPackage.name() == callable.decl().name());
+    RC_ASSERT(!instPackage.parameters());
+    RC_ASSERT(!instPackage.ifClause());
+
+    // Check description given to the package
+    StringRef desc = instPackage.getCheckPropertyString(propDescription);
+    string descStr = desc.toStd();
+    RC_ASSERT(desc != instPackage.name());
+    RC_ASSERT(descStr.find('[') > 0);
+    RC_ASSERT(descStr.find(']') > 0);
+}
+
+void CallableFixture::checkGenerateCall(GenericDatatypeCallable& callable) {
+    // Generate the call
+    CCLoc ccloc{globalContext_, createLocation()};
+    auto callCode = callable.generateCall(ccloc);
+    RC_ASSERT(callCode);
+    RC_ASSERT(callCode.semanticCheck());
+
+    // We have a type node pointing to structure decl corresponding to the datatype
+    auto ctVal = callCode.kindCast<CtValueExp>();
+    RC_ASSERT(ctVal);
+    RC_ASSERT(ctVal.type() == StdDef::typeType);
+    auto t = getType(ctVal);
+    auto structDecl = DeclNode(t.referredNode());
+    RC_ASSERT(t.kind() == typeKindData);
+    RC_ASSERT(structDecl.name() == callable.decl().name());
+
+    // The actual type name contains the values. i.e., 'Tuple[Int, Double]''
+    StringRef typeDesc = t.description();
+    string typeDescStr = typeDesc.toStd();
+    RC_ASSERT(typeDesc != structDecl.name());
+    RC_ASSERT(typeDescStr.find('[') > 0);
+    RC_ASSERT(typeDescStr.find(']') > 0);
+}
 
 TEST_CASE_METHOD(CallableFixture, "CallableFixture.GenericPackageCallable") {
 
     types_.init(*this, SampleTypes::addByteType);
 
-    rc::prop("test GenericPackageCallable properties", [=]() {
+    rc::prop("GenericPackageCallable can be called with proper arguments", [=]() {
         ParamsData paramsData;
-        GenericPackageCallable callable = genGenericPackageCallable(globalContext_, paramsData);
-
-        // Ensure that all the types of the callable match the params data
-        RC_ASSERT(callable.numParams() == paramsData.numParams_);
-        for (int i = 0; i < paramsData.numParams_; i++) {
-            RC_ASSERT(callable.paramType(i) == paramsData.types_[i]);
-        }
+        GenericPackageCallable callable = genGenericPackageCallable(paramsData);
 
         // Generate some args that match the given types
         vector<NodeHandle> args = *arbArguments(paramsData, &types_);
         semanticCheck(args, globalContext_);
 
         // Check that we can call the callable with the given args
-        CCLoc ccloc{globalContext_, createLocation()};
-        auto cvt = callable.canCall(ccloc, args, modeRt, CustomCvtMode::allowCustomCvt, true);
-        RC_ASSERT(cvt != convNone);
-        RC_ASSERT(callable.valid());
-
-        // Generate the call, and check the result
-        // This generated a DeclExp pointing to a regular, non-generic package
-        auto callCode = callable.generateCall(ccloc);
-        RC_ASSERT(callCode);
-        RC_ASSERT(callCode.semanticCheck());
-        auto declExp = callCode.kindCast<DeclExp>();
-        RC_ASSERT(declExp);
-        RC_ASSERT(declExp.referredDecls().size() == 1);
-        auto referredDecl = declExp.referredDecls()[0];
-        RC_ASSERT(referredDecl);
-        auto instPackage = referredDecl.kindCast<PackageDecl>();
-        RC_ASSERT(instPackage);
-        RC_ASSERT(instPackage.name() == callable.decl().name());
-        RC_ASSERT(!instPackage.parameters());
-        RC_ASSERT(!instPackage.ifClause());
+        checkCanCall(callable, args);
+        checkGenerateCall(callable);
     });
 
-    rc::prop("test GenericPackageCallable with false if clause", [=]() {
+    rc::prop("GenericPackageCallable can be called with argument completion", [=]() {
         ParamsData paramsData;
-        GenericPackageCallable callable =
-                genGenericPackageCallable(globalContext_, paramsData, false);
-
-        // Ensure that all the types of the callable match the params data
-        RC_ASSERT(callable.numParams() == paramsData.numParams_);
-        for (int i = 0; i < paramsData.numParams_; i++) {
-            RC_ASSERT(callable.paramType(i) == paramsData.types_[i]);
-        }
+        GenericPackageCallable callable = genGenericPackageCallable(paramsData);
 
         // Generate some args that match the given types
         vector<NodeHandle> args = *arbArguments(paramsData, &types_);
         semanticCheck(args, globalContext_);
 
-        // Check that can call results in failure
-        CCLoc ccloc{globalContext_, createLocation()};
-        auto cvt = callable.canCall(ccloc, args, modeRt, CustomCvtMode::allowCustomCvt);
-        RC_ASSERT(cvt == convNone);
-        RC_ASSERT(callable.valid());
+        // If we reduce the arguments, we should be still able to call the callable
+        // NOTE: to avoid comparing CT values, we should only call checkCanCall once per callable
+        if (paramsData.idxStartInit_ < paramsData.numParams_) {
+            int numArgs = *rc::gen::inRange(paramsData.idxStartInit_, paramsData.numParams_);
+
+            checkCanCall(callable, NodeRange(args).shrinkTo(numArgs));
+            checkGenerateCall(callable);
+        }
+    });
+
+    rc::prop("test GenericPackageCallable with false if clause", [=]() {
+        ParamsData paramsData;
+        GenericPackageCallable callable = genGenericPackageCallable(paramsData, false);
+
+        // Generate some args that match the given types
+        vector<NodeHandle> args = *arbArguments(paramsData, &types_);
+        semanticCheck(args, globalContext_);
+
+        checkCannotCall(callable, args);
+    });
+}
+
+TEST_CASE_METHOD(CallableFixture, "CallableFixture.GenericDatatypeCallable") {
+
+    types_.init(*this, SampleTypes::addByteType);
+
+    rc::prop("GenericDatatypeCallable can be called with proper arguments", [=]() {
+        ParamsData paramsData;
+        GenericDatatypeCallable callable = genGenericDatatypeCallable(paramsData);
+
+        // Generate some args that match the given types
+        vector<NodeHandle> args = *arbArguments(paramsData, &types_);
+        semanticCheck(args, globalContext_);
+
+        // Check that we can call the callable with the given args
+        checkCanCall(callable, args);
+        checkGenerateCall(callable);
+    });
+
+    rc::prop("GenericDatatypeCallable can be called with argument completion", [=]() {
+        ParamsData paramsData;
+        GenericDatatypeCallable callable = genGenericDatatypeCallable(paramsData);
+
+        // Generate some args that match the given types
+        vector<NodeHandle> args = *arbArguments(paramsData, &types_);
+        semanticCheck(args, globalContext_);
+
+        // If we reduce the arguments, we should be still able to call the callable
+        // NOTE: to avoid comparing CT values, we should only call checkCanCall once per callable
+        if (paramsData.idxStartInit_ < paramsData.numParams_) {
+            int numArgs = *rc::gen::inRange(paramsData.idxStartInit_, paramsData.numParams_);
+
+            checkCanCall(callable, NodeRange(args).shrinkTo(numArgs));
+            checkGenerateCall(callable);
+        }
+    });
+
+    rc::prop("test GenericDatatypeCallable with false if clause", [=]() {
+        ParamsData paramsData;
+        GenericDatatypeCallable callable = genGenericDatatypeCallable(paramsData, false);
+
+        // Generate some args that match the given types
+        vector<NodeHandle> args = *arbArguments(paramsData, &types_);
+        semanticCheck(args, globalContext_);
+
+        checkCannotCall(callable, args);
     });
 }

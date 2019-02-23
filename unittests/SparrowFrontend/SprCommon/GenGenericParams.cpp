@@ -17,8 +17,8 @@ using namespace SprFrontend;
 using namespace rc;
 
 //! Generate a new parameter
-ParameterDecl genParam(
-        ParamsGenOptions options, ParamsData& paramsData, const Location& loc, StringRef name);
+ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const Location& loc,
+        StringRef name, bool addInit);
 
 //! Generates a type to be used for a parameters
 TypeWithStorage genType(ParamsGenOptions options);
@@ -62,11 +62,15 @@ rc::Gen<ParamsData> arbParamsData(ParamsGenOptions options) {
         res.numParams_ = 0;
         res.paramsNode_ = NodeList::create(loc, {}, true);
         int numParams = *gen::inRange(options.minNumParams, maxNumParams);
+        int idxStartInit = numParams;
+        if (randomChance(45))
+            idxStartInit = *gen::inRange(options.minNumParams, numParams+1);
         for (int i = 0; i < numParams; i++) {
             string name = concat("p", i + 1);
-            auto param = genParam(options, res, loc, name);
+            auto param = genParam(options, res, loc, name, i>=idxStartInit);
             res.paramsNode_.addChild(param);
         }
+        res.idxStartInit_ = idxStartInit;
         return res;
     });
 }
@@ -155,8 +159,8 @@ void semanticCheck(const vector<NodeHandle>& values, Nest::CompilationContext* c
             RC_ASSERT(val.semanticCheck());
 }
 
-ParameterDecl genParam(
-        ParamsGenOptions options, ParamsData& paramsData, const Location& loc, StringRef name) {
+ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const Location& loc,
+        StringRef name, bool addInit) {
     int curIdx = paramsData.numParams_;
 
     // Should we have a dependent param?
@@ -191,7 +195,7 @@ ParameterDecl genParam(
 
     // Optionally, use an initializer for the parameter
     NodeHandle init;
-    if (randomChance(30)) {
+    if (addInit) {
         if (isDependent)
             init = Identifier::create(loc, prevParamName);
         else if (t.kind() != typeKindConcept)

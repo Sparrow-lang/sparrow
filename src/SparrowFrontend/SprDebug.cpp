@@ -5,6 +5,7 @@
 #include "Nest/Utils/cppif/NodeUtils.hpp"
 
 #include "Nodes/SparrowNodes.h"
+#include "Nodes/Decl.hpp"
 #include "Helpers/SprTypeTraits.h"
 
 // Defined in SparrowNodes_Module.cpp
@@ -361,11 +362,19 @@ void printNodeImpl(Node* node, int mode) {
         }
         return;
     }
-    case nkRelSparrowDeclPackage:
-        printf("package %s\n", Feather_getName(node).begin);
+    case nkRelSparrowDeclPackage: {
+        PackageDecl packageDecl(node);
+        printf("package %s", packageDecl.name().begin);
+        printNodeImpl(packageDecl.parameters(), 2);
+        if (packageDecl.ifClause()) {
+            printf(" if ");
+            printNodeImpl(packageDecl.ifClause(), 2);
+        }
+        printf("\n");
         printSpaces();
-        printNodeImpl(at(node->children, 0), 1);
+        printNodeImpl(packageDecl.body(), 1);
         return;
+    }
     case nkRelSparrowDeclSprDatatype: {
         Node* parameters = at(node->children, 0);
         Node* children = at(node->children, 1);

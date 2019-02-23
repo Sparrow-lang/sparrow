@@ -1,7 +1,8 @@
 #include <StdInc.h>
-#include "SparrowFrontend/Services/Callable/GenericPackageCallable.h"
+#include "SparrowFrontend/Services/Callable/GenericDatatypeCallable.h"
 #include "SparrowFrontend/Services/Callable/CallableHelpers.h"
 #include "SparrowFrontend/Helpers/Generics.h"
+#include "SparrowFrontend/Helpers/SprTypeTraits.h"
 #include "SparrowFrontend/Helpers/DeclsHelpers.h"
 #include "SparrowFrontend/Nodes/Exp.hpp"
 
@@ -13,11 +14,50 @@ using namespace Nest;
 
 namespace SprFrontend {
 
-GenericPackageCallable::GenericPackageCallable(GenericPackage decl)
+namespace {
+/**
+ * Get the resulting eval mode for a generic datatype instantiation.
+ *
+ * This will be used for the instantiation of the generic datatype.
+ *
+ * This checks all the bound values that are types. If all the bound types are CT types, then we
+ * return a CT-only mode. If all the bound types are RT-only, then we return a RT-only mode.
+ * For the rest of the cases (mixed modes, no types, etc.) We return the mainEvalMode value.
+ *
+ * @param mainEvalMode The effective eval mode of the generic decl
+ * @param boundValues  The bound values to be used for instantiating the generic
+ *
+ * @return The eval mode that should be used for the instantiation.
+ */
+EvalMode getResultingEvalMode(EvalMode mainEvalMode, NodeRange boundValues) {
+    bool hasCtOnlyArgs = false;
+    for (NodeHandle boundVal : boundValues) {
+        if (!boundVal)
+            continue;
+        ASSERT(!boundVal || boundVal.type());
+        // Test the type given to the 'Type' parameters (i.e., we need to know
+        // if Vector(t) can be rtct based on the mode of t)
+        Type t = tryGetTypeValue(boundVal);
+        if (t) {
+            if (t.mode() == modeCt)
+                hasCtOnlyArgs = true;
+        } else if (!boundVal.type().canBeUsedAtRt()) {
+            hasCtOnlyArgs = true;
+        }
+    }
+
+    if (hasCtOnlyArgs)
+        return modeCt;
+    return mainEvalMode;
+}
+
+} // namespace
+
+GenericDatatypeCallable::GenericDatatypeCallable(GenericDatatype decl)
     : Callable(decl)
     , params_(decl.instSet().params()) {}
 
-ConversionType GenericPackageCallable::canCall(const CCLoc& ccloc, NodeRange args,
+ConversionType GenericDatatypeCallable::canCall(const CCLoc& ccloc, NodeRange args,
         EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors) {
 
     // This can be called a second time to report the errors
@@ -72,75 +112,78 @@ ConversionType GenericPackageCallable::canCall(const CCLoc& ccloc, NodeRange arg
     // Note: we overwrite the args with their conversions;
     // We don't use the old arguments anymore
     // args_ = argsWithConversion(data_);
-    GenericPackage genNode = GenericPackage(decl_);
+    GenericDatatype genNode = GenericDatatype(decl_);
 
-    // Get the bound values to be used to instantiate the generic package
+    // Get the bound values to be used to instantiate the generic datatype
     SmallVector<NodeHandle> boundVals;
     getBoundValuesClassic(boundVals, NodeRangeT<NodeHandle>{args_.all()});
 
+    EvalMode resultingEvalMode =
+            getResultingEvalMode(decl_.effectiveMode(), NodeRangeT<NodeHandle>(boundVals));
+
     genericInst_ =
-            canInstantiate(genNode.instSet(), NodeRangeT<NodeHandle>(boundVals), modeUnspecified);
+            canInstantiate(genNode.instSet(), NodeRangeT<NodeHandle>(boundVals), resultingEvalMode);
     if (!genericInst_ && reportErrors) {
-        REP_INFO(NOLOC, "Cannot instantiate generic package");
+        REP_INFO(NOLOC, "Cannot instantiate generic datatype");
     }
     if (!genericInst_)
         return convNone;
 
     return res;
 }
-ConversionType GenericPackageCallable::canCall(const CCLoc& ccloc, Range<Type> argTypes,
+ConversionType GenericDatatypeCallable::canCall(const CCLoc& ccloc, Range<Type> argTypes,
         EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors) {
     // Cannot call only with types
     return convNone;
 }
 
-NodeHandle GenericPackageCallable::generateCall(const CCLoc& ccloc) {
+NodeHandle GenericDatatypeCallable::generateCall(const CCLoc& ccloc) {
 
     ASSERT(genericInst_);
 
     // If not already created, create the actual instantiation declaration
     NodeHandle instDecl = genericInst_.instantiatedDecl();
     if (!instDecl) {
-        instDecl = createInstantiatedPackage();
+        instDecl = createInstantiatedDatatype();
 
         if (!instDecl.computeType())
             return {};
         Nest_queueSemanticCheck(instDecl);
         genericInst_.setInstantiatedDecl(instDecl);
 
-        // Add the instantiated package as an additional node to the generic node
+        // Add the instantiated datatype as an additional node to the generic node
         decl_.addAdditionalNode(genericInst_.boundVarsNode());
         if (decl_.curExplanation())
             decl_.curExplanation().addAdditionalNode(genericInst_.boundVarsNode());
     }
 
-    // The result is a declaration expression pointing to the instantiated package
-    auto res = DeclExp::create(ccloc.loc_, NodeRange({instDecl}), nullptr);
-    res.setContext(ccloc.context_);
-
-    return res;
+    // The result is a type node (CT), pointing to the instantiated datatype
+    auto structDecl = instDecl.explanation().kindCast<Feather::StructDecl>();
+    ASSERT(structDecl);
+    return createTypeNode(
+            decl_.context(), ccloc.loc_, Feather::DataType::get(structDecl, 0, modeRt));
 }
 
-int GenericPackageCallable::numParams() const { return params_.size(); }
+int GenericDatatypeCallable::numParams() const { return params_.size(); }
 
-Type GenericPackageCallable::paramType(int idx) const {
+Type GenericDatatypeCallable::paramType(int idx) const {
     ASSERT(idx < params_.size());
     auto param = params_[idx];
     ASSERT(param);
     return param.type();
 }
 
-string GenericPackageCallable::toString() const { return genericToStringClassic(decl_, params_); }
+string GenericDatatypeCallable::toString() const { return genericToStringClassic(decl_, params_); }
 
-PackageDecl GenericPackageCallable::createInstantiatedPackage() {
-    PackageDecl orig = GenericPackage(decl_).original();
+DataTypeDecl GenericDatatypeCallable::createInstantiatedDatatype() {
+    DataTypeDecl orig = GenericDatatype(decl_).original();
 
-    // Place the instantiated package in the context where we can access the bound variables
+    // Place the instantiated datatype in the context where we can access the bound variables
     CompilationContext* ctx = genericInst_.boundVarsNode().childrenContext();
 
     auto body = orig.body();
     body = body ? body.clone() : NodeList();
-    auto res = PackageDecl::create(orig.location(), orig.name(), body);
+    auto res = DataTypeDecl::create(orig.location(), orig.name(), nullptr, nullptr, nullptr, body);
     copyAccessType(res, orig);
     copyModifiersSetMode(orig, res, ctx->evalMode);
     res.setContext(ctx);

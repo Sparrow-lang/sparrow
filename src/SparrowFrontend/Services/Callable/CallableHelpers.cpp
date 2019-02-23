@@ -84,8 +84,8 @@ void getBoundValuesClassic(SmallVector<NodeHandle>& boundVals, NodeRange args) {
             return;
         }
         if (!Feather_isCt(arg))
-            REP_INTERNAL(arg.location(), "Argument to a class generic must be CT (type: %1%)") %
-                    arg.type();
+            REP_INTERNAL(arg.location(), "Argument must be CT; current type: %1% (node: %2%)") %
+                    arg.type() % Nest_toStringEx(arg);
         NodeHandle n = Nest_ctEval(arg);
         // if (!n || n.kind() != nkFeatherExpCtValue)
         //     REP_INTERNAL(arg.location(), "Invalid argument %1% when instantiating generic") %

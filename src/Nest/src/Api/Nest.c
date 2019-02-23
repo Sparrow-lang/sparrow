@@ -10,9 +10,7 @@
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.h"
 
-void Nest_initModule() {
-    Nest_compilerInit();
-}
+void Nest_initModule() { Nest_compilerInit(); }
 
 void Nest_destroyModule() {
     Nest_compilerDestroy();

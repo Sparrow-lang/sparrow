@@ -87,8 +87,7 @@ bool completeArgsWithDefaults(CallableData& c, NodeRange args) {
  *
  * @return True if the callable can be used in the given eval mode
  */
-bool checkEvalMode(
-        CallableData& c, Range<Type> argTypes, EvalMode evalMode, bool reportErrors) {
+bool checkEvalMode(CallableData& c, Range<Type> argTypes, EvalMode evalMode, bool reportErrors) {
 
     // Nothing to check for concepts
     if (c.type == CallableType::concept)
@@ -116,8 +115,7 @@ bool checkEvalMode(
 }
 
 ConversionType canCall_common_types(CallableData& c, CompilationContext* context,
-        Range<Type> argTypes, EvalMode evalMode, CustomCvtMode customCvtMode,
-        bool reportErrors) {
+        Range<Type> argTypes, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors) {
     int paramsCount = c.params.size();
 
     c.conversions.resize(paramsCount, convNone);
@@ -1017,7 +1015,7 @@ ConversionType CallableImpl::canCall(const CCLoc& ccloc, NodeRange args, EvalMod
     // Get the arg types to perform the check on types
     SmallVector<Type> argTypes;
     argTypes.reserve(data_.args.size());
-    for (auto arg: data_.args)
+    for (auto arg : data_.args)
         argTypes.push_back(arg.type());
 
     // Check evaluation mode
@@ -1068,8 +1066,8 @@ ConversionType CallableImpl::canCall(const CCLoc& ccloc, NodeRange args, EvalMod
 
     return res;
 }
-ConversionType CallableImpl::canCall(const CCLoc& ccloc, Range<Type> argTypes,
-        EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors) {
+ConversionType CallableImpl::canCall(const CCLoc& ccloc, Range<Type> argTypes, EvalMode evalMode,
+        CustomCvtMode customCvtMode, bool reportErrors) {
     SmallVector<Type> argTypes2;
     Range<Type> argTypesToUse = argTypes;
 
@@ -1079,7 +1077,7 @@ ConversionType CallableImpl::canCall(const CCLoc& ccloc, Range<Type> argTypes,
         if (!Feather::isCategoryType(t))
             t = MutableType::get(data_.implicitArgType);
 
-        argTypes2.reserve(argTypes.size()+1);
+        argTypes2.reserve(argTypes.size() + 1);
         argTypes2.push_back(t);
         argTypes2.insert(argTypes);
         argTypesToUse = Range<Type>(argTypes2);

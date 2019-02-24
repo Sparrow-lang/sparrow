@@ -16,6 +16,10 @@ rc::Gen<SprFunctionDecl> arbFunction(bool ifClauseVal = true);
 //! Same as above, but with the given paramsData
 rc::Gen<SprFunctionDecl> arbFunction(const ParamsData& paramsData, bool ifClauseVal = true);
 
+//! Generator for arbitrary Feather function declarations
+rc::Gen<Feather::FunctionDecl> arbFeatherFunction(const ParamsData& paramsData);
+rc::Gen<Feather::FunctionDecl> arbFeatherFunction();
+
 //! Generator for arbitrary generic packages
 rc::Gen<PackageDecl> arbGenPackage(const ParamsData& paramsData, bool ifClauseVal = true);
 rc::Gen<PackageDecl> arbGenPackage(bool ifClauseVal = true);

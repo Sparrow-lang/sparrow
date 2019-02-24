@@ -39,6 +39,24 @@ SprFunctionDecl genFunction(const ParamsData& params, bool ifClauseVal) {
     return res;
 }
 
+FunctionDecl genFeatherFunction(const ParamsData& params) {
+    // Optionally, generate a return type
+    NodeHandle returnType;
+    if (randomChance(50))
+        returnType = TypeNode::create(g_LocationGen(), *TypeFactory::arbDataType(modeRt));
+    else
+        returnType = TypeNode::create(g_LocationGen(), VoidType::get(modeUnspecified));
+
+    // Leave the body empty
+    NodeHandle body;
+
+    static int nameIdx = 0;
+    auto name = concat("myFunctionDecl", nameIdx++);
+
+    return FunctionDecl::create(
+            g_LocationGen(), name, returnType, params.paramsNode_.children(), body);
+}
+
 PackageDecl genGenPakage(const ParamsData& params, bool ifClauseVal) {
     auto body = NodeList::create(g_LocationGen(), NodeRange{}, true);
 
@@ -87,6 +105,21 @@ rc::Gen<SprFunctionDecl> arbFunction(bool ifClauseVal) {
 
 rc::Gen<SprFunctionDecl> arbFunction(const ParamsData& paramsData, bool ifClauseVal) {
     return rc::gen::exec([=]() -> SprFunctionDecl { return genFunction(paramsData, ifClauseVal); });
+}
+
+rc::Gen<FunctionDecl> arbFeatherFunction() {
+    return rc::gen::exec([=]() -> FunctionDecl {
+        ParamsGenOptions paramOptions;
+        paramOptions.useCt = false;
+        paramOptions.useConcept = false;
+        paramOptions.useDependent = false;
+        auto paramsData = *arbParamsData(paramOptions);
+        return genFeatherFunction(paramsData);
+    });
+}
+
+rc::Gen<FunctionDecl> arbFeatherFunction(const ParamsData& paramsData) {
+    return rc::gen::exec([=]() -> FunctionDecl { return genFeatherFunction(paramsData); });
 }
 
 rc::Gen<PackageDecl> arbGenPackage(const ParamsData& paramsData, bool ifClauseVal) {

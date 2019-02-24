@@ -395,12 +395,6 @@ FunctionDecl FunctionDecl::create(const Location& loc, StringRef name, NodeHandl
     res.setNameAndMode(name, modeUnspecified);
     res.setProperty("callConvention", (int)ccC);
 
-    // Make sure all the nodes given as parameters have the right kind
-    for (NodeHandle param : params) {
-        if (param.explanation().kind() != nkFeatherDeclVar)
-            REP_INTERNAL(param.location(), "Node %1% must be a parameter") % param;
-    }
-
     return res;
 }
 NodeHandle FunctionDecl::resTypeNode() const { return children()[0]; }
@@ -410,9 +404,6 @@ CallConvention FunctionDecl::callConvention() const {
     return (CallConvention)getCheckPropertyInt("callConvention");
 }
 void FunctionDecl::addParameter(DeclNode param, bool insertInFront) {
-    if (param.explanation().kind() != nkFeatherDeclVar)
-        REP_INTERNAL(param.location(), "Node %1% must be a parameter") % param;
-
     if (insertInFront)
         Nest_insertNodeIntoArray(&handle->children, 2, param);
     else
@@ -458,6 +449,9 @@ Type FunctionDecl::computeTypeImpl(FunctionDecl node) {
             REP_ERROR_RET(nullptr, node.location(), "Invalid parameter");
         if (!param.computeType())
             return {};
+        if (param.explanation().kind() != nkFeatherDeclVar)
+            REP_INTERNAL(param.location(), "Node %1% must be a parameter (%2%)") % param %
+                    Nest_toStringEx(param);
         subTypes.push_back(param.type());
     }
 

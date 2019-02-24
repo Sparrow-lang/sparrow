@@ -31,6 +31,8 @@ struct ParameterDecl;
  */
 bool completeArgsWithDefaults(
         SmallVector<NodeHandle>& resArgs, NodeRange args, NodeRangeT<ParameterDecl> params);
+bool completeArgsWithDefaults(
+        SmallVector<NodeHandle>& resArgs, NodeRange args, NodeRangeT<Feather::DeclNode> params);
 
 /**
  * @brief      Check conversions of args to params by types
@@ -58,7 +60,8 @@ ConversionType checkTypeConversions(SmallVector<ConversionResult>& conversions, 
         bool reportErrors);
 
 //! Apply the given conversions to the given set of arguments
-void applyConversions(SmallVector<NodeHandle>& args, SmallVector<ConversionResult> conversions);
+void applyConversions(
+        SmallVector<NodeHandle>& args, const SmallVector<ConversionResult>& conversions);
 
 /**
  * @brief      Gets the bound values for the given args; classic algo
@@ -84,5 +87,8 @@ string getGenericDescription(Feather::DeclNode originalDecl, Instantiation inst)
 
 //! Get a human-readable representation of the given generic, with the given params
 string genericToStringClassic(Feather::DeclNode decl, NodeRangeT<ParameterDecl> params);
+//! Get a human-readable representation of the given decl
+//! Params can be ParameterDecl or Feather::VarDecl
+string declToStringClassic(Feather::DeclNode decl, NodeRangeT<Feather::DeclNode> params);
 
 } // namespace SprFrontend

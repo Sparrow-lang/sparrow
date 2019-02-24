@@ -31,6 +31,27 @@ bool completeArgsWithDefaults(
     }
     return true;
 }
+bool completeArgsWithDefaults(
+        SmallVector<NodeHandle>& resArgs, NodeRange args, NodeRangeT<DeclNode> params) {
+    // Copy the list of arguments; add default values if arguments are missing
+    int paramsCount = params.size();
+    resArgs.clear();
+    resArgs.reserve(paramsCount);
+    resArgs.insert(args);
+    for (int i = args.size(); i < paramsCount; ++i) {
+        auto param = params[i].kindCast<ParameterDecl>();
+        if (!param)
+            return false;
+        auto defaultArg = param.init();
+        if (!defaultArg)
+            return false; // We have a non-default parameter but we don't have an argument for that
+        if (!defaultArg.semanticCheck()) // Make sure this is semantically checked
+            return false;
+
+        resArgs.push_back(defaultArg);
+    }
+    return true;
+}
 
 ConversionType checkTypeConversions(SmallVector<ConversionResult>& conversions, CCLoc ccloc,
         Range<Type> argTypes, Range<Type> paramTypes, CustomCvtMode customCvtMode,
@@ -65,7 +86,8 @@ ConversionType checkTypeConversions(SmallVector<ConversionResult>& conversions, 
     return res;
 }
 
-void applyConversions(SmallVector<NodeHandle>& args, SmallVector<ConversionResult> conversions) {
+void applyConversions(
+        SmallVector<NodeHandle>& args, const SmallVector<ConversionResult>& conversions) {
     ASSERT(args.size() == conversions.size());
     for (int i = 0; i < args.size(); ++i)
         args[i] = conversions[i].apply(args[i]);
@@ -125,6 +147,34 @@ string genericToStringClassic(DeclNode decl, NodeRangeT<ParameterDecl> params) {
 
         StringRef name = param.name();
         NodeHandle typeNode = param.typeNode();
+        Type type = typeNode ? tryGetTypeValue(typeNode) : Type();
+        if (name)
+            oss << name << ": ";
+        if (type)
+            oss << type;
+        else
+            oss << '?';
+    }
+    oss << ")";
+    return oss.str();
+}
+string declToStringClassic(DeclNode decl, NodeRangeT<DeclNode> params) {
+    ostringstream oss;
+    oss << decl.name() << "(";
+    bool first = true;
+    for (auto param : params) {
+        if (!first)
+            oss << ", ";
+        first = false;
+
+        StringRef name = param.name();
+        NodeHandle typeNode;
+        auto paramDecl = param.kindCast<ParameterDecl>();
+        if (paramDecl)
+            typeNode = paramDecl.typeNode();
+        auto varDecl = param.kindCast<VarDecl>();
+        if (varDecl)
+            typeNode = varDecl.typeNode();
         Type type = typeNode ? tryGetTypeValue(typeNode) : Type();
         if (name)
             oss << name << ": ";

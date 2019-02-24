@@ -50,10 +50,6 @@ public:
     Type paramType(int idx) const override;
 
 private:
-    //! The argument passed to 'canCall'
-    NodeHandle argument_;
-    //! The conversion of the argument
-    ConversionResult conv_;
     //! The parameters of the generic callable
     Nest::NodeRangeT<ParameterDecl> params_;
     //! The arguments to be used for the callable

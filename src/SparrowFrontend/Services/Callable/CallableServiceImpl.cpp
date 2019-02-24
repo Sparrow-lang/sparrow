@@ -1,6 +1,8 @@
 #include <StdInc.h>
 #include "SparrowFrontend/Services/Callable/CallableServiceImpl.h"
 #include "SparrowFrontend/Services/Callable/CallableImpl.h"
+#include "SparrowFrontend/Services/Callable/FunctionCallable.h"
+#include "SparrowFrontend/Services/Callable/GenericFunctionCallable.h"
 #include "SparrowFrontend/Services/Callable/GenericDatatypeCallable.h"
 #include "SparrowFrontend/Services/Callable/GenericPackageCallable.h"
 #include "SparrowFrontend/Services/Callable/ConceptCallable.h"
@@ -35,9 +37,9 @@ void getClassCtorCallables(Feather::StructDecl structDecl, EvalMode evalMode, Ca
     for (NodeHandle decl : decls) {
         if (!decl.computeType())
             continue;
-        auto fun = decl.explanation().kindCast<Feather::FunctionDecl>();
-        if (fun && predIsSatisfied(decl, pred))
-            res.callables_.push_back(mkFunCallable(fun, implicitArgType));
+        auto funDecl = decl.explanation().kindCast<Feather::FunctionDecl>();
+        if (funDecl && predIsSatisfied(decl, pred))
+            res.callables_.push_back(new FunctionCallable(funDecl, implicitArgType));
 
         NodeHandle resDecl = resultingDecl(decl);
         auto genFun = resDecl.kindCast<GenericFunction>();
@@ -71,7 +73,7 @@ Callables CallableServiceImpl::getCallables(NodeRange decls, EvalMode evalMode,
             // Is this a normal function call?
             auto funDecl = decl.kindCast<Feather::FunctionDecl>();
             if (funDecl && predIsSatisfied(funDecl, pred))
-                res.callables_.push_back(mkFunCallable(funDecl));
+                res.callables_.push_back(new FunctionCallable(funDecl));
 
             // Is this a generic?
             auto genFun = decl.kindCast<GenericFunction>();

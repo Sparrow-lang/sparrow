@@ -102,7 +102,7 @@ void GenericsFixture::checkInst(
     RC_ASSERT(boundVarIdx == inst.boundVarsNode().children().size());
 }
 
-TEST_CASE_METHOD(GenericsFixture, "Test Generics.checkCreateGenericFun") {
+TEST_CASE_METHOD(GenericsFixture, "GenericsFixture..checkCreateGenericFun") {
 
     types_.init(*this);
 
@@ -154,7 +154,7 @@ TEST_CASE_METHOD(GenericsFixture, "Test Generics.checkCreateGenericFun") {
     });
 }
 
-TEST_CASE_METHOD(GenericsFixture, "Test Generics.createNewInstantiation") {
+TEST_CASE_METHOD(GenericsFixture, "GenericsFixture..createNewInstantiation") {
 
     types_.init(*this, SampleTypes::onlyNumeric | SampleTypes::addByteType);
 
@@ -193,7 +193,7 @@ TEST_CASE_METHOD(GenericsFixture, "Test Generics.createNewInstantiation") {
     });
 }
 
-TEST_CASE_METHOD(GenericsFixture, "Test Generics.canInstantiate OK") {
+TEST_CASE_METHOD(GenericsFixture, "GenericsFixture.canInstantiate") {
     types_.init(*this, SampleTypes::addByteType);
 
     rc::prop("canInstantiate will always return true", [=]() {
@@ -282,4 +282,46 @@ TEST_CASE_METHOD(GenericsFixture, "Test Generics.canInstantiate OK") {
     });
 
     // TODO: Dependent params on CT params does not work
+}
+
+TEST_CASE_METHOD(GenericsFixture, "GenericsFixture.IterativeInstantiationBuilder") {
+    types_.init(*this, SampleTypes::addByteType);
+
+    rc::prop("IterativeInstantiationBuilder builds good instantiations", [=]() {
+        // Generate some random params
+        ParamsGenOptions paramsOptions;
+        paramsOptions.minNumParams = 1;
+        paramsOptions.useRt = false;
+        paramsOptions.useConcept = false;
+        paramsOptions.useDependent = false;
+        ParamsData paramsData = *arbParamsData(paramsOptions);
+
+        //! Create an instantiation set
+        SprFunctionDecl fun = *arbFunction(paramsData);
+        InstantiationsSet instSet =
+                InstantiationsSet::create(fun, paramsData.paramsNode_.children(), {});
+        fun.setContext(globalContext_);
+        instSet.setContext(globalContext_);
+        fun.semanticCheck();
+        instSet.semanticCheck();
+
+        // Produce several instantiations
+        for (int k=0; k<10; k++) {
+            auto args = *arbBoundValues(paramsData, types_);
+            semanticCheck(args, globalContext_);
+
+            IterativeInstantiationBuilder instBuilder(
+                    instSet, paramsData.numParams_, modeRt, false);
+            for (int i=0; i<paramsData.numParams_; i++) {
+                instBuilder.addBoundVal(i, args[i], paramsData.params_[i], paramsData.types_[i]);
+            }
+            auto inst = instBuilder.inst();
+            RC_ASSERT(inst);
+            RC_ASSERT(canInstantiate(inst, instSet));
+            RC_ASSERT(inst.isValid());
+        }
+        int numDistinctInstantiations = instSet.instantiations().size();
+        RC_ASSERT(numDistinctInstantiations > 0);
+        RC_ASSERT(numDistinctInstantiations <= 10);
+    });
 }

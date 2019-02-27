@@ -4,6 +4,7 @@
 #include "SparrowFrontend/Nodes/Decl.hpp"
 #include "SparrowFrontend/Nodes/Generics.hpp"
 #include "Nest/Utils/cppif/NodeUtils.hpp"
+#include "Nest/Utils/cppif/SmallVector.hpp"
 
 namespace SprFrontend {
 
@@ -202,5 +203,59 @@ Instantiation canInstantiate(InstantiationsSet instSet, NodeRange values, EvalMo
 //! For concept parameters, we store the type as a bound value.
 //! Used as a low-level primitive. Should not be called for CT-generics
 bool isConceptParam(Type paramType, NodeHandle boundValue);
+
+/**
+ * @brief      Helper class used to create iterative instantiation objects step by step.
+ *
+ * This is used for Generic functions, as they can have dependent params. For dependent params, the
+ * actual instantiation should be created step by step, as later params can depend on previous
+ * params.
+ *
+ * To iteratively build the instantiation, call addBoundVal() with monotonically increasing indexes.
+ *
+ * As much as possible, this tries to reuse previous instantiations. Whenever the given bound value
+ * differs from all the existing instantiations, it will create a new instantiation.
+ *
+ * At the end of the process, we always have an instantiation built.
+ */
+class IterativeInstantiationBuilder {
+    bool reuseExistingInst_{true};
+    InstantiationsSet instSet_;
+    Instantiation curInst_;
+    Nest::SmallVector<NodeHandle> boundValues_;
+    EvalMode finalEvalMode_;
+    bool isCtGeneric_;
+
+public:
+    IterativeInstantiationBuilder(
+            InstantiationsSet instSet, int numParams, EvalMode finalEvalMode, bool isCtGeneric);
+
+    /**
+     * @brief      Adds a bound value to the instantiation.
+     *
+     * Call this iteratively to build the instantiation.
+     * This will keep track of whether we can reuse previous instantiations or not.
+     *
+     * @param[in]  idx        The index of the bound value
+     * @param[in]  boundVal   The bound value
+     * @param[in]  param      The parameter for which we create a bound value
+     * @param[in]  paramType  The type of the parameter (may be deduced)
+     */
+    void addBoundVal(int idx, NodeHandle boundVal, ParameterDecl param, Type paramType);
+
+    //! Returns the current instantiation; can be reused or not.
+    Instantiation inst() const;
+
+    //! Returns the contexts for the bound variable.
+    //! If no bound values were added, this will return null.
+    //! Used when computing types for dependent params.
+    CompilationContext* boundVarContext() const;
+
+    //! Returns the bound value, in case we are reusing instantiation.
+    //! If we are not reusing, this will return a null node
+    //! Used to speed up computation of dependent types.
+    NodeHandle existingBoundVal(int idx) const;
+};
+
 
 } // namespace SprFrontend

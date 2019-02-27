@@ -2,6 +2,7 @@
 #include "BackendMock.hpp"
 
 #include "Feather/Utils/FeatherUtils.h"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 #include "Nest/Utils/cppif/Type.hpp"
 #include "Nest/Utils/cppif/NodeHandle.hpp"
@@ -36,8 +37,21 @@ void BackendMock::Link(Nest_Backend* /*backend*/, const char* /*outFilename*/) {
 void BackendMock::CtProcess(Nest_Backend* /*backend*/, Node* /*node*/) {
     // Nothing to do
 }
-Node* BackendMock::CtEvaluate(Nest_Backend* /*backend*/, Node* node) {
-    return node; // Transparent evaluation
+Node* BackendMock::CtEvaluate(Nest_Backend* backend, Node* node) {
+    if (!Nest_semanticCheck(node))
+        return node;
+    if (node->nodeKind == Feather::CtValueExp::staticKind())
+        return node;
+    else {
+        // Return a value appropriate for the given type
+        auto dataSize = int(SizeOf(backend, node->type));
+        Nest::StringRefM data{dataSize};
+        // Fill the data with a char
+        char ch = '#';
+        for (int i = 0; i < dataSize; i++)
+            data.begin[i] = ch;
+        return Feather::CtValueExp::create(node->location, node->type, data);
+    }
 }
 unsigned int BackendMock::SizeOf(Nest_Backend* /*backend*/, TypeRef type) {
     auto node = Nest::Type(type).referredNode();

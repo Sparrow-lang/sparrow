@@ -1,6 +1,5 @@
 #include <StdInc.h>
 #include "SparrowFrontend/Services/Callable/CallableServiceImpl.h"
-#include "SparrowFrontend/Services/Callable/CallableImpl.h"
 #include "SparrowFrontend/Services/Callable/FunctionCallable.h"
 #include "SparrowFrontend/Services/Callable/GenericFunctionCallable.h"
 #include "SparrowFrontend/Services/Callable/GenericDatatypeCallable.h"
@@ -44,7 +43,7 @@ void getClassCtorCallables(Feather::StructDecl structDecl, EvalMode evalMode, Ca
         NodeHandle resDecl = resultingDecl(decl);
         auto genFun = resDecl.kindCast<GenericFunction>();
         if (genFun && predIsSatisfied(decl, pred))
-            res.callables_.push_back(mkGenericFunCallable(genFun, implicitArgType));
+            res.callables_.push_back(new GenericFunctionCallable(genFun, implicitArgType));
         auto genDatatype = resDecl.kindCast<GenericDatatype>();
         if (genDatatype && predIsSatisfied(decl, pred))
             res.callables_.push_back(new GenericDatatypeCallable(genDatatype));
@@ -78,7 +77,7 @@ Callables CallableServiceImpl::getCallables(NodeRange decls, EvalMode evalMode,
             // Is this a generic?
             auto genFun = decl.kindCast<GenericFunction>();
             if (genFun && predIsSatisfied(genFun, pred))
-                res.callables_.push_back(mkGenericFunCallable(genFun));
+                res.callables_.push_back(new GenericFunctionCallable(genFun));
             auto genDatatype = decl.kindCast<GenericDatatype>();
             if (genDatatype && predIsSatisfied(genDatatype, pred))
                 res.callables_.push_back(new GenericDatatypeCallable(genDatatype));

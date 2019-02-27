@@ -13,10 +13,10 @@ using namespace SprFrontend;
 using namespace rc;
 
 namespace {
-SprFunctionDecl genFunction(const ParamsData& params, bool ifClauseVal) {
+SprFunctionDecl genFunctionImpl(NodeList paramsNode, bool ifClauseVal, bool isGeneric, bool genReturn = true) {
     // Optionally, generate a return type
     NodeHandle returnType;
-    if (randomChance(50)) {
+    if (genReturn && randomChance(50)) {
         returnType = TypeNode::create(g_LocationGen(), *TypeFactory::arbDataType(modeRt));
     }
 
@@ -28,14 +28,14 @@ SprFunctionDecl genFunction(const ParamsData& params, bool ifClauseVal) {
     if (!ifClauseVal)
         ifClause = SprFrontend::buildBoolLiteral(g_LocationGen(), false);
 
-    if (ifClause && !params.isGeneric())
+    if (ifClause && !isGeneric)
         return {};
 
     static int nameIdx = 0;
     auto name = concat("mySprFunctionDecl", nameIdx++);
 
     auto res = SprFunctionDecl::create(
-            g_LocationGen(), name, params.paramsNode_, returnType, body, ifClause);
+            g_LocationGen(), name, paramsNode, returnType, body, ifClause);
     return res;
 }
 
@@ -99,12 +99,20 @@ DataTypeDecl genGenDatatype(const ParamsData& params, bool ifClauseVal) {
 rc::Gen<SprFunctionDecl> arbFunction(bool ifClauseVal) {
     return rc::gen::exec([=]() -> SprFunctionDecl {
         auto params = *arbParamsData();
-        return genFunction(params, ifClauseVal);
+        if (ifClauseVal && !params.isGeneric())
+            return {};
+        return genFunctionImpl(params.paramsNode_, ifClauseVal, params.isGeneric());
     });
 }
 
 rc::Gen<SprFunctionDecl> arbFunction(const ParamsData& paramsData, bool ifClauseVal) {
-    return rc::gen::exec([=]() -> SprFunctionDecl { return genFunction(paramsData, ifClauseVal); });
+    return rc::gen::exec([=]() -> SprFunctionDecl {
+        return genFunctionImpl(paramsData.paramsNode_, ifClauseVal, paramsData.isGeneric());
+    });
+}
+
+SprFunctionDecl genFunction(NodeList params, bool ifClauseVal) {
+    return genFunctionImpl(params, ifClauseVal, true, false);
 }
 
 rc::Gen<FunctionDecl> arbFeatherFunction() {

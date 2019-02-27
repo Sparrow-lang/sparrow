@@ -10,6 +10,48 @@ using namespace Nest;
 
 namespace SprFrontend {
 
+bool shouldUseCt(DeclNode decl, bool autoCt, Range<Type> argTypes, EvalMode evalMode) {
+    EvalMode declEvalMode = decl.effectiveMode();
+
+    // Compute the final version of autoCt flag. We force a CT call in the following cases:
+    //  - the target callable is CT
+    //  - the calling mode is CT
+    //  - if we have a true 'autoCt' function, and all params are CT, make a CT call
+    if (declEvalMode == modeCt || evalMode == modeCt)
+        return true;
+    if (autoCt) {
+        // In autoCt mode, if all the arguments are CT, make a CT call
+        for (Type t : argTypes) {
+            ASSERT(t);
+            if (t.mode() != modeCt)
+                return false;
+        }
+        return true;
+    }
+    return false;
+}
+bool shouldUseCt(DeclNode decl, bool autoCt, Range<NodeHandle> args, EvalMode evalMode) {
+    EvalMode declEvalMode = decl.effectiveMode();
+
+    // Compute the final version of autoCt flag. We force a CT call in the following cases:
+    //  - the target callable is CT
+    //  - the calling mode is CT
+    //  - if we have a true 'autoCt' function, and all params are CT, make a CT call
+    if (declEvalMode == modeCt || evalMode == modeCt)
+        return true;
+    if (autoCt) {
+        // In autoCt mode, if all the arguments are CT, make a CT call
+        for (auto arg : args) {
+            ASSERT(arg);
+            ASSERT(arg.type());
+            if (arg.type().mode() != modeCt)
+                return false;
+        }
+        return true;
+    }
+    return false;
+}
+
 bool completeArgsWithDefaults(
         SmallVector<NodeHandle>& resArgs, NodeRange args, NodeRangeT<ParameterDecl> params) {
     // Copy the list of arguments; add default values if arguments are missing
@@ -84,6 +126,26 @@ ConversionType checkTypeConversions(SmallVector<ConversionResult>& conversions, 
             res = conversions[i].conversionType();
     }
     return res;
+}
+
+NodeHandle applyConversion(NodeHandle arg, Type paramType, ConversionType& worstConv,
+        ConversionFlags flags, bool forceCt) {
+    ASSERT(arg.type());
+
+    // If we are looking at a CT callable, make sure the parameters are in CT
+    if (forceCt)
+        paramType = paramType.changeMode(modeCt, NOLOC);
+
+    ConversionResult conv =
+            g_ConvertService->checkConversion(arg.context(), arg.type(), paramType, flags);
+    if (!conv) {
+        return {};
+    } else if (conv.conversionType() < worstConv)
+        worstConv = conv.conversionType();
+
+    // Apply the conversion to our arg
+    // We are not interested in the original arg anymore
+    return conv.apply(arg.context(), arg);
 }
 
 void applyConversions(

@@ -324,4 +324,62 @@ bool isConceptParam(Type paramType, NodeHandle boundValue) {
     ASSERT(isConceptType(paramType) || paramType == getType(boundValue));
     return isConceptType(paramType) || paramType.mode() != modeCt;
 }
+
+
+IterativeInstantiationBuilder::IterativeInstantiationBuilder(
+        InstantiationsSet instSet, int numParams, EvalMode finalEvalMode, bool isCtGeneric)
+    : instSet_(instSet)
+    , finalEvalMode_(finalEvalMode)
+    , isCtGeneric_(isCtGeneric) {
+    boundValues_.resize(numParams, NodeHandle{});
+}
+
+void IterativeInstantiationBuilder::addBoundVal(
+        int idx, NodeHandle boundVal, ParameterDecl param, Type paramType) {
+    ASSERT(idx < boundValues_.size());
+    ASSERT(boundVal && boundVal.type());
+    boundValues_[idx] = boundVal;
+
+    // Now, select the appropriate inst for the new bound value
+    if (reuseExistingInst_) {
+        // First, check if we can continue the existing inst
+        if (curInst_) {
+            auto existingBoundVal = curInst_.boundValues()[idx];
+            if (!existingBoundVal || !ctValsEqual(boundVal, existingBoundVal)) {
+                curInst_ = Instantiation();
+            }
+        }
+        // If the current instantiation is not valid, try to search another
+        if (!curInst_) {
+            auto boundValues2 = NodeRangeT<NodeHandle>(boundValues_.all().shrinkTo(idx + 1));
+            curInst_ = searchInstantiation(instSet_, boundValues2);
+            reuseExistingInst_ = !!(curInst_);
+        }
+    }
+    if (!reuseExistingInst_) {
+        // This is a new instantiation; check if we have to create it
+        if (!curInst_) {
+            curInst_ = createNewInstantiation(
+                    instSet_, NodeRangeT<NodeHandle>(boundValues_), finalEvalMode_);
+            ASSERT(curInst_);
+        } else {
+            // Add the appropriate bound variable to the instantiation
+            auto boundVar = createBoundVar(
+                    curInst_.boundVarsNode().context(), param, paramType, boundVal, isCtGeneric_);
+            curInst_.boundVarsNode().addChild(boundVar);
+            curInst_.boundVarsNode().clearCompilationStateSimple();
+        }
+        curInst_.boundValuesM()[idx] = boundVal;
+    }
+}
+Instantiation IterativeInstantiationBuilder::inst() const { return curInst_; }
+
+CompilationContext* IterativeInstantiationBuilder::boundVarContext() const {
+    return curInst_ ? curInst_.boundVarsNode().context() : nullptr;
+}
+
+NodeHandle IterativeInstantiationBuilder::existingBoundVal(int idx) const {
+    return reuseExistingInst_ && curInst_ ? curInst_.boundValues()[idx] : NodeHandle{};
+}
+
 } // namespace SprFrontend

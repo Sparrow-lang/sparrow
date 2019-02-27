@@ -16,33 +16,6 @@ using namespace Nest;
 
 namespace SprFrontend {
 
-namespace {
-
-//! Check if we should use CT when making the call.
-//! This will check the parameters for 'autoCt' functions.
-bool shouldUseCt(DeclNode decl, bool autoCt, Range<Type> argTypes, EvalMode evalMode) {
-    EvalMode declEvalMode = decl.effectiveMode();
-
-    // Compute the final version of autoCt flag. We force a CT call in the following cases:
-    //  - the target callable is CT
-    //  - the calling mode is CT
-    //  - if we have a true 'autoCt' function, and all params are CT, make a CT call
-    if (declEvalMode == modeCt || evalMode == modeCt)
-        return true;
-    if (autoCt) {
-        // In autoCt mode, if all the arguments are CT, make a CT call
-        for (Type t : argTypes) {
-            ASSERT(t);
-            if (t.mode() != modeCt)
-                return false;
-        }
-        return true;
-    }
-    return false;
-}
-
-} // namespace
-
 FunctionCallable::FunctionCallable(Feather::FunctionDecl fun, TypeWithStorage implicitArgType)
     : Callable(fun)
     , implicitArgType_(implicitArgType)

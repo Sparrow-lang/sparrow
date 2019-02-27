@@ -2,6 +2,7 @@
 
 #include "Callable.h"
 #include "Nodes/Generics.hpp"
+#include "Services/IConvertService.h"
 
 #include "Nest/Utils/cppif/SmallVector.hpp"
 
@@ -10,6 +11,12 @@ namespace SprFrontend {
 using Nest::NodeRangeT;
 using Nest::SmallVector;
 struct ParameterDecl;
+
+//! Check if we should use CT when making a function (or generic function) call.
+//! This will check the parameters for 'autoCt' functions.
+bool shouldUseCt(Feather::DeclNode decl, bool autoCt, Range<Type> argTypes, EvalMode evalMode);
+bool shouldUseCt(Feather::DeclNode decl, bool autoCt, Range<NodeHandle> args, EvalMode evalMode);
+
 
 /**
  * @brief      Completes the given 'args' with the default values found in the given parameters
@@ -62,6 +69,11 @@ ConversionType checkTypeConversions(SmallVector<ConversionResult>& conversions, 
 //! Apply the given conversions to the given set of arguments
 void applyConversions(
         SmallVector<NodeHandle>& args, const SmallVector<ConversionResult>& conversions);
+
+//! Apply the conversion from the given arg, to the appropriate param type.
+//! Keeps track of the worst conversion seen
+NodeHandle applyConversion(NodeHandle arg, Type paramType, ConversionType& worstConv,
+        ConversionFlags flags = flagsDefault, bool forceCt = false);
 
 /**
  * @brief      Gets the bound values for the given args; classic algo

@@ -16,6 +16,10 @@ rc::Gen<SprFunctionDecl> arbFunction(bool ifClauseVal = true);
 //! Same as above, but with the given paramsData
 rc::Gen<SprFunctionDecl> arbFunction(const ParamsData& paramsData, bool ifClauseVal = true);
 
+//! Creates a function with the given params (and the given if clause value)
+//! Does not need to be called from a rc::exec context
+SprFunctionDecl genFunction(Feather::NodeList params, bool ifClauseVal = true);
+
 //! Generator for arbitrary Feather function declarations
 rc::Gen<Feather::FunctionDecl> arbFeatherFunction(const ParamsData& paramsData);
 rc::Gen<Feather::FunctionDecl> arbFeatherFunction();

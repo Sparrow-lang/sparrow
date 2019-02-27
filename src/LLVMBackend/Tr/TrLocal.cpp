@@ -1228,7 +1228,10 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context) {
 
     // Check if the node is CT available and we are in RT mode. If so, translate the node into RT
     if (!context.module().isCt() && Feather_isCt(node)) {
+        Node* oldNode = node;
         node = convertCtToRt(node, context);
+        if (!node)
+            REP_INTERNAL(oldNode->location, "Invalid node after CT->RT conversion");
     }
 
     // Now, depending on the type of the node, do a specific translation

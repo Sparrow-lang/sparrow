@@ -52,7 +52,8 @@ struct ParamsData {
 };
 
 //! Generator for parameters
-rc::Gen<ParamsData> arbParamsData(ParamsGenOptions options = {});
+rc::Gen<ParamsData> arbParamsData(
+        ParamsGenOptions options = {}, const SampleTypes* sampleTypes = nullptr);
 
 //! Generator for bound values that match the given generated parameters
 rc::Gen<vector<NodeHandle>> arbBoundValues(const ParamsData& params, const SampleTypes& types);

@@ -274,7 +274,7 @@ Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& l
     return res;
 }
 
-Type SprFrontend::getAutoType(Node* typeNode, bool addRef, EvalMode evalMode) {
+Type SprFrontend::getAutoType(Node* typeNode, int numRefs, EvalMode evalMode) {
     Type t1 = typeNode->type;
 
     // Nothing to do for non-data-like storage types
@@ -283,22 +283,18 @@ Type SprFrontend::getAutoType(Node* typeNode, bool addRef, EvalMode evalMode) {
 
     Nest::TypeWithStorage t = TypeWithStorage(t1);
 
-    // Dereference (and remove category type if there is one)
-    t = Feather::removeAllRefs(t);
     // TODO (types): Rework this; we should receive a concept type and we should apply conversion to
     // it
 
-    if (addRef)
-        t = Feather::addRef(t);
-    t = t.changeMode(evalMode, typeNode->location);
-    return t;
+    // This is a data-like type, so we can directly reduce it to the right datatype
+    return DataType::get(t.referredNode(), numRefs, evalMode);
 }
 
 bool SprFrontend::isConceptType(Type t) { return t.kind() == typeKindConcept; }
 
-bool SprFrontend::isConceptType(Type t, bool& isRefAuto) {
+bool SprFrontend::isConceptType(Type t, int& numRefs) {
     if (t.kind() == typeKindConcept) {
-        isRefAuto = t.numReferences() > 0;
+        numRefs = int(t.numReferences());
         return true;
     }
     return false;

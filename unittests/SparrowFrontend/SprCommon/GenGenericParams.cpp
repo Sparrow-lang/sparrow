@@ -18,7 +18,7 @@ using namespace rc;
 
 //! Generate a new parameter
 ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const Location& loc,
-        StringRef name, bool addInit);
+        StringRef name, bool addInit, const SampleTypes* sampleTypes);
 
 //! Generates a type to be used for a parameters
 TypeWithStorage genType(ParamsGenOptions options);
@@ -54,7 +54,7 @@ bool ParamsData::isGeneric() const {
     return usesConcepts() || hasCtParams() || hasDepedentParams();
 }
 
-rc::Gen<ParamsData> arbParamsData(ParamsGenOptions options) {
+rc::Gen<ParamsData> arbParamsData(ParamsGenOptions options, const SampleTypes* sampleTypes) {
     return rc::gen::exec([=]() -> ParamsData {
         ParamsData res;
         auto loc = g_LocationGen();
@@ -67,7 +67,7 @@ rc::Gen<ParamsData> arbParamsData(ParamsGenOptions options) {
             idxStartInit = *gen::inRange(options.minNumParams, numParams+1);
         for (int i = 0; i < numParams; i++) {
             string name = concat("p", i + 1);
-            auto param = genParam(options, res, loc, name, i>=idxStartInit);
+            auto param = genParam(options, res, loc, name, i>=idxStartInit, sampleTypes);
             res.paramsNode_.addChild(param);
         }
         res.idxStartInit_ = idxStartInit;
@@ -160,7 +160,7 @@ void semanticCheck(const vector<NodeHandle>& values, Nest::CompilationContext* c
 }
 
 ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const Location& loc,
-        StringRef name, bool addInit) {
+        StringRef name, bool addInit, const SampleTypes* sampleTypes) {
     int curIdx = paramsData.numParams_;
 
     // Should we have a dependent param?
@@ -198,8 +198,8 @@ ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const L
     if (addInit) {
         if (isDependent)
             init = Identifier::create(loc, prevParamName);
-        else if (t.kind() != typeKindConcept)
-            init = *arbValueForType(t);
+        else if (t.kind() != typeKindConcept || sampleTypes)
+            init = *arbValueForType(t, sampleTypes);
     }
 
     // Finally, create the parameter

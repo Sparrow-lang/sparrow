@@ -146,8 +146,8 @@ Type computeVarType(
 
     // Should we get the type from the initialization expression?
     bool getTypeFromInit = !t;
-    bool isRefAuto = false;
-    if (t && isConceptType(t, isRefAuto))
+    int numRefs = 0;
+    if (t && isConceptType(t, numRefs))
         getTypeFromInit = true;
     if (getTypeFromInit) {
         if (!init)
@@ -167,7 +167,7 @@ Type computeVarType(
                         init.type();
             }
 
-            t = getAutoType(init, isRefAuto);
+            t = getAutoType(init, numRefs);
         } else
             return {};
     }

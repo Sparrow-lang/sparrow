@@ -97,7 +97,7 @@ NodeHandle getBoundVal(NodeHandle arg, ParameterDecl param, Type paramType, Eval
     // Compute the type of the bound value
     Type boundValType;
     bool isCtConcept = false;
-    bool isRefAuto = false;
+    int numRefs = 0;
     if (!param.type()) {
         // If we are here this is a dependent param
         //
@@ -108,9 +108,9 @@ NodeHandle getBoundVal(NodeHandle arg, ParameterDecl param, Type paramType, Eval
         // A concept param will ensure the creation of a final param.
         if (paramType.mode() != modeCt || (origEvalMode == modeRt && finalEvalMode == modeCt))
             boundValType = paramType;
-    } else if (isConceptType(paramType, isRefAuto)) {
+    } else if (isConceptType(paramType, numRefs)) {
         // Deduce the type for boundVal for regular concept types
-        boundValType = getAutoType(arg, isRefAuto, paramType.mode());
+        boundValType = getAutoType(arg, numRefs, paramType.mode());
         isCtConcept = paramType.mode() == modeCt;
     }
 
@@ -230,6 +230,7 @@ ConversionType GenericFunctionCallable::canCall(const CCLoc& ccloc, NodeRange ar
                         paramType;
             return convNone;
         }
+        arg.semanticCheck();
 
         // Handle generic params
         auto param = instSet.params()[i];

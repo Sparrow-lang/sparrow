@@ -108,7 +108,7 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.getCallables") {
     types_.init(*this, SampleTypes::addByteType);
 
     rc::prop("calling getCallables for functions return results", [=]() {
-        ParamsData paramsData = *arbParamsData();
+        ParamsData paramsData = *arbParamsData({}, &types_);
         auto decl = *arbFunction(paramsData);
         if (!decl)
             return;
@@ -171,7 +171,6 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.canCall") {
 
     rc::prop("calling generateCall works ok, if arguments match exactly", [=]() {
         ParamsGenOptions options;
-        options.useConcept = false; // TODO
         ParamsData paramsData = *arbParamsData(options);
         auto decl = *arbFunction(paramsData);
         if (!decl)
@@ -303,8 +302,7 @@ GenericFunctionCallable CallableFixture::genGenericFunctionCallable(
         ParamsData& outParamsData, bool ifClauseVal) {
     ParamsGenOptions paramOptions;
     paramOptions.minNumParams = 1;
-    paramOptions.useConcept = false;    // TODO: remove this
-    outParamsData = *arbParamsData(paramOptions);
+    outParamsData = *arbParamsData(paramOptions, &types_);
     RC_PRE(outParamsData.isGeneric());
 
     // Get an arbitrary GenericFunction decl node
@@ -436,7 +434,10 @@ void CallableFixture::checkGenerateCall(GenericFunctionCallable& callable) {
 
     // Ensure that the number of arguments is less or equal than the generic callables
     // (the CT parameters will not generate final params)
-    RC_ASSERT(funCall.arguments().size() <= callable.numParams());
+    int funCallNumArgs = funCall.arguments().size();
+    if (referredFun.hasProperty(propResultParam))
+        funCallNumArgs--;
+    RC_ASSERT(funCallNumArgs <= callable.numParams());
 }
 
 TEST_CASE_METHOD(CallableFixture, "CallableFixture.GenericPackageCallable") {
@@ -643,31 +644,26 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.GenericFunctionCallable") {
                         types_.i8Type_,
                 });
 
-        // TODO
-        // testFunctionCallable(
-        //         Range<TypeWithStorage>{ // param types
-        //                 types_.concept1Type_,
-        //                 addRefs(types_.concept1Type_, 2),
-        //                 types_.concept1Type_,
-        //         },
-        //         Range<TypeWithStorage>{ // arg types
-        //                 addRef(types_.barType_),
-        //                 MutableType::get(addRefs(types_.fooType_, 2)),
-        //                 types_.fooType_,
-        //         });
+        testFunctionCallable(
+                Range<TypeWithStorage>{ // param types
+                        types_.concept1Type_,
+                        addRefs(types_.concept1Type_, 2),
+                        types_.concept1Type_,
+                },
+                Range<TypeWithStorage>{ // arg types
+                        addRef(types_.barType_),
+                        MutableType::get(addRefs(types_.fooType_, 2)),
+                        types_.fooType_,
+                });
     }
-    // return;
 
     rc::prop("GenericFunctionCallable can be called with proper arguments", [=]() {
         ParamsData paramsData;
-        // cout << "\n";
         GenericFunctionCallable callable = genGenericFunctionCallable(paramsData);
 
         // Generate some args that match the given types
         vector<NodeHandle> args = *arbArguments(paramsData, &types_);
         semanticCheck(args, globalContext_);
-
-        // cout << "args: " << args << endl;
 
         // Check that we can call the callable with the given args
         checkCanCall(callable, args);

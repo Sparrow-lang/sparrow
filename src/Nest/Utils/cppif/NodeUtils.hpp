@@ -34,7 +34,7 @@ inline unsigned int size(Nest_NodeRange r) { return Nest_nodeRangeSize(r); }
 inline unsigned int size(Nest_NodeRangeM r) { return Nest_nodeRangeMSize(r); }
 inline unsigned int size(Nest_NodeArray arr) { return Nest_nodeArraySize(arr); }
 
-inline Nest_NodeRange all(NodeVector& nodes) {
+inline Nest_NodeRange all(const NodeVector& nodes) {
     Nest_NodeRange res = {&*nodes.begin(), &*nodes.end()};
     return res;
 }

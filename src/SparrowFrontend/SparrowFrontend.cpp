@@ -1,17 +1,26 @@
 #include <StdInc.h>
 #include "SparrowFrontend.h"
 
-#include "SparrowFrontendTypes.h"
+#include "SparrowFrontendTypes.hpp"
 #include "Nodes/SparrowNodes.h"
 #include "SparrowSourceCode.h"
 #include "Helpers/StdDef.h"
 #include "CtApiFunctions.h"
 
-#include "Helpers/Convert.h"
-#include "Helpers/Overload.h"
+#include "SparrowFrontend/Services/Convert/ConvertServiceImpl.h"
+#include "SparrowFrontend/Services/Overload/OverloadServiceImpl.h"
+#include "SparrowFrontend/Services/Callable/CallableServiceImpl.h"
+#include "SparrowFrontend/Services/Concepts/ConceptsServiceImpl.h"
 #include "Helpers/Generics.h"
 
 #include "Nest/Api/CompilerModule.h"
+
+namespace SprFrontend {
+unique_ptr<IConvertService> g_ConvertService{};
+unique_ptr<IOverloadService> g_OverloadService;
+unique_ptr<ICallableService> g_CallableService;
+unique_ptr<IConceptsService> g_ConceptsService;
+} // namespace SprFrontend
 
 void SparrowFrontend_initModule() {
     SprFrontend::initSparrowFrontendTypeKinds();
@@ -19,14 +28,21 @@ void SparrowFrontend_initModule() {
     SprFe_registerSparrowSourceCode();
 
     // Create the service objects
-    setDefaultConvertService();
-    setDefaultOverloadService();
-    setDefaultConceptsService();
+
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    g_ConvertService.reset(new ConvertServiceImpl);
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    g_OverloadService.reset(new OverloadServiceImpl);
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    g_CallableService.reset(new CallableServiceImpl);
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    g_ConceptsService.reset(new ConceptsServiceImpl);
 }
 
 void SparrowFrontend_destroyModule() {
     g_ConvertService.reset();
     g_OverloadService.reset();
+    g_CallableService.reset();
     g_ConceptsService.reset();
 }
 

@@ -7,11 +7,15 @@ using Nest::NodeHandle;
 
 namespace Nest {
 
+vector<NodeHandle> NodeRange::toVec() const { return vector<NodeHandle>(begin(), end()); }
+
 const char* NodeRange::toString() const {
     ostringstream ss;
     ss << *this;
     return strdup(ss.str().c_str());
 }
+
+vector<NodeHandle> NodeRangeM::toVec() const { return vector<NodeHandle>(begin(), end()); }
 
 const char* NodeRangeM::toString() const { return NodeRange(range).toString(); }
 

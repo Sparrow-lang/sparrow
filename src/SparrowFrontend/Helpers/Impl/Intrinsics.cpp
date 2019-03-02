@@ -5,85 +5,85 @@
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/Ct.h>
 #include <Helpers/StdDef.h>
-#include <Helpers/Convert.h>
+#include "SparrowFrontend/Services/IConvertService.h"
 #include <Nodes/Builder.h>
+#include <Nodes/Exp.hpp>
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
+#include "Nest/Utils/cppif/NodeRange.hpp"
 
 using namespace Feather;
 
 namespace {
 
-Node* impl_injectBackendCode(
-        CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode mode) {
+NodeHandle impl_injectBackendCode(
+        CompilationContext* context, const Location& loc, NodeRange args, EvalMode mode) {
     CHECK(loc, args.size() == 1);
     StringRef val = getStringCtValue(args[0]);
-    return Feather_mkBackendCode(loc, val, mode);
+    return Feather::BackendCode::create(loc, val, mode);
 }
 
-Node* impl_typeDescription(
-        CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_typeDescription(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
-    TypeRef t = getType(args[0]);
-    return buildStringLiteral(loc, StringRef(t->description));
+    Type t = getType(args[0]);
+    return buildStringLiteral(loc, t.description());
 }
 
-Node* impl_typeHasStorage(
-        CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_typeHasStorage(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
-    TypeRef t = getType(args[0]);
-    return buildBoolLiteral(loc, t->hasStorage);
+    Type t = getType(args[0]);
+    return buildBoolLiteral(loc, t.hasStorage());
 }
 
-Node* impl_typeMode(CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_typeMode(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
-    TypeRef t = getType(args[0]);
-    return buildIntLiteral(loc, t->mode);
+    Type t = getType(args[0]);
+    return buildIntLiteral(loc, t.mode());
 }
 
-Node* impl_typeCanBeUsedAtRt(
-        CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_typeCanBeUsedAtRt(
+        CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
-    TypeRef t = getType(args[0]);
-    return buildBoolLiteral(loc, t->canBeUsedAtRt);
+    Type t = getType(args[0]);
+    return buildBoolLiteral(loc, t.canBeUsedAtRt());
 }
 
-Node* impl_typeNumRef(CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_typeNumRef(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
-    TypeRef t = getType(args[0]);
-    return buildIntLiteral(loc, t->numReferences);
+    Type t = getType(args[0]);
+    return buildIntLiteral(loc, t.numReferences());
 }
 
-Node* impl_typeChangeMode(
-        CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_typeChangeMode(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 2);
-    TypeRef t = getType(args[0]);
+    Type t = getType(args[0]);
     int mode = getIntCtValue(args[1]);
 
-    TypeRef res = Type(t).changeMode((EvalMode)mode, loc);
+    Type res = t.changeMode((EvalMode)mode, loc);
 
     return createTypeNode(context, loc, res);
 }
 
-Node* impl_typeChangeRefCount(
-        CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_typeChangeRefCount(
+        CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 2);
-    TypeRef t = getType(args[0]);
+    Type t = getType(args[0]);
     int numRef = max(0, getIntCtValue(args[1]));
 
-    TypeRef res = changeRefCount(t, numRef, loc);
+    Type res = changeRefCount(t, numRef, loc);
 
     return createTypeNode(context, loc, res);
 }
 
-Node* impl_typeEQ(CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_typeEQ(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 2);
-    TypeRef t1 = getType(args[0]);
-    TypeRef t2 = getType(args[1]);
+    Type t1 = getType(args[0]);
+    Type t2 = getType(args[1]);
 
-    t1 = Feather::removeLValueIfPresent(t1);
-    t2 = Feather::removeLValueIfPresent(t2);
+    t1 = Feather::removeCategoryIfPresent(t1);
+    t2 = Feather::removeCategoryIfPresent(t2);
 
     bool equals = Nest::sameTypeIgnoreMode(t1, t2);
 
@@ -91,48 +91,48 @@ Node* impl_typeEQ(CompilationContext* context, const Location& loc, const NodeVe
     return buildBoolLiteral(loc, equals);
 }
 
-Node* impl_typeAddRef(CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_typeAddRef(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
-    TypeRef t = getType(args[0]);
+    Type t = getType(args[0]);
 
-    t = Feather::removeLValueIfPresent(t);
-    t = changeRefCount(t, t->numReferences + 1, loc);
+    t = Feather::removeCategoryIfPresent(t);
+    t = changeRefCount(t, t.numReferences() + 1, loc);
     return createTypeNode(context, loc, t);
 }
 
-Node* impl_ct(CompilationContext* context, const Location& loc, const NodeVector& args) {
-    TypeRef t = getType(args[0]);
+NodeHandle impl_ct(CompilationContext* context, const Location& loc, NodeRange args) {
+    Type t = getType(args[0]);
 
-    t = Feather::removeLValueIfPresent(t);
+    t = Feather::removeCategoryIfPresent(t);
     t = Type(t).changeMode(modeCt, loc);
-    if (t->mode != modeCt)
+    if (t.mode() != modeCt)
         REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at compile-time") % t;
 
     return createTypeNode(context, loc, t);
 }
 
-Node* impl_rt(CompilationContext* context, const Location& loc, const NodeVector& args) {
-    TypeRef t = getType(args[0]);
+NodeHandle impl_rt(CompilationContext* context, const Location& loc, NodeRange args) {
+    Type t = getType(args[0]);
 
-    t = Feather::removeLValueIfPresent(t);
+    t = Feather::removeCategoryIfPresent(t);
     t = Type(t).changeMode(modeRt, loc);
-    if (t->mode != modeRt)
+    if (t.mode() != modeRt)
         REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at run-time") % t;
 
     return createTypeNode(context, loc, t);
 }
 
-Node* impl_convertsTo(CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_convertsTo(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 2);
-    TypeRef t1 = getType(args[0]);
-    TypeRef t2 = getType(args[1]);
+    Type t1 = getType(args[0]);
+    Type t2 = getType(args[1]);
 
     bool result = !!(g_ConvertService->checkConversion(context, t1, t2));
 
     return buildBoolLiteral(loc, result);
 }
 
-Node* impl_staticBuffer(CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_staticBuffer(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
 
     size_t size = getSizeTypeCtValue(args[0]);
@@ -140,27 +140,27 @@ Node* impl_staticBuffer(CompilationContext* context, const Location& loc, const 
     if (size > numeric_limits<size_t>::max())
         REP_ERROR_RET(nullptr, loc, "Size of static buffer is too large");
 
-    TypeRef arrType = Feather_getArrayType(StdDef::typeByte, (size_t)size);
+    Type arrType = Feather_getArrayType(StdDef::typeByte, (size_t)size);
     return createTypeNode(context, loc, arrType);
 }
 
-Node* impl_commonType(CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_commonType(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 2);
-    TypeRef t1 = getType(args[0]);
-    TypeRef t2 = getType(args[1]);
+    Type t1 = getType(args[0]);
+    Type t2 = getType(args[1]);
 
-    TypeRef resType = commonType(context, t1, t2);
+    Type resType = commonType(context, t1, t2);
     return createTypeNode(context, loc, resType);
 }
 
-Node* impl_Meta_astEval(CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_Meta_astEval(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
 
     // Get the impl part of the node
-    Node* implPart = mkCompoundExp(loc, args[0], StringRef("data"));
-    implPart = Feather_mkMemLoad(loc, implPart); // Remove LValue
-    Nest_setContext(implPart, context);
-    if (!Nest_semanticCheck(implPart))
+    NodeHandle implPart = CompoundExp::create(loc, args[0], "data");
+    implPart = Feather::MemLoadExp::create(loc, implPart); // Remove category type
+    implPart.setContext(context);
+    if (!implPart.semanticCheck())
         return nullptr;
 
     // Evaluate the handle and get the resulting node
@@ -171,25 +171,25 @@ Node* impl_Meta_astEval(CompilationContext* context, const Location& loc, const 
     return nodeHandle;
 }
 
-Node* impl_Meta_SourceCode_current(
-        CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_Meta_SourceCode_current(
+        CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 0);
 
-    return buildLiteral(loc, StringRef("SourceCode"), context->sourceCode);
+    return buildLiteral(loc, "SourceCode", context->sourceCode);
 }
 
-Node* impl_Meta_CompilationContext_current(
-        CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle impl_Meta_CompilationContext_current(
+        CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 0);
 
-    return buildLiteral(loc, StringRef("CompilationContext"), context);
+    return buildLiteral(loc, "CompilationContext", context);
 }
 } // namespace
 
-Node* SprFrontend::handleIntrinsic(
-        Node* fun, CompilationContext* context, const Location& loc, const NodeVector& args) {
+NodeHandle SprFrontend::handleIntrinsic(Feather::FunctionDecl fun, CompilationContext* context,
+        const Location& loc, NodeRange args) {
     // Check for natives
-    StringRef nativeName = Nest_getPropertyStringDeref(fun, propNativeName);
+    StringRef nativeName = fun.getPropertyStringDeref(propNativeName);
     if (nativeName && nativeName.begin[0] == '$') {
         if (nativeName == "$injectBackendCode")
             return impl_injectBackendCode(context, loc, args, modeRt);

@@ -43,7 +43,7 @@ ostream& operator<<(ostream& os, NodeFmt node) {
 //! Checks if the type of a node is computes.
 //! Can check for an expected type, can be applied recursively, and can check if the resulting type
 //! is also the type of the first children (MockNode assumption).
-void checkTypeComputed(NodeHandle node, TypeRef expectedType, bool recursiveCheck = true,
+void checkTypeComputed(NodeHandle node, Type expectedType, bool recursiveCheck = true,
         bool sameTypeAsFirst = true) {
     auto thisType = node.type();
     REQUIRE(thisType != nullptr);
@@ -143,7 +143,7 @@ TEST_CASE_METHOD(NodesFixture, "User can compute the type of the nodes") {
         NodeRange referredNodes = *arbMockNodeRange(5, 5);
         MockType type = *rc::gen::arbitrary<MockType>();
 
-        if (children.empty() || children[0].type() != type.type)
+        if (children.empty() || children[0].type() != type)
             return; // Nothing to test
 
         // Create the node to be tested
@@ -228,7 +228,7 @@ TEST_CASE_METHOD(NodesFixture, "User can set and retrieve properties for nodes")
     rc::prop("Type properties", [=](MockNode node, string name, MockType val) {
         const char* propName = name.c_str();
         REQUIRE(!node.hasProperty(propName));
-        node.setProperty(propName, Type(val));
+        node.setProperty(propName, val);
         REQUIRE(node.getCheckPropertyType(propName) == val);
     });
     rc::prop("Multiple times", [=](MockNode node, string name, int val) {

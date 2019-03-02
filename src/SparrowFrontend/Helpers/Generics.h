@@ -1,9 +1,16 @@
 #pragma once
 
 #include "SparrowFrontend/NodeCommonsH.h"
+#include "SparrowFrontend/Nodes/Decl.hpp"
+#include "SparrowFrontend/Nodes/Generics.hpp"
 #include "Nest/Utils/cppif/NodeUtils.hpp"
+#include "Nest/Utils/cppif/SmallVector.hpp"
 
 namespace SprFrontend {
+
+using Nest::CompilationContext;
+
+struct ConceptType;
 
 /*
 There are 4 types of generics:
@@ -70,112 +77,6 @@ for instantiation. A dependent param will therefore be treated as a concept para
 
 */
 
-struct InstNode {
-    Node* node;
-
-    InstNode(Node* n)
-        : node(n) {
-        ASSERT(!n || n->nodeKind == nkSparrowInnerInstantiation);
-    }
-    operator Node*() const { return node; }
-
-    Node* boundVarsNode() const { return Nest::at(node->children, 0); }
-
-    Nest_NodeRange boundValues() const { return Nest::all(node->referredNodes); }
-    Nest_NodeRangeM boundValuesM() const { return Nest::allM(node->referredNodes); }
-
-    bool isValid() const { return 0 != Nest_getCheckPropertyInt(node, "instIsValid"); }
-    void setValid(bool valid = true) { Nest_setPropertyInt(node, "instIsValid", valid ? 1 : 0); }
-
-    bool isEvaluated() const { return 0 != Nest_getCheckPropertyInt(node, "instIsEvaluated"); }
-    void setEvaluated(bool evaluated = true) {
-        Nest_setPropertyInt(node, "instIsEvaluated", evaluated ? 1 : 0);
-    }
-
-    Node* instantiatedDecl() const { return Nest_getCheckPropertyNode(node, "instantiatedDecl"); }
-    void setInstantiatedDecl(Node* decl) {
-        Nest_setPropertyNode(node, "instantiatedDecl", decl);
-        Nest_appendNodeToArray(&boundVarsNode()->children, decl);
-    }
-};
-
-struct InstSetNode {
-    Node* node;
-
-    InstSetNode(Node* n)
-        : node(n) {
-        ASSERT(!n || n->nodeKind == nkSparrowInnerInstantiationsSet);
-    }
-    operator Node*() const { return node; }
-
-    Node* ifClause() const { return Nest::at(node->children, 0); }
-    Nest_NodeArray& instantiations() const { return Nest::at(node->children, 1)->children; }
-
-    Node* parentNode() const { return Nest::at(node->referredNodes, 0); }
-    Nest_NodeRange params() const { return Nest::all(Nest::at(node->referredNodes, 1)->children); }
-};
-
-struct GenericFunNode {
-    Node* node;
-
-    GenericFunNode(Node* n)
-        : node(n) {
-        ASSERT(!n || n->nodeKind == nkSparrowDeclGenericFunction);
-    }
-    operator Node*() const { return node; }
-
-    InstSetNode instSet() const { return Nest::at(node->children, 0); }
-
-    Node* originalFun() const { return Nest::at(node->referredNodes, 0); }
-    Nest_NodeRange originalParams() const {
-        return Nest::all(Nest::at(node->referredNodes, 1)->children);
-    }
-};
-
-struct GenericClassNode {
-    Node* node;
-
-    GenericClassNode(Node* n)
-        : node(n) {
-        ASSERT(!n || n->nodeKind == nkSparrowDeclGenericClass);
-    }
-    operator Node*() const { return node; }
-
-    InstSetNode instSet() const { return Nest::at(node->children, 0); }
-
-    Node* originalClass() const { return Nest::at(node->referredNodes, 0); }
-};
-
-struct GenericPackageNode {
-    Node* node;
-
-    GenericPackageNode(Node* n)
-        : node(n) {
-        ASSERT(!n || n->nodeKind == nkSparrowDeclGenericPackage);
-    }
-    operator Node*() const { return node; }
-
-    InstSetNode instSet() const { return Nest::at(node->children, 0); }
-
-    Node* originalPackage() const { return Nest::at(node->referredNodes, 0); }
-};
-
-struct ConceptNode {
-    Node* node;
-
-    ConceptNode(Node* n)
-        : node(n) {
-        ASSERT(!n || n->nodeKind == nkSparrowDeclSprConcept);
-    }
-    operator Node*() const { return node; }
-
-    Node* baseConcept() const { return Nest::at(node->children, 0); }
-    Node* ifClause() const { return Nest::at(node->children, 1); }
-    InstSetNode instSet() const { return Nest::at(node->children, 2); }
-
-    Node* originalClass() const { return Nest::at(node->referredNodes, 0); }
-};
-
 /**
  * Checks if the given function is a generic, and creates a generic function node for it.
  *
@@ -183,46 +84,15 @@ struct ConceptNode {
  * function node for it.
  *
  * @param originalFun The original function (SprFunction) to be checked
- * @param parameters  The parameters of the original function
+ * @param params      The parameters of the original function
  * @param ifClause    The if clause of the function
  *
  * @return A GenericFunction node, if this is a generic; null otherwise
  */
-Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause);
+GenericFunction checkCreateGenericFun(
+        SprFunctionDecl originalFun, NodeRange params, NodeHandle ifClause);
 
-// The generic classes are created whenever we have class parameters
-// In that case, we call mkGenericClass directly
-
-/**
- * Returns the parameters that the caller needs to fill to instantiate/call the generic.
- *
- * This returns the original list of parameters, as all parameters need to be filled.
- *
- * @param genericFun The generic function node to get the parameters for
- *
- * @return The params for the generic function.
- */
-Nest_NodeRange genericFunParams(Node* genericFun);
-/**
- * Returns the parameters that the caller needs to fill to instantiate/call the generic.
- *
- * This returns all the parameters of the class.
- *
- * @param genericClass The generic class node to get the parameters for
- *
- * @return The params for the generic class.
- */
-Nest_NodeRange genericClassParams(Node* genericClass);
-/**
- * Returns the parameters that the caller needs to fill to instantiate/call the generic.
- *
- * This returns all the parameters of the package.
- *
- * @param genericPackage The generic package node to get the parameters for
- *
- * @return The params for the generic package.
- */
-Nest_NodeRange genericPackageParams(Node* genericPackage);
+// For other generic types, we know we need generic whenever we have parameters.
 
 /**
  * Search an instantiation in an instSet.
@@ -240,7 +110,7 @@ Nest_NodeRange genericPackageParams(Node* genericPackage);
  *
  * Called only for generic functions.
  */
-InstNode searchInstantiation(InstSetNode instSet, Nest_NodeRange values);
+Instantiation searchInstantiation(InstantiationsSet instSet, NodeRange values);
 
 /**
  * Create a new (partial) instantiation node.
@@ -257,7 +127,8 @@ InstNode searchInstantiation(InstSetNode instSet, Nest_NodeRange values);
  *
  * @return The new instantiation node
  */
-InstNode createNewInstantiation(InstSetNode instSet, Nest_NodeRange values, EvalMode evalMode);
+Instantiation createNewInstantiation(
+        InstantiationsSet instSet, NodeRange values, EvalMode evalMode);
 
 /**
  * Create a bound var for the given parameter / bound value
@@ -278,10 +149,10 @@ InstNode createNewInstantiation(InstSetNode instSet, Nest_NodeRange values, Eval
  * @param boundValue  The bound value used for the type (and init) of the variable
  * @param isCtGeneric True if this is a CT-generic function
  *
- * @return The created bound variable.
+ * @return The created bound variable. Can be either a Feather::VarDecl or a UsingDecl
  */
-Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue,
-        bool isCtGeneric);
+Feather::DeclNode createBoundVar(CompilationContext* context, ParameterDecl param, Type paramType,
+        NodeHandle boundValue, bool isCtGeneric);
 
 /**
  * Check if the given instantiation is valid.
@@ -296,7 +167,7 @@ Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType
  *
  * @return True if the instantiation can be made
  */
-bool canInstantiate(InstNode inst, InstSetNode instSet);
+bool canInstantiate(Instantiation inst, InstantiationsSet instSet);
 
 /**
  * Check if we can have an instantiation with the given bound values.
@@ -314,46 +185,77 @@ bool canInstantiate(InstNode inst, InstSetNode instSet);
  *
  * If all these succeed we return the instantiation node.
  *
+ * NOTE: this does not check whether the values match the inst-set. The only two ways to make this
+ * return false are:
+ *     - different number of values compared to parameters
+ *     - if-clause does not evaluate to true
+ *
  * @param instSet  The instSet in which we try to instantiate
  * @param values   The bound values that we want to instantiate for
  * @param evalMode The eval mode to be used by the instantiation.
  *
  * @return The inst node if the instantiation succeeds; null if it fails
  */
-InstNode canInstantiate(InstSetNode instSet, Nest_NodeRange values, EvalMode evalMode);
+Instantiation canInstantiate(InstantiationsSet instSet, NodeRange values, EvalMode evalMode);
 
-/// Given a generic param type and the corresponding bound value, determine if
-/// the parameter is a concept parameter.
-/// For concept parameters, we store the type as a bound value.
-/// Used as a low-level primitive. Should not be called for CT-generics
-bool isConceptParam(Location paramLoc, TypeRef paramType, Node* boundValue);
+//! Given a generic param type and the corresponding bound value, determine if
+//! the parameter is a concept parameter.
+//! For concept parameters, we store the type as a bound value.
+//! Used as a low-level primitive. Should not be called for CT-generics
+bool isConceptParam(Type paramType, NodeHandle boundValue);
 
-//! The interface for the service that deals with checking concepts.
-//! Used so that we can easily mock and replace this service.
-struct IConceptsService {
-    virtual ~IConceptsService() {}
+/**
+ * @brief      Helper class used to create iterative instantiation objects step by step.
+ *
+ * This is used for Generic functions, as they can have dependent params. For dependent params, the
+ * actual instantiation should be created step by step, as later params can depend on previous
+ * params.
+ *
+ * To iteratively build the instantiation, call addBoundVal() with monotonically increasing indexes.
+ *
+ * As much as possible, this tries to reuse previous instantiations. Whenever the given bound value
+ * differs from all the existing instantiations, it will create a new instantiation.
+ *
+ * At the end of the process, we always have an instantiation built.
+ */
+class IterativeInstantiationBuilder {
+    bool reuseExistingInst_{true};
+    InstantiationsSet instSet_;
+    Instantiation curInst_;
+    Nest::SmallVector<NodeHandle> boundValues_;
+    EvalMode finalEvalMode_;
+    bool isCtGeneric_;
 
-    //! Check if the given concept is fulfilled by the given type
-    virtual bool conceptIsFulfilled(Node* concept, TypeRef type) = 0;
-    //! Check if the given type was generated from the given generic
-    //! This will make generics behave like concepts
-    virtual bool typeGeneratedFromGeneric(Node* genericDatatype, TypeRef type) = 0;
+public:
+    IterativeInstantiationBuilder(
+            InstantiationsSet instSet, int numParams, EvalMode finalEvalMode, bool isCtGeneric);
 
-    //! Get the base concept type
-    virtual TypeRef baseConceptType(Node* concept) = 0;
+    /**
+     * @brief      Adds a bound value to the instantiation.
+     *
+     * Call this iteratively to build the instantiation.
+     * This will keep track of whether we can reuse previous instantiations or not.
+     *
+     * @param[in]  idx        The index of the bound value
+     * @param[in]  boundVal   The bound value
+     * @param[in]  param      The parameter for which we create a bound value
+     * @param[in]  paramType  The type of the parameter (may be deduced)
+     */
+    void addBoundVal(int idx, NodeHandle boundVal, ParameterDecl param, Type paramType);
+
+    //! Returns the current instantiation; can be reused or not.
+    Instantiation inst() const;
+
+    //! Returns the contexts for the bound variable.
+    //! If no bound values were added, this will return null.
+    //! Used when computing types for dependent params.
+    CompilationContext* boundVarContext() const;
+
+    //! Returns the bound value, in case we are reusing instantiation.
+    //! If we are not reusing, this will return a null node
+    //! Used to speed up computation of dependent types.
+    NodeHandle existingBoundVal(int idx) const;
 };
 
-//! Implementation of the convert service
-struct ConceptsService : IConceptsService {
-    bool conceptIsFulfilled(Node* concept, TypeRef type) final;
-    bool typeGeneratedFromGeneric(Node* genericDatatype, TypeRef type) final;
-    TypeRef baseConceptType(Node* concept) final;
-};
-
-//! The convert service instance that we are using across the Sparrow compiler
-extern unique_ptr<IConceptsService> g_ConceptsService;
-
-//! Creates the default concepts service
-void setDefaultConceptsService();
 
 } // namespace SprFrontend

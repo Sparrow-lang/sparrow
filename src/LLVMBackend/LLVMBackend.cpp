@@ -19,6 +19,7 @@
 #include <boost/bind.hpp>
 
 using namespace LLVMB;
+using Nest::TypeRef;
 
 /// The structure representing a LLVM backend
 struct LLVMBackend {

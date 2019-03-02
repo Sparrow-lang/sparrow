@@ -28,9 +28,9 @@ bool _isDecl(Node* node) {
 
 int Feather_isCt(Node* node) { return node->type && node->type->mode == modeCt; }
 
-int _isTestable(TypeRef type) {
+int _isTestable(Type type) {
     // If not Testable, check at least that is some kind of boolean
-    if (!type || !type->hasStorage)
+    if (!type || !type.hasStorage())
         return false;
     StringRef nativeName = Feather_nativeName(type);
     return nativeName && (nativeName == "i1" || nativeName == "u1");
@@ -38,7 +38,7 @@ int _isTestable(TypeRef type) {
 
 int Feather_isTestable(Node* node) { return _isTestable(node->type); }
 
-int Feather_isBasicNumericType(TypeRef type) {
+int Feather_isBasicNumericType(Nest::TypeRef type) {
     if (!type || !type->hasStorage)
         return false;
     StringRef nativeName = Feather_nativeName(type);
@@ -48,8 +48,6 @@ int Feather_isBasicNumericType(TypeRef type) {
                    nativeName == "u32" || nativeName == "i64" || nativeName == "u64" ||
                    nativeName == "float" || nativeName == "double");
 }
-
-Node* Feather_classForType(TypeRef t) { return t->hasStorage ? t->referredNode : nullptr; }
 
 EvalMode Feather_combineMode(EvalMode mode1, EvalMode mode2) {
     if (mode1 == modeCt || mode2 == modeCt)
@@ -67,7 +65,7 @@ EvalMode Feather_combineModeBottom(EvalMode mode1, EvalMode mode2) {
     return mode1;
 }
 
-TypeRef Feather_adjustMode(TypeRef srcType, CompilationContext* context, Location loc) {
+Nest::TypeRef Feather_adjustMode(Nest::TypeRef srcType, CompilationContext* context, Location loc) {
     ASSERT(srcType);
     ASSERT(context);
     EvalMode resMode = Feather_combineMode(srcType->mode, context->evalMode);

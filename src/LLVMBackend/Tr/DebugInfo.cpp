@@ -212,14 +212,14 @@ llvm::DIFile* DebugInfo::getOrCreateFile(const Location& loc) {
     return file;
 }
 
-llvm::DISubroutineType* DebugInfo::createDiFunType(GlobalContext& ctx, TypeRef type) {
+llvm::DISubroutineType* DebugInfo::createDiFunType(GlobalContext& ctx, Type type) {
     llvm::SmallVector<llvm::Metadata*, 8> funTypes;
-    for (unsigned i = 0; i < type->numSubtypes; i++)
-        funTypes.push_back(createDiType(ctx, type->subTypes[i]));
+    for (unsigned i = 0; i < type.type_->numSubtypes; i++)
+        funTypes.push_back(createDiType(ctx, type.type_->subTypes[i]));
     return diBuilder_.createSubroutineType(diBuilder_.getOrCreateTypeArray(funTypes));
 }
 
-llvm::DIType* DebugInfo::createDiStructType(GlobalContext& ctx, TypeRef type) {
+llvm::DIType* DebugInfo::createDiStructType(GlobalContext& ctx, Type type) {
     // First, check for primitive types
     llvm::Type* t = getLLVMType(type, ctx);
     if (!t)
@@ -228,7 +228,7 @@ llvm::DIType* DebugInfo::createDiStructType(GlobalContext& ctx, TypeRef type) {
         auto encoding = t->getPrimitiveSizeInBits() == 1 ? llvm::dwarf::DW_ATE_boolean
                                                          : llvm::dwarf::DW_ATE_signed;
         auto numBits = (t->getPrimitiveSizeInBits() + 7) / 8 * 8;
-        return diBuilder_.createBasicType(type->description, numBits, encoding);
+        return diBuilder_.createBasicType(type.description(), numBits, encoding);
     } else if (t->isFloatTy())
         return diBuilder_.createBasicType(
                 "float", t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_float);
@@ -239,7 +239,7 @@ llvm::DIType* DebugInfo::createDiStructType(GlobalContext& ctx, TypeRef type) {
         return diBuilder_.createBasicType(
                 "double", t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_float);
 
-    Node* structDecl = type->referredNode;
+    Node* structDecl = type.referredNode();
     ASSERT(structDecl);
     Location loc = structDecl->location;
 
@@ -295,7 +295,7 @@ llvm::DIType* DebugInfo::createDiStructType(GlobalContext& ctx, TypeRef type) {
     return res;
 }
 
-llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, TypeRef type) {
+llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, Type type) {
     // Check the cache first
     auto it = typesMap_.find(type);
     if (it != typesMap_.end())
@@ -305,23 +305,23 @@ llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, TypeRef type) {
     const auto& dataLayout = ctx.llvmModule_.getDataLayout();
 
     llvm::DIType* res = nullptr;
-    if (type->numReferences > 0) {
-        // Pointer type (Datatype & LValue)
+    if (type.numReferences() > 0) {
+        // Pointer type (Datatype & category type)
         int sizeInBits = dataLayout.getTypeAllocSizeInBits(t);
-        auto baseType = createDiType(ctx, removeRef(TypeWithStorage(type)));
+        auto baseType = createDiType(ctx, removeCatOrRef(TypeWithStorage(type)));
         res = diBuilder_.createPointerType(baseType, sizeInBits);
-    } else if (type->typeKind == Feather_getDataTypeKind()) {
+    } else if (type.kind() == Feather_getDataTypeKind()) {
         res = createDiStructType(ctx, type);
-    } else if (type->typeKind == Feather_getArrayTypeKind()) {
+    } else if (type.kind() == Feather_getArrayTypeKind()) {
         auto baseType = createDiType(ctx, Feather_baseType(type));
         auto numElements = (uint64_t)Feather_getArraySize(type);
         uint32_t alignInBits = dataLayout.getPrefTypeAlignment(t);
         llvm::DINodeArray subscripts;
         return diBuilder_.createArrayType(numElements, alignInBits, baseType, subscripts);
 
-    } else if (type->typeKind == Feather_getFunctionTypeKind()) {
+    } else if (type.kind() == Feather_getFunctionTypeKind()) {
         res = createDiFunType(ctx, type);
-    } else /*if ( type->typeKind == Feather_getVoidTypeKind() )*/ {
+    } else /*if ( type.kind() == Feather_getVoidTypeKind() )*/ {
         return diBuilder_.createBasicType("void", 0, llvm::dwarf::DW_ATE_address);
     }
 

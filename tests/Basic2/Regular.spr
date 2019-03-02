@@ -8,7 +8,7 @@ concept Regular(x) if (
     );
 
 
-[noDefault]
+[noDefault, convert]
 datatype NullType
     ;
 

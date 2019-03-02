@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nest/Api/Location.h"
-#include "Nest/Api/TypeRef.h"
+#include "Nest/Utils/cppif/Type.hpp"
 #include "Nest/Api/Type.h"
 
 #include "LlvmBuilder.h"
@@ -10,9 +10,11 @@
 
 using Nest::Location;
 using Nest::Node;
-using Nest::TypeRef;
 
 namespace LLVMB {
+
+using Nest::Type;
+
 namespace Tr {
 
 struct GlobalContext;
@@ -60,13 +62,13 @@ private:
     llvm::DIFile* getOrCreateFile(const Location& loc);
 
     //! Creates debug-info for the given type
-    llvm::DIType* createDiType(GlobalContext& ctx, TypeRef type);
+    llvm::DIType* createDiType(GlobalContext& ctx, Type type);
 
     //! Creates debug-info for function type
-    llvm::DISubroutineType* createDiFunType(GlobalContext& ctx, TypeRef type);
+    llvm::DISubroutineType* createDiFunType(GlobalContext& ctx, Type type);
 
     //! Creates debug-info for the given structure type
-    llvm::DIType* createDiStructType(GlobalContext& ctx, TypeRef type);
+    llvm::DIType* createDiStructType(GlobalContext& ctx, Type type);
 
 private:
     //! The object used to build the debug information for the generated program
@@ -86,7 +88,7 @@ private:
     llvm::DenseMap<const Nest_SourceCode*, llvm::DIFile*> filenameCache_;
 
     //! Map containing all the DITypes we've translated so far
-    llvm::DenseMap<TypeRef, llvm::DIType*> typesMap_;
+    llvm::DenseMap<Nest::TypeRef, llvm::DIType*> typesMap_;
 
     //! The current location for which we set debug information
     Location curLoc_{};

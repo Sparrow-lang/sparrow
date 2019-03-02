@@ -1,14 +1,14 @@
 #include <StdInc.h>
 #include "CommonCode.h"
 #include "DeclsHelpers.h"
-#include "Overload.h"
-#include "Convert.h"
 #include "Ct.h"
 #include "StdDef.h"
 #include "SprTypeTraits.h"
 #include "Generics.h"
 #include "SprDebug.h"
-#include <NodeCommonsCpp.h>
+#include "SparrowFrontend/Services/IConvertService.h"
+#include "SparrowFrontend/Services/IOverloadService.h"
+#include "SparrowFrontend/NodeCommonsCpp.h"
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
@@ -32,7 +32,8 @@ Node* SprFrontend::createCtorCall(
     Node* thisArg = at(args, 0);
     if (!Nest_computeType(thisArg))
         return nullptr;
-    Node* cls = Feather_classForType(thisArg->type);
+    CHECK(loc, thisArg->type->hasStorage);
+    Node* cls = thisArg->type->referredNode;
     CHECK(loc, cls);
 
     // TODO (ctors): We need to apply this even if we are calling ctor by hand
@@ -47,7 +48,7 @@ Node* SprFrontend::createCtorCall(
         if (!Nest_computeType(arg))
             return nullptr;
         arg = Nest_explanation(arg);
-        if (Feather_classForType(arg->type) == cls) {
+        if (arg->type->referredNode == cls) {
             Node* const* tempVarConstruction1 = Nest_getPropertyNode(arg, propTempVarContstruction);
             Node* tempVarConstruction = tempVarConstruction1 ? *tempVarConstruction1 : nullptr;
             if (tempVarConstruction && tempVarConstruction->nodeKind == nkFeatherExpFunCall) {
@@ -57,7 +58,7 @@ Node* SprFrontend::createCtorCall(
 
                 // This argument - make sure it's of the required type
                 Node* thisParam = FunctionDecl(fun).parameters()[0];
-                TypeRef thisParamType = thisParam->type;
+                Type thisParamType = thisParam->type;
                 ConversionResult cvt = g_ConvertService->checkConversion(thisArg, thisParamType);
                 if (!cvt)
                     REP_INTERNAL(loc, "Cannot convert this arg in RVO (%1% -> %2%)") %
@@ -110,7 +111,8 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
     // Get the class from 'thisArg'
     if (!Nest_computeType(thisArg))
         return nullptr;
-    Node* cls = Feather_classForType(thisArg->type);
+    CHECK(loc, thisArg->type->hasStorage);
+    Node* cls = thisArg->type->referredNode;
     CHECK(loc, cls);
 
     // Search for the dtor associated with the class
@@ -154,25 +156,25 @@ Node* SprFrontend::createFunctionCall(
     Node* resultParam = getResultParam(fun);
     if (resultParam) {
         // Get the resulting type; check for CT-ness
-        TypeRef resTypeRef = resultParam->type;
+        TypeWithStorage resType = resultParam->type;
         EvalMode funEvalMode = Feather_effectiveEvalMode(fun);
-        if (funEvalMode == modeCt && resTypeRef->mode != modeCt)
-            resTypeRef = Type(resTypeRef).changeMode(modeCt, resultParam->location);
+        if (funEvalMode == modeCt && resType.mode() != modeCt)
+            resType = resType.changeMode(modeCt, resultParam->location);
         if (funEvalMode == modeRt && Nest_hasProperty(fun, propAutoCt) &&
-                resTypeRef->mode != modeCt && _areNodesCt(args))
-            resTypeRef = Type(resTypeRef).changeMode(modeCt, resultParam->location);
+                resType.mode() != modeCt && _areNodesCt(args))
+            resType = resType.changeMode(modeCt, resultParam->location);
 
         // Create a temporary variable for the result
-        Node* tmpVar = Feather_mkVar(loc, StringRef("$tmpC"),
-                Feather_mkTypeNode(loc, removeRef(TypeWithStorage(resTypeRef))));
+        Node* tmpVar = Feather_mkVar(
+                loc, StringRef("$tmpC"), Feather_mkTypeNode(loc, removeCatOrRef(resType)));
         Nest_setContext(tmpVar, context);
         tmpVarRef = Feather_mkVarRef(loc, tmpVar);
         Nest_setContext(tmpVarRef, context);
 
         // Add a new argument with the temporary variable
         NodeVector args1 = toVec(args);
-        Node* arg = Feather_mkBitcast(
-                tmpVarRef->location, Feather_mkTypeNode(loc, resTypeRef), tmpVarRef);
+        Node* arg =
+                Feather_mkBitcast(tmpVarRef->location, Feather_mkTypeNode(loc, resType), tmpVarRef);
         Nest_setContext(arg, context);
         args1.insert(args1.begin(), arg);
         Node* funCall = Feather_mkFunCall(loc, fun, all(args1));
@@ -180,7 +182,7 @@ Node* SprFrontend::createFunctionCall(
         res = createTempVarConstruct(loc, context, funCall, tmpVar);
 
         // TODO: Check why we cannot return a reference when the result is a type
-        if (resTypeRef == StdDef::typeRefType)
+        if (resType == StdDef::typeRefType)
             res = Feather_mkMemLoad(loc, res);
     } else {
         Node* funCall = Feather_mkFunCall(loc, fun, args);
@@ -244,8 +246,8 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
     // Try to instantiate the corresponding FunctionPtr class
     NodeVector parameters;
     parameters.reserve(1 + FunctionDecl(fun).parameters().size());
-    TypeRef resType = resParam ? (TypeRef)removeRef(TypeWithStorage(resParam->type)).type_
-                               : (TypeRef)FunctionDecl(fun).resTypeNode().type();
+    Type resType = resParam ? (Type)removeCatOrRef(TypeWithStorage(resParam->type))
+                            : FunctionDecl(fun).resTypeNode().type();
     parameters.push_back(createTypeNode(ctx, loc, resType));
     for (size_t i = resParam ? 1 : 0; i < FunctionDecl(fun).parameters().size(); ++i) {
         parameters.push_back(createTypeNode(ctx, loc, FunctionDecl(fun).parameters()[i].type()));
@@ -257,7 +259,7 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
         return nullptr;
 
     // Get the actual class object from the instantiation
-    TypeRef t = getType(classCall);
+    Type t = getType(classCall);
 
     // If the class is valid, we have a conversion
     if (t)
@@ -268,16 +270,17 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
 }
 
 //! Get the number of parameters for a function-like decl
-int getNumParams(Node* decl) {
-    if (decl->nodeKind == nkFeatherDeclFunction) {
-        Nest_NodeRange params = all(decl->children);
-        return int(size(params)) - 2;
-    }
-    if (decl->nodeKind == nkSparrowDeclGenericFunction)
-        return (int)size(genericFunParams(decl));
-    if (decl->nodeKind == nkSparrowDeclSprFunction) {
-        Node* parameters = at(decl->children, 0);
-        return parameters ? (int)size(parameters->children) : 0;
+int getNumParams(NodeHandle decl) {
+    auto funDecl = decl.kindCast<Feather::FunctionDecl>();
+    if (funDecl)
+        return funDecl.parameters().size();
+    auto genericFun = decl.kindCast<GenericFunction>();
+    if (genericFun)
+        return genericFun.originalParams().size();
+    auto sprFunDecl = decl.kindCast<SprFunctionDecl>();
+    if (sprFunDecl) {
+        auto params = sprFunDecl.parameters();
+        return params ? params.children().size() : 0;
     }
     return 0;
 }
@@ -318,7 +321,7 @@ Node* _createFunPtrForDecl(Node* funNode) {
                 }
 
                 // Ensure we can convert baseExp to the first param
-                TypeRef paramType = FunctionDecl(decl).parameters()[thisParamIdx].type();
+                Type paramType = FunctionDecl(decl).parameters()[thisParamIdx].type();
                 if (!g_ConvertService->checkConversion(
                             baseExp, paramType, flagDontCallConversionCtor)) {
                     continue;
@@ -369,13 +372,13 @@ Node* _createFunPtrForDecl(Node* funNode) {
         // If we have a generic, try to wrap it in a lambda
         // TODO: In general we should create an object that is able to call any type of callable
 
-        size_t numParams = size(genericFunParams(resDecl));
+        int numParams = GenericFunction(resDecl).originalParams().size();
 
         Node* paramsType = mkIdentifier(loc, StringRef("AnyType"));
 
         NodeVector paramIds(numParams, nullptr);
         NodeVector args(numParams, nullptr);
-        for (size_t i = 0; i < numParams; ++i) {
+        for (int i = 0; i < numParams; ++i) {
             string name = "p" + boost::lexical_cast<string>(i);
             paramIds[i] = mkSprParameter(loc, StringRef(name), paramsType, nullptr);
             args[i] = mkIdentifier(loc, StringRef(name));

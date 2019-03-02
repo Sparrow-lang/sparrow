@@ -5,7 +5,7 @@ import rawPtr(RawPtr)
 import ranges
 
 [noDefault]
-datatype StaticArray(valueType: Type, arraySize: SizeType)
+datatype StaticArray(valueType: Type, arraySize: SizeType ct)
     using ValueType = valueType
     using RangeType = ContiguousMemoryRange(valueType)
     using _arraySize = arraySize

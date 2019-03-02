@@ -1,25 +1,27 @@
 #include <StdInc.h>
 #include "SprTypeTraits.h"
 #include "DeclsHelpers.h"
-#include "Overload.h"
 #include "StdDef.h"
-#include <SparrowFrontendTypes.h>
-#include <NodeCommonsCpp.h>
+#include "SparrowFrontendTypes.hpp"
+#include "SparrowFrontend/Services/IConvertService.h"
+#include "SparrowFrontend/Services/IOverloadService.h"
+#include "NodeCommonsCpp.h"
 #include "SprDebug.h"
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 #include "Nest/Utils/cppif/NodeUtils.hpp"
 
 using namespace SprFrontend;
 using namespace Feather;
 
 namespace {
-bool getNumericProperties(TypeRef t, int& numBits, bool& isUnsigned, bool& isFloating) {
-    if (!t->hasStorage)
+bool getNumericProperties(Type t, int& numBits, bool& isUnsigned, bool& isFloating) {
+    if (!t.hasStorage())
         return false;
-    Node* cls = Feather_classForType(t);
+    Node* cls = t.referredNode();
     ASSERT(cls);
 
     StringRef nativeName = Nest_getPropertyStringDeref(cls, propNativeName);
@@ -52,7 +54,7 @@ bool getNumericProperties(TypeRef t, int& numBits, bool& isUnsigned, bool& isFlo
 
 //! Gets the type value out of the given type node
 //! Depending on the second argument may report errors or will be quiet
-TypeRef getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
+Type getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
     ASSERT(typeNode);
     if (!Nest_semanticCheck(typeNode)) {
         if (unlikely(reportErrors))
@@ -63,16 +65,16 @@ TypeRef getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
     // If this is a DeclExp, try to look at the declaration types
     Node* expl = Nest_explanation(typeNode);
     if (expl->nodeKind == nkSparrowExpDeclExp) {
-        TypeRef res = nullptr;
+        Type res = nullptr;
         Nest_NodeRange decls = {expl->referredNodes.beginPtr + 1, expl->referredNodes.endPtr};
         for (Node* decl : decls) {
-            TypeRef t = nullptr;
+            Type t = nullptr;
             Node* resDecl = resultingDecl(decl);
 
             // Check if we have a concept or a generic class
             if (resDecl->nodeKind == nkSparrowDeclSprConcept ||
-                    resDecl->nodeKind == nkSparrowDeclGenericClass)
-                t = getConceptType(resDecl);
+                    resDecl->nodeKind == nkSparrowDeclGenericDatatype)
+                t = ConceptType::get(resDecl);
             // Check for a traditional class
             else if (decl->nodeKind == nkSparrowDeclSprDatatype)
                 t = decl->type;
@@ -101,12 +103,17 @@ TypeRef getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
         return res;
     }
 
-    TypeRef res = Feather::lvalueToRefIfPresent(typeNode->type);
+    // Is this a Feather type node?
+    auto tn = NodeHandle(typeNode).kindCast<Feather::TypeNode>();
+    if (tn)
+        return tn.givenType();
+
+    Type res = Feather::categoryToRefIfPresent(typeNode->type);
 
     if (res == StdDef::typeRefType) {
         Node* n = Nest_ctEval(typeNode);
         if (n->nodeKind == nkFeatherExpCtValue) {
-            auto** t = Feather_getCtValueData<TypeRef*>(n);
+            auto** t = Feather_getCtValueData<Type*>(n);
             if (!t || !*t || !**t)
                 REP_ERROR_RET(nullptr, typeNode->location, "No type was set for node");
             return **t;
@@ -114,7 +121,7 @@ TypeRef getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
     } else if (res == StdDef::typeType) {
         Node* n = Nest_ctEval(typeNode);
         if (n->nodeKind == nkFeatherExpCtValue) {
-            auto* t = Feather_getCtValueData<TypeRef>(n);
+            auto* t = Feather_getCtValueData<Type>(n);
             if (!t || !*t)
                 REP_ERROR_RET(nullptr, typeNode->location, "No type was set for node");
             return *t;
@@ -127,7 +134,7 @@ TypeRef getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
 
 } // namespace
 
-TypeRef SprFrontend::commonType(CompilationContext* context, TypeRef t1, TypeRef t2) {
+Type SprFrontend::commonType(CompilationContext* context, Type t1, Type t2) {
     // Check if the types are the same
     if (t1 == t2)
         return t1;
@@ -176,19 +183,19 @@ TypeRef SprFrontend::commonType(CompilationContext* context, TypeRef t1, TypeRef
     return StdDef::typeVoid;
 }
 
-TypeRef SprFrontend::doDereference1(Node* arg, Node*& cvt) {
+Type SprFrontend::doDereference1(Nest::NodeHandle arg, Nest::NodeHandle& cvt) {
     cvt = arg;
 
     // If the base is an expression with a data type, treat this as a data access
-    TypeRef t = arg->type;
-    if (!t->hasStorage)
+    Type t = arg.type();
+    if (!t.hasStorage())
         return t;
 
     // If we have N references apply N-1 dereferencing operations
-    for (size_t i = 1; i < t->numReferences; ++i) {
-        cvt = Feather_mkMemLoad(arg->location, cvt);
+    for (size_t i = 1; i < t.numReferences(); ++i) {
+        cvt = Feather::MemLoadExp::create(arg.location(), cvt);
     }
-    return Feather_getDataType(t->referredNode, 0, t->mode); // Zero references
+    return DataType::get(t.referredNode(), 0, t.mode()); // Zero references
 }
 
 namespace {
@@ -196,8 +203,8 @@ Node* checkDataTypeCtToRtConversion(Node* node) {
     const Location& loc = node->location;
     ASSERT(node->type);
 
-    TypeRef t = node->type;
-    Node* cls = Feather_classForType(t);
+    Type t = node->type;
+    Node* cls = t.referredNode();
     if (Feather_effectiveEvalMode(cls) != modeRt)
         REP_INTERNAL(loc, "Cannot convert to RT; datatype %1% doesn't support it") % cls;
 
@@ -228,21 +235,21 @@ Node* SprFrontend::convertCtToRt(Node* node) {
     if (!Nest_computeType(node))
         REP_INTERNAL(loc, "Cannot convert null node from CT to RT");
 
-    TypeRef t = node->type;
+    Type t = node->type;
 
-    if (t->typeKind == typeKindVoid) {
+    if (t.kind() == typeKindVoid) {
         Nest_ctEval(node);
         return Feather_mkNop(loc);
     }
 
-    if (!t->hasStorage)
+    if (!t.hasStorage())
         REP_ERROR_RET(nullptr, loc, "Cannot convert a non-storage type from CT to RT (%1%)") % t;
 
-    if (t->typeKind != typeKindData)
+    if (t.kind() != typeKindData)
         REP_ERROR_RET(nullptr, loc, "Cannot convert from CT to RT a node of non-data type (%1%)") %
                 t;
 
-    if (t->numReferences > 0)
+    if (t.numReferences() > 0)
         REP_ERROR_RET(nullptr, loc, "Cannot convert references from CT to RT (%1%)") % t;
 
     if (Feather_isBasicNumericType(t) || Type(t).changeMode(modeRt, NOLOC) == StdDef::typeStringRef)
@@ -251,61 +258,60 @@ Node* SprFrontend::convertCtToRt(Node* node) {
         return checkDataTypeCtToRtConversion(node);
 }
 
-TypeRef SprFrontend::getType(Node* typeNode) { return getTypeValueImpl(typeNode, true); }
+Type SprFrontend::getType(Node* typeNode) { return getTypeValueImpl(typeNode, true); }
 
-TypeRef SprFrontend::tryGetTypeValue(Node* typeNode) { return getTypeValueImpl(typeNode, false); }
+Type SprFrontend::tryGetTypeValue(Node* typeNode) { return getTypeValueImpl(typeNode, false); }
 
-TypeRef SprFrontend::evalTypeIfPossible(Node* typeNode) {
-    TypeRef t = tryGetTypeValue(typeNode);
-    return t ? t : typeNode->type;
+Type SprFrontend::evalTypeIfPossible(Node* typeNode) {
+    Type t = tryGetTypeValue(typeNode);
+    return t ? t : Type(typeNode->type);
 }
 
-Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& loc, TypeRef t) {
+Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& loc, Type t) {
     Node* res = Feather_mkCtValueT(loc, StdDef::typeType, &t);
     if (context)
         Nest_setContext(res, context);
     return res;
 }
 
-TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef, EvalMode evalMode) {
-    TypeRef t1 = typeNode->type;
+Type SprFrontend::getAutoType(Node* typeNode, int numRefs, EvalMode evalMode) {
+    Type t1 = typeNode->type;
 
-    // Nothing to do for storage types other than data and LValue
-    if (t1->typeKind != typeKindData && t1->typeKind != typeKindLValue)
+    // Nothing to do for non-data-like storage types
+    if (!Feather::isDataLikeType(t1))
         return t1;
 
-    Nest::TypeWithStorage t = t1;
+    Nest::TypeWithStorage t = TypeWithStorage(t1);
 
-    // Dereference (and remove LValue if there is one)
-    t = Feather::removeAllRefs(t);
+    // TODO (types): Rework this; we should receive a concept type and we should apply conversion to
+    // it
 
-    if (addRef)
-        t = Feather::addRef(t);
-    t = t.changeMode(evalMode, typeNode->location);
-    return t;
+    // This is a data-like type, so we can directly reduce it to the right datatype
+    return DataType::get(t.referredNode(), numRefs, evalMode);
 }
 
-bool SprFrontend::isConceptType(TypeRef t) { return t->typeKind == typeKindConcept; }
+bool SprFrontend::isConceptType(Type t) { return t.kind() == typeKindConcept; }
 
-bool SprFrontend::isConceptType(TypeRef t, bool& isRefAuto) {
-    if (t->typeKind == typeKindConcept) {
-        isRefAuto = t->numReferences > 0;
+bool SprFrontend::isConceptType(Type t, int& numRefs) {
+    if (t.kind() == typeKindConcept) {
+        numRefs = int(t.numReferences());
         return true;
     }
     return false;
 }
 
-TypeRef SprFrontend::changeRefCount(TypeRef type, int numRef, const Location& loc) {
+Type SprFrontend::changeRefCount(Type type, int numRef, const Location& loc) {
     ASSERT(type);
 
-    // If we have a LValue type, remove it
-    while (type->typeKind == typeKindLValue)
+    // If we have a category type, get its base
+    while (Feather::isCategoryType(type))
         type = Feather_baseType(type);
+    // TODO (types): Not sure if this is the right approach
 
-    if (type->typeKind == typeKindData)
-        type = Feather_getDataType(type->referredNode, numRef, type->mode);
-    else if (type->typeKind == typeKindConcept)
-        type = getConceptType(conceptOfType(type), numRef, type->mode);
+    if (type.kind() == typeKindData)
+        type = Feather_getDataType(type.referredNode(), numRef, type.mode());
+    else if (type.kind() == typeKindConcept)
+        type = ConceptType::get(ConceptType(type).decl(), numRef, type.mode());
     else
         REP_INTERNAL(loc, "Cannot change reference count for type %1%") % type;
     return type;

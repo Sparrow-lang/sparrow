@@ -290,9 +290,9 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
         fptr(dataBuffer.begin);
 
         // Create a CtValue containing the data resulted from expression evaluation
-        TypeRef t = node->type;
-        if (t->mode != modeCt)
-            t = Type(t).changeMode(modeCt, node->location);
+        Type t = node->type;
+        if (t.mode() != modeCt)
+            t = t.changeMode(modeCt, node->location);
         res = Feather_mkCtValue(node->location, t, dataBuffer);
     } else {
         // The magic is here:

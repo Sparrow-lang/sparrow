@@ -2,6 +2,7 @@ module std.sharedPtr
 
 import newDelete(new, delete)
 
+[convert]
 datatype SharedPtr(type: Type)
     using ValueType = type
     using _MyAllocData = _AllocData(type)

@@ -6,6 +6,8 @@
 
 namespace Nest {
 
+struct NodeHandle;
+
 /**
  * @brief   Base class for all type wrappers.
  *
@@ -47,6 +49,12 @@ struct Type {
     //! Checks if the type has storage
     bool hasStorage() const { return type_->hasStorage; }
 
+    //! Returns the number of references used for this type
+    int numReferences() const { return type_->numReferences; }
+
+    //! Returns the referred node; the node that introduced this type
+    Nest::NodeHandle referredNode() const;
+
     //! Returns a string description of the type. Works even for null types
     const char* description() const { return type_ ? type_->description : "<null>"; }
 
@@ -63,7 +71,7 @@ struct Type {
      *
      * @return     The type with the new eval mode; null if error
      */
-    Type changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{});
+    Type changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const;
 
     //!@}
 };
@@ -84,3 +92,12 @@ bool sameTypeIgnoreMode(Type t1, Type t2);
 ostream& operator<<(ostream& os, Type type);
 
 } // namespace Nest
+
+// custom specialization of std::hash can be injected in namespace std
+namespace std {
+template <> struct hash<Nest::Type> {
+    size_t operator()(Nest::Type obj) const noexcept {
+        return std::hash<Nest::TypeRef>()(obj.type_);
+    }
+};
+} // namespace std

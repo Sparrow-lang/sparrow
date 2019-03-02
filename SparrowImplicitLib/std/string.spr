@@ -9,6 +9,7 @@ import rawPtr(RawPtr, allocRawPtr)
 // TODO: Can we implement a VectorDetail(Type, InnerSpace), and implement fun Vector(type) = VectorBase(type, 0)
 
 /// String class that has ownership of the characters
+[convert]
 datatype String
     using ValueType = Char
     using ValuePassType = Char

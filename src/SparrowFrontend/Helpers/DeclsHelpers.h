@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nest/Utils/cppif/NodeUtils.hpp"
-#include "SparrowFrontend/Nodes/Decls/AccessType.h"
+#include "SparrowFrontend/Nodes/AccessType.h"
 
 namespace SprFrontend {
 

@@ -5,19 +5,19 @@
 
 class FeatherNodeFactory {
 public:
-    using LocationGenFun = std::function<Nest::Location()>;
-
     static FeatherNodeFactory& instance();
 
     //! Initialize the context for a test
-    void init(LocationGenFun locGen);
+    void init();
     //! Reset all the context data
     void reset();
+    //! Remove all the aux generated decls
+    void clearAuxNodes();
     //! Set the context for all the aux generated decls
     void setContextForAuxNodes(Nest::CompilationContext* ctx);
 
     rc::Gen<Feather::Nop> arbNop();
-    rc::Gen<Feather::TypeNode> arbTypeNode();
+    rc::Gen<Feather::TypeNode> arbTypeNode(Nest::TypeWithStorage expectedType = {});
 
     rc::Gen<Feather::CtValueExp> arbCtValueExp(Nest::TypeWithStorage expectedType = {});
     rc::Gen<Feather::NullExp> arbNullExp(Nest::TypeWithStorage expectedType = {});
@@ -42,15 +42,20 @@ private:
     //! To be called from generators
     Nest::NodeHandle genTypeNode(Nest::TypeWithStorage type);
 
+    //! Checks if we have a bool type
+    bool hasBoolType();
+
 private:
-    //! The functor used to generate locations
-    LocationGenFun locationGen;
     //! The list of generated var decls, as auxiliary data
     unordered_map<Nest::TypeRef, Feather::VarDecl> generatedVarDecls_;
     //! The list of generated function decls, as auxiliary data
     unordered_map<Nest::TypeRef, Feather::FunctionDecl> generatedFunDecls_;
     //! The maximum depth of nodes we would like to build -- avoiding infinite recursion
     int maxDepth_{5};
+    //! Indicates if we checked whether we have a bool type
+    bool testedForBoolType_;
+    //! True if we have a bool type
+    bool hasBoolType_;
 };
 
 namespace rc {

@@ -33,6 +33,14 @@ struct NodeHandle {
     //! Checks if the current node is not null
     explicit operator bool() const { return handle != nullptr; }
 
+    //! Makes a cast based of the kind.
+    //! If the current node has the kind of the given node type, then make the cast. Otherwise,
+    //! construct an empty result type.
+    //! This is somehow similar to dynamic_cast, but based on statically available info.
+    template <typename T> T kindCast() const {
+        return handle && kind() == T::staticKind() ? T(handle) : T();
+    }
+
     //!@{ Creation & cloning
 
     //! Creates a node of the given kind
@@ -106,6 +114,8 @@ struct NodeHandle {
 
     //! Set the referred nodes for this node
     void setReferredNodes(NodeRange nodes);
+    //! Add the given nodes to he referred nodes
+    void addReferredNodes(NodeRange nodes);
 
     //!@}
     //!@{ Node properties
@@ -146,6 +156,12 @@ struct NodeHandle {
     //!@}
     //!@{ Compilation processes misc
 
+    //! Indicates if the node was marked with an error
+    bool hasError() const;
+
+    //! Tests if this node was successfully semantically checked
+    bool isSemanticallyChecked() const;
+
     //! Add a modifier to this class; this modifier will be called before and after compilation
     void addModifier(Nest_Modifier* mod);
 
@@ -155,24 +171,35 @@ struct NodeHandle {
     //! Returns true if we have a dedicated children context for this node
     bool hasDedicatedChildrenContext() const;
 
+    //! Called to the set the children context for this node
+    void setChildrenContext(CompilationContext* ctx);
+
     //! Getter for the explanation of this node, if it has one; otherwise returns this node
     NodeHandle explanation();
+
+    //! Returns the additional nodes of this node
+    NodeRange additionalNodes() const;
+
+    //! Add the given node as an additional node for this node
+    void addAdditionalNode(NodeHandle node);
 
     //!@}
 
 protected:
     // NodeHandle semanticCheckImpl();  // doesn't have a default
+
     //! Default handler for computing the type of this node.
-    Type computeTypeImpl();
+    static Type computeTypeImpl(NodeHandle node);
     //! Default handler for setting the context for children
-    void setContextForChildrenImpl();
+    static void setContextForChildrenImpl(NodeHandle node);
     //! Default handler for transforming this into a string
-    const char* toStringImpl();
+    static const char* toStringImpl(NodeHandle node);
 
     //! Called to the set the type for this node
     void setType(Type t);
-    //! Called to the set the children context for this node
-    void setChildrenContext(CompilationContext* ctx);
+    //! Sets the explanation of this node.
+    //! Typically called when setting the explanation early, inside computeType
+    void setExplanation(NodeHandle expl);
 };
 
 ostream& operator<<(ostream& os, Nest::NodeHandle n);

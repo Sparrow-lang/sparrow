@@ -2,14 +2,16 @@
 #include "Generics.h"
 #include "SprTypeTraits.h"
 #include "SprDebug.h"
+#include "Nodes/Exp.hpp"
 
-#include <SparrowFrontendTypes.h>
+#include "SparrowFrontendTypes.hpp"
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/CommonCode.h>
 #include <Helpers/Ct.h>
 #include <Helpers/StdDef.h>
 
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Api/SourceCode.h"
 
@@ -17,8 +19,6 @@ using namespace SprFrontend;
 using namespace Nest;
 
 namespace SprFrontend {
-
-unique_ptr<IConceptsService> g_ConceptsService;
 
 namespace {
 
@@ -47,18 +47,18 @@ namespace {
  * @return A vector of all the bound variable
  */
 NodeVector createAllBoundVariables(const Location& loc, CompilationContext* context,
-        Nest_NodeRange boundValues, Nest_NodeRange params, bool isCtGeneric) {
+        NodeRange boundValues, NodeRangeT<ParameterDecl> params, bool isCtGeneric) {
     // Create a variable for each bound parameter - put everything in a node list
     NodeVector nodes;
     size_t idx = 0;
-    for (Node* p : params) {
-        Node* boundValue = at(boundValues, idx++);
+    for (NodeHandle p : params) {
+        NodeHandle boundValue = boundValues[idx++];
         if (!p || !boundValue)
             continue;
-        TypeRef paramType = p->type;
+        Type paramType = p.type();
         if (!paramType)
             paramType = getType(boundValue); // Dependent param type case
-        Node* var = createBoundVar(context, p, paramType, boundValue, isCtGeneric);
+        auto var = createBoundVar(context, ParameterDecl(p), paramType, boundValue, isCtGeneric);
         ASSERT(var);
         nodes.push_back(var);
     }
@@ -85,19 +85,20 @@ using NamesVec = vector<StringRef>;
  *
  * @return True if this node references any of the given names
  */
-bool referencesSeenName(Node* node, const NamesVec& seenNames) {
+bool referencesSeenName(NodeHandle node, const NamesVec& seenNames) {
     if (!node)
         return false;
-    if (node->nodeKind == nkSparrowExpIdentifier) {
+    Identifier ident = node.kindCast<Identifier>();
+    if (ident) {
         // Check to see if the name matches one of our previously seen parameter names
-        StringRef name = Feather_getName(node);
+        StringRef name = ident.name();
         for (StringRef seenName : seenNames) {
             if (name == seenName)
                 return true;
         }
     } else {
         // For the rest of the nodes, check all the children
-        for (Node* child : node->children) {
+        for (NodeHandle child : node.children()) {
             if (referencesSeenName(child, seenNames))
                 return true;
         }
@@ -106,68 +107,52 @@ bool referencesSeenName(Node* node, const NamesVec& seenNames) {
 }
 } // namespace
 
-Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause) {
-    ASSERT(parameters);
-    Nest_NodeRange params = all(parameters->children);
+GenericFunction checkCreateGenericFun(
+        SprFunctionDecl originalFun, NodeRange params, NodeHandle ifClause) {
     auto numParams = Nest_nodeRangeSize(params);
     if (numParams == 0)
-        return nullptr; // cannot be generic
+        return {}; // cannot be generic
 
     // If we are in a CT function, don't consider CT parameters
-    bool isCtFun = Feather_effectiveEvalMode(originalFun) == modeCt;
+    bool isCtFun = originalFun.effectiveMode() == modeCt;
     // For CT-generics, we consider all the parameters to be generic parameters
-    bool isCtGeneric = Nest_hasProperty(originalFun, propCtGeneric);
+    bool isCtGeneric = originalFun.hasProperty(propCtGeneric);
 
     // Check if we have some dependent type parameters
-    NodeVector dependentParams(numParams, nullptr);
+    vector<ParameterDecl> dependentParams(numParams, nullptr);
     NamesVec seenNames;
     seenNames.reserve(numParams);
-    // bool hasDependentParams = false;
     for (int i = 0; i < numParams; ++i) {
-        Node* param = at(params, i);
-        Node* paramType = at(param->children, 0);
-        ASSERT(param->nodeKind == nkSparrowDeclSprParameter);
+        ParameterDecl param = ParameterDecl(params[i]);
+        NodeHandle paramType = param.typeNode();
 
         // Check if this parameter references a previously seen parameter
         if (i > 0 && referencesSeenName(paramType, seenNames)) {
             dependentParams[i] = param;
-            // hasDependentParams = true;
         }
 
         // Add this param name to the list of seen names
-        seenNames.push_back(Feather_getName(param));
+        seenNames.push_back(param.name());
     }
     ASSERT(dependentParams[0] == nullptr); // the first param cannot be dependent
 
-    // Dependent types debug info
-    // if (hasDependentParams) {
-    //     ostringstream oss;
-    //     oss << "(null";
-    //     for (int i = 1; i < numParams; i++) {
-    //         oss << ", " << (dependentParams[i] ? NodeHandle(dependentParams[i]).toString() :
-    //         "null");
-    //     }
-    //     oss << ")";
-    //     REP_INFO(originalFun->location, "Dependent types: %1%") % oss.str();
-    // }
-
     // Check if we have some CT or concept parameters
     // We compute the type of all the parameters, except the dependent ones
-    NodeVector genericParams(numParams, nullptr);
+    vector<ParameterDecl> genericParams(numParams, nullptr);
     bool hasGenericParams = false;
     for (size_t i = 0; i < numParams; ++i) {
-        Node* param = at(params, i);
+        ParameterDecl param = ParameterDecl(params[i]);
         if (dependentParams[i]) {
             genericParams[i] = param;
             hasGenericParams = true;
             continue; // Don't compute the type
         }
-        if (!Nest_computeType(param))
-            return nullptr;
+        if (!param.computeType())
+            return {};
 
-        ASSERT(param->type);
-        bool isGeneric = isCtGeneric || (!isCtFun && param->type->mode == modeCt) ||
-                         isConceptType(param->type);
+        ASSERT(param.type());
+        bool isGeneric = isCtGeneric || (!isCtFun && param.type().mode() == modeCt) ||
+                         isConceptType(param.type());
 
         if (isGeneric) {
             genericParams[i] = param;
@@ -179,33 +164,23 @@ Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause)
         return nullptr;
 
     // Actually create the generic
-    Node* res = mkGenericFunction(originalFun, params, all(genericParams), ifClause);
+    auto res = GenericFunction::create(originalFun, params, genericParams, ifClause);
     copyOverloadPrio(originalFun, res);
-    Feather_setEvalMode(res, Feather_effectiveEvalMode(originalFun));
-    Nest_setContext(res, originalFun->context);
+    res.setContext(originalFun.context());
     return res;
 }
 
-Nest_NodeRange genericFunParams(Node* genericFun) {
-    return GenericFunNode(genericFun).originalParams();
-}
-Nest_NodeRange genericClassParams(Node* genericClass) {
-    return GenericClassNode(genericClass).instSet().params();
-}
-Nest_NodeRange genericPackageParams(Node* genericPackage) {
-    return GenericPackageNode(genericPackage).instSet().params();
-}
-
-InstNode searchInstantiation(InstSetNode instSet, Nest_NodeRange values) {
-    for (InstNode inst : instSet.instantiations()) {
-        const auto& boundValues = inst.boundValues();
-        if (size(boundValues) < size(values))
+Instantiation searchInstantiation(InstantiationsSet instSet, NodeRange values) {
+    for (NodeHandle inst1 : instSet.instantiations()) {
+        Instantiation inst = (Node*)inst1;
+        auto boundValues = inst.boundValues();
+        if (boundValues.size() < values.size())
             continue;
 
         bool argsMatch = true;
-        for (size_t i = 0; i < size(values); ++i) {
-            Node* boundVal = at(boundValues, i);
-            Node* val = at(values, i);
+        for (size_t i = 0; i < values.size(); ++i) {
+            NodeHandle boundVal = boundValues[i];
+            NodeHandle val = values[i];
             if (!boundVal && !val)
                 continue;
             if (!boundVal || !val || !ctValsEqual(val, boundVal)) {
@@ -216,61 +191,66 @@ InstNode searchInstantiation(InstSetNode instSet, Nest_NodeRange values) {
         if (argsMatch)
             return inst;
     }
-    return nullptr;
+    return {};
 }
 
-InstNode createNewInstantiation(InstSetNode instSet, Nest_NodeRange values, EvalMode evalMode) {
-    ASSERT(instSet.node);
-    const Location& loc = instSet.node->location;
+Instantiation createNewInstantiation(
+        InstantiationsSet instSet, NodeRange values, EvalMode evalMode) {
+    ASSERT(instSet);
+    const Location& loc = instSet.location();
 
     // Create a new context, but at the same level as the context of the parent node
-    Node* parentNode = instSet.parentNode();
+    auto parentNode = instSet.parentNode();
     CompilationContext* context =
-            Nest_mkChildContextWithSymTab(parentNode->context, nullptr, evalMode);
+            Nest_mkChildContextWithSymTab(parentNode.context(), nullptr, evalMode);
 
-    bool isCtGeneric = Nest_hasProperty(parentNode, propCtGeneric);
+    bool isCtGeneric = parentNode.hasProperty(propCtGeneric);
 
     // Create the instantiation
     auto boundVars = createAllBoundVariables(loc, context, values, instSet.params(), isCtGeneric);
-    InstNode inst = mkInstantiation(loc, values, all(boundVars));
+    auto inst = Instantiation::create(loc, values, all(boundVars));
     // Add it to the parent instSet
-    Nest_appendNodeToArray(&instSet.instantiations(), inst.node);
+    instSet.addInstantiation(inst);
 
     // Compile the bound vars for the newly created instantiation
-    Nest_setContext(inst.boundVarsNode(), context);
-    if (!Nest_semanticCheck(inst.boundVarsNode()))
-        return nullptr;
+    inst.boundVarsNode().setContext(context);
+    if (!inst.boundVarsNode().semanticCheck())
+        return {};
 
     return inst;
 }
 
-Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue,
-        bool isCtGeneric) {
+Feather::DeclNode createBoundVar(CompilationContext* context, ParameterDecl param, Type paramType,
+        NodeHandle boundValue, bool isCtGeneric) {
     ASSERT(param);
     ASSERT(paramType);
-    ASSERT(boundValue && boundValue->type);
+    ASSERT(boundValue && boundValue.type());
 
-    Location loc = param->location;
-    bool isConcept = !isCtGeneric && isConceptParam(loc, paramType, boundValue);
+    Location loc = param.location();
+    bool isConcept = !isCtGeneric && isConceptParam(paramType, boundValue);
 
-    StringRef name = Feather_getName(param);
-    Node* var = nullptr;
+    StringRef name = param.name();
+    Feather::DeclNode res;
     if (isConcept) {
-        TypeRef t = getType(boundValue);
-        var = Feather_mkVar(loc, name, Feather_mkTypeNode(loc, t));
-        if (t->mode == modeCt)
-            Feather_setEvalMode(var, modeCt);
+        // Make sure to mimic the parameter/variable behavior when bounding the value
+        Type t = getType(boundValue);
+        auto var = Feather::VarDecl::create(loc, name, Feather::TypeNode::create(loc, t));
+        if (t.mode() == modeCt)
+            var.setMode(modeCt);
         Nest_symTabEnter(context->currentSymTab, name.begin, var);
+        res = var;
     } else {
-        var = mkSprUsing(loc, name, Nest_cloneNode(boundValue));
-        Feather_setEvalMode(var, modeCt);
+        // We are interested only in the value; a simple using is perfect
+        auto usng = UsingDecl::create(loc, name, boundValue.clone());
+        usng.setMode(modeCt);
+        res = usng;
     }
 
-    Nest_setContext(var, context);
-    return var;
+    res.setContext(context);
+    return res;
 }
 
-bool canInstantiate(InstNode inst, InstSetNode instSet) {
+bool canInstantiate(Instantiation inst, InstantiationsSet instSet) {
     // If we already evaluated this, we already know the answer
     if (inst.isEvaluated())
         return inst.isValid();
@@ -280,18 +260,18 @@ bool canInstantiate(InstNode inst, InstSetNode instSet) {
     inst.setEvaluated();
 
     // If we have an if clause, check if this CT evaluates to true
-    Node* ifClause = instSet.ifClause();
+    NodeHandle ifClause = instSet.ifClause();
     if (ifClause) {
         // Always use a clone of the original node
-        Node* cond = Nest_cloneNode(ifClause);
-        Nest_setContext(cond, Nest_childrenContext(inst.boundVarsNode()));
+        NodeHandle cond = ifClause.clone();
+        cond.setContext(inst.boundVarsNode().childrenContext());
 
         // If the condition does not compile, we cannot instantiate
         bool isValid = false;
         int oldVal = Nest_isReportingEnabled();
         Nest_enableReporting(0);
         try {
-            Node* res = Nest_semanticCheck(cond);
+            auto res = cond.semanticCheck();
             isValid = res != nullptr && Feather_isCt(res)    // We must have a value at CT
                       && Feather_isTestable(res)             // The value must be boolean
                       && Nest_getSuppressedErrorsNum() == 0; // No suppressed errors
@@ -310,26 +290,29 @@ bool canInstantiate(InstNode inst, InstSetNode instSet) {
     return true;
 }
 
-InstNode canInstantiate(InstSetNode instSet, Nest_NodeRange values, EvalMode evalMode) {
+Instantiation canInstantiate(InstantiationsSet instSet, NodeRange values, EvalMode evalMode) {
+    if (values.size() != instSet.params().size())
+        return {};
+
     // Try to find an existing instantiation
-    InstNode inst = searchInstantiation(instSet, values);
+    Instantiation inst = searchInstantiation(instSet, values);
 
     // If no instantiation is found, create a new instantiation
     if (!inst)
         inst = createNewInstantiation(instSet, values, evalMode);
     if (!inst)
-        return nullptr;
+        return {};
 
     return canInstantiate(inst, instSet) ? inst : nullptr;
 }
 
-bool isConceptParam(Location paramLoc, TypeRef paramType, Node* boundValue) {
-    ASSERT(boundValue && boundValue->type);
+bool isConceptParam(Type paramType, NodeHandle boundValue) {
+    ASSERT(boundValue && boundValue.type());
 
     // Check the bound value type first; it should always be 'Type' (we store the type of the given
     // arg for concept types)
     // If it's not type, this is not a concept param
-    if (boundValue->type != StdDef::typeType || boundValue->type == paramType)
+    if (boundValue.type() != StdDef::typeType || boundValue.type() == paramType)
         return false;
 
     // Dependent param case: if we passes the above check, treat this as a concept type
@@ -339,54 +322,64 @@ bool isConceptParam(Location paramLoc, TypeRef paramType, Node* boundValue) {
     // In a non-dependent parameter case, in which we have a proper paramType, check if this is a
     // concept or the param type is not CT
     ASSERT(isConceptType(paramType) || paramType == getType(boundValue));
-    return isConceptType(paramType) || paramType->mode != modeCt;
+    return isConceptType(paramType) || paramType.mode() != modeCt;
 }
 
-bool ConceptsService::conceptIsFulfilled(Node* concept1, TypeRef type) {
-    ASSERT(concept1);
-    ConceptNode concept = concept1;
-    InstSetNode instSet = concept.instSet();
 
-    // We only support datatype and lvalue types to fulfil concepts
-    // TODO (types): Expand this to all datatypes
-    int kind = type->typeKind;
-    if (kind != Feather_getDataTypeKind() && kind != Feather_getLValueTypeKind())
-        return false;
-
-    if (!concept.node->nodeSemanticallyChecked || !instSet)
-        REP_INTERNAL(concept.node->location, "Invalid concept");
-    ASSERT(instSet);
-
-    Node* typeValue = createTypeNode(concept.node->context, concept.node->location, type);
-    if (!Nest_semanticCheck(typeValue))
-        return false;
-
-    InstNode inst =
-            canInstantiate(instSet, fromIniList({typeValue}), concept.node->context->evalMode);
-    return inst.node != nullptr;
+IterativeInstantiationBuilder::IterativeInstantiationBuilder(
+        InstantiationsSet instSet, int numParams, EvalMode finalEvalMode, bool isCtGeneric)
+    : instSet_(instSet)
+    , finalEvalMode_(finalEvalMode)
+    , isCtGeneric_(isCtGeneric) {
+    boundValues_.resize(numParams, NodeHandle{});
 }
 
-bool ConceptsService::typeGeneratedFromGeneric(Node* genericClass, TypeRef type) {
-    ASSERT(genericClass && genericClass->nodeKind == nkSparrowDeclGenericClass);
-    Node* cls = Feather_classForType(type);
-    if (!cls)
-        return false;
+void IterativeInstantiationBuilder::addBoundVal(
+        int idx, NodeHandle boundVal, ParameterDecl param, Type paramType) {
+    ASSERT(idx < boundValues_.size());
+    ASSERT(boundVal && boundVal.type());
+    boundValues_[idx] = boundVal;
 
-    // Simple check: location & name is the same
-    return 0 == Nest_compareLocations(&genericClass->location, &cls->location) &&
-           Feather_getName(genericClass) == Feather_getName(cls);
+    // Now, select the appropriate inst for the new bound value
+    if (reuseExistingInst_) {
+        // First, check if we can continue the existing inst
+        if (curInst_) {
+            auto existingBoundVal = curInst_.boundValues()[idx];
+            if (!existingBoundVal || !ctValsEqual(boundVal, existingBoundVal)) {
+                curInst_ = Instantiation();
+            }
+        }
+        // If the current instantiation is not valid, try to search another
+        if (!curInst_) {
+            auto boundValues2 = NodeRangeT<NodeHandle>(boundValues_.all().shrinkTo(idx + 1));
+            curInst_ = searchInstantiation(instSet_, boundValues2);
+            reuseExistingInst_ = !!(curInst_);
+        }
+    }
+    if (!reuseExistingInst_) {
+        // This is a new instantiation; check if we have to create it
+        if (!curInst_) {
+            curInst_ = createNewInstantiation(
+                    instSet_, NodeRangeT<NodeHandle>(boundValues_), finalEvalMode_);
+            ASSERT(curInst_);
+        } else {
+            // Add the appropriate bound variable to the instantiation
+            auto boundVar = createBoundVar(
+                    curInst_.boundVarsNode().context(), param, paramType, boundVal, isCtGeneric_);
+            curInst_.boundVarsNode().addChild(boundVar);
+            curInst_.boundVarsNode().clearCompilationStateSimple();
+        }
+        curInst_.boundValuesM()[idx] = boundVal;
+    }
+}
+Instantiation IterativeInstantiationBuilder::inst() const { return curInst_; }
+
+CompilationContext* IterativeInstantiationBuilder::boundVarContext() const {
+    return curInst_ ? curInst_.boundVarsNode().context() : nullptr;
 }
 
-TypeRef ConceptsService::baseConceptType(Node* concept) {
-    Node* baseConcept = at(concept->children, 0);
-
-    TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
-    return res;
-}
-
-void setDefaultConceptsService() {
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    g_ConceptsService.reset(new ConceptsService);
+NodeHandle IterativeInstantiationBuilder::existingBoundVal(int idx) const {
+    return reuseExistingInst_ && curInst_ ? curInst_.boundValues()[idx] : NodeHandle{};
 }
 
 } // namespace SprFrontend

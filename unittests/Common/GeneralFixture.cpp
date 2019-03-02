@@ -2,6 +2,8 @@
 #include "GeneralFixture.hpp"
 #include "TypeFactory.hpp"
 #include "BackendMock.hpp"
+#include "LocationGen.hpp"
+#include "FeatherNodeFactory.hpp"
 
 #include "SparrowFrontend/SparrowSourceCode.h"
 #include "SparrowFrontend/SparrowFrontend.h"
@@ -18,6 +20,8 @@
 #include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/CompilerSettings.hpp"
+
+LocationGenFun g_LocationGen;
 
 namespace {
 
@@ -44,6 +48,9 @@ NestGeneralFixture::NestGeneralFixture() {
 
     // Set up some compiler settings
     Nest_compilerSettings()->noColors_ = true;
+
+    g_LocationGen = [this]() -> Nest::Location { return createLocation(); };
+    FeatherNodeFactory::instance().init();
 }
 NestGeneralFixture::~NestGeneralFixture() {
     // Cleanup the Nest module

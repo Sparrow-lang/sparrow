@@ -1,11 +1,10 @@
 #include <StdInc.h>
 #include "DeclsHelpers.h"
 #include "SprTypeTraits.h"
-#include "ForEachNodeInNodeList.h"
-#include <NodeCommonsCpp.h>
-#include <SparrowFrontendTypes.h>
+#include "NodeCommonsCpp.h"
+#include "SparrowFrontendTypes.hpp"
 #include "Nest/Utils/PtrArray.h"
-#include <Mods.h>
+#include "Mods.h"
 
 using namespace SprFrontend;
 using namespace Nest;
@@ -40,7 +39,7 @@ void checkNodeAllowed(Node* child, bool insideClass) {
             (insideClass && nodeKind == nkSparrowDeclSprField) ||
             (!insideClass && nodeKind == nkSparrowDeclSprConcept) ||
             (!insideClass && nodeKind == nkSparrowDeclGenericPackage) ||
-            (!insideClass && nodeKind == nkSparrowDeclGenericClass) ||
+            (!insideClass && nodeKind == nkSparrowDeclGenericDatatype) ||
             (!insideClass && nodeKind == nkSparrowDeclGenericFunction) ||
             nodeKind == nkSparrowDeclUsing)
         return;
@@ -87,15 +86,9 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp) {
     }
 
     // If the node represents a type, try to get the declaration associated with the type
-    TypeRef t = tryGetTypeValue(n);
-    if (t) {
-        // If we have a Type as base, try a constructor/concept call
-        if (t->hasStorage) {
-            res.push_back(Feather_classDecl(t));
-        } else if (t->typeKind == typeKindConcept) {
-            res.push_back(conceptOfType(t));
-        } else
-            t = nullptr;
+    Type t = tryGetTypeValue(n);
+    if (t && t.hasStorage()) {
+        res.push_back(t.referredNode());
     }
 
     return res;
@@ -296,7 +289,7 @@ CompilationContext* SprFrontend::classContext(Node* cls) {
     while (res && res->parent) {
         Node* n = res->currentSymTab->node;
         if (n && n->nodeKind != nkSparrowDeclSprDatatype &&
-                n->nodeKind != nkSparrowDeclGenericClass &&
+                n->nodeKind != nkSparrowDeclGenericDatatype &&
                 n->nodeKind != Feather_getFirstFeatherNodeKind() + nkRelFeatherDeclClass)
             break;
 

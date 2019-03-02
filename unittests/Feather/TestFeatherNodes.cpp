@@ -9,8 +9,6 @@
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
-#include <boost/bind.hpp>
-
 using namespace Nest;
 using namespace Feather;
 
@@ -20,6 +18,7 @@ struct FeatherNodesFixture : SparrowGeneralFixture {
     FeatherNodesFixture();
     ~FeatherNodesFixture();
 
+    void clearAuxNodes();
     void setContextForAuxNodes();
 };
 
@@ -32,11 +31,13 @@ FeatherNodesFixture::FeatherNodesFixture() {
     g_dataTypeDecls.push_back(createDatatypeNode(StringRef("FooType"), globalContext_));
     g_dataTypeDecls.push_back(createDatatypeNode(StringRef("BarType"), globalContext_));
     g_dataTypeDecls.push_back(createDatatypeNode(StringRef("NullType"), globalContext_));
-
-    FeatherNodeFactory::instance().init(boost::bind(&FeatherNodesFixture::createLocation, this));
 }
 FeatherNodesFixture::~FeatherNodesFixture() {
     FeatherNodeFactory::instance().reset();
+}
+
+void FeatherNodesFixture::clearAuxNodes() {
+    FeatherNodeFactory::instance().clearAuxNodes();
 }
 
 void FeatherNodesFixture::setContextForAuxNodes() {
@@ -45,6 +46,7 @@ void FeatherNodesFixture::setContextForAuxNodes() {
 
 TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather expressions generation") {
     rc::prop("Test expected type", [=](Nest::TypeWithStorage expectedType) {
+        clearAuxNodes();
         NodeHandle node = *FeatherNodeFactory::instance().arbExp(expectedType);
         setContextForAuxNodes();
         node.setContext(globalContext_);
@@ -57,6 +59,7 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather expressions generation") 
 
 TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::Nop node") {
     SECTION("Has type Void") {
+        clearAuxNodes();
         auto nop = Nop::create(createLocation());
         setContextForAuxNodes();
         nop.setContext(globalContext_);
@@ -103,16 +106,16 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::NullExp node") {
 }
 
 TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::VarRefExp node") {
-    rc::prop("VarRefExp has proper type - LValue(var)", [=](Feather::VarRefExp node) {
+    rc::prop("VarRefExp has proper type - MutableType(var)", [=](Feather::VarRefExp node) {
         setContextForAuxNodes();
         node.setContext(globalContext_);
         auto t = node.computeType();
         auto varDecl = node.varDecl();
         REQUIRE(t);
-        REQUIRE(t.kind() == Feather_getLValueTypeKind());
+        REQUIRE(t.kind() == typeKindMutable);
         REQUIRE(varDecl.type());
         REQUIRE(varDecl.type().hasStorage());
-        REQUIRE(sameTypeIgnoreMode(t, LValueType::get(TypeWithStorage(varDecl.type()))));
+        REQUIRE(sameTypeIgnoreMode(t, MutableType::get(varDecl.type())));
     });
     rc::prop("VarRefExp pointing to params have proper type",
             [=](DataType t1, DataType t2, DataType t3) {
@@ -142,12 +145,12 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::VarRefExp node") {
                 REQUIRE(vrt1);
                 REQUIRE(vrt2);
                 REQUIRE(vrt3);
-                REQUIRE(vrt1.kind() == Feather_getLValueTypeKind());
-                REQUIRE(vrt2.kind() == Feather_getLValueTypeKind());
-                REQUIRE(vrt3.kind() == Feather_getLValueTypeKind());
-                REQUIRE(sameTypeIgnoreMode(vrt1, LValueType::get(t1)));
-                REQUIRE(sameTypeIgnoreMode(vrt2, LValueType::get(t2)));
-                REQUIRE(sameTypeIgnoreMode(vrt3, LValueType::get(t3)));
+                REQUIRE(vrt1.kind() == typeKindMutable);
+                REQUIRE(vrt2.kind() == typeKindMutable);
+                REQUIRE(vrt3.kind() == typeKindMutable);
+                REQUIRE(sameTypeIgnoreMode(vrt1, MutableType::get(t1)));
+                REQUIRE(sameTypeIgnoreMode(vrt2, MutableType::get(t2)));
+                REQUIRE(sameTypeIgnoreMode(vrt3, MutableType::get(t3)));
             });
 }
 
@@ -191,8 +194,8 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::MemLoadExp node") {
         REQUIRE(t);
         REQUIRE(tAddr);
         REQUIRE(tAddr.hasStorage());
-        REQUIRE(sameTypeIgnoreMode(t, removeRef(TypeWithStorage(tAddr))));
-        REQUIRE(t.kind() != Feather_getLValueTypeKind());
+        REQUIRE(sameTypeIgnoreMode(t, removeCatOrRef(TypeWithStorage(tAddr))));
+        REQUIRE(t.kind() != typeKindMutable);
     });
 }
 

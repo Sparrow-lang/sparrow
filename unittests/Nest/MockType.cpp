@@ -40,22 +40,11 @@ MockType MockType::get(bool hasStorage, int numRefs, Nest::EvalMode mode) {
     return {t};
 }
 
-MockType::MockType() {}
-
 MockType::MockType(Nest::TypeRef t)
-    : type(t) {}
+    : Type(t) {}
 
-int MockType::kind() const {
-    REQUIRE(type->typeKind == typeKind);
-    return typeKind;
-}
-
-bool MockType::hasStorage() const { return type->hasStorage != 0; }
-int MockType::numReferences() const { return type->numReferences; }
-Nest::EvalMode MockType::mode() { return type->mode; }
-
-MockType MockType::changeMode(Nest::EvalMode newMode) const {
-    return MockType::get(type->hasStorage != 0, type->numReferences, newMode);
+MockType MockType::changeMode(Nest::EvalMode newMode, Nest::Location /*loc*/) const {
+    return MockType::get(type_->hasStorage != 0, type_->numReferences, newMode);
 }
 
 ostream& operator<<(ostream& os, MockType t) {

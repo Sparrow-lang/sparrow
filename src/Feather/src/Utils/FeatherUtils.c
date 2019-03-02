@@ -50,14 +50,11 @@ Nest_StringRef Feather_nativeName(Nest_TypeRef type) {
     return res;
 }
 
-int Feather_numReferences(Nest_TypeRef type) {
-    ASSERT(type && type->hasStorage);
-    return type->numReferences;
-}
-
 Nest_TypeRef Feather_baseType(Nest_TypeRef type) {
-    ASSERT(type && (type->typeKind == typeKindLValue || type->typeKind == typeKindArray) &&
-            type->numSubtypes == 1);
+    ASSERT(type);
+    ASSERT(type->typeKind == typeKindConst || type->typeKind == typeKindMutable ||
+            type->typeKind == typeKindTemp || type->typeKind == typeKindArray);
+    ASSERT(type->numSubtypes == 1);
     return type->subTypes[0];
 }
 

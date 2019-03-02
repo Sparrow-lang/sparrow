@@ -1,12 +1,11 @@
 #pragma once
 
-#include "Nest/Api/TypeRef.h"
+#include "Nest/Utils/cppif/Type.hpp"
 #include "Nest/Api/StringRef.h"
 
 using Nest::Location;
 using Nest::Node;
 using Nest::StringRef;
-using Nest::TypeRef;
 
 namespace llvm {
 class Type;
@@ -23,7 +22,7 @@ struct GlobalContext;
 
 //! Translates the given type into LLVM representation.
 //! This may generate a new top-level struct in the LLVM module
-llvm::Type* getLLVMType(TypeRef type, GlobalContext& ctx);
+llvm::Type* getLLVMType(Nest::Type type, GlobalContext& ctx);
 
 //! Get the LLVM type for a native type
 //! If this is not a LLVM native type, it will return null

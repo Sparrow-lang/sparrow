@@ -829,22 +829,22 @@ define void @_Type_copy_ctor(i8** %$this, i8* %other)
 [noDefault]
     datatype Uninitialized {}
 
-    [native("Null")]    datatype Null {}
+    [native("Null")]            datatype Null {}
 
-    [native("i1")]      datatype Bool {}
-    [native("i8")]      datatype Byte {}
-    [native("u8")]      datatype UByte {}
-    [native("i16")]     datatype Short {}
-    [native("u16")]     datatype UShort {}
-    [native("i32")]     datatype Int {}
-    [native("u32")]     datatype UInt {}
-    [native("i64")]     datatype Long {}
-    [native("u64")]     datatype ULong {}
-    [native("u64")]     datatype SizeType {}
-    [native("i64")]     datatype DiffType {}
-    [native("float")]   datatype Float {}
-    [native("double")]  datatype Double {}
-    [native("i8")]      datatype Char {}
+    [native("i1")]              datatype Bool {}
+    [native("i8")]              datatype Byte {}
+    [convert, native("u8")]     datatype UByte {}
+    [convert, native("i16")]    datatype Short {}
+    [convert, native("u16")]    datatype UShort {}
+    [convert, native("i32")]    datatype Int {}
+    [convert, native("u32")]    datatype UInt {}
+    [convert, native("i64")]    datatype Long {}
+    [convert, native("u64")]    datatype ULong {}
+    [convert, native("u64")]    datatype SizeType {}
+    [convert, native("i64")]    datatype DiffType {}
+    [convert, native("float")]  datatype Float {}
+    [convert, native("double")] datatype Double {}
+    [native("i8")]              datatype Char {}
 
 [protected]
     fun ctor(this: Uninitialized) {}

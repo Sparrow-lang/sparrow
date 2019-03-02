@@ -107,6 +107,10 @@ void NodeHandle::setReferredNodes(NodeRange nodes) {
         at(handle->referredNodes, i) = at(nodes, i);
 }
 
+void NodeHandle::addReferredNodes(NodeRange nodes) {
+    Nest_appendNodesToArray(&handle->referredNodes, nodes);
+}
+
 void NodeHandle::setProperty(Nest_NodeProperty prop) { Nest_setProperty(handle, prop); }
 void NodeHandle::setProperty(const char* name, int val) {
     Nest_NodeProperty prop = {StringRef(name).dup(), propInt, 0, {0}};
@@ -260,6 +264,9 @@ void* NodeHandle::getCheckPropertyPtr(const char* name) const {
     return *res;
 }
 
+bool NodeHandle::hasError() const { return handle->nodeError != 0; }
+bool NodeHandle::isSemanticallyChecked() const { return handle->nodeSemanticallyChecked != 0; }
+
 void NodeHandle::addModifier(Nest_Modifier* mod) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     NestUtils_appendObjectToPtrArray((NestUtils_PtrArray*)&handle->modifiers, mod);
@@ -270,27 +277,33 @@ CompilationContext* NodeHandle::childrenContext() const {
 }
 
 bool NodeHandle::hasDedicatedChildrenContext() const { return handle->childrenContext != nullptr; }
+void NodeHandle::setChildrenContext(CompilationContext* ctx) { handle->childrenContext = ctx; }
 
 NodeHandle NodeHandle::explanation() {
     return handle && handle->explanation && handle->explanation != handle
                    ? NodeHandle(handle->explanation).explanation()
                    : *this;
 }
-Type NodeHandle::computeTypeImpl() {
-    semanticCheck();
-    return type();
+NodeRange NodeHandle::additionalNodes() const { return all(handle->additionalNodes); }
+
+void NodeHandle::addAdditionalNode(NodeHandle node) {
+    Nest_appendNodeToArray(&handle->additionalNodes, node);
 }
-void NodeHandle::setContextForChildrenImpl() {
+Type NodeHandle::computeTypeImpl(NodeHandle node) {
+    node.semanticCheck();
+    return node.type();
+}
+void NodeHandle::setContextForChildrenImpl(NodeHandle node) {
     // Set the children context to all of the children
-    CompilationContext* childrenCtx = childrenContext();
-    for (auto child : children())
+    CompilationContext* childrenCtx = node.childrenContext();
+    for (auto child : node.children())
         if (child)
             child.setContext(childrenCtx);
 }
-const char* NodeHandle::toStringImpl() { return Nest_defaultFunToString(handle); }
+const char* NodeHandle::toStringImpl(NodeHandle node) { return Nest_defaultFunToString(node); }
 
 void NodeHandle::setType(Type t) { handle->type = t; }
-void NodeHandle::setChildrenContext(CompilationContext* ctx) { handle->childrenContext = ctx; }
+void NodeHandle::setExplanation(NodeHandle expl) { handle->explanation = expl; }
 
 ostream& operator<<(ostream& os, NodeHandle n) {
     if (n)

@@ -43,6 +43,9 @@ const Nest_SourceCode* Nest_getSourceCodeForFilename(Nest_StringRef filename);
 /// Add the given node to be queued for semantic check
 void Nest_queueSemanticCheck(Nest_Node* node);
 
+/// Make sure that all the queued nodes are semantically checked
+void Nest_semanticCheckQueuedNodes();
+
 /// Call this to CT process the given node
 void Nest_ctProcess(Nest_Node* node);
 

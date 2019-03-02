@@ -99,7 +99,7 @@ void Nest_reportDiagnostic(Location loc, Nest_DiagnosticSeverity severity, const
 
     if (severity == diagInternalError)
         exit(-1);
-    // if ( severity == diagError )
+    // if (severity == diagError && _numErrors == 2)
     //     exit(-1);
 }
 

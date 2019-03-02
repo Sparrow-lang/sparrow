@@ -4,11 +4,9 @@
 #include "SprDebug.h"
 
 #include <Nodes/Builder.h>
-#include <Nodes/SparrowNodesAccessors.h>
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/StdDef.h>
-#include <Helpers/Convert.h>
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
@@ -37,7 +35,7 @@ void addOperatorCall(Node* dest, bool reverse, Node* operand1, const string& op,
 // If autoCt==true, and mode==modeRt, we will also add the autoCt modifier
 // This is useful for things like the '==' operator
 Node* addAssociatedFun(Node* parent, const string& name, Node* body,
-        vector<pair<TypeRef, string>> params, int overloadPrio, Node* resClass = nullptr,
+        vector<pair<Type, string>> params, int overloadPrio, Node* resClass = nullptr,
         EvalMode mode = modeUnspecified, bool autoCt = false) {
     Location loc = parent->location;
     loc.end = loc.start;
@@ -74,8 +72,8 @@ Node* addAssociatedFun(Node* parent, const string& name, Node* body,
 
 /// Generate an associated function with the given name, by calling 'op' for the base classes and
 /// fields
-Node* generateAssociatedFun(Node* parent, const string& name, const string& op, TypeRef otherParam,
-        bool reverse = false) {
+Node* generateAssociatedFun(
+        Node* parent, const string& name, const string& op, Type otherParam, bool reverse = false) {
     Location loc = parent->location;
     loc.end = loc.start;
     Node* cls = Nest_explanation(parent);
@@ -87,7 +85,7 @@ Node* generateAssociatedFun(Node* parent, const string& name, const string& op, 
     Node* otherRef = nullptr;
     if (otherParam) {
         otherRef = mkIdentifier(loc, StringRef("other"));
-        if (otherParam->numReferences > 0)
+        if (otherParam.numReferences() > 0)
             otherRef = Feather_mkMemLoad(loc, otherRef);
     }
 
@@ -116,7 +114,7 @@ Node* generateAssociatedFun(Node* parent, const string& name, const string& op, 
         addOperatorCall(body, reverse, lhs, oper, rhs);
     }
 
-    vector<pair<TypeRef, string>> params;
+    vector<pair<Type, string>> params;
     params.reserve(2);
     params.emplace_back(Feather::addRef(Feather::DataType(cls->type)), string("this"));
     if (otherParam)
@@ -128,7 +126,7 @@ Node* generateAssociatedFun(Node* parent, const string& name, const string& op, 
 /// Generate an init ctor, that initializes all the members with data received as arguments
 /// Returns true if all fields were initialized with default values, and no params are needed.
 bool generateInitCtor(Node* parent) {
-    vector<pair<TypeRef, string>> params;
+    vector<pair<Type, string>> params;
     params.emplace_back(Feather::addRef(Feather::DataType(parent->type)), "this");
 
     Location loc = parent->location;
@@ -142,7 +140,7 @@ bool generateInitCtor(Node* parent) {
     // Construct the body
     Node* body = Feather_mkLocalSpace(loc, {});
     for (Node* field : cls->children) {
-        TypeRef t = field->type;
+        Type t = field->type;
 
         // Do we have an initialization specified in the data struct?
         Node* init = Nest_getPropertyDefaultNode(field, propVarInit, nullptr);
@@ -151,14 +149,14 @@ bool generateInitCtor(Node* parent) {
             string paramName = "f" + StringRef(Feather_getName(field)).toStd();
             params.emplace_back(t, paramName);
             init = mkIdentifier(loc, StringRef(paramName));
-            if (t->numReferences > 0)
+            if (t.numReferences() > 0)
                 init = Feather_mkMemLoad(loc, init);
         }
 
         // Left-hand side: field-ref to the current field
         Node* lhs = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, thisRef), field);
 
-        string oper = t->numReferences > 0 ? ":=" : "ctor";
+        string oper = t.numReferences() > 0 ? ":=" : "ctor";
         addOperatorCall(body, false, lhs, oper, init);
     }
 
@@ -195,9 +193,9 @@ Node* generateEqualityCheckFun(Node* parent) {
     Node* body = Feather_mkLocalSpace(loc, {});
     Nest_appendNodeToArray(&body->children, mkReturnStmt(loc, exp));
 
-    vector<pair<TypeRef, string>> params;
+    vector<pair<Type, string>> params;
     params.reserve(2);
-    TypeRef t = Feather_getDataType(cls, 1, modeUnspecified);
+    Type t = Feather::DataType::get(cls, 1, modeUnspecified);
     params.emplace_back(t, string("this"));
     params.emplace_back(t, string("other"));
     Node* res = addAssociatedFun(parent, "==", body, params, generatedOverloadPrio, StdDef::clsBool,
@@ -220,6 +218,13 @@ Node* getThisTypeForFun(Node* fun) {
     Node* cls = thisParam->type->referredNode;
     ASSERT(cls);
     return cls;
+}
+
+/// Checks if the given field can have a constructor/destructor call.
+/// We check if the given field is of a data-like type
+bool canHaveCtorDtor(Node* field) {
+    CHECK(field->location, field->type);
+    return Feather::isDataLikeType(field->type);
 }
 
 /// Search the given body for a constructor with the given properties.
@@ -296,7 +301,7 @@ void _IntModClassMembers_afterComputeType(Nest_Modifier*, Node* node) {
     Node* basicClass = Nest_explanation(node);
     basicClass = basicClass && basicClass->nodeKind == nkFeatherDeclClass ? basicClass : nullptr;
     ASSERT(basicClass);
-    TypeRef paramType = Feather_getDataType(basicClass, 1, modeRt);
+    Type paramType = Feather_getDataType(basicClass, 1, modeRt);
 
     // Initialization ctor
     bool skipDefaultCtor = false;
@@ -308,7 +313,7 @@ void _IntModClassMembers_afterComputeType(Nest_Modifier*, Node* node) {
         generateAssociatedFun(cls, "ctor", "ctor", nullptr);
     generateAssociatedFun(cls, "ctor", "ctor", paramType);
     if (Feather_effectiveEvalMode(basicClass) == modeRt) {
-        TypeRef paramCt = Feather_getDataType(basicClass, 0, modeCt);
+        Type paramCt = Feather_getDataType(basicClass, 0, modeCt);
         generateAssociatedFun(cls, "ctorFromCt", "ctor", paramCt);
     }
     generateAssociatedFun(cls, "dtor", "dtor", nullptr, true);
@@ -345,6 +350,8 @@ void IntModCtorMembers_beforeSemanticCheck(Nest_Modifier*, Node* fun) {
     const Location& loc = body->location;
     for (int i = Nest_nodeArraySize(cls->children) - 1; i >= 0; --i) {
         Node* field = at(cls->children, i);
+        if (!canHaveCtorDtor(field))
+            continue;
 
         if (!hasCtorCall(body, false, field)) {
             Node* base = mkCompoundExp(
@@ -387,6 +394,9 @@ void IntModDtorMembers_beforeSemanticCheck(Nest_Modifier*, Node* fun) {
     const Location& loc = body->location;
     for (int i = Nest_nodeArraySize(cls->children) - 1; i >= 0; --i) {
         Node* field = at(cls->children, i);
+
+        if (!canHaveCtorDtor(field))
+            continue;
 
         if (field->type->numReferences == 0) {
             Node* base = mkCompoundExp(

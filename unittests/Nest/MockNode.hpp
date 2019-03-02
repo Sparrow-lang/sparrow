@@ -31,13 +31,13 @@ struct MockNode : Nest::NodeHandle {
     static void registerNode();
 
     static MockNode create(Nest::Location loc, Nest::NodeRange children,
-            Nest::NodeRange referredNodes, Nest::TypeRef t = {});
+            Nest::NodeRange referredNodes, Nest::Type t = {});
 
     MockNode() = default;
     MockNode(Nest::Node* n);
 
     //! Returns the given type set to this node
-    Nest::TypeRef givenType() const;
+    Nest::Type givenType() const;
 
 private:
     static const char* toStringCb(Nest::Node* node);

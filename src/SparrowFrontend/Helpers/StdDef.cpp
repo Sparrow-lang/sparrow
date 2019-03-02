@@ -12,21 +12,22 @@ using namespace Nest;
 
 // TODO (refactoring): Remove the Void type
 
-TypeRef StdDef::typeType = nullptr;
-TypeRef StdDef::typeVoid = nullptr;
-TypeRef StdDef::typeNull = nullptr;
-TypeRef StdDef::typeBool = nullptr;
-TypeRef StdDef::typeByte = nullptr;
-TypeRef StdDef::typeInt = nullptr;
-TypeRef StdDef::typeSizeType = nullptr;
-TypeRef StdDef::typeStringRef = nullptr;
+TypeWithStorage StdDef::typeType = nullptr;
+Type StdDef::typeVoid = nullptr;
+TypeWithStorage StdDef::typeNull = nullptr;
+TypeWithStorage StdDef::typeBool = nullptr;
+TypeWithStorage StdDef::typeByte = nullptr;
+TypeWithStorage StdDef::typeInt = nullptr;
+TypeWithStorage StdDef::typeSizeType = nullptr;
+TypeWithStorage StdDef::typeStringRef = nullptr;
 
-TypeRef StdDef::typeRefType = nullptr;
-TypeRef StdDef::typeRefByte = nullptr;
-TypeRef StdDef::typeRefInt = nullptr;
-TypeRef StdDef::typeSizeTypeCt = nullptr;
+TypeWithStorage StdDef::typeRefType = nullptr;
+TypeWithStorage StdDef::typeRefByte = nullptr;
+TypeWithStorage StdDef::typeRefInt = nullptr;
+TypeWithStorage StdDef::typeSizeTypeCt = nullptr;
 
 Node* StdDef::clsType = nullptr;
+Node* StdDef::clsNull = nullptr;
 Node* StdDef::clsBool = nullptr;
 
 Node* StdDef::opRefEq = nullptr;
@@ -62,9 +63,10 @@ void SprFrontend::checkStdClass(Node* cls) {
 
     if (clsName == "Void")
         StdDef::typeVoid = Feather_getDataType(cls, 0, modeRt);
-    else if (clsName == "Null")
+    else if (clsName == "Null") {
+        StdDef::clsNull = cls;
         StdDef::typeNull = Feather_getDataType(cls, 0, modeRt);
-    else if (clsName == "Bool") {
+    } else if (clsName == "Bool") {
         StdDef::clsBool = cls;
         StdDef::typeBool = Feather_getDataType(cls, 0, modeRt);
     } else if (clsName == "Byte") {

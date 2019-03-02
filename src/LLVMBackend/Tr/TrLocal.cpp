@@ -60,7 +60,7 @@ Node* CondDestrAct_SemanticCheck(Node* node) {
     return node;
 }
 
-Node* mkDestructActionForConditional(TypeRef resType, llvm::Value* cond,
+Node* mkDestructActionForConditional(Type resType, llvm::Value* cond,
         Nest_NodeRange alt1DestructActions, Nest_NodeRange alt2DestructActions) {
     // Make sure the node kind is registered
     if (nkLLVMDestructActionForConditional == 0) {
@@ -102,7 +102,7 @@ private:
     Node* node_;
 };
 
-llvm::Value* generateConditionalCode(TypeRef destType, CompilationContext* compContext, Node* cond,
+llvm::Value* generateConditionalCode(Type destType, CompilationContext* compContext, Node* cond,
         const Exp& alt1, const Exp& alt2, TrContext& context) {
     // Create the different blocks
     llvm::BasicBlock* alt1Block =
@@ -550,8 +550,8 @@ llvm::Value* translateCtValue(Node* node, TrContext& context) {
 
     // Check for String CtValues
     if (!context.module().isCt()) {
-        TypeRef tt = node->type;
-        if (tt->typeKind == typeKindData) {
+        Type tt = node->type;
+        if (tt.kind() == typeKindData) {
             StringRef nativeName = Feather_nativeName(tt);
             if (nativeName == "StringRef") {
                 StringRef data = *Feather_getCtValueData<StringRef>(node);
@@ -715,16 +715,17 @@ llvm::Value* translateFieldRef(Node* node, TrContext& context) {
     // Compute the index of the field
     uint64_t idx = 0;
     ASSERT(object->type);
-    Node* clsDecl = Feather_classForType(object->type);
-    CHECK(node->location, clsDecl);
-    for (auto f : clsDecl->children) {
+    ASSERT(object->type->hasStorage);
+    Node* datatypeDecl = object->type->referredNode;
+    CHECK(node->location, datatypeDecl);
+    for (auto f : datatypeDecl->children) {
         if (field == f)
             break;
         ++idx;
     }
-    if (idx == Nest_nodeArraySize(clsDecl->children))
+    if (idx == Nest_nodeArraySize(datatypeDecl->children))
         REP_INTERNAL(node->location, "Cannot find field '%1%' in class '%2%'") %
-                Feather_getName(field) % Feather_getName(clsDecl);
+                Feather_getName(field) % Feather_getName(datatypeDecl);
 
     // Create a 'getelementptr' instruction
     vector<llvm::Value*> indices;
@@ -1227,7 +1228,10 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context) {
 
     // Check if the node is CT available and we are in RT mode. If so, translate the node into RT
     if (!context.module().isCt() && Feather_isCt(node)) {
+        Node* oldNode = node;
         node = convertCtToRt(node, context);
+        if (!node)
+            REP_INTERNAL(oldNode->location, "Invalid node after CT->RT conversion");
     }
 
     // Now, depending on the type of the node, do a specific translation

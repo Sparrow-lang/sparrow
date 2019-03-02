@@ -46,7 +46,9 @@ extern int nkFeatherStmtReturn;
 // The IDs for all the feather type kinds
 extern int typeKindVoid;
 extern int typeKindData;
-extern int typeKindLValue;
+extern int typeKindConst;
+extern int typeKindMutable;
+extern int typeKindTemp;
 extern int typeKindArray;
 extern int typeKindFunction;
 
@@ -62,19 +64,15 @@ extern const char* propNoInline;
 extern const char* propEmptyBody; ///< Node will not generate meaningful instructions
 
 /// Getter for the class that introduces this data type - can be null
-/// Works for only for storage types (data, l-value, array)
+/// Works for only for storage types (data-like and array)
 Nest_Node* Feather_classDecl(Nest_TypeRef type);
 
 /// If the class associated with the given type has an associated name this will return it;
-/// otherwise it returns nullptr Works for only for storage types (data, l-value, array)
+/// otherwise it returns nullptr Works for only for storage types (data-like, array)
 Nest_StringRef Feather_nativeName(Nest_TypeRef type);
 
-/// The number of references applied
-/// Works for only for storage types (data, l-value, array)
-int Feather_numReferences(Nest_TypeRef type);
-
 /// Returns the base type of this type
-/// Works for l-value and array types
+/// Works for category and array types
 Nest_TypeRef Feather_baseType(Nest_TypeRef type);
 
 /// Getter for the number of units in the buffer type
@@ -133,9 +131,6 @@ int Feather_isTestable(Nest_Node* node);
 
 /// Checks if the given type is a basic numeric type (bool, integral, floating point, char)
 int Feather_isBasicNumericType(Nest_TypeRef type);
-
-/// Gets the class declaration for the given type; if it doesn't have one, return null
-Nest_Node* Feather_classForType(Nest_TypeRef t);
 
 //! Combines two modes together.
 //! If one of the modes is modeCt, the result will be modeCt

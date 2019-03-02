@@ -4,9 +4,11 @@
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Api/Node.h"
 #include "Nest/Utils/cppif/NodeUtils.hpp"
+#include "Nest/Utils/cppif/Type.hpp"
 #include "Nest/Api/Type.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 #include "Nest/Api/Compiler.h"
@@ -17,22 +19,23 @@
 using namespace LLVMB;
 
 namespace {
-llvm::Type* getLLVMTypeForSize(TypeRef type, llvm::LLVMContext& llvmContext) {
+llvm::Type* getLLVMTypeForSize(Type type, llvm::LLVMContext& llvmContext) {
     // If the number of references is greater than zero, just return an arbitrary pointer type
-    if (type->numReferences > 0)
+    if (type.numReferences() > 0)
         return llvm::PointerType::get(llvm::IntegerType::get(llvmContext, 32), 0);
 
     // Check array types
-    if (type->typeKind == typeKindArray) {
-        return llvm::ArrayType::get(getLLVMTypeForSize(Feather_baseType(type), llvmContext),
+    if (type.kind() == typeKindArray) {
+        return llvm::ArrayType::get(
+                getLLVMTypeForSize(Feather::ArrayType(type).unitType(), llvmContext),
                 Feather_getArraySize(type));
     }
 
-    if (!type->hasStorage)
+    if (!type.hasStorage())
         REP_ERROR_RET(nullptr, NOLOC, "Cannot compute size of a type which has no storage: %1%") %
                 type;
 
-    Node* clsDecl = type->referredNode;
+    Node* clsDecl = type.referredNode();
     CHECK(NOLOC, clsDecl && clsDecl->nodeKind == nkFeatherDeclClass);
 
     // Check if this is a standard/native type
@@ -76,9 +79,9 @@ DataLayoutHelper::DataLayoutHelper()
 
 DataLayoutHelper::~DataLayoutHelper() = default;
 
-size_t DataLayoutHelper::getSizeOf(TypeRef type) {
+size_t DataLayoutHelper::getSizeOf(Type type) {
     // Special case for "Type" type
-    if (0 == strcmp(type->description, "Type/ct"))
+    if (0 == strcmp(type.description(), "Type/ct"))
         return sizeof(const char*);
 
     // Check if we already computed this
@@ -95,9 +98,9 @@ size_t DataLayoutHelper::getSizeOf(TypeRef type) {
     return size;
 }
 
-size_t DataLayoutHelper::getAlignOf(TypeRef type) {
+size_t DataLayoutHelper::getAlignOf(Type type) {
     // Special case for "Type" type
-    if (0 == strcmp(type->description, "Type/ct"))
+    if (0 == strcmp(type.description(), "Type/ct"))
         return alignof(const char*);
 
     // Check if we already computed this

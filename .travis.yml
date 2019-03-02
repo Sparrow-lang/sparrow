@@ -45,9 +45,9 @@ matrix:
             - libedit-dev
       env:
          - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-    - os: osx
-      osx_image: xcode9.2 # apple-clang 9.2, OS X 10.12
-      env: LLVM_VER=6
+    # - os: osx
+    #   osx_image: xcode9.2 # apple-clang 9.2, OS X 10.12
+    #   env: LLVM_VER=6
 install:
   - ./.travis/install.sh
 script:

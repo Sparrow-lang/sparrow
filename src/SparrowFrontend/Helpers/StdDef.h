@@ -1,24 +1,29 @@
 #pragma once
 
-#include "Nest/Api/TypeRef.h"
+#include "Nest/Utils/cppif/TypeWithStorage.hpp"
 
 namespace SprFrontend {
 namespace StdDef {
-extern TypeRef typeType;
-extern TypeRef typeVoid;
-extern TypeRef typeNull;
-extern TypeRef typeBool;
-extern TypeRef typeByte;
-extern TypeRef typeInt;
-extern TypeRef typeSizeType;
-extern TypeRef typeStringRef;
 
-extern TypeRef typeRefType;
-extern TypeRef typeRefByte;
-extern TypeRef typeRefInt;
-extern TypeRef typeSizeTypeCt;
+using Nest::Type;
+using Nest::TypeWithStorage;
+
+extern TypeWithStorage typeType;
+extern Type typeVoid;
+extern TypeWithStorage typeNull;
+extern TypeWithStorage typeBool;
+extern TypeWithStorage typeByte;
+extern TypeWithStorage typeInt;
+extern TypeWithStorage typeSizeType;
+extern TypeWithStorage typeStringRef;
+
+extern TypeWithStorage typeRefType;
+extern TypeWithStorage typeRefByte;
+extern TypeWithStorage typeRefInt;
+extern TypeWithStorage typeSizeTypeCt;
 
 extern Node* clsType;
+extern Node* clsNull;
 extern Node* clsBool;
 
 extern Node* opRefEq;

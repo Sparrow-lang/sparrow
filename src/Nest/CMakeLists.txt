@@ -69,7 +69,15 @@ SET(sourceFiles
     "src/Utils/cppif/StringRef.cpp"
     "src/Utils/cppif/Type.cpp"
     "src/Utils/cppif/TypeWithStorage.cpp"
+
 )
+if(SPARROW_PROFILING)
+    SET(sourceFiles
+        ${sourceFiles}
+        "src/Utils/Profiling.cpp"
+    )
+    add_definitions( -DSPARROW_PROFILING=1 )
+endif()
 
 # Project settings
 INCLUDE_DIRECTORIES( "." )

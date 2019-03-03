@@ -13,6 +13,8 @@
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
+#include "Nest/Utils/Profiling.h"
+
 using namespace SprFrontend;
 using namespace Nest;
 
@@ -172,6 +174,8 @@ void selectMostSpecializedErrReport(
 Node* OverloadServiceImpl::selectOverload(CompilationContext* context, const Location& loc,
         EvalMode evalMode, Nest_NodeRange decls, Nest_NodeRange args,
         OverloadReporting errReporting, StringRef funName) {
+    PROFILING_ZONE_TEXT(funName);
+
     auto numDecls = Nest_nodeRangeSize(decls);
     Node* firstDecl = numDecls > 0 ? at(decls, 0) : nullptr;
 
@@ -284,6 +288,8 @@ Node* OverloadServiceImpl::selectOverload(CompilationContext* context, const Loc
 
 bool OverloadServiceImpl::selectConversionCtor(
         CompilationContext* context, Node* destClass, EvalMode destMode, Type argType) {
+    PROFILING_ZONE();
+
     ASSERT(argType);
 
     // Get all the candidates
@@ -305,6 +311,8 @@ bool OverloadServiceImpl::selectConversionCtor(
 }
 
 Node* OverloadServiceImpl::selectCtToRtCtor(Node* ctArg) {
+    PROFILING_ZONE();
+
     const Location& loc = ctArg->location;
     ASSERT(ctArg->type);
     if (ctArg->type->mode != modeCt || !ctArg->type->hasStorage)

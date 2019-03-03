@@ -48,6 +48,8 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/src/SparrowCompiler/VersionInfo.h.in 
 # User passed compilation options
 option(BOOTSTRAP_SPARROW "Use system-wide SparrowCompiler to compile Sparrow files needed for the compiler" OFF)
 message(STATUS "BOOTSTRAP_SPARROW: ${BOOTSTRAP_SPARROW}")
+option(SPARROW_PROFILING "Enable Tracy integration into Sparrow compiler" OFF)
+message(STATUS "SPARROW_PROFILING: ${SPARROW_PROFILING}")
 
 # Where to output the results of the compilation
 set(OutDir ${CMAKE_CURRENT_SOURCE_DIR}/build/bin)
@@ -91,10 +93,16 @@ if(MSVC)
     add_definitions( -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE )
 else()
     add_definitions( -D__STDC_LIMIT_MACROS=1 )
-    set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++11" )
     # set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address" )
     add_definitions( -Wall )                    # All warnings...
     add_definitions( -Wno-deprecated )          # ... and except deprecated functions
+endif()
+
+if(SPARROW_PROFILING)
+    add_definitions( -DSPARROW_PROFILING=1 )
+    set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++17" )
+else()
+    set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++11" )
 endif()
 
 # Add our macros

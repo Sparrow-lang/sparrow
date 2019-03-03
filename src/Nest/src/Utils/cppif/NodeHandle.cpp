@@ -39,6 +39,8 @@ void NodeHandle::clearCompilationState() { Nest_clearCompilationState(handle); }
 
 const char* NodeHandle::toString() const { return Nest_getToStringFun(handle->nodeKind)(handle); }
 const char* NodeHandle::toStringEx() const {
+    if (!handle)
+        return "";
     ostringstream ss;
     ss << toString();
     if (handle->type)

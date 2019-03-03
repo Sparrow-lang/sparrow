@@ -55,7 +55,7 @@ if(BOOTSTRAP_SPARROW)
     SPARROW_TARGET(SparrowParser
         ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/parserIf.spr
         ${CMAKE_CURRENT_BINARY_DIR}/parserIf.o
-        COMPILE_FLAGS "-dump-assembly -fno-colors -fno-main -c"
+        COMPILE_FLAGS "-dump-assembly -fno-colors -fno-main -c -O2"
         DEPENDS Grammar/parser.spr
                 Grammar/parserDefs.spr
                 Grammar/ext.spr

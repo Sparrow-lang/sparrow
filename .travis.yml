@@ -12,9 +12,9 @@ matrix:
             - llvm-toolchain-trusty-7
             - ubuntu-toolchain-r-test # for libstdc++6
           packages:
-            - llvm-7.0-dev
-            - libllvm7.0
-            - llvm-7.0
+            - llvm-7-dev
+            - libllvm7
+            - llvm-7
             - libstdc++6
             - libboost-all-dev
             - libedit-dev

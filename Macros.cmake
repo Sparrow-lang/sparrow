@@ -8,6 +8,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_program(SPARROW_EXECUTABLE_EXT NAMES SparrowCompiler DOC "path to the SparrowCompiler executable (external)")
 # Try to find an external llc executable
 find_program(LLC_EXECUTABLE_EXT NAMES spr-llc "${LLVM_TOOLS_BINARY_DIR}/llc" DOC "path to the llc executable (external)")
+# Try to find an external opt executable
+find_program(OPT_EXECUTABLE_EXT NAMES spr-opt "${LLVM_TOOLS_BINARY_DIR}/opt" DOC "path to the opt executable (external)")
 
 MACRO(GROUP_NAME_FROM_PATH filePath resultVar)
     IF(MSVC OR APPLE)
@@ -104,7 +106,7 @@ macro(LLVMASM_TARGET Name Input Output)
         endif()
 
         add_custom_command(OUTPUT ${LLVMASM_TARGET_outputs}
-            COMMAND ${LLC_EXECUTABLE_EXT} --filetype=obj ${LLVMASM_EXECUTABLE_opts} -o ${Output} ${Input}
+            COMMAND ${OPT_EXECUTABLE_EXT} -O2 ${Input} | ${LLC_EXECUTABLE_EXT} --filetype=obj ${LLVMASM_EXECUTABLE_opts} -o ${Output}
             VERBATIM
             DEPENDS ${Input} ${LLVMASM_TARGET_ARG_DEPENDS}
             COMMENT "[LLVM][${Name}] Building object ${Output}"

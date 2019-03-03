@@ -9,6 +9,7 @@
 #include "Nest/Utils/CompilerStats.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/PrintTimer.hpp"
+#include "Nest/Utils/Profiling.h"
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Api/Backend.h"
 #include "Nest/Api/CompilationContext.h"
@@ -172,6 +173,7 @@ void doCompilation(const vector<Nest_CompilerModule*>& modules) {
 
     // If we have no errors, start linking
     if (Nest_getErrorsNum() == 0 && !s.syntaxOnly_) {
+        PROFILING_ZONE_NAMED("Linking")
         try {
             Nest::Common::PrintTimer timer(s.verbose_, "", "[%d ms]\n");
             if (s.verbose_)

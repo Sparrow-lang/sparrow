@@ -63,6 +63,7 @@ void runCmd(const vector<string>& args) {
 
     Nest::Common::PrintTimer timer(s.verbose_, "", "   [%d ms]\n");
 
+#if LLVM_VERSION_MAJOR < 7
     // Transform the strings into C-style strings, as required by ExecuteAndWait
     vector<const char*> cstrArgs;
     cstrArgs.reserve(args.size() + 1);
@@ -71,14 +72,26 @@ void runCmd(const vector<string>& args) {
         if (s.verbose_)
             cout << " " << arg;
     }
-    cstrArgs.push_back(nullptr);
+    cstrArgs.push_back(nullptr);    // Required until LLVM 7
+#else
+    // Transform the strings into a vector of llvm::StringRef, as required by ExecuteAndWait
+    vector<llvm::StringRef> llvmArgs;
+    llvmArgs.reserve(args.size() + 1);
+    for (const string& arg : args) {
+        llvmArgs.emplace_back(arg);
+        if (s.verbose_)
+            cout << " " << arg;
+    }
+#endif
 
     // Actually execute the program
     string errMsg;
 #if LLVM_VERSION_MAJOR < 6
     int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], nullptr, nullptr, 0, 0, &errMsg);
-#else
+#elif LLVM_VERSION_MAJOR < 7
     int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], nullptr, {}, 0, 0, &errMsg);
+#else
+    int res = llvm::sys::ExecuteAndWait(args[0], llvmArgs, {}, {}, 0, 0, &errMsg);
 #endif
     if (res != 0)
         REP_INTERNAL(NOLOC, "Cannot run command: %1%") % errMsg;
@@ -101,7 +114,12 @@ void writeBitcodeFile(const Module& module, const string& outputFilename) {
         REP_INTERNAL(NOLOC, "Cannot generate bitcode file (%1%); reason: %2%") % outputFilename %
                 errorInfo;
 
+
+#if LLVM_VERSION_MAJOR < 7
     llvm::WriteBitcodeToFile(&module, outFile->os());
+#else
+    llvm::WriteBitcodeToFile(module, outFile->os());
+#endif
 
     outFile->keep();
 }

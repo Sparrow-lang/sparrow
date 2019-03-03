@@ -5,7 +5,21 @@ compiler: clang
 matrix:
   include:
     - os: linux
-      env: LLVM_VER=6 MAIN_BUILD=1
+      env: LLVM_VER=7 MAIN_BUILD=1
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-7
+            - ubuntu-toolchain-r-test # for libstdc++6
+          packages:
+            - llvm-7-dev
+            - libllvm7
+            - llvm-7
+            - libstdc++6
+            - libboost-all-dev
+            - libedit-dev
+    - os: linux
+      env: LLVM_VER=6
       addons:
         apt:
           sources:
@@ -44,10 +58,11 @@ matrix:
             - libboost-all-dev
             - libedit-dev
       env:
+         - LLVM_VER=6
          - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-    # - os: osx
-    #   osx_image: xcode9.2 # apple-clang 9.2, OS X 10.12
-    #   env: LLVM_VER=6
+    - os: osx
+      osx_image: xcode10.1 # apple-clang ???, macOS 10.13
+      env: LLVM_VER=7
 install:
   - ./.travis/install.sh
 script:

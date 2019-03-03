@@ -9,7 +9,7 @@ matrix:
       addons:
         apt:
           sources:
-            - llvm-toolchain-trusty-6.0
+            - llvm-toolchain-trusty-7.0
             - ubuntu-toolchain-r-test # for libstdc++6
           packages:
             - llvm-7.0-dev

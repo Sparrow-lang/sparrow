@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'sparrow-lang'
-copyright = '2018, Lucian Radu Teodorescu'
+copyright = '2019, Lucian Radu Teodorescu'
 author = 'Lucian Radu Teodorescu'
 
 # The short X.Y version

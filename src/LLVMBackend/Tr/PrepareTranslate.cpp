@@ -8,6 +8,7 @@
 #include <Nest/Api/SourceCode.h>
 #include <Nest/Utils/cppif/NodeUtils.hpp>
 #include <Nest/Utils/Diagnostic.hpp>
+#include "Nest/Utils/Profiling.h"
 #include <Feather/Api/Feather.h>
 
 using namespace LLVMB;
@@ -28,6 +29,8 @@ bool isDecl(Node* node) {
 } // namespace
 
 void Tr::prepareTranslate(Node* node, GlobalContext& ctx) {
+    // PROFILING_ZONE();
+
     if (!node)
         return;
 

@@ -2,3 +2,7 @@
 	path = externals/rapidcheck
 	url = https://github.com/emil-e/rapidcheck.git
 	branch = master
+[submodule "externals/tracy"]
+	path = externals/tracy
+	url = https://lucteo@bitbucket.org/wolfpld/tracy.git
+	branch = master

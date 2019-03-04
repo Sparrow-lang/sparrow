@@ -14,6 +14,7 @@
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Utils/Tuple.hpp"
+#include "Nest/Utils/Profiling.h"
 
 #include <utility>
 
@@ -407,6 +408,7 @@ bool ConvertServiceImpl::adjustReferences(ConversionResult& res, TypeWithStorage
 
 const ConversionResult& ConvertServiceImpl::cachedCheckConversion(
         CompilationContext* context, int flags, Type srcType, Type destType) {
+    PROFILING_ZONE();
 
     // Try to find the conversion in the map -- first, try without a source code
     KeyType key(srcType, destType, flags, nullptr);

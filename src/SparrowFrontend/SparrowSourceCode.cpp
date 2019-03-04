@@ -5,6 +5,7 @@
 
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/Profiling.h"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Api/SourceCodeKindRegistrar.h"
 
@@ -16,8 +17,11 @@ namespace {
 void parseSourceCode(Nest_SourceCode* sourceCode, CompilationContext* ctx) {
     Location loc = Nest_mkLocation1(sourceCode, 1, 1);
 
-    Parser parser(loc);
-    sourceCode->mainNode = parser.parseModule();
+    {
+        PROFILING_ZONE_NAMED("parseModule");
+        Parser parser(loc);
+        sourceCode->mainNode = parser.parseModule();
+    }
 
     if (sourceCode->mainNode)
         Nest_setContext(sourceCode->mainNode, ctx);
@@ -54,6 +58,8 @@ void SprFe_registerSparrowSourceCode() {
 }
 
 Node* SprFe_parseSparrowExpression(Location loc, const char* code) {
+    PROFILING_ZONE();
+
     // Only use the start part of the location
     loc.end = loc.start;
 

@@ -12,5 +12,5 @@ echo "LC_ALL=$LC_ALL"
 if [ $TRAVIS_OS_NAME == osx ]; then
     # brew update
     brew upgrade boost
-    brew install llvm@6
+    brew install llvm
 fi

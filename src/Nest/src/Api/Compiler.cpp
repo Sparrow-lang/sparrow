@@ -3,6 +3,7 @@
 #include "Nest/Utils/CompilerSettings.hpp"
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/Profiling.h"
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/cppif/Fwd.hpp"
 #include "Nest/Utils/cppif/NodeUtils.hpp"
@@ -135,7 +136,10 @@ pair<bool, Nest_SourceCode*> _handleImportFile(const ImportInfo& import) {
 
     // Do the parsing
     //    REP_INFO(NOLOC, "Parsing: %1%") % import.filename_.string();
-    Nest_parseSourceCode(sourceCode, newContext);
+    {
+        PROFILING_ZONE_NAMED("Parsing");
+        Nest_parseSourceCode(sourceCode, newContext);
+    }
 
     // Notify the listeners that a new source code was parsed
     _executeCUCallbacks(_sourceCodeParsedCallbacks, sourceCode);
@@ -194,6 +198,8 @@ Nest_SourceCode* _handleImport(const ImportInfo& import) {
 }
 
 void Nest_compilerInit() {
+    PROFILING_ZONE();
+
     // TODO (files): Check why this breaks AssertTest.spr
     // try {
     //     _curPath = boost::filesystem::current_path();
@@ -204,6 +210,8 @@ void Nest_compilerInit() {
 }
 
 void Nest_compilerDestroy() {
+    PROFILING_ZONE();
+
     _settings = Nest_CompilerSettings{};
     _rootContext = nullptr;
     ;
@@ -243,6 +251,8 @@ void Nest_createBackend(const char* mainFilename) {
 }
 
 Nest_SourceCode* Nest_compileFile(Nest_StringRef filename) {
+    PROFILING_ZONE_TEXT(filename);
+
     if (Nest::StringRef(filename).empty() || filename.begin[0] == '\r' || filename.begin[0] == '\n')
         return nullptr;
 
@@ -310,6 +320,7 @@ Nest_SourceCode* Nest_compileFile(Nest_StringRef filename) {
 
 Nest_SourceCode* Nest_addSourceCodeByFilename(
         const Nest_SourceCode* orig, Nest_StringRef filename) {
+    PROFILING_ZONE_TEXT(filename);
     return _handleImport(ImportInfo(orig, filename));
 }
 
@@ -335,12 +346,16 @@ void Nest_semanticCheckQueuedNodes() {
 }
 
 void Nest_ctProcess(Nest_Node* node) {
+    PROFILING_ZONE();
+
     node = Nest_semanticCheck(node);
     if (node)
         _backend->ctProcess(_backend, node);
 }
 
 Nest_Node* Nest_ctEval(Nest_Node* node) {
+    PROFILING_ZONE();
+
     node = Nest_semanticCheck(node);
     if (!node)
         return nullptr;
@@ -351,8 +366,16 @@ Nest_Node* Nest_ctEval(Nest_Node* node) {
     return Nest_semanticCheck(res);
 }
 
-unsigned Nest_sizeOf(Nest_TypeRef type) { return _backend->sizeOf(_backend, type); }
-unsigned Nest_alignmentOf(Nest_TypeRef type) { return _backend->alignmentOf(_backend, type); }
+unsigned Nest_sizeOf(Nest_TypeRef type) {
+    PROFILING_ZONE();
+
+    return _backend->sizeOf(_backend, type);
+}
+unsigned Nest_alignmentOf(Nest_TypeRef type) {
+    PROFILING_ZONE();
+
+    return _backend->alignmentOf(_backend, type);
+}
 
 void Nest_registerSourceCodeCreatedCallback(FSourceCodeCallback callback) {
     _sourceCodeCreatedCallbacks.push_back(callback);

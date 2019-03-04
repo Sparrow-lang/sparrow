@@ -6,6 +6,7 @@
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 #include "Nest/Utils/CompilerStats.hpp"
+#include "Nest/Utils/Profiling.h"
 
 #include <boost/filesystem.hpp>
 
@@ -49,12 +50,20 @@ string replaceExtension(
 /// Run the command with the given arguments
 /// The command should be the first in the list of arguments
 void runCmd(const vector<string>& args) {
+#if SPARROW_PROFILING
+    std::ostringstream ossProfiling;
+    for (const string& arg : args)
+        ossProfiling << arg << " ";
+    PROFILING_ZONE_TEXT(ossProfiling.str().c_str());
+#endif
+
     ASSERT(args.size() > 0);
 
     const auto& s = *Nest_compilerSettings();
 
     Nest::Common::PrintTimer timer(s.verbose_, "", "   [%d ms]\n");
 
+#if LLVM_VERSION_MAJOR < 7
     // Transform the strings into C-style strings, as required by ExecuteAndWait
     vector<const char*> cstrArgs;
     cstrArgs.reserve(args.size() + 1);
@@ -63,14 +72,26 @@ void runCmd(const vector<string>& args) {
         if (s.verbose_)
             cout << " " << arg;
     }
-    cstrArgs.push_back(nullptr);
+    cstrArgs.push_back(nullptr);    // Required until LLVM 7
+#else
+    // Transform the strings into a vector of llvm::StringRef, as required by ExecuteAndWait
+    vector<llvm::StringRef> llvmArgs;
+    llvmArgs.reserve(args.size() + 1);
+    for (const string& arg : args) {
+        llvmArgs.emplace_back(arg);
+        if (s.verbose_)
+            cout << " " << arg;
+    }
+#endif
 
     // Actually execute the program
     string errMsg;
 #if LLVM_VERSION_MAJOR < 6
     int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], nullptr, nullptr, 0, 0, &errMsg);
-#else
+#elif LLVM_VERSION_MAJOR < 7
     int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], nullptr, {}, 0, 0, &errMsg);
+#else
+    int res = llvm::sys::ExecuteAndWait(args[0], llvmArgs, {}, {}, 0, 0, &errMsg);
 #endif
     if (res != 0)
         REP_INTERNAL(NOLOC, "Cannot run command: %1%") % errMsg;
@@ -84,6 +105,8 @@ void runCmd(const vector<string>& args) {
 
 /// Write the given LLVM module, as a bitcode to disk
 void writeBitcodeFile(const Module& module, const string& outputFilename) {
+    PROFILING_ZONE();
+
     error_code errorInfo;
     unique_ptr<TOOL_OUPUT_FILE_CLS> outFile(
             new TOOL_OUPUT_FILE_CLS(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
@@ -91,13 +114,20 @@ void writeBitcodeFile(const Module& module, const string& outputFilename) {
         REP_INTERNAL(NOLOC, "Cannot generate bitcode file (%1%); reason: %2%") % outputFilename %
                 errorInfo;
 
+
+#if LLVM_VERSION_MAJOR < 7
     llvm::WriteBitcodeToFile(&module, outFile->os());
+#else
+    llvm::WriteBitcodeToFile(module, outFile->os());
+#endif
 
     outFile->keep();
 }
 
 /// Write the given LLVM module, as an assembly file to disk
 void writeAssemblyFile(const Module& module, const string& outputFilename) {
+    PROFILING_ZONE();
+
     error_code errorInfo;
     unique_ptr<TOOL_OUPUT_FILE_CLS> outFile(
             new TOOL_OUPUT_FILE_CLS(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
@@ -185,6 +215,8 @@ void generateNativeObjGCC(
 } // namespace
 
 void LLVMB::generateRtAssembly(const llvm::Module& module) {
+    PROFILING_ZONE();
+
     const auto& s = *Nest_compilerSettings();
 
     string filename = replaceExtension(s.output_, s.output_, ".ll");
@@ -192,6 +224,8 @@ void LLVMB::generateRtAssembly(const llvm::Module& module) {
 }
 
 void LLVMB::generateCtAssembly(const llvm::Module& module) {
+    PROFILING_ZONE();
+
     const auto& s = *Nest_compilerSettings();
 
     // Safety check
@@ -229,22 +263,30 @@ void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
     // the sourcecodes into one big module, and perform those operations here
 
     // Link all the input modules to a single module
-    // we desotry all the modules in this process
+    // we destroy all the modules in this process
     if (inputs.empty())
         REP_INTERNAL(NOLOC, "At least one bitcode needs to be passed to the linker");
     llvm::Module* compositeModule = inputs[0];
-    llvm::Linker liner(*compositeModule);
-    for (size_t i = 1; i < inputs.size(); ++i) {
-        unique_ptr<llvm::Module> mod(inputs[i]);
-        if (liner.linkInModule(move(mod), llvm::Linker::OverrideFromSrc))
-            REP_INTERNAL(NOLOC, "Link error");
+    {
+        PROFILING_ZONE_NAMED("linking modules")
+
+        llvm::Linker linker(*compositeModule);
+        for (size_t i = 1; i < inputs.size(); ++i) {
+            unique_ptr<llvm::Module> mod(inputs[i]);
+            if (linker.linkInModule(move(mod), llvm::Linker::OverrideFromSrc))
+                REP_INTERNAL(NOLOC, "Link error");
+        }
     }
 
     // Verify the module
-    string err;
-    raw_string_ostream errStream(err);
-    if (verifyModule(*compositeModule, &errStream))
-        REP_INTERNAL(NOLOC, "LLVM Verification failed for generated program: %1%") % err;
+    {
+        PROFILING_ZONE_NAMED("verifying composite module")
+
+        string err;
+        raw_string_ostream errStream(err);
+        if (verifyModule(*compositeModule, &errStream))
+            REP_INTERNAL(NOLOC, "LLVM Verification failed for generated program: %1%") % err;
+    }
 
     bool shouldOptimize = !s.optimizerArgs_.empty() || s.optimizationLevel_ != "0";
 

@@ -15,6 +15,7 @@
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/Profiling.h"
 #include "Nest/Utils/CompilerStats.hpp"
 #include "Nest/Utils/cppif/StringRef.hpp"
 
@@ -140,6 +141,7 @@ void CtModule::recreateModule() {
 }
 
 void CtModule::syncModule() {
+    PROFILING_ZONE();
     if (!llvmModule_->empty() || !llvmModule_->global_empty()) {
         // Uncomment this for debugging
         // llvmModule_->dump();
@@ -179,6 +181,8 @@ void CtModule::ctProcessBackendCode(Node* node) {
 }
 
 Node* CtModule::ctEvaluateExpression(Node* node) {
+    PROFILING_ZONE_TEXT(Nest_toStringEx(node));
+
     ASSERT(llvmModule_);
 
     // Gather statistics if requested
@@ -284,10 +288,17 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
         //  - transform this into a function pointer that receives the output as a parameter
         //  - call the function, to fill up the data buffer
         using FunType = void (*)(const char*);
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
-        auto fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
+        FunType fptr;
+        {
+            PROFILING_ZONE_NAMED("CT getFunctionAddress");
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
+            fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
+        }
         ASSERT(fptr);
-        fptr(dataBuffer.begin);
+        {
+            PROFILING_ZONE_NAMED("CT exec");
+            fptr(dataBuffer.begin);
+        }
 
         // Create a CtValue containing the data resulted from expression evaluation
         Type t = node->type;
@@ -301,9 +312,17 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
         //  - call the function
         using FunType = void (*)();
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
-        auto fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
+        FunType fptr;
+        {
+            PROFILING_ZONE_NAMED("CT getFunctionAddress");
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
+            fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
+        }
         ASSERT(fptr);
-        fptr();
+        {
+            PROFILING_ZONE_NAMED("CT exec");
+            fptr();
+        }
 
         // Create a Nop operation for return
         res = Feather_mkNop(node->location);

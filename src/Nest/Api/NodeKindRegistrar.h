@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TypeRef.h"
+#include "Nest/Utils/ProfilingFwd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,6 +33,14 @@ FToString Nest_getToStringFun(int nodeKind);
 
 //! Resets the registered node kinds
 void Nest_resetRegisteredNodeKinds();
+
+#if SPARROW_PROFILING
+
+const Nest_Profiling_LocType* Nest_Profiling_getSetContextLoc(int nodeKind);
+const Nest_Profiling_LocType* Nest_Profiling_getComputeTypeLoc(int nodeKind);
+const Nest_Profiling_LocType* Nest_Profiling_getSemanticCheckLoc(int nodeKind);
+
+#endif
 
 #ifdef __cplusplus
 }

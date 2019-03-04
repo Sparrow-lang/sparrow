@@ -3,9 +3,13 @@
 #include "SparrowFrontend/Helpers/Generics.h"
 #include "SparrowFrontend/Helpers/SprTypeTraits.h"
 
+#include "Nest/Utils/Profiling.h"
+
 namespace SprFrontend {
 
 bool ConceptsServiceImpl::conceptIsFulfilled(ConceptDecl concept, Type type) {
+    PROFILING_ZONE();
+
     ASSERT(concept);
     auto instSet = concept.instantiationsSet();
 

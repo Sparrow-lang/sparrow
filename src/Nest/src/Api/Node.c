@@ -1,12 +1,15 @@
 #include "Nest/Api/Node.h"
 #include "Nest/Api/NodeKindRegistrar.h"
+#include "Nest/Api/SourceCode.h"
 #include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Assert.h"
 #include "Nest/Utils/Diagnostic.h"
+#include "Nest/Utils/Profiling.h"
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 unsigned _myMinU(unsigned a, unsigned b) { return a < b ? a : b; }
 unsigned _myMaxU(unsigned a, unsigned b) { return b < a ? a : b; }
@@ -106,6 +109,9 @@ Nest_Node* Nest_cloneNode(Nest_Node* node) {
 void Nest_setContext(Nest_Node* node, Nest_CompilationContext* context) {
     if (context == node->context)
         return;
+
+    PROFILING_C_ZONE_BEGIN_LOC(ctx, Nest_Profiling_getSetContextLoc(node->nodeKind));
+
     ASSERT(context);
     node->context = context;
 
@@ -117,6 +123,7 @@ void Nest_setContext(Nest_Node* node, Nest_CompilationContext* context) {
     Nest_getSetContextForChildrenFun(node->nodeKind)(node);
 
     _applyModifiers(node, modTypeAfterSetContext);
+    PROFILING_C_ZONE_END(ctx);
 }
 
 Nest_TypeRef Nest_computeType(Nest_Node* node) {
@@ -129,6 +136,8 @@ Nest_TypeRef Nest_computeType(Nest_Node* node) {
         Nest_reportFmt(node->location, diagInternalError, "No context associated with node %s",
                 Nest_toString(node));
 
+    PROFILING_C_ZONE_BEGIN_LOC(ctx, Nest_Profiling_getComputeTypeLoc(node->nodeKind));
+
     node->computeTypeStarted = 1;
 
     _applyModifiers(node, modTypeBeforeComputeType);
@@ -137,10 +146,13 @@ Nest_TypeRef Nest_computeType(Nest_Node* node) {
     node->type = Nest_getComputeTypeFun(node->nodeKind)(node);
     if (!node->type) {
         node->nodeError = 1;
+        PROFILING_C_ZONE_END(ctx);
         return 0;
     }
 
     _applyModifiers(node, modTypeAfterComputeType);
+
+    PROFILING_C_ZONE_END(ctx);
 
     return node->type;
 }
@@ -163,16 +175,20 @@ Nest_Node* Nest_semanticCheck(Nest_Node* node) {
     }
     node->semanticCheckStarted = 1;
 
+    PROFILING_C_ZONE_BEGIN_LOC(ctx, Nest_Profiling_getSemanticCheckLoc(node->nodeKind));
+
     _applyModifiers(node, modTypeBeforeSemanticCheck);
 
     // Actually do the semantic check
     Nest_Node* res = Nest_getSemanticCheckFun(node->nodeKind)(node);
     if (!res) {
         node->nodeError = 1;
+        PROFILING_C_ZONE_END(ctx);
         return 0;
     }
     if (!_setExplanation(node, res)) {
         node->nodeError = 1;
+        PROFILING_C_ZONE_END(ctx);
         return 0;
     }
     if (!node->type)
@@ -181,6 +197,24 @@ Nest_Node* Nest_semanticCheck(Nest_Node* node) {
     node->nodeSemanticallyChecked = 1;
 
     _applyModifiers(node, modTypeAfterSemanticCheck);
+
+#ifdef SPARROW_PROFILING
+    const char* nodeDesc = Nest_toStringEx(node);
+    if (nodeDesc) {
+        char zoneDesc[256];
+        int len = 0;
+        if (node->location.sourceCode)
+            len = snprintf(zoneDesc, 256, "%s:%d:%d\n%s", node->location.sourceCode->url,
+                    (int)node->location.start.line, (int)node->location.start.col, nodeDesc);
+        else
+            len = snprintf(zoneDesc, 256, "?:%d:%d\n%s", (int)node->location.start.line,
+                    (int)node->location.start.col, nodeDesc);
+        if (len > 0) {
+            PROFILING_C_ZONE_SETTEEXT(ctx, zoneDesc);
+        }
+    }
+#endif
+    PROFILING_C_ZONE_END(ctx);
 
     return node->explanation;
 }

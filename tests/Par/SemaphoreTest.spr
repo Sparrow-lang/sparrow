@@ -1,76 +1,63 @@
 //! ! -dump-assembly
-import par.thread;
-import par.atomic;
-import par.semaphore;
-import test;
+import par.thread
+import par.atomic
+import par.semaphore
+import std.vector
+import std.ranges
+import test
 
-using par.*;
-using test.*;
+var numResources: Int
+var numUsers: Int Atomic = 0
+var numExecutions: Int Atomic = 0
 
-var numResources: Int;
-var numUsers: Int Atomic = 0;
-var numExecutions: Int Atomic = 0;
+fun doJob(sem: @Semaphore, waitTime: Int)
+    sem acquire
+    ++numUsers
+    //cout << (numUsers load) << ' '
+    assertLe(numUsers load, numResources, "numUsers should be less or equal to the number of resources")
+    ++numExecutions
+    sleep(waitTime)
+    --numUsers
+    sem release
 
-fun doJob(sem: @par.Semaphore, waitTime: Int) {
-    sem acquire;
-    ++numUsers;
-    //cout << (numUsers load) << ' ';
-    test.assertLe(numUsers load, numResources, "numUsers should be less or equal to the number of resources");
-    ++numExecutions;
-    par.sleep(waitTime);
-    --numUsers;
-    sem release;
-}
+[initCtor] datatype Worker
+    sem: @Semaphore
+    amountOfWork: Int
 
-[initCtor] datatype Worker {
-    sem: @par.Semaphore;
-    amountOfWork: Int;
+fun ()(this: @Worker)
+    for i = 0..amountOfWork
+        doJob(sem, i % 5 + 1)
+    assertGe(numExecutions load, amountOfWork, "all our job should be executed")
 
-    fun ()() {
-        for i = 0..amountOfWork {
-            doJob(sem, i % 5 + 1);
-        }
-        test.assertGe(numExecutions load, amountOfWork, "all our job should be executed");
-    }
-}
+datatype WorkManager
+    sem: @Semaphore
+    amountOfWork, numWorkers: Int
+    threads: (Thread Ptr) Vector
 
-datatype WorkManager {
-    sem: @par.Semaphore;
-    amountOfWork, numWorkers: Int;
-    threads: (par.Thread Ptr) Vector;
+fun ctor(this: @WorkManager, sem: @Semaphore, amountOfWork, numWorkers: Int)
+    this.amountOfWork ctor amountOfWork
+    this.numWorkers ctor numWorkers
+    for i=0..numWorkers
+        var p: Thread Ptr = new(Thread, Worker(sem, amountOfWork))
+        threads.pushBack(p)
 
-}
-
-fun ctor(this: @WorkManager, sem: @par.Semaphore, amountOfWork, numWorkers: Int) {
-    this.amountOfWork ctor amountOfWork;
-    this.numWorkers ctor numWorkers;
-    for i=0..numWorkers {
-        var p: par.Thread Ptr = new(par.Thread, Worker(sem, amountOfWork));
-        threads.pushBack(p);
-    }
-}
-
-fun dtor(this: @WorkManager) {
-    for t = threads.all {
-        t.get join;
-        t.release;
-    }
-    test.assertEq(numExecutions load, amountOfWork*numWorkers, "numExecutions should be equal to the total amount of work");
-}
+fun dtor(this: @WorkManager)
+    for t = threads.all
+        t.get join
+        t.release
+    assertEq(numExecutions load, amountOfWork*numWorkers, "numExecutions should be equal to the total amount of work")
 fun sprMain
-{
-    if ( programArgs.size() < 4 )
-        return;
-    numResources = (programArgs(1) asInt);
-    var amountOfWork = programArgs(2) asInt;
-    var numWorkers = programArgs(3) asInt;
+    if programArgs.size() < 4
+        return
+    numResources = (programArgs(1) asInt)
+    var amountOfWork = programArgs(2) asInt
+    var numWorkers = programArgs(3) asInt
 
     // Initialize the semaphore
-    var sem: par.Semaphore = numResources;
+    var sem: Semaphore = numResources
 
     // Do the work
-    var work = WorkManager(sem, amountOfWork, numWorkers);
-}
+    var work = WorkManager(sem, amountOfWork, numWorkers)
 
 /*<<<Binary semaphore with 1 thread (1 20 1)
 >>>*/

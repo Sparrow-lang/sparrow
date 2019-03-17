@@ -14,8 +14,9 @@ fun assertEq(val, expectedVal: AnyType, message: StringRef = "") \
         if isValid(val == expectedVal)
     if !(val == expectedVal)
         cout << "Assertion failure: values don't match" << endl
-        cout << "    given value: " << val << endl
-        cout << "    expected value: " << expectedVal << endl
+        [ct] if isValid(cout << val)
+            cout << "    given value: " << val << endl
+            cout << "    expected value: " << expectedVal << endl
         if !message.isEmpty
             cout << "    message: " << message << endl
         cout << flush
@@ -25,8 +26,9 @@ fun assertNe(val1, val2: AnyType, message: StringRef = "") \
         if isValid(val1 == val2)
     if val1 == val2
         cout << "Assertion failure: values should be different" << endl
-        cout << "    value 1: " << val1 << endl
-        cout << "    value 2: " << val2 << endl
+        [ct] if isValid(cout << val1)
+            cout << "    value 1: " << val1 << endl
+            cout << "    value 2: " << val2 << endl
         if !message.isEmpty
             cout << "    message: " << message << endl
         cout << flush
@@ -36,8 +38,9 @@ fun assertLt(val1, val2: AnyType, message: StringRef = "") \
         if isValid(val1 < val2)
     if !(val1 < val2)
         cout << "Assertion failure: first value is not less than second" << endl
-        cout << "    value 1: " << val1 << endl
-        cout << "    value 2: " << val2 << endl
+        [ct] if isValid(cout << val1)
+            cout << "    value 1: " << val1 << endl
+            cout << "    value 2: " << val2 << endl
         if !message.isEmpty
             cout << "    message: " << message << endl
         cout << flush
@@ -47,8 +50,9 @@ fun assertLe(val1, val2: AnyType, message: StringRef = "") \
         if isValid(val1 <= val2)
     if !(val1 <= val2)
         cout << "Assertion failure: first value is not less or equal than second" << endl
-        cout << "    value 1: " << val1 << endl
-        cout << "    value 2: " << val2 << endl
+        [ct] if isValid(cout << val1)
+            cout << "    value 1: " << val1 << endl
+            cout << "    value 2: " << val2 << endl
         if !message.isEmpty
             cout << "    message: " << message << endl
         cout << flush
@@ -58,8 +62,9 @@ fun assertGt(val1, val2: AnyType, message: StringRef = "") \
         if isValid(val1 > val2)
     if !(val1 > val2)
         cout << "Assertion failure: first value is not greater than second" << endl
-        cout << "    value 1: " << val1 << endl
-        cout << "    value 2: " << val2 << endl
+        [ct] if isValid(cout << val1)
+            cout << "    value 1: " << val1 << endl
+            cout << "    value 2: " << val2 << endl
         if !message.isEmpty
             cout << "    message: " << message << endl
         cout << flush
@@ -69,8 +74,9 @@ fun assertGe(val1, val2: AnyType, message: StringRef = "") \
         if isValid(val1 >= val2)
     if !(val1 >= val2)
         cout << "Assertion failure: first value is not greater or equal than second" << endl
-        cout << "    value 1: " << val1 << endl
-        cout << "    value 2: " << val2 << endl
+        [ct] if isValid(cout << val1)
+            cout << "    value 1: " << val1 << endl
+            cout << "    value 2: " << val2 << endl
         if !message.isEmpty
             cout << "    message: " << message << endl
         cout << flush

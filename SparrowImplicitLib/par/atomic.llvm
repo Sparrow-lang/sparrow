@@ -1,5 +1,5 @@
 define i32 @_Atomic_load32(i32* %atomic) {
-    %1 = load atomic i32* %atomic seq_cst, align 4
+    %1 = load atomic i32, i32* %atomic seq_cst, align 4
     ret i32 %1
 }
 
@@ -24,7 +24,7 @@ define i32 @_Atomic_fetchAndAdd32(i32* %atomic, i32 %val) {
 
 
 define i64 @_Atomic_load64(i64* %atomic) {
-    %1 = load atomic i64* %atomic seq_cst, align 8
+    %1 = load atomic i64, i64* %atomic seq_cst, align 8
     ret i64 %1
 }
 

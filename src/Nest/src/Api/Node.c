@@ -69,6 +69,31 @@ int _setExplanation(Nest_Node* node, Nest_Node* explanation) {
     return res;
 }
 
+#if SPARROW_PROFILING
+void _setProfilingText(Nest_Profiling_ZoneCtx ctx, Nest_Node* node) {
+    if (!ctx.active)
+        return;
+    const char* nodeDesc = Nest_toStringEx(node);
+    if (nodeDesc) {
+        char zoneDesc[256];
+        int len = 0;
+        if (node->location.sourceCode)
+            len = snprintf(zoneDesc, 256, "%s:%d:%d\n%s", node->location.sourceCode->url,
+                    (int)node->location.start.line, (int)node->location.start.col, nodeDesc);
+        else
+            len = snprintf(zoneDesc, 256, "?:%d:%d\n%s", (int)node->location.start.line,
+                    (int)node->location.start.col, nodeDesc);
+        if (len > 0) {
+            PROFILING_C_ZONE_SETTEEXT(ctx, zoneDesc);
+        }
+    }
+}
+#define PROFILING_C_ZONE_SETNODETEXT(ctx, node) _setProfilingText(ctx, node)
+#else
+#define PROFILING_C_ZONE_SETNODETEXT(ctx, node) /*nothing*/
+#endif
+
+
 Nest_Node* Nest_createNode(int nodeKind) {
     ASSERT(nodeKind >= 0);
 
@@ -110,7 +135,13 @@ void Nest_setContext(Nest_Node* node, Nest_CompilationContext* context) {
     if (context == node->context)
         return;
 
+    int changingContext = node->context && node->context != context;
+    (void) changingContext;
+
     PROFILING_C_ZONE_BEGIN_LOC(ctx, Nest_Profiling_getSetContextLoc(node->nodeKind));
+
+    PROFILING_C_ZONE_BEGIN_NAME(ctx2, "changing context", changingContext);
+    PROFILING_C_ZONE_SETNODETEXT(ctx2, node);
 
     ASSERT(context);
     node->context = context;
@@ -123,6 +154,8 @@ void Nest_setContext(Nest_Node* node, Nest_CompilationContext* context) {
     Nest_getSetContextForChildrenFun(node->nodeKind)(node);
 
     _applyModifiers(node, modTypeAfterSetContext);
+
+    PROFILING_C_ZONE_END(ctx2);
     PROFILING_C_ZONE_END(ctx);
 }
 
@@ -198,22 +231,7 @@ Nest_Node* Nest_semanticCheck(Nest_Node* node) {
 
     _applyModifiers(node, modTypeAfterSemanticCheck);
 
-#ifdef SPARROW_PROFILING
-    const char* nodeDesc = Nest_toStringEx(node);
-    if (nodeDesc) {
-        char zoneDesc[256];
-        int len = 0;
-        if (node->location.sourceCode)
-            len = snprintf(zoneDesc, 256, "%s:%d:%d\n%s", node->location.sourceCode->url,
-                    (int)node->location.start.line, (int)node->location.start.col, nodeDesc);
-        else
-            len = snprintf(zoneDesc, 256, "?:%d:%d\n%s", (int)node->location.start.line,
-                    (int)node->location.start.col, nodeDesc);
-        if (len > 0) {
-            PROFILING_C_ZONE_SETTEEXT(ctx, zoneDesc);
-        }
-    }
-#endif
+    PROFILING_C_ZONE_SETNODETEXT(ctx, node);
     PROFILING_C_ZONE_END(ctx);
 
     return node->explanation;

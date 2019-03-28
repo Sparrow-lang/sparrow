@@ -1,71 +1,79 @@
 //! ! -dump-assembly
-import par.thread
-import par.atomic
-import par.locks
-import std.vector
-import test = test
 
-var numUsers: Int Atomic = 0
-var numLocks: Int Atomic = 0
+import std.compilerInfo
 
-var normalMutex: Mutex
+[ct] if platformName == 'Darwin'
+    import par.thread
+    import par.atomic
+    import par.locks
+    import std.vector
+    import test = test
 
-fun doCoreJob(waitTime: Int)
-    ++numUsers
-    test.assertEq(numUsers load, 1, "numUsers should be 1")
-    ++numLocks
-    sleep(waitTime)
-    --numUsers
+    var numUsers: Int Atomic = 0
+    var numLocks: Int Atomic = 0
 
-fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false)
-    if !useTryLock
-        var lock: ScopedLock(typeOf(mutex)) = mutex
-        doCoreJob(1)
-    else
-        var lock: ScopedTryLock(typeOf(mutex)) = mutex
-        if lock.isLocked
-            doCoreJob(3)
+    var normalMutex: Mutex
 
-[initCtor] datatype Worker
-    amountOfWork: Int
-    useTryLock: Bool
+    fun doCoreJob(waitTime: Int)
+        ++numUsers
+        test.assertEq(numUsers load, 1, "numUsers should be 1")
+        ++numLocks
+        sleep(waitTime)
+        --numUsers
 
-fun ()(this: @Worker)
-    for i = 0..amountOfWork
-        doProtectedJob(normalMutex, useTryLock)
-    if !useTryLock
-        test.assertGe(numLocks load, amountOfWork, "numLocks should be greater or equal to the amount of work")
+    fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false)
+        if !useTryLock
+            var lock: ScopedLock(typeOf(mutex)) = mutex
+            doCoreJob(1)
+        else
+            var lock: ScopedTryLock(typeOf(mutex)) = mutex
+            if lock.isLocked
+                doCoreJob(3)
 
-datatype WorkManager
-    amountOfWork, numWorkers, numTryWorkers: Int
-    threads: (Thread Ptr) Vector
+    [initCtor] datatype Worker
+        amountOfWork: Int
+        useTryLock: Bool
 
-fun ctor(this: @WorkManager, amountOfWork, numWorkers, numTryWorkers: Int)
-    this.amountOfWork ctor amountOfWork
-    this.numWorkers ctor numWorkers
-    this.numTryWorkers ctor numTryWorkers
-    for i=0..numWorkers
-        var p: Thread Ptr = new(Thread, Worker(amountOfWork, false))
-        threads.pushBack(p)
-    for i=0..numTryWorkers
-        var p: Thread Ptr = new(Thread, Worker(amountOfWork, true))
-        threads.pushBack(p)
+    fun ()(this: @Worker)
+        for i = 0..amountOfWork
+            doProtectedJob(normalMutex, useTryLock)
+        //if !useTryLock
+        //    test.assertGe(numLocks load, amountOfWork, "numLocks should be greater or equal to the amount of work")
 
-fun dtor(this: @WorkManager)
-    for t = threads.all
-        t.get join
-        t.release
-    test.assertGe(numLocks load, amountOfWork*numWorkers, "numLocks should be greater equal to what normals workers did")
-    test.assertLe(numLocks load, amountOfWork*(numWorkers+numTryWorkers), "numLocks should be less or equal to the total work")
+    datatype WorkManager
+        amountOfWork, numWorkers, numTryWorkers: Int
+        threads: (Thread Ptr) Vector
 
-fun sprMain
-    if programArgs.size() < 4
-        return
-    var amountOfWork = programArgs(1) asInt
-    var numWorkers = programArgs(2) asInt
-    var numTryWorkers = programArgs(3) asInt
+    fun ctor(this: @WorkManager, amountOfWork, numWorkers, numTryWorkers: Int)
+        this.amountOfWork ctor amountOfWork
+        this.numWorkers ctor numWorkers
+        this.numTryWorkers ctor numTryWorkers
+        for i=0..numWorkers
+            var p: Thread Ptr = new(Thread, Worker(amountOfWork, false))
+            threads.pushBack(p)
+        for i=0..numTryWorkers
+            var p: Thread Ptr = new(Thread, Worker(amountOfWork, true))
+            threads.pushBack(p)
 
-    var work = WorkManager(amountOfWork, numWorkers, numTryWorkers)
+    fun dtor(this: @WorkManager)
+        for t = threads.all
+            t.get join
+            t.release
+        sleep(100)
+        test.assertGe(numLocks load, amountOfWork*numWorkers, "numLocks should be greater equal to what normals workers did")
+        test.assertLe(numLocks load, amountOfWork*(numWorkers+numTryWorkers), "numLocks should be less or equal to the total work")
+
+    fun sprMain
+        if programArgs.size() < 4
+            return
+        var amountOfWork = programArgs(1) asInt
+        var numWorkers = programArgs(2) asInt
+        var numTryWorkers = programArgs(3) asInt
+
+        var work = WorkManager(amountOfWork, numWorkers, numTryWorkers)
+else
+    fun sprMain
+        ;
 
 /*<<<Start one worker (20 1 0)
 >>>*/

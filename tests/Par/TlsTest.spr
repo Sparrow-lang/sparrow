@@ -1,65 +1,73 @@
 //! ! -dump-assembly
-import par.thread
-import par.tls
-import std.vector
-import std.ranges
-import test
 
-var intTls: Tls(Int)
-var ptrTls: Tls(@Int)
+import std.compilerInfo
 
-[initCtor] datatype IntWorker
-    val1, val2: Int
+[ct] if platformName == 'Darwin'
 
-fun ()(this: IntWorker)
-    assertEq(intTls get, 0)
-    intTls = val1
-    assertEq(intTls get, val1)
-    intTls = val2
-    assertEq(intTls get, val2)
+    import par.thread
+    import par.tls
+    import std.vector
+    import std.ranges
+    import test
 
-[initCtor] datatype PtrWorker
-    val1, val2: @Int
+    var intTls: Tls(Int)
+    var ptrTls: Tls(@Int)
 
-fun ()(this: PtrWorker)
-    assertTrue((ptrTls get) === null)
-    ptrTls = val1
-    assertTrue((ptrTls get) === val1)
-    ptrTls = val2
-    assertTrue((ptrTls get) === val2)
+    [initCtor] datatype IntWorker
+        val1, val2: Int
 
-datatype WorkManager
-    numThreads: Int
-    threads: (Thread Ptr) Vector
+    fun ()(this: IntWorker)
+        assertEq(intTls get, 0)
+        intTls = val1
+        assertEq(intTls get, val1)
+        intTls = val2
+        assertEq(intTls get, val2)
 
-fun ctor(this: @WorkManager, numThreads: Int)
-    this.numThreads ctor numThreads
+    [initCtor] datatype PtrWorker
+        val1, val2: @Int
 
-    var i1 = 10
-    var i2 = 20
-    var pi1: @Int = i1
-    var pi2: @Int = i2
+    fun ()(this: PtrWorker)
+        assertTrue((ptrTls get) === null)
+        ptrTls = val1
+        assertTrue((ptrTls get) === val1)
+        ptrTls = val2
+        assertTrue((ptrTls get) === val2)
 
-    for i=0..numThreads
-        var p: Thread Ptr = new(Thread, IntWorker(i1, i2))
-        threads.pushBack(p)
+    datatype WorkManager
+        numThreads: Int
+        threads: (Thread Ptr) Vector
 
-    for i=0..numThreads
-        var p: Thread Ptr = new(Thread, PtrWorker(pi1, pi2))
-        threads.pushBack(p)
+    fun ctor(this: @WorkManager, numThreads: Int)
+        this.numThreads ctor numThreads
 
-fun dtor(this: @WorkManager)
-    for t = threads.all
-        t.get join
-        t.release
+        var i1 = 10
+        var i2 = 20
+        var pi1: @Int = i1
+        var pi2: @Int = i2
+
+        for i=0..numThreads
+            var p: Thread Ptr = new(Thread, IntWorker(i1, i2))
+            threads.pushBack(p)
+
+        for i=0..numThreads
+            var p: Thread Ptr = new(Thread, PtrWorker(pi1, pi2))
+            threads.pushBack(p)
+
+    fun dtor(this: @WorkManager)
+        for t = threads.all
+            t.get join
+            t.release
 
 
-fun sprMain
-    if programArgs.size() < 4
-        return
-    var numThreads = programArgs(1) asInt
+    fun sprMain
+        if programArgs.size() < 4
+            return
+        var numThreads = programArgs(1) asInt
 
-    var work = WorkManager(numThreads)
+        var work = WorkManager(numThreads)
+else
+    fun sprMain
+        ;
 
 /*<<<TLS for 1 thread (1)
 >>>*/

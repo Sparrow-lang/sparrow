@@ -539,12 +539,6 @@ void StructDecl::setContextForChildrenImpl(StructDecl node) {
 Type StructDecl::computeTypeImpl(StructDecl node) {
     if (node.name().empty())
         REP_ERROR_RET(nullptr, node.location(), "No name given to struct");
-
-    // Compute the type for all the fields
-    for (auto field : node.children()) {
-        // Ignore errors from children
-        field.computeType();
-    }
     return DataType::get(node, 0, Feather_effectiveEvalMode(node));
 }
 NodeHandle StructDecl::semanticCheckImpl(StructDecl node) {

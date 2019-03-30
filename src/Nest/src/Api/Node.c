@@ -170,6 +170,7 @@ Nest_TypeRef Nest_computeType(Nest_Node* node) {
                 Nest_toString(node));
 
     PROFILING_C_ZONE_BEGIN_LOC(ctx, Nest_Profiling_getComputeTypeLoc(node->nodeKind));
+    PROFILING_C_ZONE_SETNODETEXT(ctx, node);
 
     node->computeTypeStarted = 1;
 

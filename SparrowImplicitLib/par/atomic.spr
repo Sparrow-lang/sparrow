@@ -21,10 +21,10 @@ datatype Atomic(T: Type) if sizeOf(T) <= 8
     fun ctor(this: @Atomic, v: this.ValueType)
         _value ctor _toUnderlying(this, v)
 
-    fun =(lhs: @AtomicType, rhs: AtomicType)
+    fun =(lhs: @AtomicType, rhs: typeOf(lhs))
         lhs store (rhs load)
     //! Stores a value inside the given atomic, using the assignment operator
-    fun =(this: @AtomicType, val: AnyType) = this store val
+    fun =(this: @AtomicType, val: this.ValueType) = this store val
 
     //! Loads the value from an atomic; returns a non-atomic value
     [native("_Atomic_load32")] fun load(this: @AtomicInt): Int;

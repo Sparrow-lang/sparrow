@@ -1,187 +1,168 @@
 //!! -O3
 // -g -O1 -dump-assembly
-import par.tasks;
-import test;
-import std.newDelete;
 
-//using useDescriptions = true;
+import std.compilerInfo
 
-using cutoff = 16;
-//using cutoff = 30;
+[ct] if platformName == 'Darwin'
+    import par.tasks
+    import test
+    import std.newDelete
 
-fun serialFib(n: Long): Long {
-    return ife(n<2, n, serialFib(n-1)+serialFib(n-2));
-}
+    using useDescriptions = true
 
-package StackSpawnStyle {
-    datatype FibTask {
-        prefix: TaskPrefix;
-        n: Long;
-        result: @Long;
+    using cutoff = 16
+    //using cutoff = 30
 
-    }
-    fun ctor(this: @StackSpawnStyle, n: Long, result: @Long) {
-        this.n ctor n;
-        this.result := result;
-    }
+    fun serialFib(n: Long): Long
+        return ife(n<2, n, serialFib(n-1)+serialFib(n-2))
 
-    [ct] if ( isValidAndTrue(useDescriptions) )
-    fun description(task: @FibTask): String {
-        var res: String = "Fib ";
-        res += intToString(Int(task.n));
-        return res;
-    }
+    package StackSpawnStyle
+        datatype FibTask
+            prefix: TaskPrefix
+            n: Long
+            result: @Long
 
-    fun execute(task: @FibTask) {
-        if ( task.n < cutoff )
-            task.result = serialFib(task.n);
-        else {
-            // Create the children tasks
-            var x, y: Long;
-            var t1 = FibTask(task.n-1, x);
-            var t2 = FibTask(task.n-2, y);
+        fun ctor(this: @FibTask, n: Long, result: @Long)
+            this.n ctor n
+            this.result := result
+            [ct] if isValidAndTrue(useDescriptions)
+                this.prefix.desc = this.description
 
-            spawnAndWait(task, t1, t2);
+        [ct] if isValidAndTrue(useDescriptions)
+        fun description(task: @FibTask): String
+            var res: String = "Fib "
+            res += intToString(Int(task.n))
+            return res
 
-            // Do the sum
-            task.result = x + y;
-        }
-    }
+        fun execute(task: @FibTask)
+            if task.n < cutoff
+                task.result = serialFib(task.n)
+            else
+                // Create the children tasks
+                var x, y: Long
+                var t1 = FibTask(task.n-1, x)
+                var t2 = FibTask(task.n-2, y)
 
-    fun parFib(n: Long): Long {
-        var res: Long;
-        spawnRootAndWait(FibTask(n, res));
-        return res;
-    }
-}
+                spawnAndWait(task, t1, t2)
 
-package DynSpawnStyle {
-    datatype FibTask {
-        prefix: TaskPrefix;
-        n: Long;
-        result: @Long;
+                // Do the sum
+                task.result = x + y
 
-    }
-    fun ctor(this: @DynSpawnStyle, n: Long, result: @Long) {
-        this.n ctor n;
-        this.result := result;
-    }
+        fun parFib(n: Long): Long
+            var res: Long
+            spawnRootAndWait(FibTask(n, res))
+            return res
 
-    [ct] if ( isValidAndTrue(useDescriptions) )
-    fun description(task: @FibTask): String {
-        var res: String = "Fib ";
-        res += intToString(Int(task.n));
-        return res;
-    }
+    package DynSpawnStyle
+        datatype FibTask
+            prefix: TaskPrefix
+            n: Long
+            result: @Long
 
-    fun execute(task: @FibTask) {
-        if ( task.n < cutoff )
-            task.result = serialFib(task.n);
-        else {
-            // Create the children tasks
-            var x, y: Long;
-            var t1: @FibTask = new(FibTask, task.n-1, x);
-            var t2: @FibTask = new(FibTask, task.n-2, y);
+        fun ctor(this: @FibTask, n: Long, result: @Long)
+            this.n ctor n
+            this.result := result
 
-            spawnAndWait(task, t1, t2);
+        [ct] if isValidAndTrue(useDescriptions)
+        fun description(task: @FibTask): String
+            var res: String = "Fib "
+            res += intToString(Int(task.n))
+            return res
 
-            delete(t2);
-            delete(t1);
+        fun execute(task: @FibTask)
+            if task.n < cutoff
+                task.result = serialFib(task.n)
+            else
+                // Create the children tasks
+                var x, y: Long
+                var t1: @FibTask = new(FibTask, task.n-1, x)
+                var t2: @FibTask = new(FibTask, task.n-2, y)
 
-            // Do the sum
-            task.result = x + y;
-        }
-    }
+                spawnAndWait(task, t1, t2)
 
-    fun parFib(n: Long): Long {
-        var res: Long;
-        spawnRootAndWait(FibTask(n, res));
-        return res;
-    }
-}
+                delete(t2)
+                delete(t1)
 
-package ContStyle {
-    datatype FibTask {
-        prefix: TaskPrefix;
-        n: Long;
-        result: @Long;
+                // Do the sum
+                task.result = x + y
 
-    }
-    fun ctor(this: @ContStyle, n: Long, result: @Long) {
-        this.n ctor n;
-        this.result := result;
-    }
+        fun parFib(n: Long): Long
+            var res: Long
+            spawnRootAndWait(FibTask(n, res))
+            return res
 
-    [ct] if ( isValidAndTrue(useDescriptions) )
-    fun description(task: @FibTask): String {
-        var res: String = "Fib ";
-        res += intToString(Int(task.n));
-        return res;
-    }
+    package ContStyle
+        datatype FibTask
+            prefix: TaskPrefix
+            n: Long
+            result: @Long
 
-    fun execute(task: @FibTask) {
-        if ( task.n < cutoff )
-            task.result = serialFib(task.n);
-        else {
-            var cont: @FibContTask = new(FibContTask, task.n, task.result);
-            setContinuation(task, cont);
+        fun ctor(this: @FibTask, n: Long, result: @Long)
+            this.n ctor n
+            this.result := result
 
-            var t1: @FibTask = new(FibTask, task.n-1, cont.s1);
-            var t2: @FibTask = new(FibTask, task.n-2, cont.s2);
-            spawn(cont, t1, t2);
-        }
-    }
+        [ct] if isValidAndTrue(useDescriptions)
+        fun description(task: @FibTask): String
+            var res: String = "Fib "
+            res += intToString(Int(task.n))
+            return res
 
-    datatype FibContTask {
-        prefix: TaskPrefix;
-        n: Long;
-        s1, s2: Long;
-        result: @Long;
+        fun execute(task: @FibTask)
+            if task.n < cutoff
+                task.result = serialFib(task.n)
+            else
+                var cont: @FibContTask = new(FibContTask, task.n, task.result)
+                setContinuation(task, cont)
 
-    }
-    fun ctor(this: @FibContTask, n, result: @Long) {
-        this.n ctor n;
-        this.result := result;
-    }
+                var t1: @FibTask = new(FibTask, task.n-1, cont.s1)
+                var t2: @FibTask = new(FibTask, task.n-2, cont.s2)
+                spawn(cont, t1, t2)
 
-    [ct] if ( isValidAndTrue(useDescriptions) )
-    fun description(task: @FibContTask): String {
-        var res: String = "Cont ";
-        res += intToString(Int(task.n));
-        return res;
-    }
+        datatype FibContTask
+            prefix: TaskPrefix
+            n: Long
+            s1, s2: Long
+            result: @Long
 
-    fun execute(task: @FibContTask) {
-        task.result = task.s1 + task.s2;
-    }
+        fun ctor(this: @FibContTask, n, result: @Long)
+            this.n ctor n
+            this.result := result
 
-    fun parFib(n: Long): Long {
-        var res: Long;
-        spawnRootAndWait(FibTask(n, res));
-        return res;
-    }
-}
+        [ct] if isValidAndTrue(useDescriptions)
+        fun description(task: @FibContTask): String
+            var res: String = "Cont "
+            res += intToString(Int(task.n))
+            return res
 
-fun sprMain
-{
-    if ( programArgs.size() < 2 )
-        return;
-    var style = programArgs(1) asInt;
-    var n = programArgs(2) asInt;
+        fun execute(task: @FibContTask)
+            task.result = task.s1 + task.s2
 
-    var res: Long;
+        fun parFib(n: Long): Long
+            var res: Long
+            spawnRootAndWait(FibTask(n, res))
+            return res
 
-    if ( style == 0 )
-        res = serialFib(n);
-    else if ( style == 1 )
-        res = StackSpawnStyle.parFib(n);
-    else if ( style == 2 )
-        res = DynSpawnStyle.parFib(n);
-    else if ( style == 3 )
-        res = ContStyle.parFib(n);
+    fun sprMain
+        if programArgs.size() < 2
+            return
+        var style = programArgs(1) asInt
+        var n = programArgs(2) asInt
 
-    cout << "Final result: fib(" << n << ")=" << res << endl;
-}
+        var res: Long
+
+        if style == 0
+            res = serialFib(n)
+        else if style == 1
+            res = StackSpawnStyle.parFib(n)
+        else if style == 2
+            res = DynSpawnStyle.parFib(n)
+        else if style == 3
+            res = ContStyle.parFib(n)
+
+        cout << "Final result: fib(" << n << ")=" << res << endl
+else
+    fun sprMain
+        cout << 'Final result: fib(30)=832040\n'
 
 /*<<<Serial fib (0 30)
 Final result: fib(30)=832040

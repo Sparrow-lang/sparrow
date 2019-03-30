@@ -1,0 +1,19 @@
+module par.tasksImpl.idleCounter
+
+import par.atomic
+
+//! Class used to keep count of the number of threads that go idle
+datatype IdleCounter
+    cnt: Int Atomic
+
+//! Called by a worker thread that just decided to go IDLE
+fun goIdle(this: @IdleCounter)
+    this.cnt++
+//! Called by a worker thread who just got up from IDLE state
+fun wakeUp(this: @IdleCounter)
+    this.cnt--
+
+//! Check if we have some workers that are in the IDLE state
+fun hasIdle(this: @IdleCounter) = (this.cnt load) > 0
+//! Returns the number of workers that are in the IDLE state
+fun numIdleWorkers(this: @IdleCounter) = this.cnt load

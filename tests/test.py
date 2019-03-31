@@ -301,7 +301,7 @@ class DetailedReporter:
             print()
             print('>>> OK')
         else:
-            if expectedOutput:
+            if expectedOutput != None:
                 print('ERROR: output does not match!')
             else:
                 print('ERROR: output contains errors!')
@@ -409,7 +409,7 @@ def doTestFile(testFilePair, reporter, args, compilerLookup):
                 p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
                 actualOutput = p.communicate()[0]
 
-                if expectedOutput:
+                if expectedOutput != None:
                     runOk = actualOutput == expectedOutput
                 else:
                     runOk = not('FAILURE' in actualOutput or 'ERROR' in actualOutput)

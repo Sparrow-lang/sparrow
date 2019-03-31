@@ -539,12 +539,6 @@ void StructDecl::setContextForChildrenImpl(StructDecl node) {
 Type StructDecl::computeTypeImpl(StructDecl node) {
     if (node.name().empty())
         REP_ERROR_RET(nullptr, node.location(), "No name given to struct");
-
-    // Compute the type for all the fields
-    for (auto field : node.children()) {
-        // Ignore errors from children
-        field.computeType();
-    }
     return DataType::get(node, 0, Feather_effectiveEvalMode(node));
 }
 NodeHandle StructDecl::semanticCheckImpl(StructDecl node) {
@@ -1100,8 +1094,18 @@ NodeHandle IfStmt::condition() const { return children()[0]; }
 NodeHandle IfStmt::thenClause() const { return children()[1]; }
 NodeHandle IfStmt::elseClause() const { return children()[2]; }
 void IfStmt::setContextForChildrenImpl(IfStmt node) {
+    NodeHandle condition = node.condition();
+    NodeHandle thenClause = node.thenClause();
+    NodeHandle elseClause = node.elseClause();
+
     node.setChildrenContext(Nest_mkChildContextWithSymTab(node.context(), node, modeUnspecified));
-    NodeHandle::setContextForChildrenImpl(node);
+    condition.setContext(node.childrenContext());
+    if (Feather_nodeEvalMode(node) != modeCt) {
+        if (thenClause)
+            thenClause.setContext(node.childrenContext());
+        if (elseClause)
+            elseClause.setContext(node.childrenContext());
+    }
 }
 NodeHandle IfStmt::semanticCheckImpl(IfStmt node) {
     NodeHandle condition = node.condition();
@@ -1140,6 +1144,14 @@ NodeHandle IfStmt::semanticCheckImpl(IfStmt node) {
         // Get the CT value from the condition, and select an active branch
         NodeHandle c = Nest_ctEval(condition);
         NodeHandle selectedBranch = _getBoolCtValue(c) ? thenClause : elseClause;
+
+        // For ct ifs do a compute type beforehand
+        // This is needed for top-level ct ifs
+        if (selectedBranch)
+        {
+            selectedBranch.setContext(node.context());
+            selectedBranch.computeType();
+        }
 
         // Expand only the selected branch
         if (selectedBranch)

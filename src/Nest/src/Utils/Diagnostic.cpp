@@ -4,6 +4,7 @@
 #include "Nest/Api/StringRef.h"
 #include "Nest/Utils/cppif/NodeHandle.hpp"
 #include "Nest/Utils/cppif/StringRef.hpp"
+#include "Nest/Utils/Profiling.h"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Api/Type.h"
 
@@ -19,21 +20,38 @@ namespace {
 void doReport(const Location& loc, Nest_DiagnosticSeverity severity, const string& message) {
     cerr << endl;
 
+#if SPARROW_PROFILING
+    ostringstream msgStream;
+    const char* diagType = "";
+#endif
+
     // Write location: 'filename(line:col) : '
     if (!Nest_isLocEmpty(&loc)) {
         cerr << loc << " : ";
+#if SPARROW_PROFILING
+        msgStream << loc << " : ";
+#endif
     }
 
     // Write the severity
     switch (severity) {
     case diagInternalError:
         cerr << ConsoleColors::fgHiMagenta << "INTERNAL ERROR : ";
+#if SPARROW_PROFILING
+        diagType = "INTERNAL ERROR";
+#endif
         break;
     case diagError:
         cerr << ConsoleColors::fgLoRed << "ERROR : ";
+#if SPARROW_PROFILING
+        diagType = "ERROR";
+#endif
         break;
     case diagWarning:
         cerr << ConsoleColors::fgHiYellow << "WARNING : ";
+#if SPARROW_PROFILING
+        diagType = "WARNING";
+#endif
         break;
     case diagInfo:
     default:
@@ -43,6 +61,11 @@ void doReport(const Location& loc, Nest_DiagnosticSeverity severity, const strin
     // Write the diagnostic text
     cerr << ConsoleColors::stClear << ConsoleColors::stBold << message << ConsoleColors::stClear
          << endl;
+#if SPARROW_PROFILING
+    msgStream << "\n" << diagType << " : " << message;
+    PROFILING_ZONE_NAMED_TEXT(diagType, msgStream.str().c_str());
+    PROFILING_MESSAGE(msgStream.str().c_str());
+#endif
 
     // Try to write the source line no in which the diagnostic occurred
     if (!Nest_isLocEmpty(&loc)) {

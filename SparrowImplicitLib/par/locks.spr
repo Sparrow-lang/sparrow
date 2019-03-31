@@ -1,75 +1,69 @@
-module par.locks;
+module par.locks
 
-import config;
-import std.staticArray;
+import config
+import std.staticArray
 
 //! Concept the is satisfied for the "mutexes" that can be locked and unlocked
-concept Lockable(x)
-    if isValid(x lock)
-    && isValid(x unlock)
-    ;
+concept Lockable(x) if isValid(x lock) && isValid(x unlock)
 
 //! Special Lockable, that also supports the "trylock" operation
-concept TryLockable(x)
-    if Lockable(x)
-    && isValid(x tryLock)
-    ;
+concept TryLockable(x) if Lockable(x) && isValid(x tryLock)
 
 //! Class used to take the lock for the duration of a scope
 //! Can be used with any lockable object
 datatype ScopedLock(T: Type) if Lockable(#$T)
-    using LockType = T;
+    using LockType = T
 
-    _theLock: @LockType;
+    _theLock: @LockType
 
 fun ctor(this: @ScopedLock, theLock: @this.LockType)
-    this._theLock := theLock;
-    _theLock lock;
+    this._theLock := theLock
+    _theLock lock
 
 fun dtor(this: @ScopedLock)
-    _theLock unlock;
+    _theLock unlock
 
 //! Class used to try to take the lock for the duration of a scope
 //! To test if the lock was taken, use the 'isLocked' function
 datatype ScopedTryLock(T: Type) if TryLockable(#$T)
-    using LockType = T;
+    using LockType = T
 
-    _theLock: @LockType;
-    _lockSucceeded: Bool;
+    _theLock: @LockType
+    _lockSucceeded: Bool
 
-    fun isLocked = _lockSucceeded;
 
 fun ctor(this: @ScopedTryLock, theLock: @this.LockType)
-    this._theLock := theLock;
-    this._lockSucceeded  = (_theLock tryLock);
+    this._theLock := theLock
+    this._lockSucceeded  = (_theLock tryLock)
 
 fun dtor(this: @ScopedTryLock)
-    if ( _lockSucceeded )
-        _theLock unlock;
+    if _lockSucceeded
+        _theLock unlock
+
+fun isLocked(this: @ScopedTryLock) = _lockSucceeded
 
 //! A simple and fast mutual-exclusion lockable
 datatype Mutex
-    handle: Impl.PThreadMutex;
+    handle: Impl.PThreadMutex
 
 fun ctor(this: @Mutex)
-    handle.sig = Impl.PTHREAD_MUTEX_SIG_INIT;
+    handle.sig = Impl.PTHREAD_MUTEX_SIG_INIT
 
 fun dtor(this: @Mutex)
-    Impl.pthread_mutex_destroy(handle);
+    Impl.pthread_mutex_destroy(handle)
 
-fun >> (m: @Mutex, os: @OutStream) {
-    cout << "Mutex(" << mkStreamRefWrapper(m) << ", " << m.handle.sig << ")";
-}
+fun >> (m: @Mutex, os: @OutStream)
+    cout << "Mutex(" << mkStreamRefWrapper(m) << ", " << m.handle.sig << ")"
 
 //! A mutual-exclusion lockable that is able to support recursive locking
 datatype RecMutex
-    handle: Impl.PThreadMutex;
+    handle: Impl.PThreadMutex
 
 fun ctor(this: @RecMutex)
-    handle.sig = Impl.PTHREAD_RECURSIVE_MUTEX_SIG_INIT;
+    handle.sig = Impl.PTHREAD_RECURSIVE_MUTEX_SIG_INIT
 
 fun dtor(this: @RecMutex)
-    Impl.pthread_mutex_destroy(handle);
+    Impl.pthread_mutex_destroy(handle)
 
 //! Locks a lockable; if the lockable is already locked this call blocks until it's unblocked by the other party
 fun lock(mutex: @Mutex) { var res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
@@ -83,19 +77,17 @@ fun tryLock(mutex: @RecMutex): Bool { var res = Impl.pthread_mutex_trylock(mutex
 fun unlock(mutex: @Mutex) { var res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
 fun unlock(mutex: @RecMutex) { var res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
 
-package Impl {
-    using PTHREAD_MUTEX_SIZE = 56;
-    using PTHREAD_MUTEX_SIG_INIT = 0x32AAABA7;
-    using PTHREAD_RECURSIVE_MUTEX_SIG_INIT = 0x32AAABA2;
+package Impl
+    using PTHREAD_MUTEX_SIZE = 56
+    using PTHREAD_MUTEX_SIG_INIT = 0x32AAABA7
+    using PTHREAD_RECURSIVE_MUTEX_SIG_INIT = 0x32AAABA2
 
-    datatype PThreadMutex {
-        sig: Long;
-        opaque: StaticArray(Byte, PTHREAD_MUTEX_SIZE);
-    }
+    datatype PThreadMutex
+        sig: Long
+        opaque: StaticArray(Byte, PTHREAD_MUTEX_SIZE)
 
     [native("pthread_mutex_init")] fun pthread_mutex_init(mutex: @PThreadMutex, attr: @Byte): Int;
     [native("pthread_mutex_lock")] fun pthread_mutex_lock(mutex: @PThreadMutex): Int;
     [native("pthread_mutex_trylock")] fun pthread_mutex_trylock(mutex: @PThreadMutex): Int;
     [native("pthread_mutex_unlock")] fun pthread_mutex_unlock(mutex: @PThreadMutex): Int;
     [native("pthread_mutex_destroy")] fun pthread_mutex_destroy(mutex: @PThreadMutex): Int;
-}

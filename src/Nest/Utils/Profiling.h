@@ -53,11 +53,13 @@ inline void _Nest_Profiling_message(Nest_StringRef text) {
 
 typedef TracyCZoneCtx Nest_Profiling_ZoneCtx;
 
-#define PROFILING_C_ZONE_BEGIN(ctx)                                                                \
-    static const struct Nest_Profiling_LocType TracyConcat(__tracy_source_location, __LINE__) = {  \
-            NULL, __FUNCTION__, __FILE__, (uint32_t)__LINE__, 0};                                  \
+#define PROFILING_C_ZONE_BEGIN_NAME(ctx, staticName, active)                                       \
+    static const Nest_Profiling_LocType TracyConcat(__tracy_source_location, __LINE__) = {  \
+            staticName, __FUNCTION__, __FILE__, (uint32_t)__LINE__, 0};                            \
     Nest_Profiling_ZoneCtx ctx =                                                                   \
-            ___tracy_emit_zone_begin(&TracyConcat(__tracy_source_location, __LINE__), 1);
+            ___tracy_emit_zone_begin(&TracyConcat(__tracy_source_location, __LINE__), active);
+
+#define PROFILING_C_ZONE_BEGIN(ctx) PROFILING_C_ZONE_BEGIN_NAME(ctx, NULL, 1)
 
 #define PROFILING_C_ZONE_BEGIN_LOC(ctx, locPtr)                                                    \
     Nest_Profiling_ZoneCtx ctx = ___tracy_emit_zone_begin(locPtr, 1)
@@ -96,9 +98,10 @@ const Nest_Profiling_LocType* Nest_Profiling_createLoc(
 #define PROFILING_MESSAGE_STATIC(staticText)        /*nothing*/
 #define PROFILING_MESSAGE(text)                     /*nothing*/
 
-#define PROFILING_C_ZONE_BEGIN(ctx)             /*nothing*/
-#define PROFILING_C_ZONE_BEGIN_LOC(ctx, locPtr) /*nothing*/
-#define PROFILING_C_ZONE_END(ctx)               /*nothing*/
-#define PROFILING_C_ZONE_SETTEEXT(ctx, text)    /*nothing*/
+#define PROFILING_C_ZONE_BEGIN_NAME(ctx, staticName, active) /*nothing*/
+#define PROFILING_C_ZONE_BEGIN(ctx)                          /*nothing*/
+#define PROFILING_C_ZONE_BEGIN_LOC(ctx, locPtr)              /*nothing*/
+#define PROFILING_C_ZONE_END(ctx)                            /*nothing*/
+#define PROFILING_C_ZONE_SETTEEXT(ctx, text)                 /*nothing*/
 
 #endif

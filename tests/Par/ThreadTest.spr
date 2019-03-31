@@ -97,7 +97,7 @@ else
         else if n == 4
             cout << 'ok\n'
 
-/*<<<Number of available cores - print IGNORE (1)
+/*-<<<Number of available cores - print IGNORE (1)
 8
 >>>*/
 /*<<<Number of available cores-test (2)

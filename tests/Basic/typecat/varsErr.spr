@@ -60,9 +60,9 @@ fun funCall
     takesMut(mutObj)
     takesMut(tmpObj)
 
-    takesTmp(plainObj)
+    takesTmp(plainObj) // ERROR
     takesTmp(constObj) // ERROR
-    takesTmp(mutObj)   // ???
+    takesTmp(mutObj)   // ERROR
     takesTmp(tmpObj)
 
 [native("test")]

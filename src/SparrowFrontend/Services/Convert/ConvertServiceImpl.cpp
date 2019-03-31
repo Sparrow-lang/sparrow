@@ -326,10 +326,10 @@ bool ConvertServiceImpl::adjustReferences(ConversionResult& res, TypeWithStorage
     };
 
     constexpr ConvType conversions[4][4] = {
-            {direct, addCat, none, none},          // from plain
-            {removeCat, direct, none, none},       // from const
-            {removeCat, catCast, direct, catCast}, // from mutable
-            {removeCat, catCast, catCast, direct}  // from temp
+            {direct, addCat, none, none},         // from plain
+            {removeCat, direct, none, none},      // from const
+            {removeCat, catCast, direct, none},   // from mutable
+            {removeCat, catCast, catCast, direct} // from temp
     };
     //  to:  plain,     const,  mutable, temp
 

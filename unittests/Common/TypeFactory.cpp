@@ -35,7 +35,8 @@ Gen<ConstType> arbConstType(EvalMode mode, int minRef, int maxRef) {
         minRef--;
     if (maxRef > 0)
         maxRef--;
-    return gen::apply(&ConstType::get, arbDataType(mode, minRef, maxRef));
+    auto locGen = gen::just(Location{});
+    return gen::apply(&ConstType::get, arbDataType(mode, minRef, maxRef), locGen);
 }
 
 Gen<MutableType> arbMutableType(EvalMode mode, int minRef, int maxRef) {
@@ -43,7 +44,8 @@ Gen<MutableType> arbMutableType(EvalMode mode, int minRef, int maxRef) {
         minRef--;
     if (maxRef > 0)
         maxRef--;
-    return gen::apply(&MutableType::get, arbDataType(mode, minRef, maxRef));
+    auto locGen = gen::just(Location{});
+    return gen::apply(&MutableType::get, arbDataType(mode, minRef, maxRef), locGen);
 }
 
 Gen<TempType> arbTempType(EvalMode mode, int minRef, int maxRef) {
@@ -51,7 +53,8 @@ Gen<TempType> arbTempType(EvalMode mode, int minRef, int maxRef) {
         minRef--;
     if (maxRef > 0)
         maxRef--;
-    return gen::apply(&TempType::get, arbDataType(mode, minRef, maxRef));
+    auto locGen = gen::just(Location{});
+    return gen::apply(&TempType::get, arbDataType(mode, minRef, maxRef), locGen);
 }
 
 Gen<ArrayType> arbArrayType(EvalMode mode) {
@@ -138,7 +141,7 @@ Gen<TypeWithStorage> arbBoolType(EvalMode mode) {
             break;
         }
     }
-    return gen::exec([=] () -> TypeWithStorage {
+    return gen::exec([=]() -> TypeWithStorage {
         auto m = mode != modeUnspecified ? mode : *gen::arbitrary<EvalMode>();
         int numRefs = *gen::weightedElement<int>({
                 {10, 0},

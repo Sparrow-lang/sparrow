@@ -122,6 +122,33 @@ NodeHandle impl_rt(CompilationContext* context, const Location& loc, NodeRange a
     return createTypeNode(context, loc, t);
 }
 
+NodeHandle impl_const(CompilationContext* context, const Location& loc, NodeRange args) {
+    Type t = getType(args[0]);
+    if (!t.hasStorage())
+        REP_ERROR(loc, "Cannot apply 'const' to a type without storage");
+    else
+        t = ConstType::get(TypeWithStorage(t));
+    return createTypeNode(context, loc, t);
+}
+
+NodeHandle impl_mut(CompilationContext* context, const Location& loc, NodeRange args) {
+    Type t = getType(args[0]);
+    if (!t.hasStorage())
+        REP_ERROR(loc, "Cannot apply 'mut' to a type without storage");
+    else
+        t = MutableType::get(TypeWithStorage(t));
+    return createTypeNode(context, loc, t);
+}
+
+NodeHandle impl_tmp(CompilationContext* context, const Location& loc, NodeRange args) {
+    Type t = getType(args[0]);
+    if (!t.hasStorage())
+        REP_ERROR(loc, "Cannot apply 'tmp' to a type without storage");
+    else
+        t = TempType::get(TypeWithStorage(t));
+    return createTypeNode(context, loc, t);
+}
+
 NodeHandle impl_convertsTo(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 2);
     Type t1 = getType(args[0]);
@@ -217,6 +244,12 @@ NodeHandle SprFrontend::handleIntrinsic(Feather::FunctionDecl fun, CompilationCo
             return impl_ct(context, loc, args);
         if (nativeName == "$rt")
             return impl_rt(context, loc, args);
+        if (nativeName == "$const")
+            return impl_const(context, loc, args);
+        if (nativeName == "$mut")
+            return impl_mut(context, loc, args);
+        if (nativeName == "$tmp")
+            return impl_tmp(context, loc, args);
         if (nativeName == "$convertsTo")
             return impl_convertsTo(context, loc, args);
         if (nativeName == "$staticBuffer")

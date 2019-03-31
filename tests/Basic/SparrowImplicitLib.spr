@@ -1292,6 +1292,11 @@ fun + (x,y: StringRef): StringRef
 [ct, native("$ct")] fun ct(t: Type): Type;
 [ct, native("$rt")] fun rt(t: Type): Type;
 
+[ct, native('$const')] fun const(t: Type): Type
+[ct, native('$mut')] fun mut(t: Type): Type
+[ct, native('$tmp')] fun tmp(t: Type): Type
+[ct, native('$mut')] fun pre_!(t: Type): Type
+
 [autoCt, native("implOpRefEQ")] fun implOpRefEQ(x,y: @Byte): Bool;
 [autoCt, native("implOpRefNE")] fun implOpRefNE(x,y: @Byte): Bool;
 

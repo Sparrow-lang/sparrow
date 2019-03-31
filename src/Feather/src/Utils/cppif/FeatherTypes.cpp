@@ -34,14 +34,14 @@ ConstType::ConstType(Nest::TypeRef type)
         REP_INTERNAL(NOLOC, "ConstType constructed with other type kind (%1%)") % type;
 }
 
-ConstType ConstType::get(TypeWithStorage base) {
+ConstType ConstType::get(TypeWithStorage base, Nest::Location loc) {
     if (!base)
-        REP_INTERNAL(NOLOC, "Null type given as base to const type");
+        REP_INTERNAL(loc, "Null type given as base to const type");
     int baseKind = base.kind();
     if (baseKind == typeKindConst)
         return ConstType(base);
     else if (baseKind == typeKindMutable || baseKind == typeKindTemp)
-        REP_INTERNAL(NOLOC, "Cannot construct a const type based on %1%") % base;
+        REP_ERROR(loc, "Cannot construct a const type based on %1%") % base;
     return ConstType(Feather_getConstType(base));
 }
 
@@ -53,14 +53,14 @@ MutableType::MutableType(Nest::TypeRef type)
         REP_INTERNAL(NOLOC, "MutableType constructed with other type kind (%1%)") % type;
 }
 
-MutableType MutableType::get(TypeWithStorage base) {
+MutableType MutableType::get(TypeWithStorage base, Nest::Location loc) {
     if (!base)
-        REP_INTERNAL(NOLOC, "Null type given as base to const type");
+        REP_INTERNAL(loc, "Null type given as base to const type");
     int baseKind = base.kind();
     if (baseKind == typeKindMutable)
         return MutableType(base);
     else if (baseKind == typeKindConst || baseKind == typeKindTemp)
-        REP_INTERNAL(NOLOC, "Cannot construct a mutable type based on %1%") % base;
+        REP_ERROR(loc, "Cannot construct a mutable type based on %1%") % base;
     return MutableType(Feather_getMutableType(base));
 }
 
@@ -74,14 +74,14 @@ TempType::TempType(Nest::TypeRef type)
         REP_INTERNAL(NOLOC, "TempType constructed with other type kind (%1%)") % type;
 }
 
-TempType TempType::get(TypeWithStorage base) {
+TempType TempType::get(TypeWithStorage base, Nest::Location loc) {
     if (!base)
-        REP_INTERNAL(NOLOC, "Null type given as base to const type");
+        REP_INTERNAL(loc, "Null type given as base to const type");
     int baseKind = base.kind();
     if (baseKind == typeKindTemp)
         return TempType(base);
     else if (baseKind == typeKindConst || baseKind == typeKindMutable)
-        REP_INTERNAL(NOLOC, "Cannot construct a tmp type based on %1%") % base;
+        REP_ERROR(loc, "Cannot construct a tmp type based on %1%") % base;
     return TempType(Feather_getTempType(base));
 }
 

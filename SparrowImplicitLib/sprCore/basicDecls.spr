@@ -789,6 +789,11 @@ package TypeOp
 [ct, native("$ct")] fun ct(t: Type): Type
 [ct, native("$rt")] fun rt(t: Type): Type
 
+[ct, native('$const')] fun const(t: Type): Type
+[ct, native('$mut')] fun mut(t: Type): Type
+[ct, native('$tmp')] fun tmp(t: Type): Type
+[ct, native('$mut')] fun pre_!(t: Type): Type
+
 [ct, native("$convertsTo")] fun convertsTo(src, dest: Type): Bool
 [ct, native("$staticBuffer")] fun static_buffer(n: SizeType): Type
 [ct, native("$commonType")] fun commonType(t, u: Type): Type

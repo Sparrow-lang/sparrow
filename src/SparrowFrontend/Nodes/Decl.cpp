@@ -503,7 +503,7 @@ Type VariableDecl::computeTypeImpl(VariableDecl node) {
     if (varKind == varLocal && node.context()->evalMode == modeRt && t.mode() == modeCt)
         varKind = varGlobal;
 
-    bool isRef = t.numReferences() > 0;
+    bool isRef = Feather::removeCategoryIfPresent(t).numReferences() > 0;
 
     // Generate the initialization and destruction calls
     NodeHandle ctorCall;

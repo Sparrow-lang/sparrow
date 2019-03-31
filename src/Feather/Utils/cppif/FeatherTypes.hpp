@@ -75,10 +75,11 @@ struct ConstType : TypeWithStorage {
      * @brief      Factory method to create a const type
      *
      * @param[in]  base  The base type on which we apply const-ness
+     * @param[in]  loc   Location used when reporting errors
      *
      * @return     The corresponding const type
      */
-    static ConstType get(TypeWithStorage base);
+    static ConstType get(TypeWithStorage base, Nest::Location loc = {});
 
     //! Returns the base type of this type
     TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }
@@ -109,10 +110,11 @@ struct MutableType : TypeWithStorage {
      * @brief      Factory method to create a mutable type
      *
      * @param[in]  base  The base type on which we apply mutable-ness
+     * @param[in]  loc   Location used when reporting errors
      *
      * @return     The corresponding mutable type
      */
-    static MutableType get(TypeWithStorage base);
+    static MutableType get(TypeWithStorage base, Nest::Location loc = {});
 
     //! Returns the base type of this type
     TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }
@@ -143,10 +145,11 @@ struct TempType : TypeWithStorage {
      * @brief      Factory method to create a temp type
      *
      * @param[in]  base  The base type on which we apply temp-ness
+     * @param[in]  loc   Location used when reporting errors
      *
      * @return     The corresponding temp type
      */
-    static TempType get(TypeWithStorage base);
+    static TempType get(TypeWithStorage base, Nest::Location loc = {});
 
     //! Returns the base type of this type
     TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }

@@ -89,6 +89,9 @@ fun mkField(loc: @Location, name: StringRef, typeNode, init: Node): Node
 [native("comp_parser_mkConcept")]
 fun mkConcept(loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node) \
     = createNode(loc, "concept", values(baseConcept, ifClause), name)
+[native("comp_parser_mkLet")]
+fun mkLet(loc: @Location, name: StringRef, typeNode, init: Node) \
+    = createNode(loc, "let", values(typeNode, init), name)
 [native("comp_parser_mkVar")]
 fun mkVar(loc: @Location, name: StringRef, typeNode, init: Node) \
     = createNode(loc, "var", values(typeNode, init), name)

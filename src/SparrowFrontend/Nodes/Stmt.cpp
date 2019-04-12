@@ -77,7 +77,7 @@ NodeHandle ForStmt::semanticCheckImpl(ForStmt node) {
     // if <type> is not present, we will use '$rangeType.RetType'
 
     // Variable to hold the range - initialize it with the range node
-    auto rangeVar = VariableDecl::create(
+    auto rangeVar = VariableDecl::createMut(
             loc, "$rangeVar", Identifier::create(loc, StringRef("Range")), range);
     if (ctFor)
         rangeVar.setMode(modeCt);
@@ -99,7 +99,7 @@ NodeHandle ForStmt::semanticCheckImpl(ForStmt node) {
         // the iteration variable
         auto init = OperatorCall::create(loc, rangeVarRef, StringRef("front"), nullptr);
 
-        auto iterVar = VariableDecl::create(node.location(), node.name(), typeNode, init);
+        auto iterVar = VariableDecl::createMut(node.location(), node.name(), typeNode, init);
         if (ctFor)
             iterVar.setMode(modeCt);
 

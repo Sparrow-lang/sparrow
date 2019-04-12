@@ -186,9 +186,13 @@ struct VariableDecl : Feather::DeclNode {
      * typeNode or init can be null. But one of them needs to be valid. If the given typeNode is
      * null, the type of the variable is deduced from the initializer.
      *
+     * This adds an extra const/mut to the type received as typenode.
+     *
      * @return     The desired node
      */
-    static VariableDecl create(
+    static VariableDecl createConst(
+            const Location& loc, StringRef name, NodeHandle typeNode, NodeHandle init);
+    static VariableDecl createMut(
             const Location& loc, StringRef name, NodeHandle typeNode, NodeHandle init);
     //! Same as the other create, but uses a direct type instead of a type node
     static VariableDecl create(

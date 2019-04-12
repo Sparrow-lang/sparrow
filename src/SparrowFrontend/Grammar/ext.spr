@@ -28,6 +28,8 @@ fun mkDatatype(loc: @Location, name: StringRef, params, underlyingData, ifClause
 fun mkField(loc: @Location, name: StringRef, typeNode, init: Node): Node
 [native("comp_parser_mkConcept")]
 fun mkConcept(loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node): Node
+[native("comp_parser_mkLet")]
+fun mkLet(loc: @Location, name: StringRef, typeNode, init: Node): Node
 [native("comp_parser_mkVar")]
 fun mkVar(loc: @Location, name: StringRef, typeNode, init: Node): Node
 [native("comp_parser_mkParameter")]

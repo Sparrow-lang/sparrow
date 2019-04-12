@@ -65,8 +65,24 @@ fun funCall
     takesTmp(mutObj)   // ERROR
     takesTmp(tmpObj)
 
+fun letDecls
+    let a: MyObj
+    let b: !MyObj
+    let c: MyObj tmp
+
+    a = 9       // ERROR
+    b = 9
+    c = 9
+    takesMut(a) // ERROR
+    takesMut(b)
+    takesMut(c)
+    takesTmp(a) // ERROR
+    takesTmp(b) // ERROR
+    takesTmp(c)
+
 [native("test")]
 fun test(n: Int)
     decls
     declsInit
     funCall
+    letDecls

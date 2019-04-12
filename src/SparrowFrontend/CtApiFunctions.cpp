@@ -5,6 +5,7 @@
 
 #include <Nodes/SparrowNodes.h>
 #include <Nodes/Builder.h>
+#include "Nodes/Decl.hpp"
 
 #include "Nest/Api/Backend.h"
 #include "Nest/Api/SourceCode.h"
@@ -31,7 +32,7 @@ Node* ctApi_Sparrow_mkSprPackage(Location* loc, StringRef name, Node* children) 
     return mkSprPackage(*loc, name, children);
 }
 Node* ctApi_Sparrow_mkSprVariable(Location* loc, StringRef name, Node* typeNode, Node* init) {
-    return mkSprVariable(*loc, name, typeNode, init);
+    return VariableDecl::createMut(*loc, name, typeNode, init);
 }
 Node* ctApi_Sparrow_mkSprDatatype(Location* loc, StringRef name, Node* parameters,
         Node* baseClasses, Node* ifClause, Node* children) {

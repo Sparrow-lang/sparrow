@@ -136,6 +136,13 @@ Type computeVarType(
     if (typeNode) {
         typeNode.setPropertyExpl(propAllowDeclExp, 1);
         t = getType(typeNode);
+        if (t.hasStorage() && !Feather::isCategoryType(t)) {
+            TypeWithStorage tt = TypeWithStorage(t);
+            if (parent.hasProperty("addConst"))
+                t = Feather::ConstType::get(tt);
+            // else
+            //     t = Feather::MutableType::get(tt);
+        }
         if (!t)
             return {};
     } else {
@@ -450,7 +457,15 @@ NodeHandle PackageDecl::semanticCheckImpl(PackageDecl node) {
 
 DEFINE_NODE_COMMON_IMPL(VariableDecl, DeclNode)
 
-VariableDecl VariableDecl::create(
+VariableDecl VariableDecl::createConst(
+        const Location& loc, StringRef name, NodeHandle typeNode, NodeHandle init) {
+    if (!typeNode && !init)
+        REP_ERROR(loc, "Cannot create variable without a type and without an initializer");
+    auto res = createDeclNode<VariableDecl>(loc, name, NodeRange({typeNode, init}));
+    res.setProperty("addConst", 1);
+    return res;
+}
+VariableDecl VariableDecl::createMut(
         const Location& loc, StringRef name, NodeHandle typeNode, NodeHandle init) {
     if (!typeNode && !init)
         REP_ERROR(loc, "Cannot create variable without a type and without an initializer");
@@ -480,7 +495,7 @@ Type VariableDecl::computeTypeImpl(VariableDecl node) {
 
     // Get the type of the variable
     Type t = computeVarType(node, node.childrenContext(), typeNode, init);
-    if (!t)
+    if (!t && !t.hasStorage())
         return {};
 
     // If the type of the variable indicates a variable that can only be CT, change the evalMode

@@ -219,7 +219,7 @@ package _Impl
             || parsePackageDecl(this, res)
             || parseDatatypeDecl(this, res)
             || parseConceptDecl(this, res)
-            || parseVarDecl(this, res)
+            || parseVarLikeDecl(this, res)
             || parseFunDecl(this, res)
             || parseExprStmt(this, res)
             || parseBlockStmt(this, res, topLevel)
@@ -342,8 +342,13 @@ package _Impl
         loc copyEnd _lastToken.loc
         res = mkConcept(loc, id.asStringRef, paramName.asStringRef, baseConcept, ifClause)
         return true
-    fun parseVarDecl(this: @SparrowParser, res: @Node): Bool
-        if !(this accept tkVAR)
+    fun parseVarLikeDecl(this: @SparrowParser, res: @Node): Bool
+        var kind = 0
+        if this accept tkLET
+            kind = 0
+        else if this accept tkVAR
+            kind = 1
+        else
             return false
         var ids = parseIdList(this)
         var typeNode, init: Node
@@ -356,7 +361,7 @@ package _Impl
             init = parseExpr(this)
         this expect tkSEMICOLON
 
-        createFormals(ids, typeNode, init, true, res)
+        createFormals(ids, typeNode, init, kind, res)
         return true
     fun parseFunDecl(this: @SparrowParser, res: @Node): Bool
         if !(this accept tkFUN)
@@ -384,36 +389,41 @@ package _Impl
             this expect tkRPAREN
             return "()"
         return parseIdOrOper(this)
-    fun parseFormalsOpt(this: @SparrowParser, varFormals: Bool = false): Node
+    fun parseFormalsOpt(this: @SparrowParser): Node
         var res: Node
         if this accept tkLPAREN
             // Traditional case: formals in parenthesis
             if this accept tkRPAREN
                 return res // no formal
-            parseFormal(this, varFormals, res)
+            parseFormal(this, res)
             while this accept tkCOMMA
-                parseFormal(this, varFormals, res)
+                parseFormal(this, res)
             this expect tkRPAREN
         else if this nextIs tkIDENTIFIER
             // Simplified versions: just names, without parenthesis
             var loc = this curLoc
             var ids = parseIdList(this)
-            createFormals(ids, mkIdentifier(loc span (this lastLoc), "AnyType"), Node(), varFormals, res)
+            createFormals(ids, mkIdentifier(loc span (this lastLoc), "AnyType"), Node(), 2, res)
         return res
-    fun parseFormal(this: @SparrowParser, varFormals: Bool, res: @Node)
+    fun parseFormal(this: @SparrowParser, res: @Node)
         var ids = parseIdList(this)
         this expect tkCOLON
         var typeNode = parseExpr(this, false)
         var init: Node
         if this accept tkEQUAL
             init = parseExpr(this)
-        createFormals(ids, typeNode, init, varFormals, res)
-    fun createFormals(ids: @LocStringVec, typeNode, init: Node, varFormals: Bool, res: @Node)
-        if varFormals
+        createFormals(ids, typeNode, init, 2, res)
+    fun createFormals(ids: @LocStringVec, typeNode, init: Node, kind: Int, res: @Node)
+        if kind == 0        // let statement
+            for id: @LocString = ids.all
+                var v = mkLet(id.data.v1, id.data.v2.asStringRef, typeNode, init)
+                res = addToNodeList(res, v)
+
+        else if kind == 1   // var statement
             for id: @LocString = ids.all
                 var v = mkVar(id.data.v1, id.data.v2.asStringRef, typeNode, init)
                 res = addToNodeList(res, v)
-        else
+        else                // parameter
             for id: @LocString = ids.all
                 var p = mkParameter(id.data.v1, id.data.v2.asStringRef, typeNode, init)
                 res = addToNodeList(res, p)

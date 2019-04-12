@@ -118,16 +118,6 @@ Node* SprFrontend::mkSprPackage(
     return PackageDecl::create(loc, name, children, params, ifClause);
 }
 
-Node* SprFrontend::mkSprVariable(
-        const Location& loc, Nest_StringRef name, Node* typeNode, Node* init) {
-    return VariableDecl::create(loc, name, typeNode, init);
-}
-
-Node* SprFrontend::mkSprVariable(
-        const Location& loc, Nest_StringRef name, TypeRef type, Node* init) {
-    return VariableDecl::create(loc, name, type, init);
-}
-
 Node* SprFrontend::mkSprDatatype(const Location& loc, Nest_StringRef name, Node* parameters,
         Node* underlyingData, Node* ifClause, Node* children) {
     return DataTypeDecl::create(loc, name, parameters, underlyingData, ifClause, children);

@@ -89,10 +89,6 @@ Nest_Node* mkImportName(const Nest_Location& loc, Nest_Node* moduleName,
 Nest_Node* mkSprUsing(const Nest_Location& loc, Nest_StringRef alias, Nest_Node* usingNode);
 Nest_Node* mkSprPackage(const Nest_Location& loc, Nest_StringRef name, Nest_Node* children,
         Nest_Node* params = nullptr, Nest_Node* ifClause = nullptr);
-Nest_Node* mkSprVariable(
-        const Nest_Location& loc, Nest_StringRef name, Nest_Node* typeNode, Nest_Node* init);
-Nest_Node* mkSprVariable(
-        const Nest_Location& loc, Nest_StringRef name, Nest_TypeRef type, Nest_Node* init);
 Nest_Node* mkSprDatatype(const Nest_Location& loc, Nest_StringRef name, Nest_Node* parameters,
         Nest_Node* underlyingData, Nest_Node* ifClause, Nest_Node* children);
 Nest_Node* mkSprField(

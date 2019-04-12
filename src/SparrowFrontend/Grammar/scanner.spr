@@ -323,6 +323,7 @@ package _Impl
         else if data == "finally"   return tkFINALLY
         else if data == "for"       return tkFOR
         else if data == "import"    return tkIMPORT
+        else if data == "let"       return tkLET
         else if data == "module"    return tkMODULE
         else if data == "null"      return tkNULLCT
         else if data == "package"   return tkPACKAGE

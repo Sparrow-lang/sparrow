@@ -3,6 +3,7 @@
 #include "Nodes/Builder.h"
 #include "Helpers/DeclsHelpers.h"
 #include "Nest/Api/SourceCode.h"
+#include "SparrowFrontend/Nodes/Decl.hpp"
 
 using namespace SprFrontend;
 
@@ -70,8 +71,11 @@ extern "C" Node* comp_parser_mkConcept(
         Location* loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause) {
     return mkSprConcept(*loc, name, paramName, baseConcept, ifClause);
 }
+extern "C" Node* comp_parser_mkLet(Location* loc, StringRef name, Node* typeNode, Node* init) {
+    return VariableDecl::createConst(*loc, name, typeNode, init);
+}
 extern "C" Node* comp_parser_mkVar(Location* loc, StringRef name, Node* typeNode, Node* init) {
-    return mkSprVariable(*loc, name, typeNode, init);
+    return VariableDecl::createMut(*loc, name, typeNode, init);
 }
 extern "C" Node* comp_parser_mkParameter(
         Location* loc, StringRef name, Node* typeNode, Node* init) {

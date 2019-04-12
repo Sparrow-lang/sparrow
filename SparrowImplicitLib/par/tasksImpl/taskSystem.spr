@@ -1,69 +1,65 @@
-module par.tasksImpl.taskSystem;
+module par.tasksImpl.taskSystem
 
-import internalWorkerThread(InternalWorkerThread);
-import worker(Worker, WorkerPtr, IdleCounter);
-import taskQueue(TaskQueue);
-import par.thread;
-import std.ptr, std.vector;
-//import assert;
+import internalWorkerThread(InternalWorkerThread)
+import worker(Worker, IdleCounter)
+import taskQueue(TaskQueue)
+import par.thread
+import std.ptr, std.vector
+//import assert
 
 datatype TaskSystem
     //! The global queue of tasks
-    globalQueue: TaskQueue;
+    globalQueue: TaskQueue
 
     //! All the workers in the system
-    workers: WorkerPtr Vector;
+    workers: (Worker Ptr) Vector
 
     //! The internal threads that are doing all the work
-    _threads: (Thread Ptr) Vector;
+    _threads: (Thread Ptr) Vector
     //! Object that counts the number of threads that are idle
-    idleCounter: IdleCounter;
+    idleCounter: IdleCounter
 
 [protected]
     fun ctor(this: @TaskSystem) {}
 
     fun dtor(this: @TaskSystem) {}
 
-var globalTaskSystem: TaskSystem Ptr;
+var globalTaskSystem: TaskSystem Ptr
 
-fun initTaskSystem(numWorkers: UInt = 0) {
+fun initTaskSystem(numWorkers: UInt = 0)
     // Create the task system object
-    //assert(globalTaskSystem isNull);
-    globalTaskSystem = new(TaskSystem);
+    //assert(globalTaskSystem isNull)
+    globalTaskSystem = new(TaskSystem)
 
     // Create the required threads
-    if ( numWorkers == 0 )
-        numWorkers = getAvailableCoresNum();
-    //numWorkers = 1;
-    var ts: @TaskSystem = globalTaskSystem.get();
+    if numWorkers == 0
+        numWorkers = getAvailableCoresNum()
+    //numWorkers = 1
+    var ts: @TaskSystem = globalTaskSystem.get()
     for i=0..numWorkers
-        var worker = ts createWorker;
-        var p: Thread Ptr = new(Thread, InternalWorkerThread(worker));
-        ts._threads.pushBack(p);
-}
+        var worker = ts createWorker
+        var p: Thread Ptr = new(Thread, InternalWorkerThread(worker))
+        ts._threads.pushBack(p)
 
-fun getInitTaskSystem: TaskSystem Ptr {
+fun getInitTaskSystem: TaskSystem Ptr
     // TODO: Make sure this is initialized only once
-    if ( globalTaskSystem isNull )
-        initTaskSystem;
-    return globalTaskSystem;
-}
+    if globalTaskSystem isNull
+        initTaskSystem
+    return globalTaskSystem
 
-fun createWorker(ts: TaskSystem Ptr): Worker Ptr {
-    var id: Int = ts.get().workers size;
-    var p: Worker Ptr = new(Worker, ts.get(), id, ts.get().idleCounter);
-    ts.get().workers.pushBack(p);
-    return p;
-}
+fun createWorker(ts: TaskSystem Ptr): Worker Ptr
+    var id: Int = ts.get().workers size
+    var p: Worker Ptr = new(Worker, ts.get(), id, ts.get().idleCounter)
+    ts.get().workers.pushBack(p)
+    return p
 
 // TODO: make it random
-var cnt: Int = 0;
+var cnt: Int = 0
 
-fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue {
+fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue
     // TODO: make the selection truly random
-    var worker: Worker Ptr = ts.workers(++cnt % (ts.workers size));
-    return worker.get().work;
-}
+    var worker: Worker Ptr = ts.workers(++cnt % (ts.workers size))
+    return worker.get().work
 
 fun onTaskAvailable(ts: @TaskSystem)
     // Do something only if we have at least one idle worker
@@ -71,7 +67,7 @@ fun onTaskAvailable(ts: @TaskSystem)
         for w: Worker Ptr = ts.workers.all
             // If we can wake up one worker, exit
             if w.get() tryWakeUp
-                return;
+                return
 
 //! Get the number of currently available workers
-fun numAvailableWorkers(ts: @TaskSystem): SizeType = (ts.workers size) - (ts.idleCounter numIdleWorkers);
+fun numAvailableWorkers(ts: @TaskSystem): SizeType = (ts.workers size) - (ts.idleCounter numIdleWorkers)

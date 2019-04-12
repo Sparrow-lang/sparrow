@@ -1,37 +1,34 @@
-module par.semaphore;
+module par.semaphore
 
-import config;
+import config
 
 //! Allows a limited numbers of threads to simultaneously "acquire" a resource
 //! before releasing it.
 //! Compared to the mutex, we can release the semaphore without acquiring it
 datatype Semaphore
-    _handle: Impl.SemaphoreT;
+    _handle: _Impl.SemaphoreT
 
 fun ctor(this: @Semaphore, startValue: UInt = 0)
-    _handle ctor;
-    var res = Impl.semaphore_create(Impl.mach_task_self(), _handle, Impl.SYNC_POLICY_FIFO, Int(startValue));
+    _handle ctor
+    var res = _Impl.semaphore_create(_Impl.mach_task_self(), _handle, _Impl.SYNC_POLICY_FIFO, Int(startValue))
 
 fun dtor(this: @Semaphore)
-    //verify(0 == Impl.semaphore_destroy(Impl.mach_task_self(), _handle));
-    Impl.semaphore_destroy(Impl.mach_task_self(), _handle);
+    _Impl.semaphore_destroy(_Impl.mach_task_self(), _handle)
 
 //! Increments the counter of the semaphore
-fun release(s: @Semaphore) {
-    Impl.semaphore_signal(s._handle);
-}
+fun release(s: @Semaphore)
+    _Impl.semaphore_signal(s._handle)
 
 //! Decrements the semaphore counter
 //! If the counter reaches zero, the call blocks until somebody calls 'release'
-fun acquire(s: @Semaphore) {
-    while 0 != Impl.semaphore_wait(s._handle)
+fun acquire(s: @Semaphore)
+    while 0 != _Impl.semaphore_wait(s._handle)
         /*keep trying*/;
-}
 
-package Impl {
-    using TaskT = Int;
-    using SemaphoreT = Int;
-    using SYNC_POLICY_FIFO = 0;
+package _Impl
+    using TaskT = Int
+    using SemaphoreT = Int
+    using SYNC_POLICY_FIFO = 0
 
     [native("mach_task_self")] fun mach_task_self(): TaskT;
     [native("semaphore_create")] fun semaphore_create(task: TaskT, s: @SemaphoreT, policy, value: Int): Int;
@@ -45,4 +42,3 @@ package Impl {
     //[native("sem_destroy")] fun sem_destroy(s: @SemType): Int;
     //[native("sem_wait")] fun sem_wait(s: @SemType): Int;
     //[native("sem_post")] fun sem_post(s: @SemType): Int;
-}

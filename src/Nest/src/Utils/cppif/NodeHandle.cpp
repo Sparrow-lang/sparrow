@@ -272,6 +272,10 @@ bool NodeHandle::isSemanticallyChecked() const { return handle->nodeSemantically
 void NodeHandle::addModifier(Nest_Modifier* mod) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     NestUtils_appendObjectToPtrArray((NestUtils_PtrArray*)&handle->modifiers, mod);
+
+    // If we are setting a modifier for a node that already started to compile, call the function
+    if (handle->semanticCheckStarted && mod->modifierType == modTypeBeforeSemanticCheck)
+        mod->modifierFun(mod, handle);
 }
 
 CompilationContext* NodeHandle::childrenContext() const {

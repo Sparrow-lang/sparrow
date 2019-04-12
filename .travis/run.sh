@@ -6,7 +6,7 @@ set -x
 CFG_PARAMS=
 
 if [ $TRAVIS_OS_NAME == osx ]; then
-    CFG_PARAMS="-DLLVM_DIR=/usr/local/opt/llvm/lib/cmake/llvm"
+    CFG_PARAMS="-DLLVM_DIR=/usr/local/opt/llvm@7/lib/cmake/llvm"
 fi
 
 if [ $TRAVIS_OS_NAME == linux ]; then

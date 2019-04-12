@@ -1,38 +1,41 @@
-module par.tasksImpl.debug;
+module par.tasksImpl.debug
 
-import worker(Worker);
-import par.locks;
-import std.string;
+import par.locks
+import std.string
 
-//using traceCalls = true;
+using traceCalls = false
 
-using TraceLockType = Mutex;
+using TraceLockType = Mutex
 
-var traceMutex: TraceLockType;
+var traceMutex: TraceLockType
 
 //! Helper class that does the trace while holding a mutex
 //! Prevents the output to be messed up
 datatype Tracer
-    ;
 
 [protected]
     fun ctor(this: @Tracer)
-        traceMutex lock;
+        [ct] if traceCalls
+            traceMutex lock
 
-    fun ctor(this: @Tracer, worker: @Worker)
-        traceMutex lock;
-        cout << worker.workerId << ": " << Depth(worker.curDepth);
+    fun ctor(this: @Tracer, workerId: Int, depth: Int)
+        [ct] if traceCalls
+            traceMutex lock
+            cout << workerId << ": " << Depth(depth)
 
     fun dtor(this: @Tracer)
-        traceMutex unlock;
+        [ct] if traceCalls
+            traceMutex unlock
 
-    fun <<<(this: @Tracer, x: @AnyType)       { cout << x; }
+    fun <<<(this: @Tracer, x: @AnyType)
+        [ct] if traceCalls
+            cout << x
 
 [initCtor]
 datatype Depth
-    depth: Int;
+    depth: Int
 
-fun >> (d: Depth, os: @OutStream) {
-    if ( d.depth > 0 )
-        os << String(d.depth*2, ' '.char);
-}
+fun >> (d: Depth, os: @OutStream)
+    if d.depth > 0
+        os << String(d.depth*2, ' '.char)
+

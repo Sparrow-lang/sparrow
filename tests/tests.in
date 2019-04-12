@@ -26,13 +26,13 @@ BenchmarkGame/meteor.spr:               Benchmark game - meteor
 BenchmarkGame/fasta.spr:                Benchmark game - fasta
 BenchmarkGame/fastaredux.spr:           Benchmark game - fastaredux
 
-# Par/ThreadTest.spr:                     Parallel - thread test
-# Par/TlsTest.spr:                        Parallel - TLS test
-# Par/AtomicTest.spr:                     Parallel - atomics test
-# Par/LocksTest.spr:                      Parallel - locks test
-# Par/SemaphoreTest.spr:                  Parallel - semaphore test
-# Par/TaskTest.spr:                       Parallel - Fibonacci tasks test
-# Par/ParForTest.spr:                     Parallel - Basic parallel for test
+Par/ThreadTest.spr:                     Parallel - thread test
+Par/TlsTest.spr:                        Parallel - TLS test
+Par/AtomicTest.spr:                     Parallel - atomics test
+Par/LocksTest.spr:                      Parallel - locks test
+Par/SemaphoreTest.spr:                  Parallel - semaphore test
+Par/TaskTest.spr:                       Parallel - Fibonacci tasks test
+Par/ParForTest.spr:                     Parallel - Basic parallel for test
 
 PerfTests/Hash/TestHashPerf.spr:        Performance tests - hash
 PerfTests/ForPerf/spr_for.spr:          Performance tests - for

@@ -671,8 +671,8 @@ fun = (this: @StringRef, src: StringRef): @StringRef
 
     return this
 
-[protected]
-fun == (this: @StringRef, other: StringRef): Bool
+[protected, autoCt]
+fun == (this, other: StringRef): Bool
     var s = this.size
     if s != other.size
         return false

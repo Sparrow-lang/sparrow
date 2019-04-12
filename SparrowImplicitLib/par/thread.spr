@@ -1,30 +1,30 @@
-module par.thread;
+module par.thread
 
-import config;
-import std.newDelete;
-//import assert;
+import config
+import std.newDelete
+//import assert
 
 //! Datatype describing a thread ID
 datatype ThreadId
-    id: ULong;
+    id: ULong
 
 fun ctor(this: @ThreadId, id: ULong)
-    this.id ctor id;
+    this.id ctor id
 fun ctor(this: @ThreadId, h: NativeThreadHandle)
-    this.id ctor;
-    Impl.pthread_threadid_np(h, id);
+    this.id ctor
+    _Impl.pthread_threadid_np(h, id)
 fun >>(tid: @ThreadId, os: @OutStream)
-    os << tid.id;
+    os << tid.id
 
 
 
 datatype Thread
-    _handle: NativeThreadHandle;
+    _handle: NativeThreadHandle
 
 //! Construct the Thread with a functor
 //! The functor can have state, not just executing code
 fun ctor(this: @Thread, f: AnyType) if isValid(f())
-    _handle = Impl.startThread(f);
+    _handle = _Impl.startThread(f)
 
 //! Cannot copy construct or assign a Thread object
 [private] fun ctor(this, other: @Thread);
@@ -32,88 +32,83 @@ fun ctor(this: @Thread, f: AnyType) if isValid(f())
 
 //! Destructor. Detach the thread if joinable
 fun dtor(this: @Thread)
-    if ( this isJoinable ) this detach;
+    if this isJoinable
+        this detach
 
 fun >>(t: @Thread, os: @OutStream)
-{
-    if ( _handle != NativeThreadHandle() )
-        os << "Thread(" << _handle << ")";
+    if _handle != NativeThreadHandle()
+        os << "Thread(" << _handle << ")"
     else
-        os << "Thread(null)";
-}
+        os << "Thread(null)"
 
 //! Swap the content of two Thread objects
-//fun swap(lhs, rhs: @Thread) {
-//    var tmp = lhs._handle swap rhs._handle;
-//}
+//fun swap(lhs, rhs: @Thread)
+//    var tmp = lhs._handle swap rhs._handle
 
-//! Test if the thread is joinable (e.g., still active);
-fun isJoinable(t: Thread) = t._handle != NativeThreadHandle();
+//! Test if the thread is joinable (e.g., still active)
+fun isJoinable(t: Thread) = t._handle != NativeThreadHandle()
 
 //! Wait for the thread to finish
 //! This shouldn't be called from the same thread
-fun join(t: @Thread) {
-    //assert(t isJoinable);
-    //assert((t getId) !== curThreadId);
-    var res = Impl.pthread_join(t._handle, null);
-    //assert(res == 0);
-    t._handle = NativeThreadHandle();
-}
+fun join(t: @Thread)
+    //assert(t isJoinable)
+    //assert((t getId) !== curThreadId)
+    var res = _Impl.pthread_join(t._handle, null)
+    //assert(res == 0)
+    t._handle = NativeThreadHandle()
 
 //! Detaches the given thread object from the actual thread of execution
 //! The actual thread may continue to execute after this call
-fun detach(t: @Thread) {
-    //assert(t isJoinable);
-    var res = Impl.pthread_detach(t._handle);
-    //assert(res == 0);
-    t._handle = NativeThreadHandle();
-}
+fun detach(t: @Thread)
+    //assert(t isJoinable)
+    var res = _Impl.pthread_detach(t._handle)
+    //assert(res == 0)
+    t._handle = NativeThreadHandle()
 
 //! Get the ID of the given thread
-fun getId(t: Thread): ThreadId = ThreadId(t._handle);
+fun getId(t: Thread): ThreadId = ThreadId(t._handle)
 
 //! Get the native handle of the given thread
-fun getNativeHandle(t: Thread): NativeThreadHandle = t._handle;
+fun getNativeHandle(t: Thread): NativeThreadHandle = t._handle
 
 
 //! Get the current thread id
-fun curThreadId: ThreadId = ThreadId(NativeThreadHandle());
+fun curThreadId: ThreadId = ThreadId(NativeThreadHandle())
 
 //! Tries to suspend the current thread to let other threads execute
-fun yield = Impl.sched_yield();
+fun yield = _Impl.sched_yield()
 
 //! Sleep the given amount of milliseconds
-fun sleep(durMs: UInt) {
-    var req = Impl.TimeSpec(durMs/1000, (durMs%1000)*1000000);
-    var rem = Impl.TimeSpec(0, 0);
-    Impl.nanosleep(req, rem);
-}
+fun sleep(durMs: UInt)
+    var req = _Impl.TimeSpec(durMs/1000, (durMs%1000)*1000000)
+    var rem = _Impl.TimeSpec(0, 0)
+    _Impl.nanosleep(req, rem)
 
-package Impl {
-    using ThreadFun = FunctionPtr(@Byte rt, @Byte rt);
+package _Impl
+    using ThreadFun = FunctionPtr(@Byte rt, @Byte rt)
 
-    [initCtor] Closure(FType: Type) {
-        f: FType;
+    [initCtor]
+    datatype Closure(FType: Type)
+        f: FType
 
-        [static] fun threadFun(arg: @Byte): @Byte {
-            var self: @Closure = reinterpretCast(@Closure, arg);
-            self.f();
-            self delete;
-            return null;
-        }
+    fun threadFun(closureType: Type, arg: @Byte): @Byte
+        var self: @closureType = reinterpretCast(@closureType, arg)
+        self.f()
+        self delete
+        return null
 
-        [static] fun getFunPtr: ThreadFun = \threadFun;
-    }
-    fun startThread(f: AnyType): NativeThreadHandle {
-        using ClosureType = Closure(typeOf(f));
-        var closurePtr: @ClosureType = new(ClosureType, f);
-        var handle: NativeThreadHandle;
-        var arg: @Byte = reinterpretCast(@Byte, closurePtr);
-        var status = pthread_create(handle, null, ClosureType.getFunPtr, arg);
-        return handle;
-    }
+    fun getFunPtr(closureType: Type): ThreadFun = \threadFun(closureType, null)
 
-    [initCtor] datatype TimeSpec { var tv_sec, tv_nsec: Long; }
+    fun startThread(f: AnyType): NativeThreadHandle
+        using ClosureType = Closure(typeOf(f))
+        var closurePtr: @ClosureType = new(ClosureType, f)
+        var handle: NativeThreadHandle
+        var arg: @Byte = reinterpretCast(@Byte, closurePtr)
+        var status = pthread_create(handle, null, getFunPtr(ClosureType), arg)
+        return handle
+
+    [initCtor] datatype TimeSpec
+        tv_sec, tv_nsec: Long
 
     [native("pthread_create")] fun pthread_create(handle: @NativeThreadHandle, attr: @Byte, f: ThreadFun, arg: @Byte): Int;
     [native("pthread_join")] fun pthread_join(handle: NativeThreadHandle, valPtr: @ @Byte): Int;
@@ -124,5 +119,4 @@ package Impl {
 
     [native("sched_yield")] fun sched_yield;
     [native("nanosleep")] fun nanosleep(req, rem: @TimeSpec): Int;
-}
 

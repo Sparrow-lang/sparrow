@@ -1,7 +1,7 @@
-module par.tasksImpl.emptyTask;
+module par.tasksImpl.emptyTask
 
-import taskPrefix(TaskPrefix);
-import std.string;
+import taskPrefix(TaskPrefix)
+import std.string
 
 //! An empty task; can be used for synchronization
 datatype EmptyTask
@@ -9,8 +9,7 @@ datatype EmptyTask
 
 fun execute(task: @EmptyTask) {}
 
-fun >>(t: EmptyTask, os: @OutStream) {
-    os << "EmptyTask";
-}
+fun >>(t: EmptyTask, os: @OutStream)
+    os << "EmptyTask"
 
-fun description(task: @EmptyTask): String  = "EmptyTask";
+fun description(task: @EmptyTask): String  = "EmptyTask"

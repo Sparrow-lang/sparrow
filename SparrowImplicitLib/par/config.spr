@@ -1,32 +1,27 @@
-module par.config;
+module par.config
 
-import std.ptr;
+import std.ptr
 
-package Impl
-{
-    using _SC_NPROCESSORS_ONLN = 58;
-
-    [native("sysconf")] fun sysconf(name: Int): Long;
-}
-
-datatype NativeThreadHandle = Byte Ptr;  // Opaque type
-
+datatype NativeThreadHandle = Byte Ptr  // Opaque type
 
 fun >>(h: NativeThreadHandle, os: @OutStream)
-{
     if ( h.impl.isSet )
-        os << mkStreamRefWrapper(h.impl.get);
+        os << mkStreamRefWrapper(h.impl.get)
     else
-        os << "null";
-}
+        os << "null"
 
-using InvalidThreadHandle = NativeThreadHandle();
+using InvalidThreadHandle = NativeThreadHandle()
 
 
 //! Get the number of available logical CPU cores for our process
 //! This dictates how much parallelism we have to be exploit
-fun getAvailableCoresNum(): UInt {
-    var maxProcs: Long = Impl.sysconf(Impl._SC_NPROCESSORS_ONLN);
-    return ife(maxProcs<1, UInt(1), UInt(maxProcs));
+fun getAvailableCoresNum(): UInt
+    var maxProcs: Long = _Impl.sysconf(_Impl._SC_NPROCESSORS_ONLN)
+    return ife(maxProcs<1, UInt(1), UInt(maxProcs))
     // TODO: also consider process affinity
-}
+
+package _Impl
+    using _SC_NPROCESSORS_ONLN = 58
+
+    [native("sysconf")] fun sysconf(name: Int): Long
+

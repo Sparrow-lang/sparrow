@@ -1,33 +1,37 @@
 //! ! -O3
 // -g -O1 -dump-assembly
-import par.tasks;
-import par.parFor;
-import par.atomic;
-import test;
+
+import std.compilerInfo
+
+[ct] if platformName == 'Darwin'
+    import par.tasks
+    import par.parFor
+    import par.atomic
+    import test
 
 
-var counter: Int Atomic;
-var outOfOrderCount: Int Atomic;
+    var counter: Int Atomic
+    var outOfOrderCount: Int Atomic
 
-fun foo(x: Int) {
-    var curIdx = counter++;
-    if ( curIdx != x )
-        outOfOrderCount++;
-    sleep(0);
-}
+    fun foo(x: Int)
+        var curIdx = counter++
+        if ( curIdx != x )
+            outOfOrderCount++
+        sleep(0)
 
-fun sprMain
-{
-    if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+    fun sprMain
+        if ( programArgs.size() < 2 )
+            return
+        var n = programArgs(1) asInt
 
-    0..n parFor \foo;
+        0..n parFor \foo
 
-    //cout << "Num out of order: " << (outOfOrderCount load) << endl;
-    assertGt(outOfOrderCount load, 0);
-    assertLe(outOfOrderCount load, n);
-}
+        //cout << "Num out of order: " << (outOfOrderCount load) << endl
+        assertGt(outOfOrderCount load, 0)
+        assertLe(outOfOrderCount load, n)
+else
+    fun sprMain
+        ;
 
 /*<<<Mid range (100)
 >>>*/

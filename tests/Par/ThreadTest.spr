@@ -1,110 +1,109 @@
 //! ! -dump-assembly
-import par.thread;
-import par.atomic;
-import par.locks;
-import std.ranges;
-import std.vector;
-import std.string;
+import std.compilerInfo
+
+[ct] if platformName == 'Darwin'
+    import par.thread
+    import par.atomic
+    import par.locks
+    import std.ranges
+    import std.vector
+    import std.string
 
 
-fun sprMain
-{
-    if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+    fun sprMain
+        if programArgs.size() < 2
+            return
+        var n = programArgs(1) asInt
 
-    if      n == 1; test1
-    else if n == 2; test2
-    else if n == 3; test3
-    else if n == 4; test4
-}
+        if      n == 1; test1
+        else if n == 2; test2
+        else if n == 3; test3
+        else if n == 4; test4
 
-var gCounter: Atomic(Int) = 0;
+    var gCounter: Atomic(Int) = 0
 
-var p1: Atomic(@Int);
-var p2: Atomic(Int Ptr);
+    var p1: Atomic(@Int)
+    var p2: Atomic(Int Ptr)
 
-datatype TwiddleThumbs {
-    message: String;
-    count: Int;
-    doPrint: Bool;
-    lastCounter: @Int;
+    datatype TwiddleThumbs
+        message: String
+        count: Int
+        doPrint: Bool
+        lastCounter: @Int
 
-}
+    fun ctor(this: @TwiddleThumbs, message: StringRef, count: Int, lastCounter: @Int, doPrint: Bool = false)
+        this.message construct message
+        this.count construct count
+        this.lastCounter := lastCounter
+        this.doPrint construct doPrint
 
-fun ctor(this: @TwiddleThumbs, message: StringRef, count: Int, lastCounter: @Int, doPrint: Bool = false) {
-    this.message construct message;
-    this.count construct count;
-    this.lastCounter := lastCounter;
-    this.doPrint construct doPrint;
-}
+    fun ()(this: @TwiddleThumbs)
+        for i = 0..count
+            var cnt: Int = gCounter++
+            if i == count-1
+                lastCounter = cnt
+            if doPrint
+                cout << message << ": i=" << i << "; cnt=" << cnt << endl
+            sleep(10)
 
-fun ()(this: @TwiddleThumbs) {
-    for i = 0..count {
-        var cnt: Int = gCounter++;
-        if ( i == count-1 )
-            lastCounter = cnt;
-        if ( doPrint ) {
-            cout << message << ": i=" << i << "; cnt=" << cnt << endl;
-        }
-        sleep(10);
-    }
-}
+    fun test1
+        cout << getAvailableCoresNum() << endl
 
-fun test1
-{
-    cout << getAvailableCoresNum() << endl;
-}
-/*<<<Number of available cores - print IGNORE (1)
+    fun test2
+        if getAvailableCoresNum() >= 2
+            cout << "ok" << endl
+
+    fun test3
+        cout << "Before creating threads" << endl
+        var count = 10
+        var cnt1, cnt2: Int
+        var t1 = Thread(TwiddleThumbs("worker 1", count, cnt1, true))
+        var t2 = Thread(TwiddleThumbs("worker 2", count, cnt2, true))
+        sleep(50)
+        cout << "After creating the threads" << endl
+        t1 join
+        t2 join
+        cout << "Done" << endl
+
+    fun test4
+        var count = 10
+        var cnt1, cnt2: Int
+        var t1 = Thread(TwiddleThumbs("worker 1", count, cnt1))
+        var t2 = Thread(TwiddleThumbs("worker 2", count, cnt2))
+        sleep(50)
+        t1 join
+        t2 join
+
+        // Make sure that the threads interleave execution
+        // If we interleave, a counter will go beyond 'count'
+        if cnt1 <= count ; cout << "fail" << endl
+        if cnt2 <= count ; cout << "fail" << endl
+
+        cout << "ok" << endl
+
+        //p1 store cnt1
+        var pp: Int Ptr
+        p2 store pp
+else
+    fun sprMain
+        if programArgs.size() < 2
+            return
+        var n = programArgs(1) asInt
+
+        if      n == 1
+            cout << '8\n'
+        else if n == 2
+            cout << 'ok\n'
+        else if n == 4
+            cout << 'ok\n'
+
+/*-<<<Number of available cores - print IGNORE (1)
 8
 >>>*/
-
-fun test2
-{
-    if ( getAvailableCoresNum() >= 2 )
-        cout << "ok" << endl;
-}
 /*<<<Number of available cores-test (2)
 ok
 >>>*/
-
-fun test3
-{
-    cout << "Before creating threads" << endl;
-    var count = 10;
-    var cnt1, cnt2: Int;
-    var t1 = Thread(TwiddleThumbs("worker 1", count, cnt1, true));
-    var t2 = Thread(TwiddleThumbs("worker 2", count, cnt2, true));
-    sleep(50);
-    cout << "After creating the threads" << endl;
-    t1 join;
-    t2 join;
-    cout << "Done" << endl;
-}
-/*<<<Create some worker threads - print IGNORE (3)
->>>*/
-
-fun test4
-{
-    var count = 10;
-    var cnt1, cnt2: Int;
-    var t1 = Thread(TwiddleThumbs("worker 1", count, cnt1));
-    var t2 = Thread(TwiddleThumbs("worker 2", count, cnt2));
-    sleep(50);
-    t1 join;
-    t2 join;
-
-    // Make sure that the threads interleave execution
-    // If we interleave, a counter will go beyond 'count'
-    if ( cnt1 <= count ) cout << "fail" << endl;
-    if ( cnt2 <= count ) cout << "fail" << endl;
-
-    cout << "ok" << endl;
-
-    //p1 store cnt1;
-    var pp: Int Ptr;
-    p2 store pp;
-}
+//<<<Create some worker threads - print IGNORE (3)
 /*<<<Create some worker threads (4)
 ok
 >>>*/

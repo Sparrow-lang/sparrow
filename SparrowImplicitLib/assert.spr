@@ -39,9 +39,9 @@ import std.vector, std.algorithms, std.string
     /// Macro that creates the expansion of the assert/verify
     fun _assertMacroBody(cond, message: AstNode): AstNode
         // Extract information about the assert condition
-        var loc = cond location
-        var filename = loc.sourceCode filename
-        var lineNum: Int = loc.start.line
+        let loc = cond location
+        let filename = loc.sourceCode filename
+        let lineNum: Int = loc.start.line
 
         // Extract the list of variables directly appearing the the expression
         var varsList: Vector(AstNode)
@@ -60,38 +60,38 @@ import std.vector, std.algorithms, std.string
         // Build the annotated expression string
         // Walk over the list of variables, and if possible add the var value
         // Print all the expression string in between
-        var expr: String = loc getCorrespondingCode
+        let expr: String = loc getCorrespondingCode
         var lastIdx = 0
         for i = 0..varsList.size
-            var v = varsList(i)
-            var vl = v location
+            let v = varsList(i)
+            let vl = v location
             if vl.end.line != loc.start.line
                 break  // Stop expanding variables when we are going on another line
 
-            var endPos = vl.end.col - loc.start.col
+            let endPos = vl.end.col - loc.start.col
             if endPos != lastIdx
                 // Print the expression sting up until (and containing) the var
-                var exprPart = expr.subrange(lastIdx, endPos-lastIdx)
+                let exprPart = expr.subrange(lastIdx, endPos-lastIdx)
                 _addPrint(loc, prints, mkStringLiteral(loc, exprPart))
 
                 // Add a block for printing the value of the write
                 // Ensure that this is printable
                 var argsToEval = mkNodeList(loc)
                 addToNodeList(argsToEval, mkInfixOp(loc, "<<", mkIdentifier(loc, "cout"), v clone))
-                var cond = mkFunApplication(loc, mkIdentifier(loc, "isValid"), argsToEval)
+                let cond = mkFunApplication(loc, mkIdentifier(loc, "isValid"), argsToEval)
                 // if body
                 var varPrints: AstNode Vector
                 _addPrint(loc, varPrints, mkStringLiteral(loc, "[="))
                 _addPrint(loc, varPrints, v clone)
                 _addPrint(loc, varPrints, mkStringLiteral(loc, "]"))
-                var varPrintsBlock = mkLocalSpace(loc, varPrints.all)
+                let varPrintsBlock = mkLocalSpace(loc, varPrints.all)
                 // if statement
                 prints += mkIf(loc, cond, varPrintsBlock, AstNode(), true)
             lastIdx = Int(endPos)
         // Write the last part of the expression (if any)
-        var sz = expr size
+        let sz = expr size
         if lastIdx < sz
-            var exprPart = expr.subrange(lastIdx, sz-lastIdx)
+            let exprPart = expr.subrange(lastIdx, sz-lastIdx)
             _addPrint(loc, prints, mkStringLiteral(loc, exprPart))
 
         // Now, the last part of the printing
@@ -101,11 +101,11 @@ import std.vector, std.algorithms, std.string
             _addPrint(loc, prints, message)
         _addPrint(loc, prints, mkStringLiteral(loc, "\n"))
 
-        var printsBlock = mkLocalSpace(loc, prints.all)
+        let printsBlock = mkLocalSpace(loc, prints.all)
 
         // Build the resulting code:
         // if !cond <printsBlock>
-        var res = mkIf(loc, mkPrefixOp(loc, "!", mkParenthesisExp(loc, cond)), printsBlock, AstNode())
+        let res = mkIf(loc, mkPrefixOp(loc, "!", mkParenthesisExp(loc, cond)), printsBlock, AstNode())
         return res
 
     /// Adds a print statement node to the destination vector
@@ -114,9 +114,9 @@ import std.vector, std.algorithms, std.string
 
     /// Extract all the variables from the given node
     fun _extractVars(node: AstNode, varsList: @Vector(AstNode))
-        var nk = node nodeKind
+        let nk = node nodeKind
         if nk == nkSparrowExpIdentifier
-            var exp = node explanation
+            let exp = node explanation
             if (exp isSet) && (exp nodeKind) == nkFeatherExpVarRef
                 varsList += node
         else

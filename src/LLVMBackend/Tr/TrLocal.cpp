@@ -1183,8 +1183,11 @@ llvm::Value* translateContinue(Node* node, TrContext& context) {
 llvm::Value* translateVar(Node* node, TrContext& context) {
     ASSERT(context.parentFun());
 
+    // Ignore category type here
+    auto varType = Feather::removeCategoryIfPresent(Type(node->type));
+
     // Create an 'alloca' instruction for the local variable
-    llvm::Type* t = Tr::getLLVMType(node->type, context.globalContext());
+    llvm::Type* t = Tr::getLLVMType(varType, context.globalContext());
     llvm::AllocaInst* val = context.addVariable(t, Feather_getName(node).begin);
     int alignment = Nest_getCheckPropertyInt(node, "alignment");
     if (alignment > 0)

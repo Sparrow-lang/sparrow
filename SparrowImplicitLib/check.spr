@@ -111,7 +111,7 @@ fun check(values: TestableValuesRange, pred: @AnyType, msg: StringRef, config: C
     classes.remove("")
     if !classes.isEmpty
         for c = classes.keys
-            var percent = classes(c)*100/n
+            let percent = classes(c)*100/n
             cout << percent << "% : " << c << endl
         // TODO: sort the classes before displaying them
 
@@ -161,7 +161,7 @@ fun frequency(gens: Range): typeOf((#$gens.RetType).v2) if FreqGenType(#$gens.Re
     if sum == 0 return typeOf((#$gens.RetType).v2)()
 
     // Select a random number in the total sum of frequencies
-    var toSelect = randBetween(0, sum)
+    let toSelect = randBetween(0, sum)
     // Select the right generator from the distribution
     var curAcc = 0
     for fg = gens
@@ -174,7 +174,7 @@ fun frequency(gens: Range): typeOf((#$gens.RetType).v2) if FreqGenType(#$gens.Re
 fun randBetween(min, max: Integer): commonType(typeOf(min), typeOf(max))
     using T = commonType(typeOf(min), typeOf(max))
     using RAND_MAX = 0x7fffffff
-    var offset: T = T(Double(_Impl.rand()) / RAND_MAX * Double(max - min))
+    let offset: T = T(Double(_Impl.rand()) / RAND_MAX * Double(max - min))
     return T(min) + offset
 
 package _Impl
@@ -186,7 +186,7 @@ package _Impl
 
     package NumericGen(t: Type) if SignedInteger(#$t)
         fun gen(sizeHint: UInt): t
-            var h: Int = sizeHint + 3
+            let h: Int = sizeHint + 3
             return t(randBetween(-h, h+1))
 
     datatype ForAllGenerator(t: Type)
@@ -256,7 +256,7 @@ package _Impl
     fun isEmpty(this: @TrivialsRange)                     = _range.isEmpty()
     fun popFront(this: @TrivialsRange)                    { _range.popFront() }
     fun front(this: @TrivialsRange): RetType
-        var res = _range.front
+        let res = _range.front
         res.isTrivial = _pred(res.value)
         return res
 
@@ -272,7 +272,7 @@ package _Impl
     fun isEmpty(this: @ClassifierRange)                     = _range.isEmpty()
     fun popFront(this: @ClassifierRange)                    { _range.popFront() }
     fun front(this: @ClassifierRange): RetType
-        var res = _range.front
+        let res = _range.front
         res.classifier = _pred(res.value)
         return res
 
@@ -288,7 +288,7 @@ package _Impl
         this._count ctor (range rangeSize)
 
     fun ()(this: @ElementsGen, sizeHint: UInt): ElementType
-        var r = _range
+        let r = _range
         r advance randBetween(0, Int(_count))
         return r.front
 

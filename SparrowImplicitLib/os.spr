@@ -49,7 +49,7 @@ fun isEof(this: @File)       = 0 != _Impl.feof(_handle)
 fun readChar(this: @File): Char = Char(_Impl.fgetc(_handle))
 fun readLine(this: @File): String
     var res: String = 256
-    var cstr: @Char = _Impl.fgets(res(0), 256, _handle)
+    let cstr: @Char = _Impl.fgets(res(0), 256, _handle)
     if cstr === null
         res.clear
     else

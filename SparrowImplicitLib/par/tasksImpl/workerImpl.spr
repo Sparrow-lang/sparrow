@@ -43,7 +43,7 @@ using WorkerPtr = Worker Ptr
 var _tlsWorker: Tls(@Worker)
 
 fun localWorker: Worker Ptr
-    var worker: Worker Ptr = _tlsWorker get
+    let worker: Worker Ptr = _tlsWorker get
     if worker isNull
         worker = (getInitTaskSystem createWorker)
         _tlsWorker = worker.get()
@@ -125,8 +125,8 @@ fun initTaskSystem(numWorkers: UInt = 0)
     //numWorkers = 1
     var ts = globalTaskSystem
     for i=0..numWorkers
-        var worker = ts createWorker
-        var p: Thread Ptr = new(Thread, InternalWorkerThread(worker))
+        let worker = ts createWorker
+        let p: Thread Ptr = new(Thread, InternalWorkerThread(worker))
         (ts.get)._threads.pushBack(p)
 
 fun getInitTaskSystem: TaskSystem Ptr
@@ -136,8 +136,8 @@ fun getInitTaskSystem: TaskSystem Ptr
     return globalTaskSystem
 
 fun createWorker(ts: TaskSystem Ptr): Worker Ptr
-    var id: Int = ts.get().workers size
-    var p: Worker Ptr = new(Worker, ts.get(), id, ts.get().idleCounter)
+    let id: Int = ts.get().workers size
+    let p: Worker Ptr = new(Worker, ts.get(), id, ts.get().idleCounter)
     ts.get().workers.pushBack(p)
     return p
 
@@ -146,7 +146,7 @@ var cnt: Int = 0
 
 fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue
     // TODO: make the selection truly random
-    var worker: Worker Ptr = ts.workers(++cnt % (ts.workers size))
+    let worker: Worker Ptr = ts.workers(++cnt % (ts.workers size))
     return worker.get().work
 
 fun onTaskAvailable(ts: @TaskSystem)

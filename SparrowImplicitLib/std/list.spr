@@ -36,10 +36,10 @@ datatype List(valueType: Type)
 
     fun dtor(this: @List)
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
-            var nextNode = p.value().next
+            let nextNode = p.value().next
 
             p.value().data.dtor
             p.freePtr
@@ -82,7 +82,7 @@ datatype List(valueType: Type)
         _head.prev.swap(other._head.prev)
         _head.next.swap(other._head.next)
 
-        var tmpSize = _listSize
+        let tmpSize = _listSize
         _listSize = other._listSize
         other._listSize = tmpSize
 
@@ -100,7 +100,7 @@ datatype List(valueType: Type)
             other._head.next.value().prev = other._headNode
 
     fun insertBefore(this: @List, value: @this.ValueType, pos: this.RangeType)
-        var tmp = allocRawPtr(_MyNodeType, 1)
+        let tmp = allocRawPtr(_MyNodeType, 1)
 
         tmp.value().data ctor value
         tmp.value().next = pos._begin
@@ -114,7 +114,7 @@ datatype List(valueType: Type)
             this.insertBefore(v, pos)
 
     fun insertAfter(this: @List, value: @this.ValueType, pos: this.RangeType)
-        var tmp = allocRawPtr(_MyNodeType, 1)
+        let tmp = allocRawPtr(_MyNodeType, 1)
 
         tmp.value().data ctor value
         tmp.value().next = pos._end
@@ -128,7 +128,7 @@ datatype List(valueType: Type)
             this.insertAfter(v, pos)
 
     fun pushFront(this: @List, value: @this.ValueType)
-        var tmp = allocRawPtr(_MyNodeType, 1)
+        let tmp = allocRawPtr(_MyNodeType, 1)
 
         tmp.value().data ctor value
         tmp.value().next = _head.next
@@ -138,7 +138,7 @@ datatype List(valueType: Type)
         ++_listSize
 
     fun popFront(this: @List)
-        var right = _head.next.value().next
+        let right = _head.next.value().next
 
         _head.next.value().data.dtor
         _head.next.freePtr
@@ -147,7 +147,7 @@ datatype List(valueType: Type)
         _listSize = _listSize - 1
 
     fun pushBack(this: @List, value: @this.ValueType)
-        var tmp = allocRawPtr(_MyNodeType, 1)
+        let tmp = allocRawPtr(_MyNodeType, 1)
 
         tmp.value().prev = _head.prev
         tmp.value().next = this._headNode
@@ -159,7 +159,7 @@ datatype List(valueType: Type)
     fun +=(this: @List, value: @this.ValueType) { this.pushBack(value) }
 
     fun popBack(this: @List)
-        var left = _head.prev.value().prev
+        let left = _head.prev.value().prev
 
         _head.prev.value().data.dtor
         _head.prev.freePtr
@@ -169,10 +169,10 @@ datatype List(valueType: Type)
 
     fun remove(this: @List, value: @this.ValueType)
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
-            var tmp = p.value().next
+            let tmp = p.value().next
 
             if p.value().data == value
                 p.value().prev.value().next = p.value().next
@@ -184,10 +184,10 @@ datatype List(valueType: Type)
 
     fun removeIf(this: @List, pred: AnyType)
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
-            var tmp = p.value().next
+            let tmp = p.value().next
 
             if pred(p.value().data)
                 p.value().prev.value().next = p.value().next
@@ -198,10 +198,10 @@ datatype List(valueType: Type)
             p = tmp
 
     fun remove(this: @List, range: this.RangeType)
-        var left = range._begin.value().prev
+        let left = range._begin.value().prev
 
         while !range.isEmpty
-            var tmp = range._begin.value().next
+            let tmp = range._begin.value().next
 
             range._begin.value().data.dtor
             range._begin.freePtr
@@ -220,7 +220,7 @@ datatype List(valueType: Type)
 
             _listSize = _listSize - t
             while t > 0 ; t -= 1
-                var tmp = p.value().prev
+                let tmp = p.value().prev
 
                 p.value().data.dtor
                 p.freePtr
@@ -239,10 +239,10 @@ datatype List(valueType: Type)
             return
 
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
-            var tmp = p.value().next
+            let tmp = p.value().next
 
             p.value().data.dtor
             p.freePtr
@@ -256,13 +256,13 @@ datatype List(valueType: Type)
             return
 
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
             var q = p.value().next
 
             while q != hn && p.value().data == q.value().data
-                var tmp = q.value().next
+                let tmp = q.value().next
 
                 q.value().data.dtor
                 q.freePtr
@@ -278,13 +278,13 @@ datatype List(valueType: Type)
             return
 
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
             var q = p.value().next
 
             while q != hn && pred(p.value().data, q.value().data)
-                var tmp = q.value().next
+                let tmp = q.value().next
 
                 q.value().data.dtor
                 q.freePtr
@@ -372,7 +372,7 @@ datatype List(valueType: Type)
 
         while !r1.isEmpty && !r2.isEmpty
             if pred(r2.front, r1.front)
-                var tmp = r2._begin.value().next
+                let tmp = r2._begin.value().next
 
                 _transfer(r1._begin, r2._begin, tmp)
                 r2._begin = tmp
@@ -388,16 +388,16 @@ datatype List(valueType: Type)
             return
 
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
-            var tmp = p.value().prev
+            let tmp = p.value().prev
 
             p.value().prev = p.value().next
             p.value().next = tmp
             p = p.value().prev
 
-        var tmp = _head.prev
+        let tmp = _head.prev
 
         _head.prev = _head.next
         _head.next = tmp
@@ -409,7 +409,7 @@ datatype List(valueType: Type)
         begin.value().prev.value().next = end
         pos.value().prev.value().next = begin
 
-        var tmp = pos.value().prev
+        let tmp = pos.value().prev
 
         pos.value().prev = end.value().prev
         end.value().prev = begin.value().prev

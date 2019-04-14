@@ -31,7 +31,7 @@ fun ctor(this: @RawPtr, byteRef: @Byte) if this.ValueType != Byte
             free(this.bytePtr)
 
     fun swap(this: @RawPtr, other: typeOf(this))
-        var t: @ValueType = _ptr
+        let t: @ValueType = _ptr
         _ptr := other._ptr
         other._ptr := t
 

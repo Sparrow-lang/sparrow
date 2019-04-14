@@ -23,7 +23,7 @@ datatype DefaultPartitioner(rangeType: Type)
     _maxDepth: Int
 
 fun partStart(this: @DefaultPartitioner)
-    var p: Int = getAvailableCoresNum
+    let p: Int = getAvailableCoresNum
     var depth = 1
     while 2 !<<! depth < p
         ++depth
@@ -32,11 +32,11 @@ fun partStart(this: @DefaultPartitioner)
 
 fun partition(this: @DefaultPartitioner, r: Range, depth: Int) : RangeType * RangeType
     var splitIdx = 0
-    var sz: Int = r rangeSize
+    let sz: Int = r rangeSize
     if depth <= _maxDepth
         splitIdx = (sz+1) / 2  // split in half
-    var r1 = RangeType(r, 0, splitIdx)
-    var r2 = RangeType(r, splitIdx, sz-splitIdx)
+    let r1 = RangeType(r, 0, splitIdx)
+    let r2 = RangeType(r, splitIdx, sz-splitIdx)
 
     return r1 ~ r2
 
@@ -67,7 +67,7 @@ package Impl
         part partStart
 
         // Create a root task and wait until it's executed
-        var range: part.RangeType = r
+        let range: part.RangeType = r
         tasks.spawnRootAndWait(Impl.mkParForTask(range, f, part, 0))
 
     datatype ParForTask(rangeType, funcType, partType: Type)
@@ -89,14 +89,14 @@ package Impl
 
     fun execute(this: @ParForTask)
         // Check if we need to split the range
-        var split = part.partition(range, depth)
+        let split = part.partition(range, depth)
 
         // Do we have a split?
-        var splitValid = !(split.v1 isEmpty) && !(split.v2 isEmpty)
+        let splitValid = !(split.v1 isEmpty) && !(split.v2 isEmpty)
 
         if splitValid
             // Create two new tasks for the splits
-            var cont: @tasks.EmptyTask = new(tasks.EmptyTask)
+            let cont: @tasks.EmptyTask = new(tasks.EmptyTask)
             tasks.setContinuation(this, cont)
             var t1: @ParForTask = allocParForTask(split.v1, func, part, depth+1)
             var t2: @ParForTask = allocParForTask(split.v2, func, part, depth+1)

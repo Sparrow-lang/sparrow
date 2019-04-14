@@ -97,31 +97,31 @@ import meta = meta.compilerCore
             os << ' ' << pe.get
 
     fun _reportTypeError(this: @LTypeSet, loc: @Location)
-        var l = loc
+        let l = loc
         meta.report(meta.diagError, l, "Type mismatch: cannot combine atom with number")
 
-        var atomExp = this._findAtomExp
+        let atomExp = this._findAtomExp
         if atomExp isSet
-            var lAtom = atomExp.get().loc
+            let lAtom = atomExp.get().loc
             meta.report(meta.diagInfo, lAtom, "See also atom expression")
 
-        var numExp = this._findNumberExp
+        let numExp = this._findNumberExp
         if numExp isSet
-            var lNum = numExp.get().loc
+            let lNum = numExp.get().loc
             meta.report(meta.diagInfo, lNum, "See also number expression")
 
         meta.raise
 
     fun _findNumberExp(this: @LTypeSet): ExpressionPtr
         for e = expList.all
-            var k = e.get().kind
+            let k = e.get().kind
             if k == ekNumber || k == ekOpPlus || k == ekOpMinus || k == ekOpMul || k == ekOpDiv
                 return e
         return ExpressionPtr()
 
     fun _findAtomExp(this: @LTypeSet): ExpressionPtr
         for e = expList.all
-            var k = e.get().kind
+            let k = e.get().kind
             if k == ekAtom
                 return e
         return ExpressionPtr()

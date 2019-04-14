@@ -32,7 +32,7 @@ fun min(value1, value2: @AnyType, lessPred: AnyType): typeOf(value1) if typeOf(l
 [autoCt]
     /// Swaps the two objects
     fun swap(a, b: @AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
-        var tmp = a
+        let tmp = a
         a = b
         b = tmp
     fun swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
@@ -53,7 +53,7 @@ fun findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(*r)) == Bool
 /// Finds the index of the given value in the range
 /// Returns -1 if not found
 fun indexOf(r: Range, value: @AnyType): SizeType if isValid(*r == value)
-    var n: SizeType = 0
+    let n: !SizeType = 0
     for v: r.RetType = r
         if v == value
             return n
@@ -63,7 +63,7 @@ fun indexOf(r: Range, value: @AnyType): SizeType if isValid(*r == value)
 /// Finds the index of the value that satisfy the given predicate
 /// Returns -1 if not found
 fun indexOfIf(r: Range, pred: AnyType): SizeType if typeOf(pred(*r)) == Bool
-    var n: SizeType = 0
+    let n: !SizeType = 0
     for v: r.RetType = r
         if pred(v)
             return n
@@ -88,7 +88,7 @@ fun findFirstOfIf(r1, r2: Range, pred: AnyType): typeOf(r1) if typeOf(pred(*r1, 
 
 /// Count how many values from the give range has the given value
 fun count(range: Range, value: @AnyType): SizeType if isValid(*range == value)
-    var n: SizeType = 0
+    let n: !SizeType = 0
     for v: range.RetType = range
         if v == value
             ++n
@@ -96,7 +96,7 @@ fun count(range: Range, value: @AnyType): SizeType if isValid(*range == value)
 
 /// Count how many values from the given range satisfies the given predicate
 fun countIf(range: Range, pred: AnyType): SizeType if typeOf(pred(*range)) == Bool
-    var n: SizeType = 0
+    let n: !SizeType = 0
     for v: range.RetType = range
         if pred(v)
             ++n
@@ -393,10 +393,10 @@ fun _quickSort(range: RandomAccessRange, m, n: SizeType)
     if m >= n || n == SizeType(DiffType(-1))
         return
 
-    var p = (m + n) / 2
+    let p = (m + n) / 2
     range(m) swap range(p)
 
-    var mv = range(m)
+    let mv = range(m)
     var i = m + 1
     var j = n
     while i <= j
@@ -414,10 +414,10 @@ fun _quickSort(range: RandomAccessRange, m, n: SizeType, pred: AnyType)
     if m >= n || n == SizeType(DiffType(-1))
         return
 
-    var p = (m + n) / 2
+    let p = (m + n) / 2
     range(m) swap range(p)
 
-    var mv = range(m)
+    let mv = range(m)
     var i = m + 1
     var j = n
     while i <= j
@@ -434,9 +434,9 @@ fun _quickSort(range: RandomAccessRange, m, n: SizeType, pred: AnyType)
 fun binarySearch(range: RandomAccessRange, value: AnyType): Bool \
         if isValid(value == *range)
     while !!range
-        var sz = range size;
-        var mid = (sz - 1) / 2
-        var t = range(mid)
+        let sz = range size;
+        let mid = (sz - 1) / 2
+        let t = range(mid)
         if value == t
             return true
         if value < t
@@ -449,9 +449,9 @@ fun binarySearch(range: RandomAccessRange, value: AnyType): Bool \
 fun binarySearch(range: RandomAccessRange, value: AnyType, pred: AnyType): Bool \
         if typeOf(pred(value, *range)) == Bool
     while !!range
-        var sz = range size;
-        var mid = (sz - 1) / 2
-        var t = range(mid)
+        let sz = range size;
+        let mid = (sz - 1) / 2
+        let t = range(mid)
         if pred(value, t)
             range.popBack(sz - mid)
         else if pred(t, value)

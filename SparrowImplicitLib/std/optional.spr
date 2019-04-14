@@ -50,9 +50,9 @@ fun ctor(this: @Optional, val: @this.ValueType)
         _constructed = true
 
     fun swap(this: @Optional, other: typeOf(this))
-        var tmp = this
+        let tmp = this
         this = other
-        other = this
+        other = tmp
 
     fun >>(this: @Optional, os: @OutStream) if isValid(os << #$this.ValueType)
         if this.isSet

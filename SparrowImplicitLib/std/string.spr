@@ -34,15 +34,15 @@ fun ctor(this: @String, count: SizeType, ch: Char)
     this.ctor(count)
     memset(_begin.bytePtr, reinterpretCast(@Byte, ch), count)
 fun ctor(this, other: @String)
-    var size = other size
+    let size = other size
     this.ctor(size)
     memcpy(_begin.bytePtr, other._begin.bytePtr, size)
 [convert] fun ctor(this: @String, other: @StringRef)
-    var size = other size
+    let size = other size
     this.ctor(size)
     memcpy(_begin.bytePtr, other.begin, size)
 fun ctor(this: @String, _begin, _end: RawPtr(Char))
-    var size = _end.diff(_begin)
+    let size = _end.diff(_begin)
     this.ctor(size)
     memcpy(this._begin.bytePtr, _begin.bytePtr, size)
 fun ctor(this: @String, range: Range) if typeOf(range) != String
@@ -59,7 +59,7 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
         _begin.freePtr
 
     fun =(this, other: @String): @String
-        var tmp = other
+        let tmp = other
         tmp.swap(this)
         return this
 
@@ -68,7 +68,7 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
             return false
 
         var i: SizeType = 0
-        var s = this.size
+        let s = this.size
 
         while i < s ; i++
             if this(i) != other(i)
@@ -114,13 +114,13 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
         _end.value dtor
 
     fun resize(this: @String, n: SizeType)
-        var oldSize = this.size
+        let oldSize = this.size
 
         if n == oldSize
             return
 
         if n < oldSize
-            var newEnd = _begin.advance(DiffType(n))
+            let newEnd = _begin.advance(DiffType(n))
 
             while _end != newEnd
                 _end = _end.advance(-1)
@@ -128,14 +128,14 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
         else
             this.reserve(n)
 
-            var newEnd = _begin.advance(DiffType(n))
+            let newEnd = _begin.advance(DiffType(n))
 
             while _end != newEnd
                 _end.value ctor
                 _end = _end.advance
 
     fun reserve(this: @String, n: SizeType)
-        var curCapacity = this.capacity
+        let curCapacity = this.capacity
 
         if n <= curCapacity
             return
@@ -145,7 +145,7 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
         if n <_growthFactor*curCapacity
             n = SizeType(_growthFactor*curCapacity)
 
-        var curSize = this.size
+        let curSize = this.size
 
         _begin.reallocPtr(n)
         _end = _begin.advance(DiffType(curSize))
@@ -155,7 +155,7 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
         this.remove(StringRef(_begin.bytePtr, _end.bytePtr))
 
     fun insertBefore(this: @String, value: Char, pos: StringRef)
-        var posCount = _frontPtr(pos).diff(_begin)
+        let posCount = _frontPtr(pos).diff(_begin)
 
         this.reserve(this.size + 1)
 
@@ -169,13 +169,13 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
         _end = _end.advance
 
     fun insertBefore(this: @String, range: Range, pos: StringRef)
-        var n = range.size
-        var index = _frontPtr(pos).diff(_begin)
+        let n = range.size
+        let index = _frontPtr(pos).diff(_begin)
 
         this.reserve(this.size + n)
 
         var p = _end.advance(-1)
-        var q = _begin.advance(index - DiffType(1))
+        let q = _begin.advance(index - DiffType(1))
 
         while p != q ; p = p.advance(-1)
             p.advance(DiffType(n)).value ctor p.value
@@ -199,9 +199,9 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
         this.insertBefore(value, StringRef(_end.bytePtr, _end.bytePtr))
 
     fun remove(this: @String, range: StringRef)
-        var rSize = range.size
+        let rSize = range.size
         var rBegin = _frontPtr(range)
-        var rEnd = rBegin.advance(DiffType(rSize))
+        let rEnd = rBegin.advance(DiffType(rSize))
 
         while rEnd != _end
             rBegin.value dtor
@@ -231,8 +231,8 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
 // TODO
 [autoCt]
 fun + (x,y: String): String
-    var sz1 = x.size
-    var sz2 = y.size
+    let sz1 = x.size
+    let sz2 = y.size
     var res: String = sz1 + sz2
     memcpy(res._begin.bytePtr, x._begin.bytePtr, sz1)
     memcpy(res._begin.advance(sz1).bytePtr, y._begin.bytePtr, sz2)
@@ -240,8 +240,8 @@ fun + (x,y: String): String
 
 [autoCt]
 fun + (x: String, y: StringRef): String
-    var sz1 = x.size
-    var sz2 = y.size
+    let sz1 = x.size
+    let sz2 = y.size
     var res: String = sz1 + sz2
     memcpy(res._begin.bytePtr, x._begin.bytePtr, sz1)
     memcpy(res._begin.advance(sz1).bytePtr, y.begin, sz2)
@@ -249,8 +249,8 @@ fun + (x: String, y: StringRef): String
 
 //[autoCt]
 //fun + (x: String, y: Char): String
-//    var sz1 = x.size
-//    var sz2 = sizeOf(y)
+//    let sz1 = x.size
+//    let sz2 = sizeOf(y)
 //    var res: String = sz1 + sz2
 //    memcpy(res._begin, x._begin, sz1)
 //    memcpy(ptrAdd(res._begin, sz1), reinterpretCast(@Byte, y), sz2)

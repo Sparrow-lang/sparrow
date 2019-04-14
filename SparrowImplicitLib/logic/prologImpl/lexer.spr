@@ -13,7 +13,7 @@ datatype Lexer(sourceType, errorReporterType: Type)
     _curLocation: Location
 
 fun ctor(this: @Lexer, source: @this._SourceType, errorReporter: @this._ErrorReporterType)
-    var startLoc: Location
+    let startLoc: !Location
     startLoc setOne
     this.ctor(source, errorReporter, startLoc)
 
@@ -37,7 +37,7 @@ fun ()(this: @Lexer)                  = _curToken
 
 fun popFront(this: @Lexer)            { _curToken = this._getNextToken }
 //fun pre_++(this: @Lexer): RetType    { this.popFront; return _curToken }
-//fun post_++(this: @Lexer): RetType   { var res = _curToken; this.popFront; return res }
+//fun post_++(this: @Lexer): RetType   { let res = _curToken; this.popFront; return res }
 
 fun _getNextToken(this: @Lexer): Token
     // The current location starts where the last one ended
@@ -48,7 +48,7 @@ fun _getNextToken(this: @Lexer): Token
         return Token(_curLocation, tkEof)
 
     // Get the first character in the source
-    var ch = _source()
+    let ch = _source()
 
     // Check for whitespace
     if isSpace(ch)
@@ -64,21 +64,21 @@ fun _getNextToken(this: @Lexer): Token
     if isAlnum(ch)
         // Check for numbers, variables and string atoms
         if isDigit(ch)
-            var data = this._consumeNumber
+            let data = this._consumeNumber
             return Token(_curLocation, tkNumber, data)
         else if isUpper(ch)
-            var data = this._consumeIdentifier
+            let data = this._consumeIdentifier
             return Token(_curLocation, tkVar, data)
         else
-            var data = this._consumeIdentifier
+            let data = this._consumeIdentifier
             if data == String("is")
                 return Token(_curLocation, tkIs, data)
             return Token(_curLocation, tkAtom, data)
     else if ch == '$'.char
-        var data = this._consumeAntiQuote
+        let data = this._consumeAntiQuote
         return Token(_curLocation, tkAntiQuote, data)
     else
-        var chNext = this._advanceSource
+        let chNext = this._advanceSource
         if ch == '('.char
             return Token(_curLocation, tkLParen)
         else if ch == ')'.char
@@ -104,7 +104,7 @@ fun _getNextToken(this: @Lexer): Token
             return Token(_curLocation, tkClause)
 
 
-    var errMsg: String = "Invalid character found while parsing Prolog code: "
+    let errMsg: String = "Invalid character found while parsing Prolog code: "
     errMsg.append(ch)
     _errorReporter.raiseError(_curLocation, errMsg.asStringRef)
     return Token(_curLocation, tkEof)

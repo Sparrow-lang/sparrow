@@ -54,7 +54,7 @@ datatype SortedMap(keyType, dataType, lessType, compareType: Type)
         var r = _sortedTable.lowerBound(key);
         if ( r.isEmpty() || !_sortedTable.comparator()(key, r.front().v1) )
 
-            var data: DataType;
+            let data: DataType;
             r = _sortedTable.insert(ValueType(key, data));
         return r.front().v2;
 

@@ -65,15 +65,15 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
     fun swap(this: @SortedTable, other: typeOf(this))
         _table.swap(other._table)
 
-        var tmpv = _valToKey
+        let tmpv = _valToKey
         _valToKey = other._valToKey
         other._valToKey = tmpv
 
-        var tmpl = _less
+        let tmpl = _less
         _less = other._less
         other._less = tmpl
 
-        var tmpc = _comp
+        let tmpc = _comp
         _comp = other._comp
         other._comp = tmpc
 
@@ -90,8 +90,8 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
         _table.reserve(n)
 
     fun insert(this: @SortedTable, value: @this.ValueType): RangeType
-        var r = this.lowerBound(_valToKey(value))
-        var idx = _table.size - r.size
+        let r = this.lowerBound(_valToKey(value))
+        let idx = _table.size - r.size
         if r.isEmpty || !_comp(_valToKey(value), _valToKey(r.front))
             _table.insertBefore(value, r)
         var res = _table.all
@@ -101,7 +101,7 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
     fun insert(this: @SortedTable, range: Range)
         _table.reserve(_table.size + rangeSize(range))
         for v = range
-            var r = this.lowerBound(_valToKey(v))
+            let r = this.lowerBound(_valToKey(v))
             if r.isEmpty || !_comp(_valToKey(v), _valToKey(r.front))
                 _table.insertBefore(v, r)
 
@@ -109,9 +109,9 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
         if this.isEmpty
             return
 
-        var r = this.find(key)
+        let r = this.find(key)
         if !r.isEmpty
-            var idx = r.frontPtr().diff(_table.all().frontPtr)
+            let idx = r.frontPtr().diff(_table.all().frontPtr)
             _table.remove(idx)
 
     fun remove(this: @SortedTable, range: this.RangeType)
@@ -125,8 +125,8 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
         var first: SizeType = 0
         var len = _table.size
         while len > 0
-            var l2 = len / 2
-            var el: @ValueType = _table(first + l2)
+            let l2 = len / 2
+            let el: @ValueType = _table(first + l2)
             if _less(_valToKey(el), key)
                 first += l2+1
                 len -= l2+1
@@ -140,8 +140,8 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
         var first: SizeType = 0
         var len = _table.size
         while len > 0
-            var l2 = len / 2
-            var el: @ValueType = _table(first + l2)
+            let l2 = len / 2
+            let el: @ValueType = _table(first + l2)
             if _less(key, _valToKey(el))
                 len = l2
             else
@@ -152,14 +152,14 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
         return r
 
     fun equalRange(this: @SortedTable, key: @this.KeyType): RangeType
-        var r = this.find(key)
+        let r = this.find(key)
         if !r.isEmpty
             return RangeType(r.frontPtr, r.frontPtr().advance(1))
         else
             return RangeType()
 
     fun find(this: @SortedTable, key: @this.KeyType): RangeType
-        var r = this.lowerBound(key)
+        let r = this.lowerBound(key)
         if !r.isEmpty && _comp(key, _valToKey(r.front))
             return r
         else

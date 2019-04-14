@@ -27,7 +27,7 @@ fun pre_++(r: @Range): r.RetType
     return r.front
 /// Advances and return the old front value of the range
 fun post_++(r: @Range): r.RetType
-    var res: r.RetType = r.front
+    let res: r.RetType = r.front
     r.popFront
     return res
 /// Pops back and return the new back value of the range
@@ -36,7 +36,7 @@ fun pre_--(r: @BidirRange): r.RetType
     return r.back
 /// Pops back and return the old back value of the range
 fun post_--(r: @BidirRange): r.RetType
-    var res: r.RetType = r.back
+    let res: r.RetType = r.back
     r.popBack
     return res
 /// Returns true if the range is empty
@@ -318,7 +318,7 @@ datatype TakeUntilRange(rangeType: Type, predType: Type) \
     fun isEmpty(this: @TakeUntilRange)          = _range.isEmpty || _shouldStop
     fun front(this: @TakeUntilRange): RetType   = _range.front
     fun popFront(this: @TakeUntilRange)
-        var lastVal = _range.front
+        let lastVal = _range.front
         _range.popFront
         _shouldStop = _pred(lastVal)
 
@@ -408,7 +408,7 @@ datatype StridedRange(rangeType: Type) if Range(#$rangeType)
     fun isEmpty(this: @StridedRange)        = _range.isEmpty
     fun front(this: @StridedRange): RetType = _range.front
     fun popFront(this: @StridedRange)
-        var s = _strideStep
+        let s = _strideStep
         while !_range.isEmpty && s > 0
             s = s - 1
             _range.popFront

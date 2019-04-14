@@ -21,7 +21,7 @@ datatype ScopedPtr(type: Type)
     fun reset(this: @ScopedPtr, ref: @this.ValueType)   { delete(this._ref); this._ref := ref }
 
     fun swap(this: @ScopedPtr, other: typeOf(this))
-        var tmp: @ValueType = other._ref
+        let tmp: @ValueType = other._ref
 
         other._ref := _ref
         _ref := tmp

@@ -99,7 +99,7 @@ fun ()(this: @UnifyLR): Bool
                 _coEntryPt = -1 // Nothing more to do here
                 [ct] if isValid(logicDebug)
                     cout << "UnifyLR.(), checking equality: " << _leftVal << "==" << _rightVal << "\n"
-                var res = _leftVal.get() == _rightVal.get()
+                let res = _leftVal.get() == _rightVal.get()
                 return res
             [ct] if LRefType(#$RightType) && isValid(_rightVal = _leftVal.get())
                 _rightVal = _leftVal.get()

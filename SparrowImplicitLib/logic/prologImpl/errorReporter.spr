@@ -18,7 +18,7 @@ fun raiseError(this: @ConsoleErrorReporter, loc: Location, message: StringRef)
 
 fun _printLocation(this: @ConsoleErrorReporter, os: @OutStream, loc: Location)
 {
-    var line = this._getLineAtLocation(loc);
+    let line = this._getLineAtLocation(loc);
     //os << "(" << loc.start.line << ":" << loc.start.col << " - " << loc.end.line << ":" << loc.end.col << ")\n";
     os << '>' << line << '\n';
 
@@ -46,7 +46,7 @@ fun _getLineAtLocation(this: @ConsoleErrorReporter, loc: Location): String
         sourceCopy.popFront();
         ++curLine;
 
-    var len = indexOf(sourceCopy, '\n'.char);
+    let len = indexOf(sourceCopy, '\n'.char);
     return String(take(sourceCopy, len));
 }
 

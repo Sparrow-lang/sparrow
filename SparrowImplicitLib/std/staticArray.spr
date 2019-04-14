@@ -127,7 +127,7 @@ datatype StaticArray(valueType: Type, arraySize: SizeType ct)
 
     fun swap(this: @StaticArray, other: typeOf(StaticArray))
         for i = 0.._arraySize
-            var tmp = this(i)
+            let tmp = this(i)
             this(i) = other(i)
             other(i) = tmp
 

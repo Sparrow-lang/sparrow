@@ -34,7 +34,7 @@ package Impl
         //}
         //os << flush;
 
-        var genNative = allowNativeCodeGen && pred.canBeNative;
+        let genNative = allowNativeCodeGen && pred.canBeNative;
 
         // Header line
         os << "fun " << pred.name;
@@ -48,7 +48,7 @@ package Impl
         os << endl;
 
         // If we have local variables, create a scope and put the variables in it
-        var withScope = !pred.localVars.isEmpty();
+        let withScope = !pred.localVars.isEmpty();
         var tab: StringRef = "    ";
         if ( withScope )
         {
@@ -60,7 +60,7 @@ package Impl
                 if ( genNative )
                 {
                     // Don't initialize native integers
-                    var typeSet: @LTypeSet = pred.typeSets(lv.get().typeSetIdx);
+                    let typeSet: @LTypeSet = pred.typeSets(lv.get().typeSetIdx);
                     if ( typeSet.type.isNumberOnly() )
                         os << " = Uninitialized()";
                 }
@@ -101,11 +101,11 @@ package Impl
             os << "(";
             for i = 0..pred.paramVars.size()
             {
-                var param: @Parameter = pred.paramVars(i);
+                let param: @Parameter = pred.paramVars(i);
                 if ( i>0 )
                     os << ", ";
                 os << "_" << (i+1) << ": ";
-                var isRef = !genNative || param.isOutput;
+                let isRef = !genNative || param.isOutput;
                 dumpType(os, pred, param.expr.get(), isRef, genNative);
                 //if ( param.isInput )
                 //    os << "<in>";
@@ -126,11 +126,11 @@ package Impl
     }
     [ct] fun dumpBoundArgs(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, condWritten: @Bool)
     {
-        var genNative = allowNativeCodeGen && pred.canBeNative;
+        let genNative = allowNativeCodeGen && pred.canBeNative;
 
         for i = 0..clause.args.size()
         {
-            var arg: @ExpressionPtr = clause.args(i);
+            let arg: @ExpressionPtr = clause.args(i);
             if ( arg.isSet() && arg.get().kind != ekVar )
             {
                 if ( !condWritten )
@@ -140,9 +140,9 @@ package Impl
 
                 os << "_" << (i+1);
 
-                var idx = arg.get().paramIdx;
+                let idx = arg.get().paramIdx;
                 assert(idx >= 0);
-                var param: @Parameter = pred.paramVars(idx);
+                let param: @Parameter = pred.paramVars(idx);
                 if ( genNative && param.isInput )
                     os << " == ";
                 else if ( genNative && param.isOutput )
@@ -173,8 +173,8 @@ package Impl
 
     [ct] fun dumpPredCall(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, predCall: @Condition)
     {
-        var genNative = allowNativeCodeGen && pred.canBeNative;
-        var isRecursive = predCall.predName == clause.name;
+        let genNative = allowNativeCodeGen && pred.canBeNative;
+        let isRecursive = predCall.predName == clause.name;
         if ( isRecursive )
         {
             if ( genNative )
@@ -195,9 +195,9 @@ package Impl
 
     [ct] fun dumpIsExpr(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, isExpr: @Condition)
     {
-        var left: @Expression = isExpr.args(0).get();
-        var right: @Expression = isExpr.args(1).get();
-        var genNative = allowNativeCodeGen && pred.canBeNative;
+        let left: @Expression = isExpr.args(0).get();
+        let right: @Expression = isExpr.args(1).get();
+        let genNative = allowNativeCodeGen && pred.canBeNative;
 
         dumpExpr(os, pred, left);
         os << ife(genNative, " =/ ", " /=/ ");
@@ -206,7 +206,7 @@ package Impl
 
     [ct] fun dumpExpr(os: @OutStream, pred: @SparrowPredicate, expr: @Expression)
     {
-        var genNative = allowNativeCodeGen && pred.canBeNative;
+        let genNative = allowNativeCodeGen && pred.canBeNative;
 
         if ( expr.kind == ekAtom )
             os << '"' << expr.data << '"';
@@ -251,7 +251,7 @@ package Impl
         }
 
         assert(expr.typeSetIdx >= 0);
-        var typeSet: @LTypeSet = pred.typeSets(expr.typeSetIdx);
+        let typeSet: @LTypeSet = pred.typeSets(expr.typeSetIdx);
         if ( typeSet.type.isNumberOnly() )
             dumpIntegerType(os, genNative);
         else if ( typeSet.type.isAtomOnly() )
@@ -296,9 +296,9 @@ package Impl
 
     [ct] fun dumpWrapperClass(os: @OutStream, pred: @SparrowPredicate)
     {
-        var tab: StringRef = "    ";
-        var tab2: StringRef = "        ";
-        var tab3: StringRef = "            ";
+        let tab: StringRef = "    ";
+        let tab2: StringRef = "        ";
+        let tab3: StringRef = "            ";
 
         os << "class " << pred.name << "_pred_wrapper" << endl;
         os << "{" << endl;
@@ -324,7 +324,7 @@ package Impl
         // Checks for the input parameters
         for i = 0..pred.paramVars.size()
         {
-            var p: @Parameter = pred.paramVars(i);
+            let p: @Parameter = pred.paramVars(i);
             if ( p.isInput )
             {
                 if ( i==0 )
@@ -342,7 +342,7 @@ package Impl
         // Create some values for the output parameters
         for i = 0..pred.paramVars.size()
         {
-            var p: @Parameter = pred.paramVars(i);
+            let p: @Parameter = pred.paramVars(i);
             if ( p.isOutput )
             {
                 os << tab2 << "_" << (i+1) << " = ";
@@ -364,7 +364,7 @@ package Impl
         // The variables corresponding to the parameters
         for i = 0..pred.paramVars.size()
         {
-            var p: @Parameter = pred.paramVars(i);
+            let p: @Parameter = pred.paramVars(i);
             os << tab << "var _" << (i+1) << ": ";
             dumpType(os, pred, p.expr.get(), false, false);
             os << ';' << endl;

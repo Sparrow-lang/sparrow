@@ -48,7 +48,7 @@ datatype Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
     fun at(this: @Map, key: @this.KeyType): @DataType
         var r = this.find(key)
         if r.isEmpty
-            var data: DataType
+            let data: DataType
             r = _hashTable.insert(ValueType(key, data))
         return r.front().v2
 

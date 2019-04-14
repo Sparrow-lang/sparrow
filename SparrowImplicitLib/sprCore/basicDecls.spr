@@ -594,27 +594,27 @@ using oper_assoc_:=         = -1
     fun pre_--(n: @SizeType): SizeType { n-=SizeType(1); return n; }
     fun pre_--(n: @DiffType): DiffType { n-=DiffType(1); return n; }
 
-    fun post_++(n: @Byte): Byte { var old = n; n+=Byte(1); return old; }
-    fun post_++(n: @UByte): UByte { var old = n; n+=UByte(1); return old; }
-    fun post_++(n: @Short): Short { var old = n; n+=Short(1); return old; }
-    fun post_++(n: @UShort): UShort { var old = n; n+=UShort(1); return old; }
-    fun post_++(n: @Int): Int { var old = n; n+=1; return old; }
-    fun post_++(n: @UInt): UInt { var old = n; n+=UInt(1); return old; }
-    fun post_++(n: @Long): Long { var old = n; n+=Long(1); return old; }
-    fun post_++(n: @ULong): ULong { var old = n; n+=ULong(1); return old; }
-    fun post_++(n: @SizeType): SizeType { var old = n; n+=SizeType(1); return old; }
-    fun post_++(n: @DiffType): DiffType { var old = n; n+=DiffType(1); return old; }
+    fun post_++(n: @Byte): Byte { let old = n; n+=Byte(1); return old; }
+    fun post_++(n: @UByte): UByte { let old = n; n+=UByte(1); return old; }
+    fun post_++(n: @Short): Short { let old = n; n+=Short(1); return old; }
+    fun post_++(n: @UShort): UShort { let old = n; n+=UShort(1); return old; }
+    fun post_++(n: @Int): Int { let old = n; n+=1; return old; }
+    fun post_++(n: @UInt): UInt { let old = n; n+=UInt(1); return old; }
+    fun post_++(n: @Long): Long { let old = n; n+=Long(1); return old; }
+    fun post_++(n: @ULong): ULong { let old = n; n+=ULong(1); return old; }
+    fun post_++(n: @SizeType): SizeType { let old = n; n+=SizeType(1); return old; }
+    fun post_++(n: @DiffType): DiffType { let old = n; n+=DiffType(1); return old; }
 
-    fun post_--(n: @Byte): Byte { var old = n; n-=Byte(1); return old; }
-    fun post_--(n: @UByte): UByte { var old = n; n-=UByte(1); return old; }
-    fun post_--(n: @Short): Short { var old = n; n-=Short(1); return old; }
-    fun post_--(n: @UShort): UShort { var old = n; n-=UShort(1); return old; }
-    fun post_--(n: @Int): Int { var old = n; n-=1; return old; }
-    fun post_--(n: @UInt): UInt { var old = n; n-=UInt(1); return old; }
-    fun post_--(n: @Long): Long { var old = n; n-=Long(1); return old; }
-    fun post_--(n: @ULong): ULong { var old = n; n-=ULong(1); return old; }
-    fun post_--(n: @SizeType): SizeType { var old = n; n-=SizeType(1); return old; }
-    fun post_--(n: @DiffType): DiffType { var old = n; n-=DiffType(1); return old; }
+    fun post_--(n: @Byte): Byte { let old = n; n-=Byte(1); return old; }
+    fun post_--(n: @UByte): UByte { let old = n; n-=UByte(1); return old; }
+    fun post_--(n: @Short): Short { let old = n; n-=Short(1); return old; }
+    fun post_--(n: @UShort): UShort { let old = n; n-=UShort(1); return old; }
+    fun post_--(n: @Int): Int { let old = n; n-=1; return old; }
+    fun post_--(n: @UInt): UInt { let old = n; n-=UInt(1); return old; }
+    fun post_--(n: @Long): Long { let old = n; n-=Long(1); return old; }
+    fun post_--(n: @ULong): ULong { let old = n; n-=ULong(1); return old; }
+    fun post_--(n: @SizeType): SizeType { let old = n; n-=SizeType(1); return old; }
+    fun post_--(n: @DiffType): DiffType { let old = n; n-=DiffType(1); return old; }
 
 
 
@@ -673,7 +673,7 @@ fun = (this: @StringRef, src: StringRef): @StringRef
 
 [protected, autoCt]
 fun == (this, other: StringRef): Bool
-    var s = this.size
+    let s = this.size
     if s != other.size
         return false
     var i: SizeType = 0
@@ -685,7 +685,7 @@ fun == (this, other: StringRef): Bool
 
 [autoCt, native("_String_fromCString")]
 fun fromCString(s: @Char): StringRef
-    var len = cStringLen(s)
+    let len = cStringLen(s)
     var res: StringRef
     res.begin := reinterpretCast(@Byte, s)
     res.end := ptrAdd(res.begin, len)
@@ -694,7 +694,7 @@ fun fromCString(s: @Char): StringRef
 fun cStringLen(s: @Char): SizeType
     var p: @Byte
     p := reinterpretCast(@Byte, s)
-    var len: SizeType = 0
+    let len: SizeType = 0
     while p != Byte(0) ; p:=ptrAdd(p, 1)
         len = len+1
     return len
@@ -705,16 +705,16 @@ fun cStringLen(s: @Char): SizeType
         else return this.at(0)
 
     fun + (x,y: StringRef): StringRef
-        var sz1 = x.size()
-        var sz2 = y.size()
+        let sz1 = x.size()
+        let sz2 = y.size()
         var res: StringRef = sz1 + sz2
         memcpy(res.begin, x.begin, sz1)
         memcpy(ptrAdd(res.begin, sz1), y.begin, sz2)
         return res
 
     fun + (x: StringRef, y: Char): StringRef
-        var sz1 = x.size()
-        var sz2 = 1
+        let sz1 = x.size()
+        let sz2 = 1
         var res: StringRef = sz1 + sz2
         memcpy(res.begin, x.begin, sz1)
         memcpy(ptrAdd(res.begin, sz1), reinterpretCast(@Byte, y), sz2)

@@ -16,7 +16,7 @@ using InvalidThreadHandle = NativeThreadHandle()
 //! Get the number of available logical CPU cores for our process
 //! This dictates how much parallelism we have to be exploit
 fun getAvailableCoresNum(): UInt
-    var maxProcs: Long = _Impl.sysconf(_Impl._SC_NPROCESSORS_ONLN)
+    let maxProcs: Long = _Impl.sysconf(_Impl._SC_NPROCESSORS_ONLN)
     return ife(maxProcs<1, UInt(1), UInt(maxProcs))
     // TODO: also consider process affinity
 

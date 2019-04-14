@@ -37,8 +37,8 @@ fun initTaskSystem(numWorkers: UInt = 0)
     //numWorkers = 1
     var ts: @TaskSystem = globalTaskSystem.get()
     for i=0..numWorkers
-        var worker = ts createWorker
-        var p: Thread Ptr = new(Thread, InternalWorkerThread(worker))
+        let worker = ts createWorker
+        let p: Thread Ptr = new(Thread, InternalWorkerThread(worker))
         ts._threads.pushBack(p)
 
 fun getInitTaskSystem: TaskSystem Ptr
@@ -48,8 +48,8 @@ fun getInitTaskSystem: TaskSystem Ptr
     return globalTaskSystem
 
 fun createWorker(ts: TaskSystem Ptr): Worker Ptr
-    var id: Int = ts.get().workers size
-    var p: Worker Ptr = new(Worker, ts.get(), id, ts.get().idleCounter)
+    let id: Int = ts.get().workers size
+    let p: Worker Ptr = new(Worker, ts.get(), id, ts.get().idleCounter)
     ts.get().workers.pushBack(p)
     return p
 
@@ -58,7 +58,7 @@ var cnt: Int = 0
 
 fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue
     // TODO: make the selection truly random
-    var worker: Worker Ptr = ts.workers(++cnt % (ts.workers size))
+    let worker: Worker Ptr = ts.workers(++cnt % (ts.workers size))
     return worker.get().work
 
 fun onTaskAvailable(ts: @TaskSystem)

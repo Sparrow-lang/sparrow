@@ -21,8 +21,8 @@ fun << (s: @OutStream, x: @AnyType): typeOf(s) if !isValid(x.>>(s)) && isValid(s
     return s
 
 
-var endl: EndLineHelperClass
-var flush: FlushHelperClass
+let endl: EndLineHelperClass
+let flush: FlushHelperClass
 
 datatype EndLineHelperClass
     ;

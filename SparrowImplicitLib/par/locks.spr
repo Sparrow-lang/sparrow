@@ -66,16 +66,16 @@ fun dtor(this: @RecMutex)
     Impl.pthread_mutex_destroy(handle)
 
 //! Locks a lockable; if the lockable is already locked this call blocks until it's unblocked by the other party
-fun lock(mutex: @Mutex) { var res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
-fun lock(mutex: @RecMutex) { var res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
+fun lock(mutex: @Mutex) { let res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
+fun lock(mutex: @RecMutex) { let res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
 
 //! Attempts to lock a lockable; if already locked, returns false without locking anything
-fun tryLock(mutex: @Mutex): Bool { var res = Impl.pthread_mutex_trylock(mutex.handle); return res == 0; }
-fun tryLock(mutex: @RecMutex): Bool { var res = Impl.pthread_mutex_trylock(mutex.handle); return res == 0; }
+fun tryLock(mutex: @Mutex): Bool { let res = Impl.pthread_mutex_trylock(mutex.handle); return res == 0; }
+fun tryLock(mutex: @RecMutex): Bool { let res = Impl.pthread_mutex_trylock(mutex.handle); return res == 0; }
 
 //! Unlocks a lockable that was previously locked by a call to 'lock'
-fun unlock(mutex: @Mutex) { var res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
-fun unlock(mutex: @RecMutex) { var res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
+fun unlock(mutex: @Mutex) { let res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
+fun unlock(mutex: @RecMutex) { let res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
 
 package Impl
     using PTHREAD_MUTEX_SIZE = 56

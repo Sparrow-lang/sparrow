@@ -18,12 +18,12 @@ using allowNativeCodeGen = true
 
         // Handle all predicate clauses
         for pptr: @PredicateClausePtr = program.get().predicates.all
-            var p: @PredicateClause = pptr.get
-            var name: @String = p.name
-            var arity: UInt = p.args.size
+            let p: @PredicateClause = pptr.get
+            let name: @String = p.name
+            let arity: UInt = p.args.size
 
             // Search for an existing predicate with same name and same arity
-            var r = findIf(predicates.all,
+            let r = findIf(predicates.all,
                 (fun.{name,arity} (sp: @SparrowPredicate) = sp.name == name && sp.arity == arity))
 
             // Id the predicate does not exist add it; otherwise add a clause to it
@@ -109,7 +109,7 @@ using allowNativeCodeGen = true
     fun _checkExpr(this: @SparrowPredicate, clause: @PredicateClause, clauseIdx: Int, exprPtr: @ExpressionPtr)
         var typeSet: @LTypeSet = this._getCreateTypeSet(exprPtr)
 
-        var expr: @Expression = exprPtr.get
+        let expr: @Expression = exprPtr.get
         if ( expr.kind == ekAtom )
             typeSet.setAtomOnly(expr.loc)
         else if ( expr.kind == ekNumber )
@@ -195,10 +195,10 @@ using allowNativeCodeGen = true
 
         for clause: @PredicateClausePtr = clauses.all
             for c: @ConditionPtr = clause.get().conditions.all
-                var cond: @Condition = c.get
+                let cond: @Condition = c.get
                 if ( cond.kind == ckIsExpr )
-                    var left: @Expression = cond.args(0).get
-                    var right: @Expression = cond.args(1).get
+                    let left: @Expression = cond.args(0).get
+                    let right: @Expression = cond.args(1).get
 
                     // Right should always be a value
                     if ( !this._isValue(right) )
@@ -206,8 +206,8 @@ using allowNativeCodeGen = true
                         return
 
                     // A name (param / local var) cannot be twice in an 'is' condition
-                    var varName: @String = left.data
-                    var idx: DiffType = indexOf(isVars.all, left.data)
+                    let varName: @String = left.data
+                    let idx: DiffType = indexOf(isVars.all, left.data)
                     if ( idx >= 0 )
                         canBeNative = false
                         return
@@ -243,7 +243,7 @@ using allowNativeCodeGen = true
     fun _checkCreateTypeSet(this: @SparrowPredicate, exp: @ExpressionPtr)
         if ( exp.get().typeSetIdx < 0 )
             // Create a new type set
-            var idx = Int(typeSets.size)
+            let idx = Int(typeSets.size)
             typeSets.pushBack(LTypeSet(idx, LType()))
             var res: @LTypeSet = typeSets(idx)
             res.addExpression(exp)

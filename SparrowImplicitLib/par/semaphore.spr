@@ -10,7 +10,7 @@ datatype Semaphore
 
 fun ctor(this: @Semaphore, startValue: UInt = 0)
     _handle ctor
-    var res = _Impl.semaphore_create(_Impl.mach_task_self(), _handle, _Impl.SYNC_POLICY_FIFO, Int(startValue))
+    let res = _Impl.semaphore_create(_Impl.mach_task_self(), _handle, _Impl.SYNC_POLICY_FIFO, Int(startValue))
 
 fun dtor(this: @Semaphore)
     _Impl.semaphore_destroy(_Impl.mach_task_self(), _handle)

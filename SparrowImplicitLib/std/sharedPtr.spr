@@ -21,7 +21,7 @@ datatype SharedPtr(type: Type)
             this._ref := null
             this._count := null
         else
-            var d: @_MyAllocData = new(_MyAllocData, value)
+            let d: @_MyAllocData = new(_MyAllocData, value)
             this._ref := d.data
             this._count := d._count
 
@@ -56,11 +56,11 @@ datatype SharedPtr(type: Type)
     fun release(this: @SharedPtr)                       { this.reset }
 
     fun swap(this: @SharedPtr, other: @SharedPtr)
-        var tmpr: @ValueType = other._ref
+        let tmpr: @ValueType = other._ref
         other._ref := _ref
         _ref := tmpr
 
-        var tmpc: @UInt = other._count
+        let tmpc: @UInt = other._count
         other._count := _count
         _count := tmpc
 
@@ -96,31 +96,31 @@ fun ctor(this: @_AllocData, arg1, arg2, arg3, arg4: @AnyType)
 
 fun mkShared(t: Type): SharedPtr(t)
     var res: SharedPtr(t)
-    var d: @_AllocData(t) = new(_AllocData(t))
+    let d: @_AllocData(t) = new(_AllocData(t))
     res._ref := d.data
     res._count := d._count
     return res
 fun mkShared(t: Type, arg1: @AnyType): SharedPtr(t) if isValid((#$t).ctor(arg1))
     var res: SharedPtr(t)
-    var d: @_AllocData(t) = new(_AllocData(t), arg1)
+    let d: @_AllocData(t) = new(_AllocData(t), arg1)
     res._ref := d.data
     res._count := d._count
     return res
 fun mkShared(t: Type, arg1, arg2: @AnyType): SharedPtr(t) if isValid((#$t).ctor(arg1, arg2))
     var res: SharedPtr(t)
-    var d: @_AllocData(t) = new(_AllocData(t), arg1, arg2)
+    let d: @_AllocData(t) = new(_AllocData(t), arg1, arg2)
     res._ref := d.data
     res._count := d._count
     return res
 fun mkShared(t: Type, arg1, arg2, arg3: @AnyType): SharedPtr(t) if isValid((#$t).ctor(arg1, arg2, arg3))
     var res: SharedPtr(t)
-    var d: @_AllocData(t) = new(_AllocData(t), arg1, arg2, arg3)
+    let d: @_AllocData(t) = new(_AllocData(t), arg1, arg2, arg3)
     res._ref := d.data
     res._count := d._count
     return res
 fun mkShared(t: Type, arg1, arg2, arg3, arg4: @AnyType): SharedPtr(t) if isValid((#$t).ctor(arg1, arg2, arg3, arg4))
     var res: SharedPtr(t)
-    var d: @_AllocData(t) = new(_AllocData(t), arg1, arg2, arg3, arg4)
+    let d: @_AllocData(t) = new(_AllocData(t), arg1, arg2, arg3, arg4)
     res._ref := d.data
     res._count := d._count
     return res

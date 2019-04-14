@@ -21,24 +21,24 @@ datatype Location
 //    setOne(this)
 
 fun mkLineCol(line, col: UInt): LineCol
-    var res: LineCol
+    let res: !LineCol
     res.line = line
     res.col = col
     return res
 
 fun mkLocation: Location
-    var res: Location
+    let res: !Location
     setOne(res)
     return res
 
 [autoCt]
     fun mkLocation(sourceCode: SourceCode): Location
-        var res: Location
+        let res: !Location
         res.sourceCode = sourceCode
         setOne(res)
         return res
     fun mkLocation(sourceCode: SourceCode, start, end: LineCol): Location
-        var res: Location
+        let res: !Location
         res.sourceCode = sourceCode
         res.start = start
         res.end = end

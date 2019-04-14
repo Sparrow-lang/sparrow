@@ -25,7 +25,7 @@ datatype Vector(valueType: Type)
             this.pushBack(el)
 
     fun ctor(this, other: @Vector)
-        var size = other.size()
+        let size = other.size()
 
         _begin = allocRawPtr(ValueType, size)
         _end = _begin.advance(size)
@@ -84,7 +84,7 @@ datatype Vector(valueType: Type)
             return false
 
         var i = 0
-        var s = this.size()
+        let s = this.size()
 
         while i < s ; i++
             if !(this.at(i) == other.at(i))
@@ -110,7 +110,7 @@ datatype Vector(valueType: Type)
     fun capacity(this: @Vector): SizeType = _endOfStore.diff(_begin)
 
     fun reserve(this: @Vector, n: SizeType)
-        var curCapacity = this.capacity()
+        let curCapacity = this.capacity()
 
         if n <= curCapacity
             return
@@ -121,7 +121,7 @@ datatype Vector(valueType: Type)
         if n < _growthFactor*curCapacity
             n = SizeType(_growthFactor*curCapacity)
 
-        var curSize = this.size()
+        let curSize = this.size()
 
         _begin.reallocPtr(n)
         _end = _begin.advance(curSize)
@@ -135,7 +135,7 @@ datatype Vector(valueType: Type)
     fun subrange(this: @Vector, index: SizeType, num: SizeType): RangeType = RangeType(_begin.advance(index), _begin.advance(index + num))
 
     fun insertBefore(this: @Vector, value: this.ValuePassType, pos: this.RangeType)
-        var posCount = pos.frontPtr().diff(_begin)
+        let posCount = pos.frontPtr().diff(_begin)
 
         this.reserve(this.size() + 1)
 
@@ -149,8 +149,8 @@ datatype Vector(valueType: Type)
         _end = _end.advance()
 
     fun insertBefore(this: @Vector, range: Range, pos: this.RangeType)
-        var n = range.size()
-        var index = pos.frontPtr().diff(_begin)
+        let n = range.size()
+        let index = pos.frontPtr().diff(_begin)
 
         this.reserve(this.size() + n)
 
@@ -214,13 +214,13 @@ datatype Vector(valueType: Type)
         this.remove(r)
 
     fun resize(this: @Vector, n: SizeType)
-        var oldSize = this.size()
+        let oldSize = this.size()
 
         if n == oldSize
             return
 
         if n < oldSize
-            var newEnd = _begin.advance(n)
+            let newEnd = _begin.advance(n)
 
             while _end != newEnd
                 _end = _end.advance(-1)
@@ -228,7 +228,7 @@ datatype Vector(valueType: Type)
         else
             this.reserve(n)
 
-            var newEnd = _begin.advance(n)
+            let newEnd = _begin.advance(n)
 
             while _end != newEnd
                 _end.value().ctor()

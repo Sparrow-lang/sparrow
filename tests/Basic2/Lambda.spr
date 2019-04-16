@@ -19,7 +19,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1; test1
     else if n == 2; test2
@@ -54,9 +54,9 @@ fun test1
 
 fun test2
 {
-    var x = 10;
-    var y = 11;
-    var z = 12;
+    let x = 10;
+    let y = 11;
+    let z = 12;
     cout << doCall((fun.{x} n = n*n + x), 5) << endl;
     cout << doCall((fun.{x, y, z} n = n*n + x+y+z), 5) << endl;
     cout << doCall((fun.{x,y,z} n = n*n), 5) << endl;
@@ -82,7 +82,7 @@ fun doTest2(this: Test)
 
 fun test3
 {
-    var t: Test;
+    let t: Test;
     t doTest1;
     t doTest2;
 }
@@ -104,23 +104,25 @@ fun test4
 [initCtor]
 datatype Foo
     x: Int;
+fun ()(this: Foo) = this;
 
 fun getVector(): Foo
 {
-    var v = Foo(10);
+    let v = Foo(10);
+    return v
 }
 
 fun testVector(f: AnyType)
 {
-    var v = f();
+    let v = f();
     cout << v.x << endl;
 }
 
 fun test5
 {
-    //testVector(getVector);
+    testVector(getVector);
 }
 
-/*<<<Functions as first-order values, with returning complex types KNOWN-PROBLEM(5)
+/*<<<Functions as first-order values, with returning complex types(5)
 10
 >>>*/

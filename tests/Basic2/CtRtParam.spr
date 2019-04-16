@@ -36,16 +36,16 @@ fun apply(f: AnyType, n: Int rt)
 
 fun sprMain
 {
-    var x = 10;
-    var y = 2;
-    [ct] var yy = 2;
+    let x = 10;
+    let y = 2;
+    [ct] let yy = 2;
 
     cout << doCompute(x, y) << endl;
     cout << doCompute(x, yy) << endl;
 
     cout << "---" << endl;
 
-    var n = 5;
+    let n = 5;
     apply((fun {cout << 'x';}), 5);
     apply((fun {cout << 'x';}), n);
 }

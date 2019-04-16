@@ -12,7 +12,7 @@ package GenPackage(t: Type)
     using MyType = t rt
 
     // Causes a global print for all the instantiations
-    var printer: TypePrint(t)
+    let printer: TypePrint(t)
 
     fun getType: StringRef = TypeOp.description(MyType)
 

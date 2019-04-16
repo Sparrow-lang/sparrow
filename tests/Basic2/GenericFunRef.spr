@@ -19,8 +19,8 @@ fun <<(os: @OutStream, r: Range): typeOf(os) if typeOf(r) != StringRef
 
 fun sprMain
 {
-    var r1 = (1...5) map (fun n = repeat(n*n, n));
-    var r2 = r1 map \rangeSize;
+    let r1 = (1...5) map (fun n = repeat(n*n, n));
+    let r2 = r1 map \rangeSize;
 
     cout << r1 << endl;
     cout << r2 << endl;

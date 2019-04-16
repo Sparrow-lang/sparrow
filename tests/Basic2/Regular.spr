@@ -38,9 +38,9 @@ package Isolated
 fun sprMain
     testRegular(1);
     testRegular(1.0);
-    var o: NullType;
-    var o1: MyType;
-    var o2: Isolated.EmptyType;
+    let o: NullType;
+    let o1: MyType;
+    let o2: Isolated.EmptyType;
     testRegular(o);
     testRegular(o1);
     testRegular(o2);

@@ -49,9 +49,9 @@ fun test2()
 
 fun sprMain
 {
-    var x = 10;
-    var y = 2;
-    [ct] var yy = 2;
+    let x = 10;
+    let y = 2;
+    [ct] let yy = 2;
 
     test1();
     cout << "---" << endl;

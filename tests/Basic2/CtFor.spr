@@ -40,13 +40,13 @@ fun test2()
 
 [ct] fun createVector(min, max: Int): Vector(Int)
 {
-    var v = Vector(Int)(min..max);
+    let v = Vector(Int)(min..max);
     return v;
 }
 
 fun test3()
 {
-    [ct] var v = createVector(10, 15);
+    [ct] let v = createVector(10, 15);
 
     [ct] for el = v.all()
     {
@@ -56,9 +56,9 @@ fun test3()
 
 fun sprMain
 {
-    var x = 10;
-    var y = 2;
-    [ct] var yy = 2;
+    let x = 10;
+    let y = 2;
+    [ct] let yy = 2;
 
     test1();
     cout << "---" << endl;

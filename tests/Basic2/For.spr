@@ -4,7 +4,7 @@ import std.ranges;
 
 fun sprMain
 {
-    var r = 0..10;
+    let r = 0..10;
     for val = r
     {
         cout << ' ' << val;
@@ -21,7 +21,7 @@ fun sprMain
     }
     cout << endl;
 
-    var r2 = 125..130;
+    let r2 = 125..130;
     for val = r2
     {
         cout << ' ' << val;

@@ -44,8 +44,8 @@ fun ctor(this: @EmptyType) {}
 fun sprMain
     testOrdered(1);
     testOrdered(1.0);
-    var o1: MyType;
-    var o2: EmptyType;
+    let o1: MyType;
+    let o2: EmptyType;
     testOrdered(o1);
     testOrdered(o2);
 /*<<<Running()

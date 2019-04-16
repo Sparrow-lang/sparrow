@@ -42,8 +42,8 @@ fun test4(b: Bool)
 
 fun testDifferentTypes1(cond: Bool)
 {
-    var s: Short = 11;
-    var b: Byte = 13;
+    let s: Short = 11;
+    let b: Byte = 13;
     cout << ife(cond, s, b) << endl;
     [ct] if ( typeOf(ife(cond, s, b)) != Int )
         cout << "FAIL 1" << endl;

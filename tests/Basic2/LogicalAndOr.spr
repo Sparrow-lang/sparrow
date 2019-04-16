@@ -38,7 +38,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1; test1
     else if n == 2; test2
@@ -49,8 +49,8 @@ fun sprMain
 
 fun test1
 {
-    var t = true;
-    var f = false;
+    let t = true;
+    let f = false;
 
     cout << (t || t) << endl;
     cout << (t || f) << endl;
@@ -86,8 +86,8 @@ false
 
 fun test2
 {
-    var t = true;
-    var f = false;
+    let t = true;
+    let f = false;
 
     cout << (t && t) << endl;
     cout << (t && f) << endl;

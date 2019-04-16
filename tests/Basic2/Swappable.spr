@@ -5,7 +5,7 @@ concept Swappable(x) if isValid(x.swap(x));
 [autoCt] fun swap(a, b: @AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
 {
     cout << "Simple swap called" << endl;
-    var tmp = a;
+    let tmp = a;
     a = b;
     b = tmp;
 }
@@ -23,7 +23,7 @@ package Inner
         val: Int
 
     fun swap(this, other: @MyType2)
-        var tmp = val;
+        let tmp = val;
         val = other.val;
         other.val = tmp;
 

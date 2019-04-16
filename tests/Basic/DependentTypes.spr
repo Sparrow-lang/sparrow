@@ -47,7 +47,7 @@ fun pushBack2(this: @Vec, val: @this.ValueType)
     deduced(3.14, Byte(2))
 
     writeLn('---')
-    var v: Vec(Int)
+    let v: Vec(Int)
     v.data = 1
     writeLn(v.data)
     pushBack(v, 2)

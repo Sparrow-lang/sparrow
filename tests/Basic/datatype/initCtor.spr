@@ -45,18 +45,18 @@ datatype S3
 [native("test")]
 fun test(n: Int)
     ;
-        var o1: S1
+        let o1: S1
     writeLn('---')
-        var o1: S2
+        let o1: S2
         writeLn('-')
-        var o2: S2 = 100
+        let o2: S2 = 100
         writeLn('-')
     writeLn('---')
-        var o1: S3
+        let o1: S3
     writeLn('------')
-        var o1 = S1(50, 60)
+        let o1 = S1(50, 60)
         writeLn('-')
-        var o2 = o1
+        let o2 = o1
         writeLn('-')
 
 /*<<<Running()

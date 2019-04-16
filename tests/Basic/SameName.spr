@@ -12,9 +12,9 @@ fun myName(x,y: Int) = x+y;
 
 [native("test")] fun test(n: Int)
 {
-    var y: myName = 5;      // E RROR
+    let y: myName = 5;      // E RROR
     writeLn(y.x);           // E RROR
-    var myName = 7;
+    let myName = 7;
     writeLn(myName);
     writeLn(myName());      // E RROR
     writeLn(myName(15));    // E RROR

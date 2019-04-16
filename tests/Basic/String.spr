@@ -22,7 +22,7 @@ fun fassert(b: Bool)
     writeLn("Hello, world!");
     write("Hello,"); writeLn(" world!");
 
-    var s: StringRef = "abracadabra";
+    let s: StringRef = "abracadabra";
     writeLn(s);
     write(s.getChar(intToSizeType(0)));
     write(s.getChar(intToSizeType(1)));

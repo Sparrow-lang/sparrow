@@ -15,7 +15,7 @@ fun f2(x: @AnyType) if typeOf(x) == (Int@)
     x = 20;
 
 [native("test")] fun test(n: Int)
-    var a: Int = 5;
+    let a: Int = 5;
 
     f1(a);
     writeLn(a);

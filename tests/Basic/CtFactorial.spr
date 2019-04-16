@@ -10,7 +10,7 @@
 
 fun testFact()
 {
-    var n = 5;
+    let n = 5;
     writeLn(fact(n));
     writeLn(fact(5));
 }

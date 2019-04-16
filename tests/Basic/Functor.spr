@@ -23,7 +23,7 @@ fun selfCall(this: Test)
 
 [native("test")] fun test(n: Int)
 {
-    var t: Test;
+    let t: Test;
     t();
     t(10);
     t(10, 20);

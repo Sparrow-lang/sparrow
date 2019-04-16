@@ -10,7 +10,7 @@ fun ()(this: @MyType, offset: Int)
 
 [native("test")] fun test(n: Int)
 {
-    var obj: MyType = 5
+    let obj: MyType = 5
     obj()
     obj(10)
 }

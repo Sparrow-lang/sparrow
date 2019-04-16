@@ -34,26 +34,26 @@ fun print(p: Pair2)
 
 [native("test")] fun test(n: Int)
 {
-    var a = 101;
-    var b = 103;
-    [ct] var ca = 121;
-    [ct] var cb = 123;
+    let a = 101;
+    let b = 103;
+    [ct] let ca = 121;
+    [ct] let cb = 123;
 
-    var p1 = Pair(11,13);
-    [ct] var p2 = Pair(21, 23);
+    let p1 = Pair(11,13);
+    [ct] let p2 = Pair(21, 23);
     print(p1);
     print(p2);
     writeLn("---");
 
-    var pp1 = Pair2(a,b);
-    [ct] var pp2 = Pair2(ca, cb);
+    let pp1 = Pair2(a,b);
+    [ct] let pp2 = Pair2(ca, cb);
     print(pp1);
     print(pp2);
     writeLn("---");
 
-    var pp3 = pp2;
+    let pp3 = pp2;
     print(pp3);
-    var pp4 = identity(pp2);
+    let pp4 = identity(pp2);
     print(pp4);
 }
 

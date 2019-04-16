@@ -70,22 +70,22 @@ fun test(n: Int)
     my_g1(3.14)
     writeLn('---')
 
-    var a: MyInt = 2
-    var b: MyDouble = 3.14
+    let a: MyInt = 2
+    let b: MyDouble = 3.14
     my_f1(a)
     my_f1(b)
     writeLn('---')
 
-    var g1: MyGen(Int)
-    var g2: MyGen(Double)
-    var g3: MyGen(Char)
+    let g1: MyGen(Int)
+    let g2: MyGen(Double)
+    let g3: MyGen(Char)
     g1.print
     g2.print
     g3.print
     writeLn('---')
 
-    var gg1: MyG(Int)
-    var gg2: MyG(Int, Double)
+    let gg1: MyG(Int)
+    let gg2: MyG(Int, Double)
     gg1.print
     gg2.print
 

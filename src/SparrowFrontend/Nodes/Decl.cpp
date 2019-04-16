@@ -154,7 +154,7 @@ Type computeVarType(
     // Should we get the type from the initialization expression?
     bool getTypeFromInit = !t;
     int numRefs = 0;
-    if (t && isConceptType(t, numRefs))
+    if (t && isConceptType(Feather::removeCategoryIfPresent(t), numRefs))
         getTypeFromInit = true;
     if (getTypeFromInit) {
         if (!init)
@@ -527,7 +527,16 @@ Type VariableDecl::computeTypeImpl(VariableDecl node) {
     if (Feather::isDataLikeType(t) && (init || !isRef)) {
         ASSERT(resultingVar.type());
 
-        varRef = Feather::VarRefExp::create(loc, resultingVar);
+        // Create a var-ref object to refer to the variable to be initialized/destructed.
+        NodeHandle varRef = Feather::VarRefExp::create(loc, resultingVar);
+
+        // If the variable is const, cast the constness away for initialization & destruction
+        if (resultingVar.type().kind() == Feather_getConstTypeKind()) {
+            TypeWithStorage t = Feather::ConstType(resultingVar.type()).toRef();
+            auto typeNode = Feather::TypeNode::create(loc, t);
+            varRef = Feather::BitcastExp::create(loc, typeNode, varRef);
+        }
+
         varRef.setContext(node.childrenContext());
 
         if (!isRef) {

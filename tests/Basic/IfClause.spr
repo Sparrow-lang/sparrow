@@ -147,10 +147,10 @@ fun separ()
 
 [native("test")] fun test(n: Int)
 {
-    var a: Pair(Int, Int);
-    var b: Pair(Double, Double);
-    var c: Pair(Int, Pair(Int, Int));
-    var d: Pair(Pair(Double, Double), Pair(Double, Double));
+    let a: Pair(Int, Int);
+    let b: Pair(Double, Double);
+    let c: Pair(Int, Pair(Int, Int));
+    let d: Pair(Pair(Double, Double), Pair(Double, Double));
 
     f(1);
     f(3.14);

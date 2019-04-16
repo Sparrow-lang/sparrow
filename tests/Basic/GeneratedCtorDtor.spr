@@ -84,16 +84,16 @@ fun test(n: Int)
         test5
 
 fun t1_1
-    var o: MyType
+    let o: MyType
 
 fun t1_2
-    var o = MyType(10)
+    let o = MyType(10)
 
 fun t1_3
-    var o = MyType(10, 11)
+    let o = MyType(10, 11)
 
 fun t1_4
-    var o = MyType(20.0, 21.0)
+    let o = MyType(20.0, 21.0)
 
 
 fun test1
@@ -140,7 +140,7 @@ fun test4
     var x = Empty()
     x.ctor(Empty())
 
-    var y = AlmostEmpty()
+    let y = AlmostEmpty()
     writeLn(">")
     var z: AlmostEmpty
     writeLn(">")
@@ -172,7 +172,7 @@ fun test5
     var x = Empty()
     x.ctor(Empty())
 
-    var y = AlmostEmpty()
+    let y = AlmostEmpty()
     writeLn(">")
     var z: AlmostEmpty
     writeLn("assign:")

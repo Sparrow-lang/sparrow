@@ -11,7 +11,7 @@ fun f1(t: Type, i: Int): Int
 
 fun f2(t: Type)
 {
-    var tmp: t;
+    let tmp: t;
     write('S');
     write('i');
     write('z');

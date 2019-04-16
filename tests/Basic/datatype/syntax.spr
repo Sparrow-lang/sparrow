@@ -41,31 +41,31 @@ datatype GenericIf2(t: Type) if t != Int
 [native("test")]
 fun test(n: Int)
     ;
-        var o1: Empty
-        var o2: Empty2
-        var o3: Empty3
+        let o1: Empty
+        let o2: Empty2
+        let o3: Empty3
         writeLn(sizeOf(o1))
         writeLn(sizeOf(o2))
         writeLn(sizeOf(o3))
     writeLn('---')
-        var o1: WithFields
-        var o2: WithFields2
+        let o1: WithFields
+        let o2: WithFields2
         writeLn(sizeOf(o1))
         writeLn(sizeOf(o2))
     writeLn('---')
-        var o1: WithInit
+        let o1: WithInit
         writeLn(sizeOf(o1))
     writeLn('---')
-        var o1: WithUsing
+        let o1: WithUsing
         writeLn(sizeOf(o1))
     writeLn('---')
-        var o1: Generic(Double)
-        var o2: Generic2(Char)
+        let o1: Generic(Double)
+        let o2: Generic2(Char)
         writeLn(sizeOf(o1))
         writeLn(sizeOf(o2))
     writeLn('---')
-        var o1: GenericIf(Int)
-        var o2: GenericIf2(Char)
+        let o1: GenericIf(Int)
+        let o2: GenericIf2(Char)
         writeLn(sizeOf(o1))
         writeLn(sizeOf(o2))
 

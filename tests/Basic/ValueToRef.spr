@@ -23,7 +23,7 @@ fun getValue(x: Int): MyVal
 
 [native("test")] fun test(n: Int)
 {
-    var v: MyVal;
+    let v: MyVal;
     v.print();
     writeLn(v.value());
     v.increment().print();

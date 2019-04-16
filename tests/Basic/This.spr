@@ -44,7 +44,7 @@ fun popFront(this: @MyRange)
 
 [native("test")]
 fun test(n: Int)
-    var obj: TestClass
+    let obj: TestClass
     obj.method
     writeLnInt(obj.a)
     writeLn("---")
@@ -61,7 +61,7 @@ fun test(n: Int)
     useAsVar
 
     writeLn("---")
-    var r = MyRange(0, 10)
+    let r = MyRange(0, 10)
     if r.isEmpty
         writeLn('isEmpty')
     for x = r

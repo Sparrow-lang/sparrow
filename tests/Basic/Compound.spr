@@ -9,7 +9,7 @@ fun ctor(this: @MyObj, other: MyObj) { a = other.a; }
 
 fun print(this: MyObj) { write("MyObj: "); writeLn(a); }
 
-var go = MyObj(10);
+let go = MyObj(10);
 
 fun f1(): MyObj
 {
@@ -28,7 +28,7 @@ fun f2(): @MyObj
     writeLn(go.st);
     writeLn("---");
 
-    var o = MyObj(1);
+    let o = MyObj(1);
     writeLn(o.a);
     o.print();
     writeLn(o.st);

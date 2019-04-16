@@ -43,9 +43,9 @@ fun dtor(this: @Pair)
 [native("test")] fun test(n: Int)
 {
     {
-        var x: MyObj;
-        var x1 = MyObj(1);
-        var x2 = MyObj(1,2);
+        let x: MyObj;
+        let x1 = MyObj(1);
+        let x2 = MyObj(1,2);
     }
     writeLn("---");
     {
@@ -60,8 +60,8 @@ fun dtor(this: @Pair)
     }
     writeLn("---");
     {
-        var x: Pair;
-        var x1 = Pair(15,16);
+        let x: Pair;
+        let x1 = Pair(15,16);
     }
     writeLn("---");
     {

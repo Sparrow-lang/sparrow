@@ -1,10 +1,10 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-[ct] var t: Type = Int;
-[ct] var u: Type;
+[ct] let t: Type = Int;
+[ct] let u: Type;
 
-var x: t = 3;
-//var y: u = 3;
+let x: t = 3;
+//let y: u = 3;
 
 [native("test")] fun test(n: Int)
 {

@@ -27,16 +27,16 @@ fun printUInt(x: UInt)
 
 [native("test")] fun test(n: Int)
 {
-    var sb: Byte = 1;
-    var ub: UByte = 2;
-    var ss: Short = 3;
-    var us: UShort = 4;
-    var si: Int = 5;
-    var ui: UInt = 6;
-    var sl: Long = 7;
-    var ul: ULong = 8;
-    var f: Float = 9;
-    var d: Double = 10;
+    let sb: Byte = 1;
+    let ub: UByte = 2;
+    let ss: Short = 3;
+    let us: UShort = 4;
+    let si: Int = 5;
+    let ui: UInt = 6;
+    let sl: Long = 7;
+    let ul: ULong = 8;
+    let f: Float = 9;
+    let d: Double = 10;
 
     writeLn(sb);
     writeLn(ub);

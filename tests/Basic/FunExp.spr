@@ -35,7 +35,7 @@ fun b(this: Test1) = this.bb;
     writeLn(nextAsDouble(3.14));
     writeLn("---");
 
-    var t = Test1(3,5);
+    let t = Test1(3,5);
     writeLn(t.a());
     writeLn(t.b());
 }

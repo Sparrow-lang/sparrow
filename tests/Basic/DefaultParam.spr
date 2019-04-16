@@ -48,7 +48,7 @@ fun print(this: Bar)  { printType(T); writeLn(""); }
 
 [native("test")] fun test(n: Int)
 {
-    var foo = Foo(7);
+    let foo = Foo(7);
 
     // Functions with default args
     writeLn(myadd(2,3));
@@ -66,8 +66,8 @@ fun print(this: Bar)  { printType(T); writeLn(""); }
 
     // Ctor with default args
     writeLn("---");
-    var foo2 = Foo(6, 7, 5);
-    var foo3 = Foo(6, 7);
+    let foo2 = Foo(6, 7, 5);
+    let foo3 = Foo(6, 7);
     writeLn(foo2.x);
     writeLn(foo3.x);
 

@@ -1097,7 +1097,7 @@ fun getChar(this: StringRef, i: SizeType): Char
     return reinterpretCast(@Char, ptrAdd(begin, i));
 
 fun == (this, other: StringRef): Bool
-    var s = this.size();
+    let s = this.size();
     if ( s != other.size() ) return false;
     var i: SizeType = 0;
     while i<s ; i+=SizeType(1)
@@ -1113,9 +1113,9 @@ fun == (this, other: StringRef): Bool
 
 fun + (x,y: StringRef): StringRef
 {
-    var sz1 = x.size();
-    var sz2 = y.size();
-    var res: StringRef = sz1 + sz2;
+    let sz1 = x.size();
+    let sz2 = y.size();
+    let res: StringRef = sz1 + sz2;
     memcpy(res.begin, x.begin, sz1);
     memcpy(ptrAdd(res.begin, sz1), y.begin, sz2);
     return res;
@@ -1444,6 +1444,6 @@ fun main(argc: Int, args: _CStrPtr): Int
     if argc == 1
         test(0)
     else
-        var arg1 = args _offset 1
+        let arg1 = args _offset 1
         test(_atoi(arg1.ptr.cstr))
     return 0

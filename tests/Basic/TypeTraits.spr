@@ -44,12 +44,12 @@ fun testRef(x: @AnyType) //if 0!=typeNumRef(typeOf(x))
 
 [native("test")] fun test(n: Int)
 {
-    var a = 'a'.getChar(0);
-    var b = 10;
-    var c = 3.14;
-    var ra: @Char = a;
-    var rb: Int@ = b;
-    var rc: Double@ = c;
+    let a = 'a'.getChar(0);
+    let b = 10;
+    let c = 3.14;
+    let ra: @Char = a;
+    let rb: Int@ = b;
+    let rc: Double@ = c;
 
     writeLn(sizeOf('a'.getChar(0)));
     writeLn(sizeOf(10));

@@ -116,14 +116,14 @@ using NearClass.MyInt2
 
 fun + (x,y: MyInt2): MyInt2
 {
-    var res: MyInt2;
+    let res: MyInt2;
     writeLn("failure");
     return res;
 }
 
 fun * (x,y: MyInt2): MyInt2
 {
-    var res: MyInt2;
+    let res: MyInt2;
     writeLn("failure");
     return res;
 }

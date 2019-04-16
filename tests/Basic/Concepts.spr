@@ -35,15 +35,15 @@ datatype Tester(t: Type) if HasF1(valueOfType(t))
     using T = t
 
 fun call(this: Tester)
-    var x: T;
+    let x: T;
     writeLn(x.f1());
 
 
 [native("test")] fun test(n: Int)
 {
-    var a: A;
-    var b: B;
-    var c: C;
+    let a: A;
+    let b: B;
+    let c: C;
 
     test1(a);
     test1(b);
@@ -62,17 +62,17 @@ fun call(this: Tester)
     if c HasF1 ; writeLn("concept ok") else writeLn("concept failed")
 
     writeLn("---");
-    var t1: Tester(A);
-    var t2: Tester(B);
-    //var t3: Tester(C);
+    let t1: Tester(A);
+    let t2: Tester(B);
+    //let t3: Tester(C);
     t1.call();
     t2.call();
 
     writeLn("---");
-    var aa: HasF1 = a;
-    var bb: HasF1 = b;
-    var cc: HasF3 = c;
-    //var cc: HasF1 = c;
+    let aa: HasF1 = a;
+    let bb: HasF1 = b;
+    let cc: HasF3 = c;
+    //let cc: HasF1 = c;
     test1(aa);
     test1(bb);
     test3(cc);

@@ -129,9 +129,6 @@ int Feather_isCt(Nest_Node* node);
 /// Tests if the given node has a "Testable" type
 int Feather_isTestable(Nest_Node* node);
 
-/// Checks if the given type is a basic numeric type (bool, integral, floating point, char)
-int Feather_isBasicNumericType(Nest_TypeRef type);
-
 //! Combines two modes together.
 //! If one of the modes is modeCt, the result will be modeCt
 //! If one of the given modes is unspecified, we return the other one

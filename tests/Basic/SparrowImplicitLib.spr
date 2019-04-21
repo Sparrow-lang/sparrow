@@ -818,7 +818,7 @@ define void @_Type_copy_ctor(i8** %$this, i8* %other)
 );
 
 [ct]
-    [native("Type"), noDefault]
+    [bitcopiable, native("Type"), noDefault]
     datatype Type {}
 
 [ct, protected]
@@ -829,22 +829,22 @@ define void @_Type_copy_ctor(i8** %$this, i8* %other)
 [noDefault]
     datatype Uninitialized {}
 
-    [native("Null")]            datatype Null {}
+    [bitcopiable, native("Null")]            datatype Null {}
 
-    [native("i1")]              datatype Bool {}
-    [native("i8")]              datatype Byte {}
-    [convert, native("u8")]     datatype UByte {}
-    [convert, native("i16")]    datatype Short {}
-    [convert, native("u16")]    datatype UShort {}
-    [convert, native("i32")]    datatype Int {}
-    [convert, native("u32")]    datatype UInt {}
-    [convert, native("i64")]    datatype Long {}
-    [convert, native("u64")]    datatype ULong {}
-    [convert, native("u64")]    datatype SizeType {}
-    [convert, native("i64")]    datatype DiffType {}
-    [convert, native("float")]  datatype Float {}
-    [convert, native("double")] datatype Double {}
-    [native("i8")]              datatype Char {}
+    [bitcopiable, native("i1")]              datatype Bool {}
+    [bitcopiable, native("i8")]              datatype Byte {}
+    [bitcopiable, convert, native("u8")]     datatype UByte {}
+    [bitcopiable, convert, native("i16")]    datatype Short {}
+    [bitcopiable, convert, native("u16")]    datatype UShort {}
+    [bitcopiable, convert, native("i32")]    datatype Int {}
+    [bitcopiable, convert, native("u32")]    datatype UInt {}
+    [bitcopiable, convert, native("i64")]    datatype Long {}
+    [bitcopiable, convert, native("u64")]    datatype ULong {}
+    [bitcopiable, convert, native("u64")]    datatype SizeType {}
+    [bitcopiable, convert, native("i64")]    datatype DiffType {}
+    [bitcopiable, convert, native("float")]  datatype Float {}
+    [bitcopiable, convert, native("double")] datatype Double {}
+    [bitcopiable, native("i8")]              datatype Char {}
 
 [protected]
     fun ctor(this: Uninitialized) {}
@@ -1072,7 +1072,7 @@ define void @_Type_copy_ctor(i8** %$this, i8* %other)
 
 
 
-[noDefault, native("StringRef")]
+[noDefault, bitcopiable, native("StringRef")]
 datatype StringRef
     begin: @Byte;
     end: @Byte;
@@ -1424,6 +1424,7 @@ using oper_assoc_:=         = -1;
 [native("atoi")]
 fun _atoi(str: @Char): Int
 
+[bitcopiable]
 datatype _CStr { cstr: @Char; }
 [initCtor] datatype _CStrPtr { ptr: @_CStr; }
 

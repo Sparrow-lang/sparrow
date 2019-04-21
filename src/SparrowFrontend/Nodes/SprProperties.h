@@ -20,4 +20,5 @@ constexpr const char* propSprGivenType = "spr.givenType";
 constexpr const char* propSprLiteralType = "spr.literalType";
 constexpr const char* propSprLiteralData = "spr.literalData";
 constexpr const char* propSprOperation = "spr.operation";
+constexpr const char* propBitCopiable = "spr.bitcopiable";
 } // namespace SprFrontend

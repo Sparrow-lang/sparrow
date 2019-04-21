@@ -37,7 +37,7 @@ void ModAutoCt_beforeSetContext(Nest_Modifier*, Node* node) {
 }
 
 void ModCtGeneric_beforeComputeType(Nest_Modifier*, Node* node) {
-    /// Check to apply only to classes or functions
+    /// Check to apply only to functions
     if (node->nodeKind != nkSparrowDeclSprFunction) {
         REP_ERROR(node->location,
                 "ctGeneric modifier can be applied only to functions (applied to %1%)") %
@@ -74,25 +74,37 @@ void ModConvert_beforeComputeType(Nest_Modifier*, Node* node) {
 }
 
 void ModNoDefault_beforeComputeType(Nest_Modifier*, Node* node) {
-    /// Check to apply only to classes or functions
+    /// Check to apply only to datatypes or functions
     if (node->nodeKind != nkSparrowDeclSprFunction && node->nodeKind != nkSparrowDeclSprDatatype)
         REP_INTERNAL(node->location,
-                "noDefault modifier can be applied only to classes or methods (applied to %1%)") %
+                "noDefault modifier can be applied only to datatypes or functions (applied to %1%)") %
                 Nest_nodeKindName(node);
 
     Nest_setPropertyInt(node, propNoDefault, 1);
 }
 
 void ModInitCtor_beforeComputeType(Nest_Modifier*, Node* node) {
-    /// Check to apply only to classes
+    /// Check to apply only to datatypes
     if (node->nodeKind != nkSparrowDeclSprDatatype) {
         REP_ERROR(node->location,
-                "initCtor modifier can be applied only to classes (applied to %1%)") %
+                "initCtor modifier can be applied only to datatypes (applied to %1%)") %
                 Nest_nodeKindName(node);
         return;
     }
 
     Nest_setPropertyInt(node, propGenerateInitCtor, 1);
+}
+
+void ModBitCopiable_beforeComputeType(Nest_Modifier*, Node* node) {
+    /// Check to apply only to datatypes
+    if (node->nodeKind != nkSparrowDeclSprDatatype) {
+        REP_ERROR(node->location,
+                "bitcopiable modifier can be applied only to datatypes (applied to %1%)") %
+                Nest_nodeKindName(node);
+        return;
+    }
+
+    Nest_setPropertyInt(node, propBitCopiable, 1);
 }
 
 void ModMacro_beforeComputeType(Nest_Modifier*, Node* node) {
@@ -127,6 +139,7 @@ Nest_Modifier _ctGenericMod = {modTypeBeforeComputeType, &ModCtGeneric_beforeCom
 Nest_Modifier _convertMod = {modTypeBeforeComputeType, &ModConvert_beforeComputeType};
 Nest_Modifier _noDefaultMod = {modTypeBeforeComputeType, &ModNoDefault_beforeComputeType};
 Nest_Modifier _initCtorMod = {modTypeBeforeComputeType, ModInitCtor_beforeComputeType};
+Nest_Modifier _bitCopiableMod = {modTypeBeforeComputeType, &ModBitCopiable_beforeComputeType};
 Nest_Modifier _macroMod = {modTypeBeforeComputeType, &ModMacro_beforeComputeType};
 Nest_Modifier _noInlineMod = {modTypeBeforeComputeType, &ModNoInline_beforeComputeType};
 
@@ -140,6 +153,7 @@ Nest_Modifier* SprFe_getCtGenericMod() { return &_ctGenericMod; }
 Nest_Modifier* SprFe_getConvertMod() { return &_convertMod; }
 Nest_Modifier* SprFe_getNoDefaultMod() { return &_noDefaultMod; }
 Nest_Modifier* SprFe_getInitCtorMod() { return &_initCtorMod; }
+Nest_Modifier* SprFe_getBitCopiableMod() { return &_bitCopiableMod; }
 Nest_Modifier* SprFe_getMacroMod() { return &_macroMod; }
 Nest_Modifier* SprFe_getNoInlineMod() { return &_noInlineMod; }
 

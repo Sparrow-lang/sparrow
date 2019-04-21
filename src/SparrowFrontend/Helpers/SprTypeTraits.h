@@ -42,4 +42,9 @@ bool isConceptType(Type t, int& numRefs);
 
 /// Creates a new type from the original type, with the specified reference count
 Type changeRefCount(Type type, int numRef, const Location& loc = Location());
+
+//! Checks if the given type is bitcopiable
+//! This returns true for native types and for references
+bool isBitCopiable(Type type);
+
 } // namespace SprFrontend

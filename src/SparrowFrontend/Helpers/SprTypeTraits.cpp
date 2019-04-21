@@ -316,3 +316,12 @@ Type SprFrontend::changeRefCount(Type type, int numRef, const Location& loc) {
         REP_INTERNAL(loc, "Cannot change reference count for type %1%") % type;
     return type;
 }
+
+bool SprFrontend::isBitCopiable(Type type) {
+    if (!type.hasStorage())
+        return false;
+    // TODO: Remove this
+    if (Feather_isBasicNumericType(type))
+        return true;
+    return type.referredNode() && type.referredNode().hasProperty(propBitCopiable);
+}

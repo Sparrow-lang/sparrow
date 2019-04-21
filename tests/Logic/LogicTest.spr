@@ -19,7 +19,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1; test1
     else if n == 2; test2

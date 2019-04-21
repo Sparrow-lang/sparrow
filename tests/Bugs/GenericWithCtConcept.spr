@@ -15,7 +15,7 @@ fun copyFromtCt(dest: @MyConcept, src: MyConcept ct)
     dest.data = src.data
 
 fun sprMain
-    var x: TestData
+    let x: TestData
 
     testConcept(x)
     testConcept(getCtData(3))

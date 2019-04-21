@@ -11,7 +11,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1; test1
     else if n == 2; test2
@@ -111,7 +111,7 @@ fun makeList(li: @List(Int))
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
 {
     var ptr = allocRawPtr(Int, size);
-    var ptrEnd = ptr.advance(DiffType(size));
+    let ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 
     while i < size ; i = i + 1;
@@ -122,7 +122,7 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
 
 fun test1()
 {
-    var nr = NumericRangeWithStep(Int)(0, 10, 1);
+    let nr = NumericRangeWithStep(Int)(0, 10, 1);
     var li: List(Int);
     makeList(li);
     var lr = li.all();

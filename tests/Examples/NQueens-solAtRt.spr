@@ -4,8 +4,8 @@ import std.array;
 import std.vector;
 import math = math;
 
-[ct] var PlacementType = Array(Int);
-[ct] var SolutionsType = Vector(PlacementType);
+using PlacementType = Array(Int);
+using SolutionsType = Vector(PlacementType);
 
 fun testQueens(placements: @PlacementType, k, y: Int): Bool
 {
@@ -55,7 +55,7 @@ fun writeSolutionBasic(x: @PlacementType)
 
 [autoCt] fun nQueens(n: Int): SolutionsType
 {
-    var x: PlacementType = n;
+    let x: PlacementType = n;
     var res: SolutionsType;
     backtracking(x, 0, n, res);
     for sol = res.all()
@@ -65,8 +65,8 @@ fun writeSolutionBasic(x: @PlacementType)
 
 fun sprMain
 {
-    [ct] var solutionsCt = nQueens(4);
-    var solutions = solutionsCt;
+    [ct] let solutionsCt = nQueens(4);
+    let solutions = solutionsCt;
     for sol = solutions.all()
         writeSolution(sol);
 }

@@ -30,7 +30,7 @@ fun arbitrary(t: Type): T4 Gen if t == T4 {
 //! Generate an arbitrary tuple 2
 fun generateT2(sizeHint: UInt): T2 {
     var res: T2;
-    var h: Int = sizeHint + 5;
+    let h: Int = sizeHint + 5;
     res.v1.x = randBetween(-h, h+1);
     res.v2.x = randBetween(-h, h+1);
     res.v2.y = randBetween(-h, h+1);
@@ -39,7 +39,7 @@ fun generateT2(sizeHint: UInt): T2 {
 //! Generate an arbitrary tuple 4
 fun generateT4(sizeHint: UInt): T4 {
     var res: T4;
-    var h: Int = sizeHint + 5;
+    let h: Int = sizeHint + 5;
     res.v1.x = randBetween(-h, h+1);
     res.v2.x = randBetween(-h, h+1);
     res.v2.y = randBetween(-h, h+1);
@@ -84,8 +84,8 @@ fun sprMain {
     forAll(T4 arbitrary) check (fun x = (x tail).v1 == x.v2 && tail(tail(x)).v1 == x.v3 && tail(tail(x)).v2 == x.v4) ~ "tail function";
 
     // Constructing types
-    var a: Int * Bool;
-    var b: MyObj1 * MyObj2;
+    let a: Int * Bool;
+    let b: MyObj1 * MyObj2;
     //var b: MyObj1 * MyObj2 * Int;
     //var b: MyObj1 * MyObj2 * Int * Bool;
     [ct] if ( MyObj1 * MyObj2 != T2 ) { cout << "FAILURE: cannot construct tuple types (T2)" << endl; }

@@ -38,7 +38,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -113,7 +113,7 @@ fun printRange(nr: AnyType)
 
 fun test1()
 {
-    var hs: Map(Int, Int);
+    let hs: Map(Int, Int);
 
     cout << hs.isEmpty() << endl;
     cout << hs.size() << endl;
@@ -129,7 +129,7 @@ false
 
 fun test2()
 {
-    var hs = Map(Int, Int)(60);
+    let hs = Map(Int, Int)(60);
 
     cout << hs.isEmpty() << endl;
     cout << hs.size() << endl;
@@ -145,7 +145,7 @@ false
 
 fun test3()
 {
-    var hs = Map(Int, Int)(makeList().all());
+    let hs = Map(Int, Int)(makeList().all());
 
     cout << hs.isEmpty() << endl;
     cout << hs.size() << endl;
@@ -167,8 +167,8 @@ false
 
 fun test4()
 {
-    var hs = Map(Int, Int)(makeList().all());
-    var hs2 = Map(Int, Int)(hs);
+    let hs = Map(Int, Int)(makeList().all());
+    let hs2 = Map(Int, Int)(hs);
 
     cout << hs2.isEmpty() << endl;
     cout << hs2.size() << endl;
@@ -245,7 +245,7 @@ false
 
 fun test7()
 {
-    var hs = Map(Int, Int)(makeList().all());
+    let hs = Map(Int, Int)(makeList().all());
 
     printRange(hs.all());
 }
@@ -355,7 +355,7 @@ fun test11()
 
 fun test12()
 {
-    var hs = Map(Int, Int)(makeList().all());
+    let hs = Map(Int, Int)(makeList().all());
 
     cout << hs.contains(106) << endl;
     cout << hs.contains(53) << endl;
@@ -371,7 +371,7 @@ false
 
 fun test13()
 {
-    var hs = Map(Int, Int)(makeList().all());
+    let hs = Map(Int, Int)(makeList().all());
 
     hs.insert(5, 10);
     cout << hs.count(5) << endl;
@@ -406,7 +406,7 @@ fun test14()
 
 fun test15()
 {
-    var hs = Map(Int, Int)(makeList().all());
+    let hs = Map(Int, Int)(makeList().all());
 
     printRange(hs.find(5));
     printRange(hs.find(10));
@@ -471,7 +471,7 @@ true
 
 fun test19()
 {
-    var hs = Map(Int, Int)(makeList().all());
+    let hs = Map(Int, Int)(makeList().all());
     var keys = hs.keys();
     var values = hs.values();
 

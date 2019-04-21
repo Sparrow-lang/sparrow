@@ -90,7 +90,7 @@ fun energy(this: @NBodySystem): Double
         e += 0.5 * bodies(i).mass * bodies(i).speedSq;
 
         for j = (i+1)..numBodies
-            var distance = (bodies(i).p - bodies(j).p) len;
+            let distance = (bodies(i).p - bodies(j).p) len;
             e -= (bodies(i).mass * bodies(j).mass) / distance;
 
     return e;
@@ -98,9 +98,9 @@ fun energy(this: @NBodySystem): Double
 fun advance(this: @NBodySystem, dt: Double)
     for i = 0..numBodies
         for j = (i+1)..numBodies
-            var pDelta = bodies(i).p - bodies(j).p;
-            var distance = pDelta len;
-            var mag = dt / (distance * distance * distance);
+            let pDelta = bodies(i).p - bodies(j).p;
+            let distance = pDelta len;
+            let mag = dt / (distance * distance * distance);
 
             bodies(i).advance(pDelta, -bodies(j).mass*mag);
             bodies(j).advance(pDelta, bodies(i).mass*mag);
@@ -117,7 +117,7 @@ fun advance(this: @NBodySystem, dt: Double)
 fun cstr(s: StringRef): @Char = s.cStr();
 
 fun sprMain
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     var jovianSystem: NBodySystem;
 

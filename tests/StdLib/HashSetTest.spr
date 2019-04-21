@@ -9,7 +9,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -57,7 +57,7 @@ fun makeList(): List(Int)
 
 fun printRange(nr: AnyType)
 {
-    var v: Vector(Int) = nr;
+    let v: Vector(Int) = nr;
 
     var r = v.all();
     sort(r);
@@ -74,7 +74,7 @@ fun printRange(nr: AnyType)
 
 fun test1()
 {
-    var hs: Int Set;
+    let hs: Int Set;
 
     cout << hs.isEmpty() << endl;
     cout << hs.size() << endl;
@@ -90,7 +90,7 @@ false
 
 fun test2()
 {
-    var hs: Int Set = 60;
+    let hs: Int Set = 60;
 
     cout << hs.isEmpty() << endl;
     cout << hs.size() << endl;
@@ -106,7 +106,7 @@ false
 
 fun test3()
 {
-    var hs: Int Set = makeList().all();
+    let hs: Int Set = makeList().all();
 
     cout << hs.isEmpty() << endl;
     cout << hs.size() << endl;
@@ -128,8 +128,8 @@ false
 
 fun test4()
 {
-    var hs = Set(Int)(makeList().all());
-    var hs2 = Set(Int)(hs);
+    let hs = Set(Int)(makeList().all());
+    let hs2 = Set(Int)(hs);
 
     cout << hs2.isEmpty() << endl;
     cout << hs2.size() << endl;
@@ -206,7 +206,7 @@ false
 
 fun test7()
 {
-    var hs = Set(Int)(makeList().all());
+    let hs = Set(Int)(makeList().all());
 
     printRange(hs.all());
 }
@@ -294,7 +294,7 @@ fun test11()
 
 fun test12()
 {
-    var hs = Set(Int)(0 .. 10);
+    let hs = Set(Int)(0 .. 10);
 
     cout << hs.contains(7) << endl;
     cout << hs.contains(53) << endl;
@@ -344,7 +344,7 @@ fun test14()
 
 fun test15()
 {
-    var hs = Set(Int)(0 .. 10);
+    let hs = Set(Int)(0 .. 10);
 
     printRange(hs.find(5));
     printRange(hs.find(10));
@@ -356,7 +356,7 @@ fun test15()
 
 fun test16()
 {
-    var hs = Set(Int)(0 .. 10);
+    let hs = Set(Int)(0 .. 10);
 
     hs.clear();
     cout << hs.isEmpty() << endl;
@@ -385,9 +385,9 @@ fun test17()
 
 fun test18()
 {
-    var hs1 = Set(Int)(makeList().all());
+    let hs1 = Set(Int)(makeList().all());
     var hs2 = hs1;
-    var hs3: Set(Int);
+    let hs3: Set(Int);
     var hs4 = Set(Int)(0 .. 10);
 
     cout << hs1 == hs2 << endl;
@@ -422,7 +422,7 @@ true
 
 fun test19()
 {
-    var hs = Set(Int)(0 .. 1000);
+    let hs = Set(Int)(0 .. 1000);
 
     for i = numericRange(0, 1000)
     {

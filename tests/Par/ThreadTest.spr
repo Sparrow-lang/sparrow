@@ -13,7 +13,7 @@ import std.compilerInfo
     fun sprMain
         if programArgs.size() < 2
             return
-        var n = programArgs(1) asInt
+        let n = programArgs(1) asInt
 
         if      n == 1; test1
         else if n == 2; test2
@@ -39,7 +39,7 @@ import std.compilerInfo
 
     fun ()(this: @TwiddleThumbs)
         for i = 0..count
-            var cnt: Int = gCounter++
+            let cnt: Int = gCounter++
             if i == count-1
                 lastCounter = cnt
             if doPrint
@@ -55,7 +55,7 @@ import std.compilerInfo
 
     fun test3
         cout << "Before creating threads" << endl
-        var count = 10
+        let count = 10
         var cnt1, cnt2: Int
         var t1 = Thread(TwiddleThumbs("worker 1", count, cnt1, true))
         var t2 = Thread(TwiddleThumbs("worker 2", count, cnt2, true))
@@ -66,7 +66,7 @@ import std.compilerInfo
         cout << "Done" << endl
 
     fun test4
-        var count = 10
+        let count = 10
         var cnt1, cnt2: Int
         var t1 = Thread(TwiddleThumbs("worker 1", count, cnt1))
         var t2 = Thread(TwiddleThumbs("worker 2", count, cnt2))
@@ -82,13 +82,13 @@ import std.compilerInfo
         cout << "ok" << endl
 
         //p1 store cnt1
-        var pp: Int Ptr
+        let pp: Int Ptr
         p2 store pp
 else
     fun sprMain
         if programArgs.size() < 2
             return
-        var n = programArgs(1) asInt
+        let n = programArgs(1) asInt
 
         if      n == 1
             cout << '8\n'

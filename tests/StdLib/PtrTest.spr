@@ -30,7 +30,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1; test1
     else if n == 2; test2
@@ -75,7 +75,7 @@ fun test1()
 {
     var p: Ptr(MyObj);
     var scp: ScopedPtr(MyObj);
-    var shp: SharedPtr(MyObj);
+    let shp: SharedPtr(MyObj);
 
     if ( !isNullRef(reinterpretCast(@Byte, p.get())) || !p.isNull() )
         cout << "test failed" << endl;
@@ -189,8 +189,8 @@ fun test4()
 fun test5()
 {
     var obj: @MyObj = newObj(42);
-    var p = Ptr(MyObj)(obj);
-    var sp = SharedPtr(MyObj)(obj);
+    let p = Ptr(MyObj)(obj);
+    let sp = SharedPtr(MyObj)(obj);
 
     cout << p.x << endl;
     cout << sp.x << endl;
@@ -198,7 +198,7 @@ fun test5()
     p.print();
     p.print("some argument");
 
-    var pp: Ptr(Foo) = new(Foo, 13);
+    let pp: Ptr(Foo) = new(Foo, 13);
     cout << pp.obj.x << endl;
 
 }

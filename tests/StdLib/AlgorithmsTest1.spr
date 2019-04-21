@@ -10,7 +10,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1; test1
     else if n == 2; test2
@@ -63,7 +63,7 @@ fun printRange(nr: List(Int).RangeType)
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
 {
     var ptr = allocRawPtr(Int, size);
-    var ptrEnd = ptr.advance(DiffType(size));
+    let ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 
     while i < size ; i = i + 1;
@@ -166,8 +166,8 @@ fun test7()
 
 fun test8()
 {
-    var cmr = createRangeAscending(20);
-    var cmr0 = createRangeAscending(0);
+    let cmr = createRangeAscending(20);
+    let cmr0 = createRangeAscending(0);
 
     cout << rangeSize(cmr) << endl;
     cout << rangeSize(cmr0) << endl;
@@ -179,14 +179,14 @@ fun test8()
 
 fun test9()
 {
-    var x = 10;
-    var nr = createRangeAscending(5);
-    var pair = x ~ nr;
+    let x = 10;
+    let nr = createRangeAscending(5);
+    let pair = x ~ nr;
 
     cout << pair.v1 << endl;
     printRange(pair.v2);
 
-    var pair2 = 20 ~ (50 ~ "bla");
+    let pair2 = 20 ~ (50 ~ "bla");
 
     cout << pair2.v1 << endl;
     cout << pair2.v2.v1 << endl;

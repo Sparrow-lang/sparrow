@@ -26,14 +26,14 @@ fun pre_---(x: @Int): @Int
 
 fun post_+++(x: @Int): Int
 {
-    var r = x;
+    let r = x;
     x += 1;
     return r;
 }
 
 fun post_---(x: @Int): Int
 {
-    var r = x;
+    let r = x;
     x -= 1;
     return r;
 }
@@ -42,7 +42,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1; test1
     else if n == 2; test2

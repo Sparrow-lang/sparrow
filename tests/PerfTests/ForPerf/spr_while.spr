@@ -15,9 +15,9 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
-    var res = testAccumulate(n);
+    let res = testAccumulate(n);
     cout << res << endl;
 }
 

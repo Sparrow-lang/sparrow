@@ -9,7 +9,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -99,7 +99,7 @@ fun makeList(): List(Int)
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
 {
     var ptr = allocRawPtr(Int, size);
-    var ptrEnd = ptr.advance(DiffType(size));
+    let ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 
     while i < size ; i = i + 1;
@@ -111,7 +111,7 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
 
 fun test1()
 {
-    var nr = 0..10
+    let nr = 0..10
 
     printRange(find(nr, 0));
     printRange(find(nr, 5));
@@ -125,8 +125,8 @@ empty
 
 fun test2()
 {
-    var nr1 = 11..99../2
-    var nr2 = 5..10
+    let nr1 = 11..99../2
+    let nr2 = 5..10
 
     printRange(findIf(nr2, Even()));
     printEmpty(findIf(nr1, Even()));
@@ -138,9 +138,9 @@ empty
 
 fun test3()
 {
-    var nr1 = 0..10
-    var nr2 = -10..40../3
-    var nr3 = 20..20../100
+    let nr1 = 0..10
+    let nr2 = -10..40../3
+    let nr3 = 20..20../100
 
     printRange(findFirstOf(nr1, nr2));
     printEmpty(findFirstOf(nr3, nr2));
@@ -154,10 +154,10 @@ empty
 
 fun test4()
 {
-    var nr1 = 0..10../2
-    var nr2 = 5..40../3
-    var nr3 = 20..20../100
-    var nr4 = 10..20
+    let nr1 = 0..10../2
+    let nr2 = 5..40../3
+    let nr3 = 20..20../100
+    let nr4 = 10..20
 
     printRange(findFirstOfIf(nr1, nr2, Greater()));
     printEmpty(findFirstOfIf(nr3, nr2, Greater()));
@@ -185,7 +185,7 @@ fun test5()
 
 fun test6()
 {
-    var nr = 1..9../2
+    let nr = 1..9../2
     var li = makeList();
 
     cout << countIf(li.all(), Even()) << endl;
@@ -198,13 +198,13 @@ fun test6()
 
 fun test7()
 {
-    var nr1 = 0..10
-    var nr2 = 0..10
-    var nr3 = 10..10../2
-    var nr4 = -10 .. -10../5
-    var nr5 = 40..100../16
-    var nr6 = 0..11
-    var nr7 = 0..9
+    let nr1 = 0..10
+    let nr2 = 0..10
+    let nr3 = 10..10../2
+    let nr4 = -10 .. -10../5
+    let nr5 = 40..100../16
+    let nr6 = 0..11
+    let nr7 = 0..9
 
     cout << equal(nr1, nr2) << endl;
     cout << equal(nr1, nr3) << endl;
@@ -226,15 +226,15 @@ false
 
 fun test8()
 {
-    var nr1 = 0..10
-    var nr2 = 0..10
-    var nr3 = 10..10../2
-    var nr4 = -10 .. -10 ../ 5
-    var nr5 = 40..100../16
-    var nr6 = 0..11
-    var nr7 = 0..9
-    var nr8 = -1..9
-    var nr9 = -3..50
+    let nr1 = 0..10
+    let nr2 = 0..10
+    let nr3 = 10..10../2
+    let nr4 = -10 .. -10 ../ 5
+    let nr5 = 40..100../16
+    let nr6 = 0..11
+    let nr7 = 0..9
+    let nr8 = -1..9
+    let nr9 = -3..50
 
     cout << equalIf(nr1, nr2, Greater()) << endl;
     cout << equalIf(nr1, nr3, Greater()) << endl;
@@ -260,11 +260,11 @@ false
 
 fun test9()
 {
-    var nr1 = 0..10
-    var nr2 = 0..10
-    var nr3 = 3..7
-    var nr4 = 20..20../20
-    var nr5 = 0..20
+    let nr1 = 0..10
+    let nr2 = 0..10
+    let nr3 = 3..7
+    let nr4 = 20..20../20
+    let nr5 = 0..20
 
     printRange(findRange(nr1, nr2));
     printRange(findRange(nr1, nr3));
@@ -284,10 +284,10 @@ empty
 
 fun test10()
 {
-    var nr1 = 0..10
-    var nr2 = 3..5
-    var nr3 = 10..10
-    var nr4 = 4..11
+    let nr1 = 0..10
+    let nr2 = 3..5
+    let nr3 = 10..10
+    let nr4 = 4..11
 
     printRange(findRangeIf(nr1, nr2, Greater()));
     printRange(findRangeIf(nr1, nr3, Greater()));
@@ -307,7 +307,7 @@ fun test11()
 
     printRange(minElement(li.all()));
 
-    var nr = 10..10
+    let nr = 10..10
 
     printEmpty(minElement(nr));
 }
@@ -322,7 +322,7 @@ fun test12()
 
     printRange(minElementIf(li.all(), Greater()));
 
-    var nr = 10..10
+    let nr = 10..10
 
     printEmpty(minElementIf(nr, Greater()));
 }
@@ -337,7 +337,7 @@ fun test13()
 
     printRange(maxElement(li.all()));
 
-    var nr = 10..10
+    let nr = 10..10
 
     printEmpty(maxElement(nr));
 }
@@ -352,7 +352,7 @@ fun test14()
 
     printRange(maxElementIf(li.all(), Greater()));
 
-    var nr = 10..10
+    let nr = 10..10
 
     printEmpty(maxElementIf(nr, Greater()));
 }
@@ -364,13 +364,13 @@ empty
 fun test15()
 {
     var li = makeList();
-    var pair = minMaxElement(li.all());
+    let pair = minMaxElement(li.all());
 
     printRange(pair.v1);
     printRange(pair.v2);
 
     var nr = 10..10
-    var pair2 = minMaxElement(nr);
+    let pair2 = minMaxElement(nr);
 
     printEmpty(pair2.v1);
     printEmpty(pair2.v2);
@@ -385,14 +385,14 @@ empty
 fun test16()
 {
     var li = makeList();
-    var pair = minMaxElementIf(li.all(), Greater());
+    let pair = minMaxElementIf(li.all(), Greater());
 
     printRange(pair.v1);
     printRange(pair.v2);
 
-    var nr = 10..10
+    let nr = 10..10
 
-    var pair2 = minMaxElementIf(nr, Greater());
+    let pair2 = minMaxElementIf(nr, Greater());
     printEmpty(pair2.v1);
     printEmpty(pair2.v2);
 }
@@ -405,10 +405,10 @@ empty
 
 fun test17()
 {
-    var nr1 = 0..10
-    var nr2 = 2..5
-    var nr3 = -1..20
-    var nr4 = 1..15
+    let nr1 = 0..10
+    let nr2 = 2..5
+    let nr3 = -1..20
+    let nr4 = 1..15
 
     cout << compare(nr1, nr2) << endl;
     cout << compare(nr1, nr3) << endl;
@@ -424,10 +424,10 @@ true
 
 fun test18()
 {
-    var nr1 = 0..10
-    var nr2 = 2..5
-    var nr3 = -1..20
-    var nr4 = 1..15
+    let nr1 = 0..10
+    let nr2 = 2..5
+    let nr3 = -1..20
+    let nr4 = 1..15
 
     cout << compare(nr1, nr2, Greater()) << endl;
     cout << compare(nr1, nr3, Greater()) << endl;
@@ -443,8 +443,8 @@ false
 
 fun test19()
 {
-    var nr1 = 0..10
-    var nr2 = 20..10 ../ -1
+    let nr1 = 0..10
+    let nr2 = 20..10 ../ -1
 
     cout << isSorted(nr1) << endl;
     cout << isSorted(nr2) << endl;
@@ -456,8 +456,8 @@ false
 
 fun test20()
 {
-    var nr1 = 0..10
-    var nr2 = 10..5 ../ -1
+    let nr1 = 0..10
+    let nr2 = 10..5 ../ -1
 
     cout << isSorted(nr1, Greater()) << endl;
     cout << isSorted(nr2, Greater()) << endl;
@@ -482,7 +482,7 @@ fun test21()
 fun test22()
 {
     var li = makeList();
-    var nr = 5..19../2
+    let nr = 5..19../2
 
     cout << indexOfIf(li.all(), Even()) << endl;
     cout << indexOfIf(nr, Even()) << endl;
@@ -495,12 +495,12 @@ fun test22()
 fun test23()
 {
     var li = makeList();
-    var lr = li.all();
+    let lr = li.all();
 
     cout << foldLeft(lr, Minus(), 0) << endl;
     cout << foldRight(lr, Minus(), 0) << endl;
 
-    var nr = NumericRangeWithStep(Int)();
+    let nr = NumericRangeWithStep(Int)();
 
     cout << foldLeft(nr, Minus(), 100) << endl;
 }

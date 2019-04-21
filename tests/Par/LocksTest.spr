@@ -23,10 +23,10 @@ import std.compilerInfo
 
     fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false)
         if !useTryLock
-            var lock: ScopedLock(typeOf(mutex)) = mutex
+            let lock: ScopedLock(typeOf(mutex)) = mutex
             doCoreJob(1)
         else
-            var lock: ScopedTryLock(typeOf(mutex)) = mutex
+            let lock: ScopedTryLock(typeOf(mutex)) = mutex
             if lock.isLocked
                 doCoreJob(3)
 
@@ -49,10 +49,10 @@ import std.compilerInfo
         this.numWorkers ctor numWorkers
         this.numTryWorkers ctor numTryWorkers
         for i=0..numWorkers
-            var p: Thread Ptr = new(Thread, Worker(amountOfWork, false))
+            let p: Thread Ptr = new(Thread, Worker(amountOfWork, false))
             threads.pushBack(p)
         for i=0..numTryWorkers
-            var p: Thread Ptr = new(Thread, Worker(amountOfWork, true))
+            let p: Thread Ptr = new(Thread, Worker(amountOfWork, true))
             threads.pushBack(p)
 
     fun dtor(this: @WorkManager)
@@ -66,11 +66,11 @@ import std.compilerInfo
     fun sprMain
         if programArgs.size() < 4
             return
-        var amountOfWork = programArgs(1) asInt
-        var numWorkers = programArgs(2) asInt
-        var numTryWorkers = programArgs(3) asInt
+        let amountOfWork = programArgs(1) asInt
+        let numWorkers = programArgs(2) asInt
+        let numTryWorkers = programArgs(3) asInt
 
-        var work = WorkManager(amountOfWork, numWorkers, numTryWorkers)
+        let work = WorkManager(amountOfWork, numWorkers, numTryWorkers)
 else
     fun sprMain
         ;

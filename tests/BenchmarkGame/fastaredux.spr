@@ -11,7 +11,7 @@ fun write(r: Range, length: Int) if isValid(Char(r.front))
     var line: String = lineLength;
     for n = length..0 ../ (-lineLength)
     {
-        var len = min(n, lineLength);
+        let len = min(n, lineLength);
         for i = 0..len
             line(i) = (r++);
         if ( len < lineLength )
@@ -43,7 +43,7 @@ fun ctor(this: @RandTableRange, data: Range)
 fun isEmpty(this: @RandTableRange)     = false;
 fun popFront(this: @RandTableRange)    {}
 fun front(this: @RandTableRange): Char
-    var r = nextRandom;
+    let r = nextRandom;
     var idx: SizeType = r*numEntries;
     while lookup(idx).v1 < r
         ++idx;
@@ -51,9 +51,9 @@ fun front(this: @RandTableRange): Char
 
 fun sprMain
 {
-    var n = (programArgs(1) asInt);
+    let n = (programArgs(1) asInt);
 
-    var alu: String = (
+    let alu: String = (
         "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGG" +
         "GAGGCCGAGGCGGGCGGATCACCTGAGGTCAGGAGTTCGAGA" +
         "CCAGCCTGGCCAACATGGTGAAACCCCGTCTCTACTAAAAAT" +
@@ -62,13 +62,13 @@ fun sprMain
         "AGGCGGAGGTTGCAGTGAGCCGAGATCGCGCCACTGCACTCC" +
         "AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA");
 
-    var iubStr: String = "acgtBDHKMNRSVWY";
-    var iubDist = values(0.27f, 0.12f, 0.12f, 0.27f) ++ repeat(0.02f, 11);
-    var iubCum = scanLeft(0.0f, iubDist, (fun acc,v = acc+v));
+    let iubStr: String = "acgtBDHKMNRSVWY";
+    let iubDist = values(0.27f, 0.12f, 0.12f, 0.27f) ++ repeat(0.02f, 11);
+    let iubCum = scanLeft(0.0f, iubDist, (fun acc,v = acc+v));
 
-    var homoSapiensStr: String = "acgt";
-    var hsDist = values(0.3029549426680f, 0.1979883004921f, 0.1975473066391f, 0.3015094502008f);
-    var hsCum = scanLeft(0.0f, hsDist, (fun acc,v = acc+v));
+    let homoSapiensStr: String = "acgt";
+    let hsDist = values(0.3029549426680f, 0.1979883004921f, 0.1975473066391f, 0.3015094502008f);
+    let hsCum = scanLeft(0.0f, hsDist, (fun acc,v = acc+v));
 
     cout << ">ONE Homo sapiens alu\n";
     write(alu.all cycle, n*2);

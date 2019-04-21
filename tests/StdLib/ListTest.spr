@@ -7,7 +7,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -56,7 +56,7 @@ fun ()(this: Even, x: MyObj): Bool { return x.x % 2 == 0; }
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 {
     var ptr = allocRawPtr(MyObj, size);
-    var ptrEnd = ptr.advance(DiffType(size));
+    let ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 
     while i < size ; i = i + 1;
@@ -140,10 +140,10 @@ false
 
 fun test3()
 {
-    var li1: List(MyObj);
-    var li2 = List(MyObj)(createRangeAscending(4));
-    var li3 = List(MyObj)(li1);
-    var li4 = List(MyObj)(li2);
+    let li1: List(MyObj);
+    let li2 = List(MyObj)(createRangeAscending(4));
+    let li3 = List(MyObj)(li1);
+    let li4 = List(MyObj)(li2);
 
     printSizeInfo(li3);
     printSizeInfo(li4);
@@ -187,8 +187,8 @@ false
 
 fun test6()
 {
-    var li1 = List(MyObj)(createRangeAscending(8));
-    var li2 = List(MyObj)(createRangeAscending(1));
+    let li1 = List(MyObj)(createRangeAscending(8));
+    let li2 = List(MyObj)(createRangeAscending(1));
 
     cout << li1.front().x << endl;
     li1.front().x = 42;
@@ -1054,9 +1054,9 @@ false
 
 fun test25()
 {
-    var l1: List(MyObj) = createRangeAscending(4);
-    var l2: List(MyObj) = createRangeAscending(4);
-    var l3: List(MyObj) = createRangeAscending(6);
+    let l1: List(MyObj) = createRangeAscending(4);
+    let l2: List(MyObj) = createRangeAscending(4);
+    let l3: List(MyObj) = createRangeAscending(6);
 
     cout << l1 == l2 << endl;
     cout << l1 == l3 << endl;

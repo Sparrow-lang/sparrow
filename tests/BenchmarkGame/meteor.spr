@@ -208,7 +208,7 @@ fun flip(dir: Direction) = Direction((Direction.numValues-dir.id) % Direction.nu
  */
 fun shift(cell: Byte, dir: Direction): Byte
 {
-    var oddRow: Bool = (cell/5) % 2 != 0;
+    let oddRow: Bool = (cell/5) % 2 != 0;
 
     using Direction.*;
     if ( dir == E )                  return cell + Byte(1);
@@ -240,8 +240,8 @@ fun shift(cell: Byte, dir: Direction): Byte
  */
 fun outOfBounds(cell: Byte, dir: Direction): Bool
 {
-    var col = cell % 5;
-    var colEx = cell % 10;
+    let col = cell % 5;
+    let colEx = cell % 10;
     using Direction.*;
     if ( dir == E )         return col==4;
     else if ( dir == ESE )  return colEx==4 || colEx==8 || colEx==9 || cell>=45;
@@ -414,9 +414,9 @@ fun calcSixRotations(piece, index: Byte)
             calcCellIndices(cell, piece, index);
             if ( cellsFitOnBoard(cell, piece) && !hasIsland(cell, piece) )
             {
-                var min = minimumOfCells(cell);
-                var firstEmpty = firstEmptyCell(cell, min);
-                var pieceMask = bitmaskFromCells(cell);
+                let min = minimumOfCells(cell);
+                let firstEmpty = firstEmptyCell(cell, min);
+                let pieceMask = bitmaskFromCells(cell);
                 recordPiece(piece, min, firstEmpty, pieceMask);
             }
         }
@@ -458,7 +458,7 @@ fun rowsBad(row1, row2: Byte, even: Bool): Bool
         row2Shift = ((row2 !<<! Byte(1)) !&! ROW_MASK) !|! Byte(0x01);
     else
         row2Shift = (row2 !>>! Byte(1)) !|! Byte(0x10);
-    var block = (row1 !^! row2) !&! row2 !&! ((row1 !^! row2Shift) !&! row2Shift);
+    let block = (row1 !^! row2) !&! row2 !&! ((row1 !^! row2Shift) !&! row2Shift);
     /* Test for groups of 0's */
     var inZeroes = false;
     var groupOkay = false;
@@ -491,9 +491,9 @@ fun rowsBad(row1, row2: Byte, even: Bool): Bool
  */
 fun tripleIsOkay(row1, row2, row3: Byte, even: Bool): Bool
 {
-    var r1: Int = row1;
-    var r2: Int = row2;
-    var r3: Int = row3;
+    let r1: Int = row1;
+    let r2: Int = row2;
+    let r3: Int = row3;
     if ( even )
     {
         /* There are four cases:
@@ -545,7 +545,7 @@ fun calcRows
 }
 
 
-var board = ULong(0xFFFC000000000000L);
+let board = ULong(0xFFFC000000000000L);
 
 
 /* Calculate islands while solving the board.
@@ -555,7 +555,7 @@ fun boardHasIslands(cell: Byte): Bool
     /* Too low on board, don't bother checking */
     if ( cell >= 40 )
        return false;
-    var currentTriple: Int = (board !>>! ((cell / 5) * 5)) !&! TRIPLE_MASK;
+    let currentTriple: Int = (board !>>! ((cell / 5) * 5)) !&! TRIPLE_MASK;
     if ( (cell / 5 % 2) != 0 )
         return badOddTriple(currentTriple);
     else
@@ -569,12 +569,12 @@ fun boardHasIslands(cell: Byte): Bool
  * at each successful piece placement.  This data is used to create a 50 char
  * array if a solution is found.
  */
-var avail: Short = 0x03FF;
+let avail: Short = 0x03FF;
 var solNums: StaticArray(Byte, nPieces);
 var solMasks: StaticArray(ULong, nPieces);
 var solutions: StaticArray2d(Byte, 2100, nPositions);
 var solutionCount = 0;
-var maxSolutions = 2100;
+let maxSolutions = 2100;
 
 fun recordSolution
 {
@@ -605,12 +605,12 @@ fun solve(depth, cell: Int)
 
     for piece: Byte = 0..nPieces
     {
-        var pieceNoMask: Short = Short(1) !<<! piece;
+        let pieceNoMask: Short = Short(1) !<<! piece;
         if ( 0 == (avail !&! pieceNoMask) )
             continue;
         avail !^!= pieceNoMask;
-        var maxRots = P1.pieceCounts(piece)(cell);
-        var pieceMask: @StaticArray(ULong, nRotations) = P1.pieces(piece)(cell);
+        let maxRots = P1.pieceCounts(piece)(cell);
+        let pieceMask: @StaticArray(ULong, nRotations) = P1.pieces(piece)(cell);
         for rotation = 0..maxRots
         {
             if ( 0 == (board !&! pieceMask(rotation)) )

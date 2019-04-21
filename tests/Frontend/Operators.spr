@@ -43,7 +43,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -171,7 +171,7 @@ fun test6
 
 fun test7
 {
-    var x: StringRef = "42";
+    let x: StringRef = "42";
     cout << ( x size ) << endl;
     cout << ( x front ) << endl;
 }
@@ -240,9 +240,9 @@ fun test10
 
 fun test11
 {
-    var x = 3;
-    var y = 4;
-    var z = 5;
+    let x = 3;
+    let y = 4;
+    let z = 5;
     cout << ( x..y ) << endl;
     cout << ( x..y..z ) << endl;
 }

@@ -40,8 +40,8 @@ import std.compilerInfo
             else
                 // Create the children tasks
                 var x, y: Long
-                var t1 = FibTask(task.n-1, x)
-                var t2 = FibTask(task.n-2, y)
+                let t1 = FibTask(task.n-1, x)
+                let t2 = FibTask(task.n-2, y)
 
                 spawnAndWait(task, t1, t2)
 

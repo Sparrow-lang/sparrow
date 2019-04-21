@@ -6,7 +6,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1; test1
     else if n == 2; test2
@@ -28,7 +28,7 @@ fun ctor(this: @MyObj, xx: Int)
 fun createRange(size: SizeType): ContiguousMemoryRange(MyObj)
 {
     var ptr = allocRawPtr(MyObj, size);
-    var ptrEnd = ptr.advance(DiffType(size));
+    let ptrEnd = ptr.advance(DiffType(size));
     var p = ptr;
 
     while (p != ptrEnd) ; p = p.advance();
@@ -40,7 +40,7 @@ fun createRange(size: SizeType): ContiguousMemoryRange(MyObj)
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 {
     var ptr = allocRawPtr(MyObj, size);
-    var ptrEnd = ptr.advance(DiffType(size));
+    let ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 
     while i < size ; i = i + 1;
@@ -55,7 +55,7 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 
 fun test1()
 {
-    var r = ContiguousMemoryRange(MyObj)(createRange(5));
+    let r = ContiguousMemoryRange(MyObj)(createRange(5));
 
     cout << r.isEmpty() << endl;
     cout << r.size() << endl;
@@ -71,7 +71,7 @@ false
 
 fun test2()
 {
-    var r = ContiguousMemoryRange(MyObj)(createRangeAscending(5));
+    let r = ContiguousMemoryRange(MyObj)(createRangeAscending(5));
 
     cout << r.isEmpty() << endl;
     cout << r.size() << endl;
@@ -102,7 +102,7 @@ fun test3()
 
 fun test4()
 {
-    var r = ContiguousMemoryRange(MyObj)(createRangeAscending(5));
+    let r = ContiguousMemoryRange(MyObj)(createRangeAscending(5));
 
     cout << r.front().x << endl;
     cout << r.back().x << endl;
@@ -124,8 +124,8 @@ fun test4()
 
 fun test5()
 {
-    var size = 1000;
-    var r = ContiguousMemoryRange(MyObj)(createRangeAscending(size));
+    let size = 1000;
+    let r = ContiguousMemoryRange(MyObj)(createRangeAscending(size));
     var i = 0;
 
     while i < size ; i = i + 1;
@@ -222,8 +222,8 @@ fun test8()
 
 fun test9()
 {
-    var r1 = ContiguousMemoryRange(MyObj)(createRangeAscending(10));
-    var r2 = ContiguousMemoryRange(MyObj)(createRangeAscending(20));
+    let r1 = ContiguousMemoryRange(MyObj)(createRangeAscending(10));
+    let r2 = ContiguousMemoryRange(MyObj)(createRangeAscending(20));
     var r3 = r2;
 
     cout << r1 == r2 << endl;

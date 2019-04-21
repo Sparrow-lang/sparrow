@@ -1,4 +1,4 @@
 import HeaderA;
 import HeaderC;
 
-var d = Int(4);
+let d = Int(4);

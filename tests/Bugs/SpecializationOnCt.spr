@@ -35,7 +35,7 @@ fun regexMatch(re: StringRef ct, str: StringRef): Bool
 
 fun sprMain
 {
-    var n = 5;
+    let n = 5;
 
     f(n);
     f(6);
@@ -43,8 +43,8 @@ fun sprMain
     g(n, n);
     g(6, n);
 
-    var str = "mumu";
-    [ct] var strCt = "bubu";
+    let str = "mumu";
+    [ct] let strCt = "bubu";
     regexMatch(str, "testStr");
     regexMatch(strCt, "testStr");
 }

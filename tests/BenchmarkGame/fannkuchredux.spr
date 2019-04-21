@@ -39,7 +39,7 @@ fun fannkuch(n: Int): Int
                 cout << checksum << endl;
                 return flips;
             }
-            var p0 = perm1(0);
+            let p0 = perm1(0);
             for i = 0..r
                 perm1(i) = perm1(i+1);
             perm1(r) = p0;
@@ -55,8 +55,8 @@ fun fannkuch(n: Int): Int
 
 fun sprMain
 {
-    var n = programArgs(1) asInt;
-    var r = fannkuch(n);
+    let n = programArgs(1) asInt;
+    let r = fannkuch(n);
     cout << "Pfannkuchen(" << n << ") = " << r << endl;
 }
 

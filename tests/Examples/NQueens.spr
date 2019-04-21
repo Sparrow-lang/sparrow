@@ -46,7 +46,7 @@ fun backtracking(curSol: @PlacementType, k, n: Int, res: @SolutionsType)
 fun nQueens(n: Int): SolutionsType
 {
     var res: SolutionsType;
-    var curSol: PlacementType = n;
+    let curSol: PlacementType = n;
     backtracking(curSol, 0, n, res);
     return res;
 }
@@ -86,10 +86,10 @@ fun writeSolutionBasic(x: @PlacementType)
     // lines N+1..2N    the characters to be displayed for a "black" board square
     // lines 2N+1..3N   the characters to be displayed for a queen on white square
     // lines 3N+1..4N   the characters to be displayed for a queen on black square
-    var lines = readFileLines("queen-art.txt");
+    let lines = readFileLines("queen-art.txt");
     if lines.isEmpty()
         os.exit(-1);
-    var n = asInt(lines(0).asStringRef());
+    let n = asInt(lines(0).asStringRef());
     if lines.size() < 1+4*n
         os.exit(-1);
 
@@ -99,14 +99,14 @@ fun writeSolutionBasic(x: @PlacementType)
     {
         for line = 0..sol.size()
         {
-            var v = sol(line);
+            let v = sol(line);
             for l = 0..n
             {
                 for col = 0..sol.size()
                 {
-                    var isQueen = col==v;
-                    var isWhite = (line+col)%2==0;
-                    var idx = ife(isWhite, 1+l, 1+l+n) + ife(isQueen, 2*n, 0);
+                    let isQueen = col==v;
+                    let isWhite = (line+col)%2==0;
+                    let idx = ife(isWhite, 1+l, 1+l+n) + ife(isQueen, 2*n, 0);
                     cout << lines(idx);
                 }
                 cout << endl;
@@ -128,7 +128,7 @@ fun readFileLines(filename: StringRef): Vector(String)
     }
     while !f.isEof()
     {
-        var s = f.readLine();
+        let s = f.readLine();
         if ( !s.isEmpty() )
         {
             s.resize(s.size()-1);   // Cut the end of line
@@ -141,7 +141,7 @@ fun readFileLines(filename: StringRef): Vector(String)
 
 [rt] fun toRt(sols: SolutionsType ct): SolutionsType
 {
-    var solsRt = sols;
+    let solsRt = sols;
     return solsRt;
 }
 
@@ -151,7 +151,7 @@ fun readFileLines(filename: StringRef): Vector(String)
     res.reserve(ctEval(sols.size()));
     [ct] for sol = sols.all()
     {
-        [ct] var size = sol size;
+        [ct] let size = sol size;
         var arr = PlacementType(ctEval(size));
         [ct] for i = 0..size
             arr(i) = sol(i);
@@ -167,7 +167,7 @@ fun readFileLines(filename: StringRef): Vector(String)
     res.reserve(ctEval(sols.size()));
     [ct] for sol = sols.all()
     {
-        [ct] var size = sol size;
+        [ct] let size = sol size;
         var arr = PlacementType(ctEval(size));
         [ct] for i = 0..size
             arr(i) = ctEval(sol(ctEval(i)));
@@ -183,7 +183,7 @@ fun readFileLines(filename: StringRef): Vector(String)
     res.reserve(ctEval(sols.size()));
     [ct] for sol = sols.all()
     {
-        [ct] var size = sol size;
+        [ct] let size = sol size;
         var arr = PlacementType(ctEval(size));
         [ct] for i = 0..size
         {
@@ -199,15 +199,15 @@ fun readFileLines(filename: StringRef): Vector(String)
 
 [ct] fun toStringBuffer(sols: SolutionsType): String
 {
-    var numSols = sols.size();
-    var n = ife(numSols == 0, 1, sols(0).size());
+    let numSols = sols.size();
+    let n = ife(numSols == 0, 1, sols(0).size());
 
     var res: String = 1 + numSols*n;
     res(0) = Char(n);
     for i = 0..numSols*n
     {
-        var solNum = i / n;
-        var qNum = i % n;
+        let solNum = i / n;
+        let qNum = i % n;
         res(1+i) = Char(sols(solNum)(qNum));
     }
 
@@ -216,15 +216,15 @@ fun readFileLines(filename: StringRef): Vector(String)
 
 [rt] fun fromStringBuffer(sols: String): SolutionsType
 {
-    var n: Int = sols(0);
-    var numSols = (sols.size()-1) / n;
+    let n: Int = sols(0);
+    let numSols = (sols.size()-1) / n;
 
     var res: SolutionsType = repeat(PlacementType(n), numSols);
 
     for i = 0..numSols*n
     {
-        var solNum = i / n;
-        var qNum = i % n;
+        let solNum = i / n;
+        let qNum = i % n;
         res(solNum)(qNum) = Int( sols(1+i) );
     }
 
@@ -241,14 +241,14 @@ fun sprMain
 {
     [ct] if ( autoTestMode )
     {
-        [ct] var solutionsCt = nQueens(numQueens);
-        var solutions = solutionsCt;
+        [ct] let solutionsCt = nQueens(numQueens);
+        let solutions = solutionsCt;
         writeSolutions(solutionsCt);
         writeSolutions(solutions);
     }
     else [ct] if ( isValid(runAtCt) )
     {
-        [ct] var solutionsCt = nQueens(numQueens);
+        [ct] let solutionsCt = nQueens(numQueens);
         [ct] if ( isValid(printRt) )
         {
             [ct] if ( printRt == 0 )
@@ -273,7 +273,7 @@ fun sprMain
     }
     else
     {
-        var n = numQueens;
+        let n = numQueens;
         writeAsciiArt(nQueens(n));
     }
 }

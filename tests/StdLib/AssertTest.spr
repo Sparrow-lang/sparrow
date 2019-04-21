@@ -5,7 +5,7 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    let n = programArgs(1) asInt;
 
     if      n == 1; test1
     //else if n == 2; test2
@@ -37,10 +37,10 @@ fun test1
     assert(printerFalse());
     assert(2 == 1+1);
     assert(2 != 1+1, "intentional error");
-    var a = 12;
-    var b = 13;
-    var c = 5;
-    var foo: FooType = 10;
+    let a = 12;
+    let b = 13;
+    let c = 5;
+    let foo: FooType = 10;
     assert(a == b);
     assert(a+1 < b);
     assert(a >= b, "intentional error");

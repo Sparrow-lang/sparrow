@@ -1,7 +1,7 @@
 fun sprMain
     var a: Bool
     a = true
-    var ra: @Bool = a
+    let ra: @Bool = a
     while a
         break
     while ra

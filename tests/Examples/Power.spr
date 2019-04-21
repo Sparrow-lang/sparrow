@@ -29,12 +29,12 @@ fun pow(x: Double, n: Double): Double
 
 fun sprMain
 {
-    var x = 10.0;
-    var yd = 2.0;
-    var yn = 2;
-    var r1 = pow(x, yd);
-    var r2 = pow(x, yn);
-    var r3 = pow(x, 2);
+    let x = 10.0;
+    let yd = 2.0;
+    let yn = 2;
+    let r1 = pow(x, yd);
+    let r2 = pow(x, yn);
+    let r3 = pow(x, 2);
 
     cout << r1 << endl;
     cout << r2 << endl;

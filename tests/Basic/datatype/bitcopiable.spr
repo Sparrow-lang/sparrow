@@ -89,7 +89,7 @@ package _Impl0
 
 using FunctionPtr = _Impl0.FunctionPtr0
 
-[native("test")] fun test(n: Int)
+fun testBinCompat
     var p1 = allocIntPtr()
     var p2 = allocIntPtr()
 
@@ -134,6 +134,31 @@ using FunctionPtr = _Impl0.FunctionPtr0
     writeLn(loadVal(p2))
     freeIntPtr(p1)
     freeIntPtr(p2)
+
+[bitcopiable]
+datatype Printer
+
+fun ctor(this: Printer)
+    writeLn('Printer.ctor')
+fun ctor(this, other: Printer)
+    writeLn('Printer.copy ctor')
+fun dtor(this, other: Printer)
+    writeLn('Printer.copy ctor')
+
+fun creator = Printer() // should not call copy ctor
+
+fun takingAsParam(x: Printer)
+    ;
+    // currently calls copy ctor
+
+fun printerTest
+    var obj = creator()
+    takingAsParam(obj)
+
+[native("test")] fun test(n: Int)
+    testBinCompat
+    writeLn('------')
+    printerTest
 /*<<<Running()
 17
 19
@@ -145,4 +170,7 @@ using FunctionPtr = _Impl0.FunctionPtr0
 37
 41
 43
+------
+Printer.ctor
+Printer.copy ctor
 >>>*/

@@ -2,7 +2,7 @@
 import std.vector(Vector);
 import std.contiguousMemoryRange(ContiguousMemoryRange);
 import std.rawPtr(RawPtr, allocRawPtr);
-import std.ranges(.., rangeSize, repeat, skip, take);
+import std.ranges(.., rangeSize, repeat, skip, take, map);
 import std.algorithms(equal);
 import std.tuple;
 import check;
@@ -34,6 +34,23 @@ fun sprMain
             }
             return true;
     }) ~ "vector's copy constructor";
+
+    forAll(DataVec arbitrary) check (fun (vec: DataVec): Bool {
+            copyCtorCnt = 0
+
+            var vec2: DataVec = vec
+
+            if vec2.isEmpty != vec.isEmpty
+                return false
+            if vec2.size != vec.size
+                return false
+            for i = 0..vec.size
+                if vec2(i) != vec(i)
+                    return false
+            if copyCtorCnt != 0
+                return false;
+            return true
+    }) ~ "vector's copy constructor (Data); no copy ctor";
 
     forAll(SizeType) check (fun sz: Bool {
             var vec: Vec = sz;
@@ -337,4 +354,26 @@ fun arbitrary(t: Type): InsertRangeTestData Gen if t == InsertRangeTestData {
         return res;
     }));
 }
+
+using DataVec = Data Vector
+
+[initCtor, bitcopiable]
+datatype Data
+    x: Int
+
+fun >>(this: @Data, os: @OutStream)
+    os << 'Data(' << x << ')\n'
+
+
+fun ctor(this: @Data, other: Data)
+    copyCtorCnt++
+
+var copyCtorCnt = 0
+
+fun arbitrary(t: Type): DataVec Gen if t == DataVec
+    return mkGen(DataVec, \generateDataVec)
+
+fun generateDataVec(sizeHint: UInt): DataVec
+    return DataVec(generateVec(sizeHint).all map (fun x = Data(x)))
+
 

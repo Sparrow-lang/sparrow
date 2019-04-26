@@ -244,6 +244,7 @@ The compiler uses a special ``.`` operator to ease the access for some datatypes
 
 If the dot operator would not be present, then the last 4 lines would not be valid anymore. The user would have been supposed to write:
 ::
+
     p.get().x = 30              // UGLIER
     p.get().print               // UGLIER
     p.get print                 // UGLIER

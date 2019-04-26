@@ -107,6 +107,18 @@ void ModBitCopiable_beforeComputeType(Nest_Modifier*, Node* node) {
     Nest_setPropertyInt(node, propBitCopiable, 1);
 }
 
+void ModAutoBitCopiable_beforeComputeType(Nest_Modifier*, Node* node) {
+    /// Check to apply only to datatypes
+    if (node->nodeKind != nkSparrowDeclSprDatatype) {
+        REP_ERROR(node->location,
+                "autoBitcopiable modifier can be applied only to datatypes (applied to %1%)") %
+                Nest_nodeKindName(node);
+        return;
+    }
+
+    Nest_setPropertyInt(node, propAutoBitCopiable, 1);
+}
+
 void ModMacro_beforeComputeType(Nest_Modifier*, Node* node) {
     /// Check to apply only to functions
     if (node->nodeKind != nkSparrowDeclSprFunction) {
@@ -140,6 +152,7 @@ Nest_Modifier _convertMod = {modTypeBeforeComputeType, &ModConvert_beforeCompute
 Nest_Modifier _noDefaultMod = {modTypeBeforeComputeType, &ModNoDefault_beforeComputeType};
 Nest_Modifier _initCtorMod = {modTypeBeforeComputeType, ModInitCtor_beforeComputeType};
 Nest_Modifier _bitCopiableMod = {modTypeBeforeComputeType, &ModBitCopiable_beforeComputeType};
+Nest_Modifier _autoBitCopiableMod = {modTypeBeforeComputeType, &ModAutoBitCopiable_beforeComputeType};
 Nest_Modifier _macroMod = {modTypeBeforeComputeType, &ModMacro_beforeComputeType};
 Nest_Modifier _noInlineMod = {modTypeBeforeComputeType, &ModNoInline_beforeComputeType};
 
@@ -154,6 +167,7 @@ Nest_Modifier* SprFe_getConvertMod() { return &_convertMod; }
 Nest_Modifier* SprFe_getNoDefaultMod() { return &_noDefaultMod; }
 Nest_Modifier* SprFe_getInitCtorMod() { return &_initCtorMod; }
 Nest_Modifier* SprFe_getBitCopiableMod() { return &_bitCopiableMod; }
+Nest_Modifier* SprFe_getAutoBitCopiableMod() { return &_autoBitCopiableMod; }
 Nest_Modifier* SprFe_getMacroMod() { return &_macroMod; }
 Nest_Modifier* SprFe_getNoInlineMod() { return &_noInlineMod; }
 

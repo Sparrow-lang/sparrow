@@ -142,6 +142,7 @@ Basic/datatype/generic.spr:             Basic features - datatype - basic generi
 Basic/datatype/initCtor.spr:            Basic features - datatype - initCtor
 Basic/datatype/bitcopiable.spr:         Basic features - datatype - bitcopiable
 Basic/datatype/queryBitcopiable.spr:    Basic features - datatype - query bitcopiable
+Basic/datatype/autoBitcopiable.spr:     Basic features - datatype - auto bitcopiable
 Basic/exp/dotOper.spr:                  Basic features - expressions - dot operator
 
 Imports/ImportTwice.spr:                Import twice the same file

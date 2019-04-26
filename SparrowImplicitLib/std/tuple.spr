@@ -8,25 +8,25 @@ concept TupleType(x) if (
 
 using oper_precedence_~ = oper_precedence_*
 
-[initCtor] datatype Tuple(t1, t2: Type)
+[initCtor, autoBitcopiable] datatype Tuple(t1, t2: Type)
     using arity = 2
     v1: t1
     v2: t2
 
-[initCtor] datatype Tuple(t1, t2, t3: Type)
+[initCtor, autoBitcopiable] datatype Tuple(t1, t2, t3: Type)
     using arity = 3
     v1: t1
     v2: t2
     v3: t3
 
-[initCtor] datatype Tuple(t1, t2, t3, t4: Type)
+[initCtor, autoBitcopiable] datatype Tuple(t1, t2, t3, t4: Type)
     using arity = 4
     v1: t1
     v2: t2
     v3: t3
     v4: t4
 
-[initCtor] datatype Tuple(t1, t2, t3, t4, t5: Type)
+[initCtor, autoBitcopiable] datatype Tuple(t1, t2, t3, t4, t5: Type)
     using arity = 5
     v1: t1
     v2: t2
@@ -34,7 +34,7 @@ using oper_precedence_~ = oper_precedence_*
     v4: t4
     v5: t5
 
-[initCtor] datatype Tuple(t1, t2, t3, t4, t5, t6: Type)
+[initCtor, autoBitcopiable] datatype Tuple(t1, t2, t3, t4, t5, t6: Type)
     using arity = 6
     v1: t1
     v2: t2
@@ -43,7 +43,7 @@ using oper_precedence_~ = oper_precedence_*
     v5: t5
     v6: t6
 
-[initCtor] datatype Tuple(t1, t2, t3, t4, t5, t6, t7: Type)
+[initCtor, autoBitcopiable] datatype Tuple(t1, t2, t3, t4, t5, t6, t7: Type)
     using arity = 7
     v1: t1
     v2: t2
@@ -53,7 +53,7 @@ using oper_precedence_~ = oper_precedence_*
     v6: t6
     v7: t7
 
-[initCtor] datatype Tuple(t1, t2, t3, t4, t5, t6, t7, t8: Type)
+[initCtor, autoBitcopiable] datatype Tuple(t1, t2, t3, t4, t5, t6, t7, t8: Type)
     using arity = 8
     v1: t1
     v2: t2
@@ -64,7 +64,7 @@ using oper_precedence_~ = oper_precedence_*
     v7: t7
     v8: t8
 
-[initCtor] datatype Tuple(t1, t2, t3, t4, t5, t6, t7, t8, t9: Type)
+[initCtor, autoBitcopiable] datatype Tuple(t1, t2, t3, t4, t5, t6, t7, t8, t9: Type)
     using arity = 9
     v1: t1
     v2: t2
@@ -76,7 +76,7 @@ using oper_precedence_~ = oper_precedence_*
     v8: t8
     v9: t9
 
-[initCtor] datatype Tuple(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type)
+[initCtor, autoBitcopiable] datatype Tuple(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type)
     using arity = 10
     v1: t1
     v2: t2

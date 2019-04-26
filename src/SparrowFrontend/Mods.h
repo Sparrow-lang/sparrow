@@ -16,6 +16,7 @@ Nest_Modifier* SprFe_getConvertMod();
 Nest_Modifier* SprFe_getNoDefaultMod();
 Nest_Modifier* SprFe_getInitCtorMod();
 Nest_Modifier* SprFe_getBitCopiableMod();
+Nest_Modifier* SprFe_getAutoBitCopiableMod();
 Nest_Modifier* SprFe_getMacroMod();
 Nest_Modifier* SprFe_getNoInlineMod();
 

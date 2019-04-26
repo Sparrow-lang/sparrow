@@ -87,6 +87,8 @@ void applyModifier(NodeHandle base, NodeHandle modNode) {
             mod = SprFe_getInitCtorMod();
         else if (name == "bitcopiable")
             mod = SprFe_getBitCopiableMod();
+        else if (name == "autoBitcopiable")
+            mod = SprFe_getAutoBitCopiableMod();
         else if (name == "macro")
             mod = SprFe_getMacroMod();
         else if (name == "noInline")
@@ -660,6 +662,17 @@ Type DataTypeDecl::computeTypeImpl(DataTypeDecl node) {
     // Get the fields from the current datatype
     NodeVector fields = getFields(node.childrenContext()->currentSymTab);
     resultingStruct.addChildren(all(fields));
+
+    // Check for autoBitcopiable
+    if ( node.hasProperty(propAutoBitCopiable)) {
+        bool allAreBitcopiable = true;
+        for (auto f : fields) {
+            ASSERT(f->type);
+            allAreBitcopiable = allAreBitcopiable && isBitCopiable(f->type);
+        }
+        if (allAreBitcopiable)
+            resultingStruct.setProperty(propBitCopiable, 1);
+    }
 
     // Check all the members
     if (body) {

@@ -10,6 +10,7 @@
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/Helpers/Generics.h"
 #include "SparrowFrontend/Services/IConvertService.h"
+#include "SparrowFrontend/SprDebug.h"
 
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
@@ -532,7 +533,8 @@ Type VariableDecl::computeTypeImpl(VariableDecl node) {
 
         // If the variable is const, cast the constness away for initialization & destruction
         if (resultingVar.type().kind() == Feather_getConstTypeKind()) {
-            TypeWithStorage t = Feather::ConstType(resultingVar.type()).toRef();
+            TypeWithStorage t = Feather::ConstType(resultingVar.type()).base();
+            t = Feather::MutableType::get(t);
             auto typeNode = Feather::TypeNode::create(loc, t);
             varRef = Feather::BitcastExp::create(loc, typeNode, varRef);
         }

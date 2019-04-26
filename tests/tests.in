@@ -54,6 +54,7 @@ Bugs/StaticGlobal.spr:                  Bugs - static vars, global vars, static 
 Bugs/VectorOfCtClass.spr:               Bugs - vectors of CT-only classes
 Bugs/WhileVarCond.spr:                  Bugs - while condition is a variable or a reference
 Bugs/GenericWithCtConcept.spr:          Bugs - generic with CT concept
+Bugs/CastOnAssignment.spr:              Bugs - cast on assignment
 
 # AlgoProblems/P1_Collatz.spr:            Algo problems - P1. Collatz sequences
 Examples/Power.spr:                     Examples: Powers
@@ -141,7 +142,8 @@ Basic/datatype/interaction.spr:         Basic features - datatype - various inte
 Basic/datatype/generic.spr:             Basic features - datatype - basic generics test
 Basic/datatype/initCtor.spr:            Basic features - datatype - initCtor
 Basic/exp/dotOper.spr:                  Basic features - expressions - dot operator
-Basic/typecat/varsErr.spr:              Basic features - type cat - variables (err)
+Basic/vars/typeCatVarsErr.spr:          Basic features - vars - type cat variables (err)
+Basic/vars/typeCatFieldsErr.spr:        Basic features - vars - type cat fields (err)
 
 Imports/ImportTwice.spr:                Import twice the same file
 Imports/ImportComplex.spr:              Import a complex hierarchy of files, some of them twice

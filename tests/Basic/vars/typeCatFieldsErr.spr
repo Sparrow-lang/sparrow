@@ -1,0 +1,25 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main -dump-assembly
+
+datatype MyObj
+    x: Int
+
+fun assign(dest: !Int, src: Int)
+    dest = src
+
+fun access
+    let a: MyObj
+    let b: !MyObj
+    let c: MyObj tmp
+
+    writeLn(a.x)
+    writeLn(b.x)
+    writeLn(c.x)
+
+    assign(a.x, 3) // ERROR
+    assign(b.x, 5)
+    assign(c.x, 7)
+
+
+[native("test")]
+fun test(n: Int)
+    access

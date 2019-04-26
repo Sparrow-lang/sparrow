@@ -777,8 +777,15 @@ NodeHandle FieldRefExp::semanticCheckImpl(FieldRefExp node) {
     // Set the correct type for this node
     TypeWithStorage t = field.type();
     ASSERT(t);
-    if (!Feather::isCategoryType(t))
-        t = MutableType::get(t);
+    if (!Feather::isCategoryType(t)) {
+        auto baseTypeKind = obj.type().kind();
+        if (baseTypeKind == typeKindConst)
+            t = ConstType::get(t);
+        else if (baseTypeKind == typeKindTemp)
+            t = TempType::get(t);
+        else
+            t = MutableType::get(t);
+    }
     node.setType(t);
     EvalMode mode = Feather_combineMode(obj.type().mode(), node.context()->evalMode);
     node.setType(node.type().changeMode(mode, node.location()));
@@ -1147,8 +1154,7 @@ NodeHandle IfStmt::semanticCheckImpl(IfStmt node) {
 
         // For ct ifs do a compute type beforehand
         // This is needed for top-level ct ifs
-        if (selectedBranch)
-        {
+        if (selectedBranch) {
             selectedBranch.setContext(node.context());
             selectedBranch.computeType();
         }

@@ -110,7 +110,7 @@ void DebugInfo::emitFunctionEnd(LlvmBuilder& builder, const Location& loc) {
 }
 
 void DebugInfo::emitParamVar(
-        GlobalContext& ctx, Node* param, int idx, llvm::AllocaInst* llvmAlloca) {
+        GlobalContext& ctx, Node* param, int idx, llvm::Value* value, llvm::BasicBlock* where) {
     Location loc = param->location;
 
     ASSERT(!lexicalBlockStack_.empty());
@@ -121,8 +121,8 @@ void DebugInfo::emitParamVar(
     auto diVar = diBuilder_.createParameterVariable(
             scope, toLlvm(Feather_getName(param)), idx, file, loc.start.line, diType);
 
-    diBuilder_.insertDeclare(llvmAlloca, diVar, diBuilder_.createExpression(),
-            getDebugLoc(loc, scope), llvmAlloca->getParent());
+    diBuilder_.insertDeclare(
+            value, diVar, diBuilder_.createExpression(), getDebugLoc(loc, scope), where);
 }
 
 void DebugInfo::emitLocalVar(GlobalContext& ctx, Node* var, llvm::AllocaInst* llvmAlloca) {

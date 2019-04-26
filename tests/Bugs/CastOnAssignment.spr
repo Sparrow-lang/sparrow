@@ -1,0 +1,11 @@
+//!!
+
+fun sprMain
+    var dest: Int = 10
+    let otherVal: Long = 13
+    dest = otherVal
+    cout << dest << endl
+
+/*<<<Running KNOWN-PROBLEM()
+13
+>>>*/

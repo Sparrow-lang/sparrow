@@ -38,17 +38,6 @@ int _isTestable(Type type) {
 
 int Feather_isTestable(Node* node) { return _isTestable(node->type); }
 
-int Feather_isBasicNumericType(Nest::TypeRef type) {
-    if (!type || !type->hasStorage)
-        return false;
-    StringRef nativeName = Feather_nativeName(type);
-    return !nativeName.empty() &&
-           (nativeName == "i1" || nativeName == "u1" || nativeName == "i8" || nativeName == "u8" ||
-                   nativeName == "i16" || nativeName == "u16" || nativeName == "i32" ||
-                   nativeName == "u32" || nativeName == "i64" || nativeName == "u64" ||
-                   nativeName == "float" || nativeName == "double");
-}
-
 EvalMode Feather_combineMode(EvalMode mode1, EvalMode mode2) {
     if (mode1 == modeCt || mode2 == modeCt)
         return modeCt;

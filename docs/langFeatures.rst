@@ -10,5 +10,6 @@ Language features
    lang/generics
    lang/basicExpressions
    lang/operators
+   lang/modifiers
 
 This section is still under development.

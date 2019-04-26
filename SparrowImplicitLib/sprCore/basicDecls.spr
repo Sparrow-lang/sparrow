@@ -3,7 +3,7 @@
 /// Most basic types
 
 [ct]
-    [native("Type"), noDefault]
+    [bitcopiable, native("Type"), noDefault]
     datatype Type {}
 
 [ct, protected]
@@ -14,22 +14,22 @@
 [noDefault]
     datatype Uninitialized {}
 
-    [native("Null")]            datatype Null {}
+    [bitcopiable, native("Null")]            datatype Null {}
 
-    [native("i1")]              datatype Bool {}
-    [native("i8")]              datatype Byte {}
-    [convert, native("u8")]     datatype UByte {}
-    [convert, native("i16")]    datatype Short {}
-    [convert, native("u16")]    datatype UShort {}
-    [convert, native("i32")]    datatype Int {}
-    [convert, native("u32")]    datatype UInt {}
-    [convert, native("i64")]    datatype Long {}
-    [convert, native("u64")]    datatype ULong {}
-    [convert, native("u64")]    datatype SizeType {}
-    [convert, native("i64")]    datatype DiffType {}
-    [convert, native("float")]  datatype Float {}
-    [convert, native("double")] datatype Double {}
-    [native("i8")]              datatype Char {}
+    [bitcopiable, native("i1")]              datatype Bool {}
+    [bitcopiable, native("i8")]              datatype Byte {}
+    [bitcopiable, convert, native("u8")]     datatype UByte {}
+    [bitcopiable, convert, native("i16")]    datatype Short {}
+    [bitcopiable, convert, native("u16")]    datatype UShort {}
+    [bitcopiable, convert, native("i32")]    datatype Int {}
+    [bitcopiable, convert, native("u32")]    datatype UInt {}
+    [bitcopiable, convert, native("i64")]    datatype Long {}
+    [bitcopiable, convert, native("u64")]    datatype ULong {}
+    [bitcopiable, convert, native("u64")]    datatype SizeType {}
+    [bitcopiable, convert, native("i64")]    datatype DiffType {}
+    [bitcopiable, convert, native("float")]  datatype Float {}
+    [bitcopiable, convert, native("double")] datatype Double {}
+    [bitcopiable, native("i8")]              datatype Char {}
 
 [protected]
     fun ctor(this: Uninitialized) {}
@@ -625,7 +625,7 @@ using oper_assoc_:=         = -1
 ///
 
 /// String class that DOES NOT have ownership of the characters; it simply refers to another string
-[native("StringRef")]
+[bitcopiable, native("StringRef")]
 datatype StringRef
     using RetType = @Char
 
@@ -740,6 +740,7 @@ fun construct()
 
 
 /// Type used to represent an untyped pointer
+[bitcopiable]
 datatype UntypedPtr = @Byte
 
 [autoCt]
@@ -767,6 +768,7 @@ package TypeOp
         [native("$typeNumRef")] fun numRef(t: Type): Int
         [native("$typeChangeMode")] fun changeMode(t: Type, mode: Int): Type
         [native("$typeChangeRefCount")] fun changeRefCount(t: Type, numRef: Int): Type
+        [native("$typeIsBitcopiable")] fun isBitcopiable(t: Type): Bool
 
     [ctGeneric]
         fun isRef(t: Type) = 0<numRef(t)

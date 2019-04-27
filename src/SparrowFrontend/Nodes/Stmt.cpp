@@ -165,7 +165,7 @@ NodeHandle ReturnStmt::semanticCheckImpl(ReturnStmt node) {
     if (resultParam) {
         // Create a ctor to construct the result parameter with the expression received
         const Location& l = resultParam.location();
-        auto thisArg = Feather::MemLoadExp::create(l, Feather::VarRefExp::create(l, resultParam));
+        auto thisArg = Feather::VarRefExp::create(l, resultParam);
         thisArg.setContext(node.context());
         NodeHandle action = createCtorCall(l, node.context(), thisArg, exp);
         if (!action)

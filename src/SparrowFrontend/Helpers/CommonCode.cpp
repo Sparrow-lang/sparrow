@@ -181,8 +181,8 @@ Node* SprFrontend::createFunctionCall(
 
         res = createTempVarConstruct(loc, context, funCall, tmpVar);
 
-        // TODO: Check why we cannot return a reference when the result is a type
-        if (resType == StdDef::typeRefType)
+        // TODO (types): Check why we cannot return a reference when the result is a type
+        if (Feather::categoryToRefIfPresent(resType) == StdDef::typeRefType)
             res = Feather_mkMemLoad(loc, res);
     } else {
         Node* funCall = Feather_mkFunCall(loc, fun, args);

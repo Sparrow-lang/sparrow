@@ -916,8 +916,9 @@ Type SprFunctionDecl::computeTypeImpl(SprFunctionDecl node) {
             !Feather_isBasicNumericType(resType)) {
         ASSERT(returnType);
         const Location& retLoc = returnType.location();
-        auto resParam = Feather::VarDecl::create(retLoc, StringRef("_result"),
-                Feather::TypeNode::create(retLoc, Feather::addRef(TypeWithStorage(resType))));
+        auto resParamType = Feather::MutableType::get(TypeWithStorage(resType));
+        auto resParam = Feather::VarDecl::create(
+                retLoc, StringRef("_result"), Feather::TypeNode::create(retLoc, resParamType));
         resParam.setContext(node.childrenContext());
         resultingFun.addParameter(resParam, true);
         resultingFun.setProperty(propResultParam, resParam);

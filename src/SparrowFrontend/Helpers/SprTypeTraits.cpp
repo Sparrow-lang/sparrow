@@ -252,7 +252,7 @@ Node* SprFrontend::convertCtToRt(Node* node) {
     if (t.numReferences() > 0)
         REP_ERROR_RET(nullptr, loc, "Cannot convert references from CT to RT (%1%)") % t;
 
-    if (Feather_isBasicNumericType(t) || Type(t).changeMode(modeRt, NOLOC) == StdDef::typeStringRef)
+    if (isBitCopiable(t))
         return Nest_ctEval(node);
     else
         return checkDataTypeCtToRtConversion(node);
@@ -315,4 +315,10 @@ Type SprFrontend::changeRefCount(Type type, int numRef, const Location& loc) {
     else
         REP_INTERNAL(loc, "Cannot change reference count for type %1%") % type;
     return type;
+}
+
+bool SprFrontend::isBitCopiable(Type type) {
+    if (!type.hasStorage())
+        return false;
+    return type.referredNode() && type.referredNode().hasProperty(propBitCopiable);
 }

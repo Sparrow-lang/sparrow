@@ -34,10 +34,13 @@ datatype Vector(valueType: Type)
         var dst = _begin
         var src = other._begin
 
-        while dst != _end
-            dst.value().ctor(src.value())
-            dst = dst.advance()
-            src = src.advance()
+        [ct] if TypeOp.isBitcopiable(ValueType)
+            memcpy(dst.bytePtr, src.bytePtr, size*sizeOf(ValueType))
+        else
+            while dst != _end
+                dst.value().ctor(src.value())
+                dst = dst.advance()
+                src = src.advance()
 
     fun ctor(this: @Vector, size: SizeType)
         // Allocate the buffer

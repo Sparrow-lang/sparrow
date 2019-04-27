@@ -1,0 +1,49 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+// -dump-assembly
+
+// Test purpose: checks 'autoBitcopiable' modifier works as expected
+
+[ct, native("$typeDescription")] fun description(t: Type): StringRef
+[ct, native("$typeIsBitcopiable")] fun isBitcopiable(t: Type): Bool
+
+[initCtor]
+datatype Data1
+    x: Int
+
+[initCtor, bitcopiable]
+datatype Data2
+    x: Int
+
+[initCtor, autoBitcopiable]
+datatype Pair(t1, t2: Type)
+    v1: t1
+    v2: t2
+
+fun printBitcopiable(t: Type)
+    write(description(t))
+    [ct] if isBitcopiable(t)
+        writeLn(': bitcopiable')
+    else
+        writeLn(': regular')
+
+[native("test")] fun test(n: Int)
+    printBitcopiable(Data1)
+    printBitcopiable(Data2)
+    printBitcopiable(Pair(Data1, Data1))
+    printBitcopiable(Pair(Data1, Data2))
+    printBitcopiable(Pair(Data2, Data1))
+    printBitcopiable(Pair(Data2, Data2))
+    printBitcopiable(Int)
+    printBitcopiable(StringRef)
+    printBitcopiable(Pair(Int, StringRef))
+/*<<<Running()
+Data1: regular
+Data2: bitcopiable
+Pair[Data1, Data1]: regular
+Pair[Data1, Data2]: regular
+Pair[Data2, Data1]: regular
+Pair[Data2, Data2]: bitcopiable
+Int: bitcopiable
+StringRef: bitcopiable
+Pair[Int, StringRef]: bitcopiable
+>>>*/

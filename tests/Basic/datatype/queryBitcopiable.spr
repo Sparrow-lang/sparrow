@@ -1,0 +1,68 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+// -dump-assembly
+
+// Test purpose: checks that certain types are bitcopiable, meaning they do not need copy ctors when
+// passed as arguments or returned from functions
+
+[ct, native("$typeIsBitcopiable")] fun isBitcopiable(t: Type): Bool
+
+[initCtor]
+datatype Data1
+    x: Int
+
+[initCtor, bitcopiable]
+datatype Data2
+    x: Int
+
+fun ctor(this, other: @Data1)
+    writeLn('Data1.copy ctor')
+
+fun ctor(this, other: @Data2)
+    writeLn('Data2.copy ctor')
+
+[initCtor]
+datatype Vec3(t: Type)
+    using ValueType = t
+    x, y, z: t
+
+fun ctor(this: @Vec3, other: typeOf(this))
+    [ct]
+    if isBitcopiable(this.ValueType)
+        memcpy(reinterpretCast(@Byte, this), reinterpretCast(@Byte, other), sizeOf(this))
+    else
+        this.x ctor other.x
+        this.y ctor other.y
+        this.z ctor other.z
+
+fun testBasic
+    var d1: Data1 = 17
+    var d2: Data2 = 19
+    var c1 = d1
+    var c2 = d2
+
+fun testCopyWithQuery
+    var v1 = Vec3(Data1)(Data1(3), Data1(5), Data1(7))
+    var v2 = Vec3(Data2)(Data2(13), Data2(17), Data2(19))
+    writeLn('-')
+    var c1 = v1
+    var c2 = v2
+
+[native("test")] fun test(n: Int)
+    testBasic
+    writeLn('-----')
+    testCopyWithQuery
+/*<<<Running()
+Data1.copy ctor
+Data2.copy ctor
+-----
+Data1.copy ctor
+Data1.copy ctor
+Data1.copy ctor
+Data2.copy ctor
+Data2.copy ctor
+Data2.copy ctor
+-
+Data1.copy ctor
+Data1.copy ctor
+Data1.copy ctor
+>>>*/

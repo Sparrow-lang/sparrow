@@ -86,6 +86,10 @@ void applyModifier(NodeHandle base, NodeHandle modNode) {
             mod = SprFe_getNoDefaultMod();
         else if (name == "initCtor")
             mod = SprFe_getInitCtorMod();
+        else if (name == "bitcopiable")
+            mod = SprFe_getBitCopiableMod();
+        else if (name == "autoBitcopiable")
+            mod = SprFe_getAutoBitCopiableMod();
         else if (name == "macro")
             mod = SprFe_getMacroMod();
         else if (name == "noInline")
@@ -659,9 +663,10 @@ Type DataTypeDecl::computeTypeImpl(DataTypeDecl node) {
     // Copy the "convert", "native" and "description" properties to the resulting class
     if (node.hasProperty(propConvert))
         resultingStruct.setProperty(propConvert, 1);
-    if (nativeName) {
+    if (nativeName)
         resultingStruct.setProperty(propNativeName, nativeName);
-    }
+    if (node.hasProperty(propBitCopiable))
+        resultingStruct.setProperty(propBitCopiable, 1);
     auto description = node.getPropertyString(propDescription);
     if (description)
         resultingStruct.setProperty(propDescription, *description);
@@ -683,6 +688,17 @@ Type DataTypeDecl::computeTypeImpl(DataTypeDecl node) {
     // Get the fields from the current datatype
     NodeVector fields = getFields(node.childrenContext()->currentSymTab);
     resultingStruct.addChildren(all(fields));
+
+    // Check for autoBitcopiable
+    if ( node.hasProperty(propAutoBitCopiable)) {
+        bool allAreBitcopiable = true;
+        for (auto f : fields) {
+            ASSERT(f->type);
+            allAreBitcopiable = allAreBitcopiable && isBitCopiable(f->type);
+        }
+        if (allAreBitcopiable)
+            resultingStruct.setProperty(propBitCopiable, 1);
+    }
 
     // Check all the members
     if (body) {
@@ -909,11 +925,13 @@ Type SprFunctionDecl::computeTypeImpl(SprFunctionDecl node) {
         REP_INTERNAL(loc, "Cannot compute the function resulting type");
     resType = resType.changeMode(thisEvalMode, loc);
 
-    // If the result is a non-reference class, not basic numeric, and our function is not native,
-    // add result parameter; otherwise, normal result
-    bool nativeAbi = nativeName && nativeName != "$funptr";
-    if (!nativeAbi && resType.hasStorage() && resType.numReferences() == 0 &&
-            !Feather_isBasicNumericType(resType)) {
+    // If the result is a non-reference, non bitcopiable datatype, not basic numeric,
+    // and our function is not native, add result parameter; otherwise, normal result
+    bool preserveRetAbi = !resType.hasStorage();
+    preserveRetAbi = preserveRetAbi || resType.numReferences() > 0;
+    preserveRetAbi = preserveRetAbi || isBitCopiable(resType);
+    preserveRetAbi = preserveRetAbi || (nativeName && nativeName != "$funptr");
+    if (!preserveRetAbi) {
         ASSERT(returnType);
         const Location& retLoc = returnType.location();
         auto resParamType = Feather::MutableType::get(TypeWithStorage(resType));

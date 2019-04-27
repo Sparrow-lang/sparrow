@@ -2,7 +2,7 @@ module std.ptr
 
 import newDelete(delete)
 
-[initCtor]
+[initCtor, bitcopiable]
 datatype Ptr(type: Type)
     using ValueType = type
 

@@ -77,6 +77,13 @@ NodeHandle impl_typeChangeRefCount(
     return createTypeNode(context, loc, res);
 }
 
+NodeHandle impl_typeIsBitcopiable(
+        CompilationContext* context, const Location& loc, NodeRange args) {
+    CHECK(loc, args.size() == 1);
+    Type t = getType(args[0]);
+    return buildBoolLiteral(loc, isBitCopiable(t));
+}
+
 NodeHandle impl_typeEQ(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 2);
     Type t1 = getType(args[0]);
@@ -236,6 +243,8 @@ NodeHandle SprFrontend::handleIntrinsic(Feather::FunctionDecl fun, CompilationCo
             return impl_typeChangeMode(context, loc, args);
         if (nativeName == "$typeChangeRefCount")
             return impl_typeChangeRefCount(context, loc, args);
+        if (nativeName == "$typeIsBitcopiable")
+            return impl_typeIsBitcopiable(context, loc, args);
         if (nativeName == "$typeEQ")
             return impl_typeEQ(context, loc, args);
         if (nativeName == "$typeAddRef")

@@ -1,0 +1,176 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+// -dump-assembly
+
+// Test purpose: checks that certain types are bitcopiable, meaning they do not need copy ctors when
+// passed as arguments or returned from functions
+
+injectBackendCode("
+%struct.IntPtr = type { i32* }
+
+declare i8* @malloc(i64) nounwind
+declare void @free(i8*) nounwind
+
+define void @storeVal(i32*, i32) nounwind
+{
+    %3 = alloca %struct.IntPtr, align 8
+    %4 = alloca i32, align 4
+    %5 = getelementptr inbounds %struct.IntPtr, %struct.IntPtr* %3, i32 0, i32 0
+    store i32* %0, i32** %5, align 8
+    store i32 %1, i32* %4, align 4
+    %6 = load i32, i32* %4, align 4
+    %7 = getelementptr inbounds %struct.IntPtr, %struct.IntPtr* %3, i32 0, i32 0
+    %8 = load i32*, i32** %7, align 8
+    store i32 %6, i32* %8, align 4
+    ret void
+}
+
+define i32 @loadVal(i32*) nounwind
+{
+    %2 = alloca %struct.IntPtr, align 8
+    %3 = getelementptr inbounds %struct.IntPtr, %struct.IntPtr* %2, i32 0, i32 0
+    store i32* %0, i32** %3, align 8
+    %4 = getelementptr inbounds %struct.IntPtr, %struct.IntPtr* %2, i32 0, i32 0
+    %5 = load i32*, i32** %4, align 8
+    %6 = load i32, i32* %5, align 4
+    ret i32 %6
+}
+define i32* @allocIntPtr() nounwind
+{
+    %1 = alloca %struct.IntPtr, align 8
+    %2 = call i8* @malloc(i64 4) #6
+    %3 = bitcast i8* %2 to i32*
+    %4 = getelementptr inbounds %struct.IntPtr, %struct.IntPtr* %1, i32 0, i32 0
+    store i32* %3, i32** %4, align 8
+    %5 = getelementptr inbounds %struct.IntPtr, %struct.IntPtr* %1, i32 0, i32 0
+    %6 = load i32*, i32** %5, align 8
+    ret i32* %6
+}
+define void @freeIntPtr(i32*) nounwind
+{
+    %2 = alloca %struct.IntPtr, align 8
+    %3 = getelementptr inbounds %struct.IntPtr, %struct.IntPtr* %2, i32 0, i32 0
+    store i32* %0, i32** %3, align 8
+    %4 = getelementptr inbounds %struct.IntPtr, %struct.IntPtr* %2, i32 0, i32 0
+    %5 = load i32*, i32** %4, align 8
+    %6 = bitcast i32* %5 to i8*
+    call void @free(i8* %6)
+    ret void
+}
+")
+
+[bitcopiable]
+datatype IntPtr
+    ptr: @Int
+
+[native("storeVal")]    fun storeVal(p: IntPtr, val: Int)
+[native("loadVal")]     fun loadVal(p: IntPtr): Int
+[native("allocIntPtr")] fun allocIntPtr(): IntPtr
+[native("freeIntPtr")]  fun freeIntPtr(p: IntPtr)
+
+fun storeVal1(p: IntPtr, val: Int)
+    p.ptr = val
+fun loadVal1(p: IntPtr): Int
+    return p.ptr
+fun allocIntPtr1(): IntPtr
+    var p: IntPtr
+    p.ptr := reinterpretCast(@Int, malloc(sizeOf(Int)))
+    return p
+fun freeIntPtr1(p: IntPtr)
+    free(reinterpretCast(@Byte, p.ptr))
+
+package _Impl0
+    datatype FunctionPtr0(resT: Type)
+        using arity = 0
+        using ResT = resT
+        _funPtr: @Byte
+
+    [native("$funptr")] fun _doCall(this: @FunctionPtr0): ResT
+    fun ()(this: @FunctionPtr0): ResT = this._doCall()
+
+using FunctionPtr = _Impl0.FunctionPtr0
+
+fun testBinCompat
+    var p1 = allocIntPtr()
+    var p2 = allocIntPtr()
+
+    storeVal(p1, 17)
+    storeVal(p2, 19)
+    writeLn(loadVal(p1))
+    writeLn(loadVal(p2))
+    freeIntPtr(p1)
+    freeIntPtr(p2)
+
+    writeLn('---')
+
+    p1 = allocIntPtr1()
+    p2 = allocIntPtr1()
+    storeVal1(p1, 23)
+    storeVal1(p2, 29)
+    writeLn(loadVal1(p1))
+    writeLn(loadVal1(p2))
+    freeIntPtr1(p1)
+    freeIntPtr1(p2)
+
+    writeLn('---')
+    if typeOf(\allocIntPtr) != typeOf(\allocIntPtr1)
+        writeLn('FAILURE')
+
+    var allocFunPtr: typeOf(\allocIntPtr) = \allocIntPtr1
+    p1 = allocFunPtr()
+    p2 = allocFunPtr()
+    storeVal(p1, 31)
+    storeVal(p2, 37)
+    writeLn(loadVal(p1))
+    writeLn(loadVal(p2))
+    freeIntPtr(p1)
+    freeIntPtr(p2)
+
+    allocFunPtr = \allocIntPtr
+    p1 = allocFunPtr()
+    p2 = allocFunPtr()
+    storeVal(p1, 41)
+    storeVal(p2, 43)
+    writeLn(loadVal(p1))
+    writeLn(loadVal(p2))
+    freeIntPtr(p1)
+    freeIntPtr(p2)
+
+[bitcopiable]
+datatype Printer
+
+fun ctor(this: Printer)
+    writeLn('Printer.ctor')
+fun ctor(this, other: Printer)
+    writeLn('Printer.copy ctor')
+fun dtor(this, other: Printer)
+    writeLn('Printer.copy ctor')
+
+fun creator = Printer() // should not call copy ctor
+
+fun takingAsParam(x: Printer)
+    ;
+    // currently calls copy ctor
+
+fun printerTest
+    var obj = creator()
+    takingAsParam(obj)
+
+[native("test")] fun test(n: Int)
+    testBinCompat
+    writeLn('------')
+    printerTest
+/*<<<Running()
+17
+19
+---
+23
+29
+---
+31
+37
+41
+43
+------
+Printer.ctor
+Printer.copy ctor
+>>>*/

@@ -308,7 +308,7 @@ package _Impl
                     return tkIDENTIFIER
 
 
-        var data: @StringRef = _curToken.data.asStringRef
+        var data: StringRef = _curToken.data.asStringRef
 
         // Check for reserved words
         if      data == "break"     return tkBREAK

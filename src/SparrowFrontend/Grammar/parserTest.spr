@@ -53,7 +53,7 @@ fun createNode(l: Location, kind: StringRef, children: Range): Node = new(NodeIm
 fun createNode(l: Location, kind: StringRef, children: Range, name: StringRef): Node = new(NodeImpl, l, kind, children, name) toNode
 
 [native("comp_parser_reportError")]
-fun reportErrorExternal(loc: Location, msg: StringRef)
+fun reportErrorExternal(loc: @Location, msg: StringRef)
     cout << loc << " ERROR: " << msg << endl    // IGNORE-ERROR for test.py
 
 [native("comp_parser_addToNodeList")]
@@ -84,7 +84,7 @@ fun mkPackage(loc: @Location, name: StringRef, children, params, ifClause: Node)
 fun mkDatatype(loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node) \
     = createNode(loc, "datatype", values(params, underlyingData, ifClause, children), name)
 [native("comp_parser_mkField")]
-fun mkField(loc: @Location, name: StringRef, typeNode, init: Node): Node
+fun mkField(loc: @Location, name: StringRef, typeNode, init: Node): Node \
     = createNode(loc, "field", values(typeNode, init), name)
 [native("comp_parser_mkConcept")]
 fun mkConcept(loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node) \
@@ -315,6 +315,6 @@ fun test7
 module(<null>, nodeList(nodeList(importName(compoundExpr(compoundExpr(x, y), z), <null>), importName(k, <null>), importName(l, nodeList(a, b, c)))))
 >>>*/
 
-//<<<File parsing test(1 ~/work/sparrow/SparrowImplicitLib/std/ranges.spr)
-//<<<File parsing test(1 ~/work/sparrow/SparrowImplicitLib/std/vector.spr)
-//<<<File parsing test(1 ~/work/sparrow/SparrowImplicitLib/sprCore/basicDecls.spr)
+//<<<File parsing test(1 ../../../SparrowImplicitLib/std/ranges.spr)
+//<<<File parsing test(1 ../../../SparrowImplicitLib/std/vector.spr)
+//<<<File parsing test(1 ../../../SparrowImplicitLib/sprCore/basicDecls.spr)

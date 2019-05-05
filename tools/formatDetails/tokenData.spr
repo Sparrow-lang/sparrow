@@ -1,3 +1,4 @@
+//! Defines the TokenData and TokenVector datatypes
 module formatTool.formatDetails.tokenData
 
 import token, node

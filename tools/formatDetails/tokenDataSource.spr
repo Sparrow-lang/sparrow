@@ -1,6 +1,7 @@
+//! Defines the TokenDataSource datatype, used in loading source content
 module formatTool.formatDetails.tokenDataSource
 
-import common, fileCharSourceKeepContent, tokenData, astNodes
+import consoleErrorReporter, fileCharSourceKeepContent, tokenData, astNodes
 
 // From SparrowFrontend/Grammar
 import scanner, token, ext, parserIf
@@ -12,7 +13,7 @@ datatype TokenDataSource
     _source: FileCharSourceKeepContent
 
     //! The error reporter object used with the Sparrow scanner
-    _errorReporter: _Impl.ExitErrorReporter
+    _errorReporter: ConsoleErrorReporter
 
     //! The Sparrow scanner, used to find out the tokens
     _sparrowScanner: SparrowScanner
@@ -56,17 +57,9 @@ fun popFront(this: @TokenDataSourceRange) = _data._popFront
 fun readAst(filename: StringRef): Node
     var loc = mkLocation()
     var astBuilder: SimpleAstBuilder
-    var errorReporter: _Impl.ExitErrorReporter
+    var errorReporter: ConsoleErrorReporter
     var fileCharSource = FileCharSource(filename)
     var parser: @ParserContext = createParser(mkCharSource(fileCharSource), loc, mkAstBuilder(astBuilder), mkErrorReporter(errorReporter))
 
     var rootNode = parser parseModule
     return rootNode
-
-package _Impl
-    //! An error reporter that prints errors to the console then quits
-    datatype ExitErrorReporter
-
-    fun reportError(this: @ExitErrorReporter, loc: @Location, msg: StringRef)
-        cout << loc << " ERROR: " << msg << endl    // IGNORE-ERROR for test.py
-        os.exit(1)

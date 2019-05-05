@@ -1,3 +1,6 @@
+//! Definition of the FileCharSourceKeepContent datatype and associated functions.
+//! This allows a CharSource to be passed to the Sparrow parser, and at the same time keep track of
+//! the file content served to the scanner. It's helpful in associating source content with tokens.
 module formatTool.formatDetails.fileCharSourceKeepContent
 
 import ext

@@ -1,7 +1,7 @@
 //!! -I../../src/SparrowFrontend/Grammar -I../../tools/
 import parserIf, parser, parserDefs, scanner, bufferedCharSource
 
-import formatDetails.common
+import formatDetails.consoleErrorReporter
 
 import std.ranges
 import std.vector

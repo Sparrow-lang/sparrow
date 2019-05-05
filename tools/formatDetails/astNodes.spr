@@ -1,3 +1,5 @@
+//! Define simple AST nodes for capturing the syntax of Sparrow source files and
+//! provides an implementation for the AstBuilder interface.
 module formatTool.formatDetails.astNodeImpls
 
 import nodeKinds

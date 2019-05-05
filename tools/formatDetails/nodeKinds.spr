@@ -1,3 +1,4 @@
+//! Defines the node kinds we extract from Sparrow parser.
 module formatTool.formatDetails.nodeKinds
 
 import meta.location

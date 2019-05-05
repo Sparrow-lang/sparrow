@@ -1,6 +1,7 @@
+//! Defines the SourceData datatype and a method for loading it from a given source file.
 module formatTool.formatDetails.sourceData
 
-import tokenData, tokenDataSource, astNodes, common
+import tokenData, tokenDataSource, astNodes, consoleErrorReporter
 import node
 import std.string
 
@@ -48,10 +49,11 @@ fun _setAstParents(node: @Node)
 fun _setAstToTokens(tokens: @TokenVector, rootNode: Node)
     var startToken = 0
     if rootNode.isSet && !tokens.isEmpty
-        _astToTokensImpl(rootNode, tokens, startToken)
-    if startToken < (tokens size)
-        var tok = tokens(startToken)
-        cout << 'ERROR: Cannot assign AST node to token ' << tok.type << " at " << tok.loc << '\n' // IGNORE-ERROR for test.py
+        while startToken < (tokens size)
+            _astToTokensImpl(rootNode, tokens, startToken)
+            startToken++
+            // We increase the startToken and repeat, as we might have tokens that are outside the
+            // whole module; i.e., initial comments
 
 fun _astToTokensImpl(node: Node, tokens: @TokenVector, startToken: @Int)
     while startToken < tokens.size

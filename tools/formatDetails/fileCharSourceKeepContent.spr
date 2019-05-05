@@ -3,6 +3,7 @@
 //! the file content served to the scanner. It's helpful in associating source content with tokens.
 module formatTool.formatDetails.fileCharSourceKeepContent
 
+import consoleErrorReporter
 import ext
 
 import os, assert, std.ranges
@@ -21,9 +22,15 @@ using _This = FileCharSourceKeepContent
 
 fun ctor(this: @_This, filename: StringRef)
     _file ctor filename
+    if !_file.isOpen
+        reportError(Location(), toString('Cannot open source file: ', filename).asStringRef)
     _contentStart = mkLineCol(1, 1)
     _contentEnd = mkLineCol(1, 1)
     _contentStartIdx = 0
+
+    // Reserve enough space into our content string
+    var fileSize = _file.size
+    _content reserve fileSize
 
 fun isValid(this: @_This) = _file.isOpen
 

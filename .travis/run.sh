@@ -27,5 +27,5 @@ echo "---------- Testing ----------"
 cd ../tests
 
 python test.py StdLib/RangesTest.spr --returnError
-python test.py --returnError
 python test.py ../tools/formatTool.spr --returnError
+python test.py --returnError

@@ -21686,38 +21686,55 @@ define internal %Node @parseModuleName(%"SparrowParser[SparrowLayoutDecoder[Spar
   %this.addr = alloca %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"*
   store %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"* %this, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"** %this.addr
   %tmp.this = alloca %TokenType
+  %tmp.this1 = alloca %TokenType
   %qid = alloca %Node
   %"$tmpForRef" = alloca %Node
-  %tmp.this1 = alloca %TokenType
-  %tmp.this2 = alloca %Node
+  %tmp.this2 = alloca %TokenType
+  %tmp.this3 = alloca %Node
   br label %code
 
 code:                                             ; preds = %0
-  br label %if_block
+  br label %while_block
 
-if_block:                                         ; preds = %code
+while_block:                                      ; preds = %while_step, %code
   %1 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"*, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"** %this.addr
-  call void @ctor.417(%TokenType* %tmp.this, i32 2)
+  call void @ctor.417(%TokenType* %tmp.this, i32 31)
   %2 = load %TokenType, %TokenType* %tmp.this
   %3 = call i1 @accept(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"* %1, %TokenType %2)
-  br i1 %3, label %if_then, label %if_end
+  br i1 %3, label %while_body, label %while_end
+
+while_body:                                       ; preds = %while_block
+  br label %while_step
+
+while_step:                                       ; preds = %while_body
+  br label %while_block
+
+while_end:                                        ; preds = %while_block
+  br label %if_block
+
+if_block:                                         ; preds = %while_end
+  %4 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"*, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"** %this.addr
+  call void @ctor.417(%TokenType* %tmp.this1, i32 2)
+  %5 = load %TokenType, %TokenType* %tmp.this1
+  %6 = call i1 @accept(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"* %4, %TokenType %5)
+  br i1 %6, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
-  %4 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"*, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"** %this.addr
-  %5 = call %Node @parseQualifiedName(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"* %4, i1 false)
-  store %Node %5, %Node* %"$tmpForRef"
+  %7 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"*, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"** %this.addr
+  %8 = call %Node @parseQualifiedName(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"* %7, i1 false)
+  store %Node %8, %Node* %"$tmpForRef"
   call void @ctor.545(%Node* %qid, %Node* %"$tmpForRef")
-  %6 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"*, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"** %this.addr
-  call void @ctor.417(%TokenType* %tmp.this1, i32 31)
-  %7 = load %TokenType, %TokenType* %tmp.this1
-  %8 = call i1 @expect(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"* %6, %TokenType %7)
-  %9 = load %Node, %Node* %qid
-  ret %Node %9
+  %9 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"*, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"** %this.addr
+  call void @ctor.417(%TokenType* %tmp.this2, i32 31)
+  %10 = load %TokenType, %TokenType* %tmp.this2
+  %11 = call i1 @expect(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner]]"* %9, %TokenType %10)
+  %12 = load %Node, %Node* %qid
+  ret %Node %12
 
 if_end:                                           ; preds = %dumy_block, %if_block
-  call void @ctor.556(%Node* %tmp.this2)
-  %10 = load %Node, %Node* %tmp.this2
-  ret %Node %10
+  call void @ctor.556(%Node* %tmp.this3)
+  %13 = load %Node, %Node* %tmp.this3
+  ret %Node %13
 
 dumy_block:                                       ; No predecessors!
   br label %if_end
@@ -31877,7 +31894,64 @@ dumy_block20:                                     ; No predecessors!
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor.629(%String* %this, i64 %count, i8 %ch) #4 {
+define internal i1 @"<.629"(%LineCol* %lhs, %LineCol* %rhs) #4 {
+  %lhs.addr = alloca %LineCol*
+  store %LineCol* %lhs, %LineCol** %lhs.addr
+  %rhs.addr = alloca %LineCol*
+  store %LineCol* %rhs, %LineCol** %rhs.addr
+  br label %code
+
+code:                                             ; preds = %0
+  br label %if_block
+
+if_block:                                         ; preds = %code
+  %1 = load %LineCol*, %LineCol** %lhs.addr
+  %2 = getelementptr inbounds %LineCol, %LineCol* %1, i32 0, i32 0
+  %3 = load i32, i32* %2
+  %4 = load %LineCol*, %LineCol** %rhs.addr
+  %5 = getelementptr inbounds %LineCol, %LineCol* %4, i32 0, i32 0
+  %6 = load i32, i32* %5
+  %7 = icmp slt i32 %3, %6
+  br i1 %7, label %if_then, label %if_end
+
+if_then:                                          ; preds = %if_block
+  ret i1 true
+
+if_end:                                           ; preds = %dumy_block, %if_block
+  br label %if_block1
+
+dumy_block:                                       ; No predecessors!
+  br label %if_end
+
+if_block1:                                        ; preds = %if_end
+  %8 = load %LineCol*, %LineCol** %lhs.addr
+  %9 = getelementptr inbounds %LineCol, %LineCol* %8, i32 0, i32 0
+  %10 = load i32, i32* %9
+  %11 = load %LineCol*, %LineCol** %rhs.addr
+  %12 = getelementptr inbounds %LineCol, %LineCol* %11, i32 0, i32 0
+  %13 = load i32, i32* %12
+  %14 = icmp sgt i32 %10, %13
+  br i1 %14, label %if_then2, label %if_end3
+
+if_then2:                                         ; preds = %if_block1
+  ret i1 false
+
+if_end3:                                          ; preds = %dumy_block4, %if_block1
+  %15 = load %LineCol*, %LineCol** %lhs.addr
+  %16 = getelementptr inbounds %LineCol, %LineCol* %15, i32 0, i32 1
+  %17 = load i32, i32* %16
+  %18 = load %LineCol*, %LineCol** %rhs.addr
+  %19 = getelementptr inbounds %LineCol, %LineCol* %18, i32 0, i32 1
+  %20 = load i32, i32* %19
+  %21 = icmp slt i32 %17, %20
+  ret i1 %21
+
+dumy_block4:                                      ; No predecessors!
+  br label %if_end3
+}
+
+; Function Attrs: inlinehint nounwind
+define internal void @ctor.630(%String* %this, i64 %count, i8 %ch) #4 {
   %this.addr = alloca %String*
   store %String* %this, %String** %this.addr
   %count.addr = alloca i64
@@ -31901,7 +31975,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor.630(%String* %this, %"RawPtr[Char]" %_begin, %"RawPtr[Char]" %_end) #4 {
+define internal void @ctor.631(%String* %this, %"RawPtr[Char]" %_begin, %"RawPtr[Char]" %_end) #4 {
   %this.addr = alloca %String*
   store %String* %this, %String** %this.addr
   %_begin.addr = alloca %"RawPtr[Char]"
@@ -31953,7 +32027,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i8* @at.631(%String* %this, i64 %index) #4 {
+define internal i8* @at.632(%String* %this, i64 %index) #4 {
   %this.addr = alloca %String*
   store %String* %this, %String** %this.addr
   %index.addr = alloca i64
@@ -31976,7 +32050,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i8* @front.632(%String* %this) #4 {
+define internal i8* @front.633(%String* %this) #4 {
   %this.addr = alloca %String*
   store %String* %this, %String** %this.addr
   br label %code
@@ -31990,7 +32064,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i8* @back.633(%String* %this) #4 {
+define internal i8* @back.634(%String* %this) #4 {
   %this.addr = alloca %String*
   store %String* %this, %String** %this.addr
   %"$tmpC" = alloca %"RawPtr[Char]"
@@ -32224,7 +32298,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @remove.634(%String* %this, i64 %index) #4 {
+define internal void @remove.635(%String* %this, i64 %index) #4 {
   %this.addr = alloca %String*
   store %String* %this, %String** %this.addr
   %index.addr = alloca i64
@@ -32254,7 +32328,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @"+.635"(%String* sret %_result, %String %x, %String %y) #4 {
+define internal void @"+.636"(%String* sret %_result, %String %x, %String %y) #4 {
   %_result.addr = alloca %String*
   store %String* %_result, %String** %_result.addr
   %x.addr = alloca %String
@@ -32306,7 +32380,7 @@ dumy_block:                                       ; No predecessors!
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @"+.636"(%String* sret %_result, %String %x, %StringRef %y) #4 {
+define internal void @"+.637"(%String* sret %_result, %String %x, %StringRef %y) #4 {
   %_result.addr = alloca %String*
   store %String* %_result, %String** %_result.addr
   %x.addr = alloca %String
@@ -32357,7 +32431,7 @@ dumy_block:                                       ; No predecessors!
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.637(%StringOutputStream* %this, %StringOutputStream* %other) #3 {
+define internal void @ctor.638(%StringOutputStream* %this, %StringOutputStream* %other) #3 {
   %this.addr = alloca %StringOutputStream*
   store %StringOutputStream* %this, %StringOutputStream** %this.addr
   %other.addr = alloca %StringOutputStream*
@@ -32374,7 +32448,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.638"(%StringOutputStream* %this, %StringOutputStream* %other) #3 {
+define internal void @"=.639"(%StringOutputStream* %this, %StringOutputStream* %other) #3 {
   %this.addr = alloca %StringOutputStream*
   store %StringOutputStream* %this, %StringOutputStream** %this.addr
   %other.addr = alloca %StringOutputStream*
@@ -32391,7 +32465,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.639"(%StringOutputStream* %this, %StringOutputStream* %other) #3 {
+define internal i1 @"==.640"(%StringOutputStream* %this, %StringOutputStream* %other) #3 {
   %this.addr = alloca %StringOutputStream*
   store %StringOutputStream* %this, %StringOutputStream** %this.addr
   %other.addr = alloca %StringOutputStream*
@@ -32408,7 +32482,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"<<<.640"(%StringOutputStream* %this, %String* %s) #3 {
+define internal void @"<<<.641"(%StringOutputStream* %this, %String* %s) #3 {
   %this.addr = alloca %StringOutputStream*
   store %StringOutputStream* %this, %StringOutputStream** %this.addr
   %s.addr = alloca %String*
@@ -32425,7 +32499,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"<<<.641"(%StringOutputStream* %this, double %x) #3 {
+define internal void @"<<<.642"(%StringOutputStream* %this, double %x) #3 {
   %this.addr = alloca %StringOutputStream*
   store %StringOutputStream* %this, %StringOutputStream** %this.addr
   %x.addr = alloca double
@@ -32449,7 +32523,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @toString.642(%String* sret %_result) #4 {
+define internal void @toString.643(%String* sret %_result) #4 {
   %_result.addr = alloca %String*
   store %String* %_result, %String** %_result.addr
   br label %code
@@ -32461,7 +32535,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.643(%"ContiguousMemoryRange[LocString]"* %this) #3 {
+define internal void @ctor.644(%"ContiguousMemoryRange[LocString]"* %this) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %this, %"ContiguousMemoryRange[LocString]"** %this.addr
   br label %code
@@ -32477,7 +32551,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.644(%"ContiguousMemoryRange[LocString]"* %this, %"ContiguousMemoryRange[LocString]"* %other) #3 {
+define internal void @ctor.645(%"ContiguousMemoryRange[LocString]"* %this, %"ContiguousMemoryRange[LocString]"* %other) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %this, %"ContiguousMemoryRange[LocString]"** %this.addr
   %other.addr = alloca %"ContiguousMemoryRange[LocString]"*
@@ -32499,7 +32573,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.645(%"ContiguousMemoryRange[LocString]"* %this) #3 {
+define internal void @dtor.646(%"ContiguousMemoryRange[LocString]"* %this) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %this, %"ContiguousMemoryRange[LocString]"** %this.addr
   br label %code
@@ -32509,7 +32583,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.646"(%"ContiguousMemoryRange[LocString]"* %this, %"ContiguousMemoryRange[LocString]"* %other) #3 {
+define internal void @"=.647"(%"ContiguousMemoryRange[LocString]"* %this, %"ContiguousMemoryRange[LocString]"* %other) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %this, %"ContiguousMemoryRange[LocString]"** %this.addr
   %other.addr = alloca %"ContiguousMemoryRange[LocString]"*
@@ -32531,7 +32605,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.647"(%"ContiguousMemoryRange[LocString]"* %this, %"ContiguousMemoryRange[LocString]"* %other) #3 {
+define internal i1 @"==.648"(%"ContiguousMemoryRange[LocString]"* %this, %"ContiguousMemoryRange[LocString]"* %other) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %this, %"ContiguousMemoryRange[LocString]"** %this.addr
   %other.addr = alloca %"ContiguousMemoryRange[LocString]"*
@@ -32563,7 +32637,7 @@ cond.end:                                         ; preds = %cond.false, %cond.t
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.648(%"ContiguousMemoryRange[Char]"* %this) #3 {
+define internal void @ctor.649(%"ContiguousMemoryRange[Char]"* %this) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[Char]"*
   store %"ContiguousMemoryRange[Char]"* %this, %"ContiguousMemoryRange[Char]"** %this.addr
   br label %code
@@ -32579,7 +32653,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.649(%"ContiguousMemoryRange[Char]"* %this) #3 {
+define internal void @dtor.650(%"ContiguousMemoryRange[Char]"* %this) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[Char]"*
   store %"ContiguousMemoryRange[Char]"* %this, %"ContiguousMemoryRange[Char]"** %this.addr
   br label %code
@@ -32589,7 +32663,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.650"(%"ContiguousMemoryRange[Char]"* %this, %"ContiguousMemoryRange[Char]"* %other) #3 {
+define internal void @"=.651"(%"ContiguousMemoryRange[Char]"* %this, %"ContiguousMemoryRange[Char]"* %other) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[Char]"*
   store %"ContiguousMemoryRange[Char]"* %this, %"ContiguousMemoryRange[Char]"** %this.addr
   %other.addr = alloca %"ContiguousMemoryRange[Char]"*
@@ -32611,7 +32685,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.651"(%"ContiguousMemoryRange[Char]"* %this, %"ContiguousMemoryRange[Char]"* %other) #3 {
+define internal i1 @"==.652"(%"ContiguousMemoryRange[Char]"* %this, %"ContiguousMemoryRange[Char]"* %other) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[Char]"*
   store %"ContiguousMemoryRange[Char]"* %this, %"ContiguousMemoryRange[Char]"** %this.addr
   %other.addr = alloca %"ContiguousMemoryRange[Char]"*
@@ -32643,7 +32717,7 @@ cond.end:                                         ; preds = %cond.false, %cond.t
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.652(%"ContiguousMemoryRange[Token]"* %this) #3 {
+define internal void @ctor.653(%"ContiguousMemoryRange[Token]"* %this) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %this, %"ContiguousMemoryRange[Token]"** %this.addr
   br label %code
@@ -32659,7 +32733,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.653(%"ContiguousMemoryRange[Token]"* %this) #3 {
+define internal void @dtor.654(%"ContiguousMemoryRange[Token]"* %this) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %this, %"ContiguousMemoryRange[Token]"** %this.addr
   br label %code
@@ -32669,7 +32743,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.654"(%"ContiguousMemoryRange[Token]"* %this, %"ContiguousMemoryRange[Token]"* %other) #3 {
+define internal void @"=.655"(%"ContiguousMemoryRange[Token]"* %this, %"ContiguousMemoryRange[Token]"* %other) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %this, %"ContiguousMemoryRange[Token]"** %this.addr
   %other.addr = alloca %"ContiguousMemoryRange[Token]"*
@@ -32691,7 +32765,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.655"(%"ContiguousMemoryRange[Token]"* %this, %"ContiguousMemoryRange[Token]"* %other) #3 {
+define internal i1 @"==.656"(%"ContiguousMemoryRange[Token]"* %this, %"ContiguousMemoryRange[Token]"* %other) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %this, %"ContiguousMemoryRange[Token]"** %this.addr
   %other.addr = alloca %"ContiguousMemoryRange[Token]"*
@@ -32723,7 +32797,7 @@ cond.end:                                         ; preds = %cond.false, %cond.t
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.656(%"ContiguousMemoryRange[UInt]"* %this, %"RawPtr[UInt]" %f_begin, %"RawPtr[UInt]" %f_end) #3 {
+define internal void @ctor.657(%"ContiguousMemoryRange[UInt]"* %this, %"RawPtr[UInt]" %f_begin, %"RawPtr[UInt]" %f_end) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[UInt]"*
   store %"ContiguousMemoryRange[UInt]"* %this, %"ContiguousMemoryRange[UInt]"** %this.addr
   %f_begin.addr = alloca %"RawPtr[UInt]"
@@ -32743,7 +32817,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.657(%"ContiguousMemoryRange[UInt]"* %this) #3 {
+define internal void @ctor.658(%"ContiguousMemoryRange[UInt]"* %this) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[UInt]"*
   store %"ContiguousMemoryRange[UInt]"* %this, %"ContiguousMemoryRange[UInt]"** %this.addr
   br label %code
@@ -32759,7 +32833,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.658(%"ContiguousMemoryRange[UInt]"* %this, %"ContiguousMemoryRange[UInt]"* %other) #3 {
+define internal void @ctor.659(%"ContiguousMemoryRange[UInt]"* %this, %"ContiguousMemoryRange[UInt]"* %other) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[UInt]"*
   store %"ContiguousMemoryRange[UInt]"* %this, %"ContiguousMemoryRange[UInt]"** %this.addr
   %other.addr = alloca %"ContiguousMemoryRange[UInt]"*
@@ -32781,7 +32855,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.659(%"ContiguousMemoryRange[UInt]"* %this) #3 {
+define internal void @dtor.660(%"ContiguousMemoryRange[UInt]"* %this) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[UInt]"*
   store %"ContiguousMemoryRange[UInt]"* %this, %"ContiguousMemoryRange[UInt]"** %this.addr
   br label %code
@@ -32791,7 +32865,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.660"(%"ContiguousMemoryRange[UInt]"* %this, %"ContiguousMemoryRange[UInt]"* %other) #3 {
+define internal void @"=.661"(%"ContiguousMemoryRange[UInt]"* %this, %"ContiguousMemoryRange[UInt]"* %other) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[UInt]"*
   store %"ContiguousMemoryRange[UInt]"* %this, %"ContiguousMemoryRange[UInt]"** %this.addr
   %other.addr = alloca %"ContiguousMemoryRange[UInt]"*
@@ -32813,7 +32887,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.661"(%"ContiguousMemoryRange[UInt]"* %this, %"ContiguousMemoryRange[UInt]"* %other) #3 {
+define internal i1 @"==.662"(%"ContiguousMemoryRange[UInt]"* %this, %"ContiguousMemoryRange[UInt]"* %other) #3 {
   %this.addr = alloca %"ContiguousMemoryRange[UInt]"*
   store %"ContiguousMemoryRange[UInt]"* %this, %"ContiguousMemoryRange[UInt]"** %this.addr
   %other.addr = alloca %"ContiguousMemoryRange[UInt]"*
@@ -32845,7 +32919,7 @@ cond.end:                                         ; preds = %cond.false, %cond.t
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.662(%"RawPtr[LocString]"* %this) #3 {
+define internal void @dtor.663(%"RawPtr[LocString]"* %this) #3 {
   %this.addr = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %this, %"RawPtr[LocString]"** %this.addr
   br label %code
@@ -32855,7 +32929,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.663(%"RawPtr[Token]"* %this) #3 {
+define internal void @dtor.664(%"RawPtr[Token]"* %this) #3 {
   %this.addr = alloca %"RawPtr[Token]"*
   store %"RawPtr[Token]"* %this, %"RawPtr[Token]"** %this.addr
   br label %code
@@ -32865,7 +32939,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.664(%"RawPtr[UInt]"* %this) #3 {
+define internal void @dtor.665(%"RawPtr[UInt]"* %this) #3 {
   %this.addr = alloca %"RawPtr[UInt]"*
   store %"RawPtr[UInt]"* %this, %"RawPtr[UInt]"** %this.addr
   br label %code
@@ -32875,7 +32949,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.665(%"NumericRangeInc[Int]"* %this) #3 {
+define internal void @ctor.666(%"NumericRangeInc[Int]"* %this) #3 {
   %this.addr = alloca %"NumericRangeInc[Int]"*
   store %"NumericRangeInc[Int]"* %this, %"NumericRangeInc[Int]"** %this.addr
   br label %code
@@ -32894,7 +32968,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.666(%"NumericRangeInc[Int]"* %this, %"NumericRangeInc[Int]"* %other) #3 {
+define internal void @ctor.667(%"NumericRangeInc[Int]"* %this, %"NumericRangeInc[Int]"* %other) #3 {
   %this.addr = alloca %"NumericRangeInc[Int]"*
   store %"NumericRangeInc[Int]"* %this, %"NumericRangeInc[Int]"** %this.addr
   %other.addr = alloca %"NumericRangeInc[Int]"*
@@ -32924,7 +32998,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.667"(%"NumericRangeInc[Int]"* %this, %"NumericRangeInc[Int]"* %other) #3 {
+define internal void @"=.668"(%"NumericRangeInc[Int]"* %this, %"NumericRangeInc[Int]"* %other) #3 {
   %this.addr = alloca %"NumericRangeInc[Int]"*
   store %"NumericRangeInc[Int]"* %this, %"NumericRangeInc[Int]"** %this.addr
   %other.addr = alloca %"NumericRangeInc[Int]"*
@@ -32954,7 +33028,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.668"(%"NumericRangeInc[Int]"* %this, %"NumericRangeInc[Int]"* %other) #3 {
+define internal i1 @"==.669"(%"NumericRangeInc[Int]"* %this, %"NumericRangeInc[Int]"* %other) #3 {
   %this.addr = alloca %"NumericRangeInc[Int]"*
   store %"NumericRangeInc[Int]"* %this, %"NumericRangeInc[Int]"** %this.addr
   %other.addr = alloca %"NumericRangeInc[Int]"*
@@ -33095,7 +33169,7 @@ declare double @llvm.truc.f64(double)
 declare double @llvm.rint.f64(double) #6
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.669(%"Vector[LocString]"* %this, %"Vector[LocString]"* %other) #3 {
+define internal void @ctor.670(%"Vector[LocString]"* %this, %"Vector[LocString]"* %other) #3 {
   %this.addr = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %this, %"Vector[LocString]"** %this.addr
   %other.addr = alloca %"Vector[LocString]"*
@@ -33122,7 +33196,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.670(%"Vector[LocString]"* %this) #3 {
+define internal void @dtor.671(%"Vector[LocString]"* %this) #3 {
   %this.addr = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %this, %"Vector[LocString]"** %this.addr
   br label %code
@@ -33132,7 +33206,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.671"(%"Vector[LocString]"* %this, %"Vector[LocString]"* %other) #3 {
+define internal void @"=.672"(%"Vector[LocString]"* %this, %"Vector[LocString]"* %other) #3 {
   %this.addr = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %this, %"Vector[LocString]"** %this.addr
   %other.addr = alloca %"Vector[LocString]"*
@@ -33159,7 +33233,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.672"(%"Vector[LocString]"* %this, %"Vector[LocString]"* %other) #3 {
+define internal i1 @"==.673"(%"Vector[LocString]"* %this, %"Vector[LocString]"* %other) #3 {
   %this.addr = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %this, %"Vector[LocString]"** %this.addr
   %other.addr = alloca %"Vector[LocString]"*
@@ -33206,7 +33280,7 @@ cond.end3:                                        ; preds = %cond.false2, %cond.
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.673(%"Vector[Char]"* %this, %"Vector[Char]"* %other) #3 {
+define internal void @ctor.674(%"Vector[Char]"* %this, %"Vector[Char]"* %other) #3 {
   %this.addr = alloca %"Vector[Char]"*
   store %"Vector[Char]"* %this, %"Vector[Char]"** %this.addr
   %other.addr = alloca %"Vector[Char]"*
@@ -33233,7 +33307,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.674(%"Vector[Char]"* %this) #3 {
+define internal void @dtor.675(%"Vector[Char]"* %this) #3 {
   %this.addr = alloca %"Vector[Char]"*
   store %"Vector[Char]"* %this, %"Vector[Char]"** %this.addr
   br label %code
@@ -33243,7 +33317,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.675"(%"Vector[Char]"* %this, %"Vector[Char]"* %other) #3 {
+define internal void @"=.676"(%"Vector[Char]"* %this, %"Vector[Char]"* %other) #3 {
   %this.addr = alloca %"Vector[Char]"*
   store %"Vector[Char]"* %this, %"Vector[Char]"** %this.addr
   %other.addr = alloca %"Vector[Char]"*
@@ -33270,7 +33344,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.676"(%"Vector[Char]"* %this, %"Vector[Char]"* %other) #3 {
+define internal i1 @"==.677"(%"Vector[Char]"* %this, %"Vector[Char]"* %other) #3 {
   %this.addr = alloca %"Vector[Char]"*
   store %"Vector[Char]"* %this, %"Vector[Char]"** %this.addr
   %other.addr = alloca %"Vector[Char]"*
@@ -33317,7 +33391,7 @@ cond.end3:                                        ; preds = %cond.false2, %cond.
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.677(%"Vector[Token]"* %this, %"Vector[Token]"* %other) #3 {
+define internal void @ctor.678(%"Vector[Token]"* %this, %"Vector[Token]"* %other) #3 {
   %this.addr = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %this, %"Vector[Token]"** %this.addr
   %other.addr = alloca %"Vector[Token]"*
@@ -33344,7 +33418,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.678(%"Vector[Token]"* %this) #3 {
+define internal void @dtor.679(%"Vector[Token]"* %this) #3 {
   %this.addr = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %this, %"Vector[Token]"** %this.addr
   br label %code
@@ -33354,7 +33428,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.679"(%"Vector[Token]"* %this, %"Vector[Token]"* %other) #3 {
+define internal void @"=.680"(%"Vector[Token]"* %this, %"Vector[Token]"* %other) #3 {
   %this.addr = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %this, %"Vector[Token]"** %this.addr
   %other.addr = alloca %"Vector[Token]"*
@@ -33381,7 +33455,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.680"(%"Vector[Token]"* %this, %"Vector[Token]"* %other) #3 {
+define internal i1 @"==.681"(%"Vector[Token]"* %this, %"Vector[Token]"* %other) #3 {
   %this.addr = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %this, %"Vector[Token]"** %this.addr
   %other.addr = alloca %"Vector[Token]"*
@@ -33428,7 +33502,7 @@ cond.end3:                                        ; preds = %cond.false2, %cond.
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.681(%"Vector[UInt]"* %this, %"Vector[UInt]"* %other) #3 {
+define internal void @ctor.682(%"Vector[UInt]"* %this, %"Vector[UInt]"* %other) #3 {
   %this.addr = alloca %"Vector[UInt]"*
   store %"Vector[UInt]"* %this, %"Vector[UInt]"** %this.addr
   %other.addr = alloca %"Vector[UInt]"*
@@ -33455,7 +33529,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.682(%"Vector[UInt]"* %this) #3 {
+define internal void @dtor.683(%"Vector[UInt]"* %this) #3 {
   %this.addr = alloca %"Vector[UInt]"*
   store %"Vector[UInt]"* %this, %"Vector[UInt]"** %this.addr
   br label %code
@@ -33465,7 +33539,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.683"(%"Vector[UInt]"* %this, %"Vector[UInt]"* %other) #3 {
+define internal void @"=.684"(%"Vector[UInt]"* %this, %"Vector[UInt]"* %other) #3 {
   %this.addr = alloca %"Vector[UInt]"*
   store %"Vector[UInt]"* %this, %"Vector[UInt]"** %this.addr
   %other.addr = alloca %"Vector[UInt]"*
@@ -33492,7 +33566,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.684"(%"Vector[UInt]"* %this, %"Vector[UInt]"* %other) #3 {
+define internal i1 @"==.685"(%"Vector[UInt]"* %this, %"Vector[UInt]"* %other) #3 {
   %this.addr = alloca %"Vector[UInt]"*
   store %"Vector[UInt]"* %this, %"Vector[UInt]"** %this.addr
   %other.addr = alloca %"Vector[UInt]"*
@@ -33547,7 +33621,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.685(%ErrorReporter* %this) #3 {
+define internal void @dtor.686(%ErrorReporter* %this) #3 {
   %this.addr = alloca %ErrorReporter*
   store %ErrorReporter* %this, %ErrorReporter** %this.addr
   br label %code
@@ -33557,7 +33631,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @reportError.686(%ErrorReporter %obj, %Location* %loc, %StringRef %msg) #4 {
+define internal void @reportError.687(%ErrorReporter %obj, %Location* %loc, %StringRef %msg) #4 {
   %obj.addr = alloca %ErrorReporter
   store %ErrorReporter %obj, %ErrorReporter* %obj.addr
   %loc.addr = alloca %Location*
@@ -33577,7 +33651,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.687(%AstBuilder* %this) #3 {
+define internal void @dtor.688(%AstBuilder* %this) #3 {
   %this.addr = alloca %AstBuilder*
   store %AstBuilder* %this, %AstBuilder** %this.addr
   br label %code
@@ -33763,7 +33837,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.688(%File* %this) #3 {
+define internal void @ctor.689(%File* %this) #3 {
   %this.addr = alloca %File*
   store %File* %this, %File** %this.addr
   br label %code
@@ -33776,7 +33850,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.689(%File* %this, %File* %other) #3 {
+define internal void @ctor.690(%File* %this, %File* %other) #3 {
   %this.addr = alloca %File*
   store %File* %this, %File** %this.addr
   %other.addr = alloca %File*
@@ -33794,7 +33868,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.690(%File* %this) #3 {
+define internal void @dtor.691(%File* %this) #3 {
   %this.addr = alloca %File*
   store %File* %this, %File** %this.addr
   br label %code
@@ -33804,7 +33878,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.691"(%File* %this, %File* %other) #3 {
+define internal void @"=.692"(%File* %this, %File* %other) #3 {
   %this.addr = alloca %File*
   store %File* %this, %File** %this.addr
   %other.addr = alloca %File*
@@ -33822,7 +33896,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.692"(%File* %this, %File* %other) #3 {
+define internal i1 @"==.693"(%File* %this, %File* %other) #3 {
   %this.addr = alloca %File*
   store %File* %this, %File** %this.addr
   %other.addr = alloca %File*
@@ -33841,7 +33915,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor.693(%File* %this) #4 {
+define internal void @ctor.694(%File* %this) #4 {
   %this.addr = alloca %File*
   store %File* %this, %File** %this.addr
   br label %code
@@ -33857,7 +33931,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor.694(%File* %this, i8* %handle) #4 {
+define internal void @ctor.695(%File* %this, i8* %handle) #4 {
   %this.addr = alloca %File*
   store %File* %this, %File** %this.addr
   %handle.addr = alloca i8*
@@ -33876,7 +33950,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor.695(%File* %this, %File* %other) #4 {
+define internal void @ctor.696(%File* %this, %File* %other) #4 {
   %this.addr = alloca %File*
   store %File* %this, %File** %this.addr
   %other.addr = alloca %File*
@@ -33900,7 +33974,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @dtor.696(%File* %this) #4 {
+define internal void @dtor.697(%File* %this) #4 {
   %this.addr = alloca %File*
   store %File* %this, %File** %this.addr
   br label %code
@@ -33956,7 +34030,7 @@ code:                                             ; preds = %0
 declare void @fclose(i8*)
 
 ; Function Attrs: inlinehint nounwind
-define internal void @"=.697"(%File* %this, %File* %other) #4 {
+define internal void @"=.698"(%File* %this, %File* %other) #4 {
   %this.addr = alloca %File*
   store %File* %this, %File** %this.addr
   %other.addr = alloca %File*
@@ -33991,12 +34065,12 @@ code:                                             ; preds = %0
   %2 = call i8* @cStr(%StringRef* %filename.addr)
   %3 = call i8* @cStr(%StringRef* %mode.addr)
   %4 = call i8* @fopen(i8* %2, i8* %3)
-  call void @ctor.694(%File* %1, i8* %4)
+  call void @ctor.695(%File* %1, i8* %4)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i32 @flush.698(%File* %this) #4 {
+define internal i32 @flush.699(%File* %this) #4 {
   %this.addr = alloca %File*
   store %File* %this, %File** %this.addr
   br label %code
@@ -34076,7 +34150,38 @@ dumy_block:                                       ; No predecessors!
 declare i8* @fgets(i8*, i32, i8*)
 
 ; Function Attrs: inlinehint nounwind
-define internal void @all.699(%FileRange* sret %_result, %File* %this) #4 {
+define internal i32 @write(%File* %this, %StringRef %data) #4 {
+  %this.addr = alloca %File*
+  store %File* %this, %File** %this.addr
+  %data.addr = alloca %StringRef
+  store %StringRef %data, %StringRef* %data.addr
+  %res = alloca i32
+  %tmp.this = alloca i32
+  %tmp.this1 = alloca i32
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = getelementptr inbounds %StringRef, %StringRef* %data.addr, i32 0, i32 0
+  %2 = load i8*, i8** %1
+  store i32 1, i32* %tmp.this
+  %3 = load i32, i32* %tmp.this
+  %4 = call i64 @size(%StringRef* %data.addr)
+  %5 = trunc i64 %4 to i32
+  store i32 %5, i32* %tmp.this1
+  %6 = load i32, i32* %tmp.this1
+  %7 = load %File*, %File** %this.addr
+  %8 = getelementptr inbounds %File, %File* %7, i32 0, i32 0
+  %9 = load i8*, i8** %8
+  %10 = call i32 @fwrite(i8* %2, i32 %3, i32 %6, i8* %9)
+  store i32 %10, i32* %res
+  %11 = load i32, i32* %res
+  ret i32 %11
+}
+
+declare i32 @fwrite(i8*, i32, i32, i8*)
+
+; Function Attrs: inlinehint nounwind
+define internal void @all.700(%FileRange* sret %_result, %File* %this) #4 {
   %_result.addr = alloca %FileRange*
   store %FileRange* %_result, %FileRange** %_result.addr
   %this.addr = alloca %File*
@@ -34086,12 +34191,12 @@ define internal void @all.699(%FileRange* sret %_result, %File* %this) #4 {
 code:                                             ; preds = %0
   %1 = load %FileRange*, %FileRange** %_result.addr
   %2 = load %File*, %File** %this.addr
-  call void @ctor.700(%FileRange* %1, %File* %2)
+  call void @ctor.701(%FileRange* %1, %File* %2)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor.700(%FileRange* %this, %File* %file) #4 {
+define internal void @ctor.701(%FileRange* %this, %File* %file) #4 {
   %this.addr = alloca %FileRange*
   store %FileRange* %this, %FileRange** %this.addr
   %file.addr = alloca %File*
@@ -34143,7 +34248,7 @@ if_end:                                           ; preds = %if_then, %if_block
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.701(%FileRange* %this) #3 {
+define internal void @ctor.702(%FileRange* %this) #3 {
   %this.addr = alloca %FileRange*
   store %FileRange* %this, %FileRange** %this.addr
   br label %code
@@ -34162,7 +34267,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.702(%FileRange* %this, %FileRange* %other) #3 {
+define internal void @ctor.703(%FileRange* %this, %FileRange* %other) #3 {
   %this.addr = alloca %FileRange*
   store %FileRange* %this, %FileRange** %this.addr
   %other.addr = alloca %FileRange*
@@ -34192,7 +34297,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.703(%FileRange* %this) #3 {
+define internal void @dtor.704(%FileRange* %this) #3 {
   %this.addr = alloca %FileRange*
   store %FileRange* %this, %FileRange** %this.addr
   br label %code
@@ -34202,7 +34307,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.704"(%FileRange* %this, %FileRange* %other) #3 {
+define internal void @"=.705"(%FileRange* %this, %FileRange* %other) #3 {
   %this.addr = alloca %FileRange*
   store %FileRange* %this, %FileRange** %this.addr
   %other.addr = alloca %FileRange*
@@ -34232,7 +34337,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.705"(%FileRange* %this, %FileRange* %other) #3 {
+define internal i1 @"==.706"(%FileRange* %this, %FileRange* %other) #3 {
   %this.addr = alloca %FileRange*
   store %FileRange* %this, %FileRange** %this.addr
   %other.addr = alloca %FileRange*
@@ -34287,7 +34392,7 @@ cond.end3:                                        ; preds = %cond.false2, %cond.
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @isEmpty.706(%FileRange* %s) #4 {
+define internal i1 @isEmpty.707(%FileRange* %s) #4 {
   %s.addr = alloca %FileRange*
   store %FileRange* %s, %FileRange** %s.addr
   br label %code
@@ -34300,7 +34405,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i8 @front.707(%FileRange* %s) #4 {
+define internal i8 @front.708(%FileRange* %s) #4 {
   %s.addr = alloca %FileRange*
   store %FileRange* %s, %FileRange** %s.addr
   br label %code
@@ -34313,7 +34418,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @popFront.708(%FileRange* %s) #4 {
+define internal void @popFront.709(%FileRange* %s) #4 {
   %s.addr = alloca %FileRange*
   store %FileRange* %s, %FileRange** %s.addr
   br label %code
@@ -34348,7 +34453,7 @@ if_end:                                           ; preds = %if_then, %if_block
 declare i32 @fread(i8*, i32, i32, i8*)
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.709(%FileCharSource* %this) #3 {
+define internal void @ctor.710(%FileCharSource* %this) #3 {
   %this.addr = alloca %FileCharSource*
   store %FileCharSource* %this, %FileCharSource** %this.addr
   br label %code
@@ -34356,12 +34461,12 @@ define internal void @ctor.709(%FileCharSource* %this) #3 {
 code:                                             ; preds = %0
   %1 = load %FileCharSource*, %FileCharSource** %this.addr
   %2 = getelementptr inbounds %FileCharSource, %FileCharSource* %1, i32 0, i32 0
-  call void @ctor.693(%File* %2)
+  call void @ctor.694(%File* %2)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor.710(%FileCharSource* %this, %FileCharSource* %other) #3 {
+define internal void @ctor.711(%FileCharSource* %this, %FileCharSource* %other) #3 {
   %this.addr = alloca %FileCharSource*
   store %FileCharSource* %this, %FileCharSource** %this.addr
   %other.addr = alloca %FileCharSource*
@@ -34373,12 +34478,12 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %FileCharSource, %FileCharSource* %1, i32 0, i32 0
   %3 = load %FileCharSource*, %FileCharSource** %other.addr
   %4 = getelementptr inbounds %FileCharSource, %FileCharSource* %3, i32 0, i32 0
-  call void @ctor.695(%File* %2, %File* %4)
+  call void @ctor.696(%File* %2, %File* %4)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor.711(%FileCharSource* %this) #3 {
+define internal void @dtor.712(%FileCharSource* %this) #3 {
   %this.addr = alloca %FileCharSource*
   store %FileCharSource* %this, %FileCharSource** %this.addr
   br label %code
@@ -34386,29 +34491,12 @@ define internal void @dtor.711(%FileCharSource* %this) #3 {
 code:                                             ; preds = %0
   %1 = load %FileCharSource*, %FileCharSource** %this.addr
   %2 = getelementptr inbounds %FileCharSource, %FileCharSource* %1, i32 0, i32 0
-  call void @dtor.696(%File* %2)
+  call void @dtor.697(%File* %2)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=.712"(%FileCharSource* %this, %FileCharSource* %other) #3 {
-  %this.addr = alloca %FileCharSource*
-  store %FileCharSource* %this, %FileCharSource** %this.addr
-  %other.addr = alloca %FileCharSource*
-  store %FileCharSource* %other, %FileCharSource** %other.addr
-  br label %code
-
-code:                                             ; preds = %0
-  %1 = load %FileCharSource*, %FileCharSource** %this.addr
-  %2 = getelementptr inbounds %FileCharSource, %FileCharSource* %1, i32 0, i32 0
-  %3 = load %FileCharSource*, %FileCharSource** %other.addr
-  %4 = getelementptr inbounds %FileCharSource, %FileCharSource* %3, i32 0, i32 0
-  call void @"=.697"(%File* %2, %File* %4)
-  ret void
-}
-
-; Function Attrs: alwaysinline nounwind
-define internal i1 @"==.713"(%FileCharSource* %this, %FileCharSource* %other) #3 {
+define internal void @"=.713"(%FileCharSource* %this, %FileCharSource* %other) #3 {
   %this.addr = alloca %FileCharSource*
   store %FileCharSource* %this, %FileCharSource** %this.addr
   %other.addr = alloca %FileCharSource*
@@ -34420,7 +34508,24 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %FileCharSource, %FileCharSource* %1, i32 0, i32 0
   %3 = load %FileCharSource*, %FileCharSource** %other.addr
   %4 = getelementptr inbounds %FileCharSource, %FileCharSource* %3, i32 0, i32 0
-  %5 = call i1 @"==.692"(%File* %2, %File* %4)
+  call void @"=.698"(%File* %2, %File* %4)
+  ret void
+}
+
+; Function Attrs: alwaysinline nounwind
+define internal i1 @"==.714"(%FileCharSource* %this, %FileCharSource* %other) #3 {
+  %this.addr = alloca %FileCharSource*
+  store %FileCharSource* %this, %FileCharSource** %this.addr
+  %other.addr = alloca %FileCharSource*
+  store %FileCharSource* %other, %FileCharSource** %other.addr
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = load %FileCharSource*, %FileCharSource** %this.addr
+  %2 = getelementptr inbounds %FileCharSource, %FileCharSource* %1, i32 0, i32 0
+  %3 = load %FileCharSource*, %FileCharSource** %other.addr
+  %4 = getelementptr inbounds %FileCharSource, %FileCharSource* %3, i32 0, i32 0
+  %5 = call i1 @"==.693"(%File* %2, %File* %4)
   ret i1 %5
 }
 

@@ -167,5 +167,5 @@ Frontend/PrefixPostfix.spr:             Frontend - prefix & postfix operators
 Frontend/StringAndDsl.spr:              Frontend - string and DSL
 Frontend/parserTest.spr:                Frontend - Parser test
 
-../Tools/formatTool.spr:                Tools - Format tool
+../tools/formatTool.spr:                Tools - Format tool
 

@@ -1,0 +1,34 @@
+//! Transformation that removes semicolons at the end of the line
+module formatTool.transforms.removeEolSemicolons
+
+import utils
+import formatDetails.sourceData
+
+fun removeEolSemicolons(src: @SourceData)
+    var parenCount = 0
+    for i = 0..Int(src.tokens.size)
+        var token: @TokenData = src.tokens(i)
+        var remaining = src.tokens.subrange(i+1)
+
+        if token.canFormat && token.type == tkSEMICOLON && nextIsNewline(remaining)
+            if !_inEmptyBlockStmt(token)
+                clearToken(token)
+
+//! Checks if the token (e.g., semicolon) is in an empty block statement
+//! This prevents us to remove semicolons from things like:
+//!     fun f(n: Int)
+//!         ;
+//!
+//!     if cond
+//!         ;
+//!     else
+//!         ;
+fun _inEmptyBlockStmt(token: @TokenData): Bool
+    var parent: Node = token.parentAst
+    if parent.isNull || (parent kind) != nkBlockStmt
+        return false
+    for child = (parent children)
+        if child.isSet
+            return false
+    return true
+

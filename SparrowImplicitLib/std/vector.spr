@@ -136,6 +136,7 @@ datatype Vector(valueType: Type)
     fun back(this: @Vector)                    = _end.advance(-1).value()
     fun all(this: @Vector)                     = RangeType(_begin, _end)
     fun subrange(this: @Vector, index: SizeType, num: SizeType): RangeType = RangeType(_begin.advance(index), _begin.advance(index + num))
+    fun subrange(this: @Vector, index: SizeType): RangeType = RangeType(_begin.advance(index), _end)
 
     fun insertBefore(this: @Vector, value: this.ValuePassType, pos: this.RangeType)
         var posCount = pos.frontPtr().diff(_begin)

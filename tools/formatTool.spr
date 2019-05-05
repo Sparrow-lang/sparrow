@@ -1,10 +1,14 @@
 //!! -I../src/SparrowFrontend/Grammar
 import formatDetails.sourceData
+import transforms.emptyTransform, transforms.defaultFormat, transforms.refToMut
+import transforms.useLayout, transforms.removeEolSemicolons
 
 import os
 
 //! The type of a basic transformation function
 using TransformFun = FunctionPtr(VoidType, @SourceData)
+//! A vector of transformations to apply
+using Transforms = TransformFun Vector
 
 fun sprMain
     if programArgs.size() < 2
@@ -12,14 +16,16 @@ fun sprMain
     var filename = ''
 
     var inPlace = false
-    var transformFun: TransformFun
+    var transforms: Transforms
 
     for i=1..programArgs.size
         var arg = programArgs(i)
 
-        if arg == '-format'             ; transformFun = \_defaultFormat
-        else if arg == '-f=empty'       ; transformFun = \_emptyTransform
-        else if arg == '-f=ref-to-mut'  ; transformFun = \_refToMut
+        if arg == '-format'
+            transforms += \useLayoutFormatter
+            transforms += \removeEolSemicolons
+        else if arg == '-f=empty'       ; transforms += \emptyTransform
+        else if arg == '-f=ref-to-mut'  ; transforms += \refToMut
         else if arg == '-i'             ; inPlace = true
         else if arg.size > 0 && arg(0) == '-'.char
             // This looks like a flag, but we don't recognize it
@@ -40,9 +46,12 @@ fun sprMain
     var sourceData: SourceData
     sourceData load filename
 
-    // Transform the tokens
+    // Check the regions in which we should disable reformatting
     _checkDisableFormatting(sourceData)
-    transformFun(sourceData)
+
+    // Transform the tokens
+    for trFun = transforms.all
+        trFun(sourceData)
 
     // Write the output
     if inPlace
@@ -98,26 +107,6 @@ fun _getCommentContent(tokenStr: StringRef): StringRef
         res popBack
     return res
 
-fun _emptyTransform(src: @SourceData)
-    ;
-
-fun _defaultFormat(src: @SourceData)
-    for token: @TokenData = src.tokens.all
-        if !token.canFormat
-            continue
-        if token.type == tkWHITESPACE && token.content.size > 2 && token.loc.start.col > 1
-            token.content = " "
-
-fun _refToMut(src: @SourceData)
-    for i = 2..src.tokens.size
-        var prev2 = src.tokens(i-2)
-        var prev1 = src.tokens(i-1)
-        var cur: @TokenData = src.tokens(i)
-        if !cur.canFormat
-            continue
-        if prev2.type == tkCOLON && prev1.type == tkWHITESPACE && cur.content == '@'
-            cur.content = '!'
-
-
 //<<<File scanning test(-format ../SparrowImplicitLib/std/ranges.spr)
+// <<<File scanning test(-format -i ../tests/StdLib/RangesTest.spr)
 // <<<File scanning test(-f=ref-to-mut ../SparrowImplicitLib/std/ranges.spr)

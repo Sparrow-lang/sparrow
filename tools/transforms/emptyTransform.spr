@@ -1,0 +1,7 @@
+module formatTool.transforms.emptyTransform
+
+import formatDetails.sourceData
+
+fun emptyTransform(src: @SourceData)
+    ;
+

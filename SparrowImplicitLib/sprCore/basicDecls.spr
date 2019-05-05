@@ -653,15 +653,18 @@ datatype StringRef
     fun size(this: @StringRef): SizeType    = ptrDiff(end, begin)
 
     fun front(this: @StringRef): @Char                = reinterpretCast(@Char, begin)
-    fun back(this: @StringRef): @Char                 = reinterpretCast(@Char, ptrAdd(end, -1))
+    fun back(this: @StringRef): @Char                 = reinterpretCast(@Char, ptrSub(end, 1))
     fun ()(this: @StringRef) : @Char                  = reinterpretCast(@Char, begin)
     fun ()(this: @StringRef, index: SizeType): @Char  = reinterpretCast(@Char, ptrAdd(begin, index))
     fun at(this: @StringRef, index: SizeType): @Char  = reinterpretCast(@Char, ptrAdd(begin, index))
 
     fun popFront(this: @StringRef)                { begin := ptrAdd(begin, 1); }
-    fun popBack(this: @StringRef)                 { end := ptrAdd(end, -1); }
+    fun popBack(this: @StringRef)                 { end := ptrSub(end, 1); }
     fun popFront(this: @StringRef, n: SizeType)   { begin := ptrAdd(begin, n); }
-    fun popBack(this: @StringRef, n: SizeType)    { end := ptrAdd(end, -DiffType(n)); }
+    fun popBack(this: @StringRef, n: SizeType)    { end := ptrSub(end, n); }
+
+    fun subrange(this: @StringRef, index: SizeType, num: SizeType): StringRef
+        return StringRef(ptrAdd(begin, index), ptrAdd(begin, num))
 
     fun cStr(this: @StringRef): @Char = reinterpretCast(@Char, begin)
 

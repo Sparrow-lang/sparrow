@@ -41,6 +41,7 @@ fun sprMain
     sourceData load filename
 
     // Transform the tokens
+    _checkDisableFormatting(sourceData)
     transformFun(sourceData)
 
     // Write the output
@@ -48,10 +49,6 @@ fun sprMain
         sourceData.tokens _writeToFile filename
     else
         sourceData.tokens _writeToStdout
-
-    // Write all the tokens to file
-    //var destFilename = toString(filename, ".formatted")
-    //sourceData.tokens _writeToFile destFilename.asStringRef
 
 fun _printArgsError(msg: StringRef)
     cout << 'ERROR: Invalid arguments passed (' << msg << ')\n\n' // IGNORE-ERROR for test.py
@@ -72,11 +69,42 @@ fun _writeToFile(tokens: @TokenVector, filename: StringRef)
     for token = tokens.all
         destFile write token.content
 
+fun _checkDisableFormatting(src: @SourceData)
+    var formatOffCount = 0
+    for token: @TokenData = src.tokens.all
+        // Disable formatting if we are in a marked area
+        if formatOffCount > 0
+            token.canFormat = false
+
+        // Check fort star/end of the formatting-off area
+        if token.type == tkCOMMENT
+            var commentContent = _getCommentContent(token.content)
+            if commentContent == 'format off'
+                formatOffCount++
+            else if commentContent == 'format on' && formatOffCount > 0
+                formatOffCount--
+
+fun _getCommentContent(tokenStr: StringRef): StringRef
+    var res = tokenStr
+    if res.subrange(0, 2) == '//'
+        res popFront 2
+    else if res.subrange(0, 2) == '/*'
+        res popFront 2
+        res popBack 2
+    // Trim spaces
+    while !res.isEmpty && isSpace(res.front)
+        res popFront
+    while !res.isEmpty && isSpace(res.back)
+        res popBack
+    return res
+
 fun _emptyTransform(src: @SourceData)
     ;
 
 fun _defaultFormat(src: @SourceData)
     for token: @TokenData = src.tokens.all
+        if !token.canFormat
+            continue
         if token.type == tkWHITESPACE && token.content.size > 2 && token.loc.start.col > 1
             token.content = " "
 
@@ -85,6 +113,8 @@ fun _refToMut(src: @SourceData)
         var prev2 = src.tokens(i-2)
         var prev1 = src.tokens(i-1)
         var cur: @TokenData = src.tokens(i)
+        if !cur.canFormat
+            continue
         if prev2.type == tkCOLON && prev1.type == tkWHITESPACE && cur.content == '@'
             cur.content = '!'
 

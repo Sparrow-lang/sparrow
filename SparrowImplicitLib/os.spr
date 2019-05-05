@@ -56,6 +56,10 @@ fun readLine(this: @File): String
         res.resize(cStringLen(cstr))
     return res
 
+fun write(this: @File, data: StringRef): Int
+    var res: Int = _Impl.fwrite(reinterpretCast(@Byte, data.begin), 1, UInt(data.size), _handle)
+    return res
+
 fun all(this: @File) = FileRange(this)
 
 datatype FileRange
@@ -92,3 +96,4 @@ package _Impl
     [native("fgetc")]   fun fgetc(handle: @Byte): Int
     [native("fgets")]   fun fgets(buffer: @Char, bufSize: Int, handle: @Byte): @Char
     [native("fread")]   fun fread(buffer: @Byte, size, count: UInt, handle: @Byte): UInt
+    [native("fwrite")]  fun fwrite(buffer: @Byte, size, count: UInt, handle: @Byte): UInt

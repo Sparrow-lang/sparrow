@@ -1,0 +1,72 @@
+module formatTool.formatDetails.tokenDataSource
+
+import common, fileCharSourceKeepContent, tokenData, astNodes
+
+// From SparrowFrontend/Grammar
+import scanner, token, ext, parserIf
+
+import meta.location, os = os
+
+datatype TokenDataSource
+    //! Object representing the source data, with location-based content-query abilities
+    _source: FileCharSourceKeepContent
+
+    //! The error reporter object used with the Sparrow scanner
+    _errorReporter: _Impl.ExitErrorReporter
+
+    //! The Sparrow scanner, used to find out the tokens
+    _sparrowScanner: SparrowScanner
+
+    //! Indicates if we are at the end of the range
+    _atEnd: Bool
+    //! The current token
+    _curToken: TokenData
+
+fun ctor(this: @TokenDataSource, filename: StringRef)
+    var loc = mkLocation()
+
+    _source ctor filename
+    if !_source.isValid
+        _errorReporter.reportError(loc, toString("Cannot open input file: ", filename).asStringRef)
+
+    _sparrowScanner.ctor(mkCharSource(_source), mkErrorReporter(_errorReporter), loc, true)
+
+    this._popFront
+
+fun all(this: @TokenDataSource) = TokenDataSourceRange(this)
+
+fun _popFront(this: @TokenDataSource)
+    var token = (_sparrowScanner++)
+    var tokenData = _source.getContent(token.loc.start, token.loc.end)
+    _curToken = TokenData(token.type, token.loc, tokenData, Node())
+    _atEnd = token.type == tkEND
+    _source.updateStartPos(token.loc.end)
+
+[initCtor]
+datatype TokenDataSourceRange
+    using RetType = TokenData
+
+    _data: @TokenDataSource
+
+fun isEmpty(this: @TokenDataSourceRange) = _data._atEnd
+fun front(this: @TokenDataSourceRange)   = _data._curToken
+fun popFront(this: @TokenDataSourceRange) = _data._popFront
+
+
+fun readAst(filename: StringRef): Node
+    var loc = mkLocation()
+    var astBuilder: SimpleAstBuilder
+    var errorReporter: _Impl.ExitErrorReporter
+    var fileCharSource = FileCharSource(filename)
+    var parser: @ParserContext = createParser(mkCharSource(fileCharSource), loc, mkAstBuilder(astBuilder), mkErrorReporter(errorReporter))
+
+    var rootNode = parser parseModule
+    return rootNode
+
+package _Impl
+    //! An error reporter that prints errors to the console then quits
+    datatype ExitErrorReporter
+
+    fun reportError(this: @ExitErrorReporter, loc: @Location, msg: StringRef)
+        cout << loc << " ERROR: " << msg << endl    // IGNORE-ERROR for test.py
+        os.exit(1)

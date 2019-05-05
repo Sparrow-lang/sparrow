@@ -1,0 +1,80 @@
+//!! -I../src/SparrowFrontend/Grammar
+import formatDetails.sourceData
+
+import os
+
+//! The type of a basic transformation function
+using TransformFun = FunctionPtr(VoidType, @SourceData)
+
+fun sprMain
+    if programArgs.size() < 2
+        _printArgsError
+    var cmd = programArgs(1)
+    var filename = programArgs(2)
+
+    var transformFun: TransformFun
+
+    if cmd == '-format'             ; transformFun = \_defaultFormat
+    else if cmd == '-f=empty'       ; transformFun = \_emptyTransform
+    else if cmd == '-f=ref-to-mut'  ; transformFun = \_refToMut
+    else
+        _printArgsError
+
+    // TODO -c == check
+
+    doTransform(filename, transformFun)
+
+
+fun _printArgsError
+    cout << 'ERROR: invalid arguments passed\n\n' // IGNORE-ERROR for test.py
+    cout << 'Usage:\n'
+    cout << '  ' << programArgs(0) << ' -format <sparrowSourceFile>\n\n'
+    exit(1)
+
+fun doTransform(filename: StringRef, transform: TransformFun)
+    var sourceData: SourceData
+    sourceData load filename
+
+    // Transform the tokens
+    transform(sourceData)
+
+    sourceData.tokens _writeToStdout
+
+    // Write all the tokens to file
+    //var destFilename = toString(filename, ".formatted")
+    //sourceData.tokens _writeToFile destFilename.asStringRef
+
+fun _writeToStdout(tokens: @TokenVector)
+    for token = tokens.all
+        cout << token.content
+        //cout << '<' << (token.parentAst kind) << '>'
+
+fun _writeToFile(tokens: @TokenVector, filename: StringRef)
+    var destFile = File(filename, 'w')
+    if !destFile.isOpen
+        cout << 'ERROR: cannot open output file: ' << filename << '\n' // IGNORE-ERROR for test.py
+        cout << 'Aborting.\n'
+        exit(1)
+
+    for token = tokens.all
+        destFile write token.content
+
+fun _emptyTransform(src: @SourceData)
+    ;
+
+fun _defaultFormat(src: @SourceData)
+    for token: @TokenData = src.tokens.all
+        if token.type == tkWHITESPACE && token.content.size > 2 && token.loc.start.col > 1
+            token.content = " "
+
+fun _refToMut(src: @SourceData)
+    for i = 2..src.tokens.size
+        var prev2 = src.tokens(i-2)
+        var prev1 = src.tokens(i-1)
+        var cur: @TokenData = src.tokens(i)
+        if prev2.type == tkCOLON && prev1.type == tkWHITESPACE && cur.content == '@'
+            cur.content = '!'
+
+
+//<<<File scanning test(-format ../SparrowImplicitLib/std/ranges.spr)
+// <<<File scanning test(-f=ref-to-mut ../SparrowImplicitLib/std/ranges.spr)

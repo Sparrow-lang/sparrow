@@ -66,6 +66,10 @@ using tkULONG_LITERAL   = TokenType(43)
 using tkFLOAT_LITERAL   = TokenType(44)
 using tkDOUBLE_LITERAL  = TokenType(45)
 
+using tkLINECONTINUE    = TokenType(253)
+using tkCOMMENT         = TokenType(254)
+using tkWHITESPACE      = TokenType(255)
+
 fun _asString(t: TokenType): String
     if t == tkEND                   return "end-of-file"
     else if t == tkEOL              return "new-line"
@@ -113,6 +117,9 @@ fun _asString(t: TokenType): String
     else if t == tkULONG_LITERAL    return "ulong literal"
     else if t == tkFLOAT_LITERAL    return "float literal"
     else if t == tkDOUBLE_LITERAL   return "double literal"
+    else if t == tkLINECONTINUE     return "line continue"
+    else if t == tkCOMMENT          return "comment"
+    else if t == tkWHITESPACE       return "whitespace"
 
 fun >>(t: TokenType, os: @OutStream)
     os << (t _asString)

@@ -1,0 +1,16 @@
+import ext
+import std.ranges, std.string
+
+//! A char source that reads chars from a given StringRef
+[initCtor]
+datatype StringCharSource
+    _content: StringRef
+
+fun readChars(this: @StringCharSource, dest: @String, numChars: Int)
+    var sz: Int = _content.size
+    var toRead = ife(numChars < sz, numChars, sz)
+    for i = 0..sz
+        dest += _content.front
+        _content.popFront
+
+

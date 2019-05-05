@@ -1,0 +1,17 @@
+module formatTool.formatDetails.tokenData
+
+import token, node
+import meta.location
+import std.vector
+
+//! The data used to represents the tokens of the program
+//! Contains complete information of the source code, and can be used at source-code transformations
+[initCtor]
+datatype TokenData
+    type: TokenType
+    loc: Location
+    content: StringRef
+    parentAst: Node
+
+//! A vector of tokens
+using TokenVector = TokenData Vector

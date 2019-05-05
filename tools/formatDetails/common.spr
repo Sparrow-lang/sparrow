@@ -1,0 +1,13 @@
+module formatTool.formatDetails.common
+
+import ext
+
+import os, std.ranges
+
+
+//! An error reporter that prints errors to the console
+datatype ConsoleErrorReporter
+
+fun reportError(this: @ConsoleErrorReporter, loc: @Location, msg: StringRef)
+    cout << loc << " ERROR: " << msg << endl    // IGNORE-ERROR for test.py
+    exit(1)

@@ -99,11 +99,19 @@ fun <(lhs, rhs: @Location): Bool
     if lhs.end.line > rhs.end.line      ; return false
     return lhs.end.col < rhs.end.col
 
+/// Compare location line-col
+fun <(lhs, rhs: @LineCol): Bool
+    if lhs.line < rhs.line      ; return true
+    if lhs.line > rhs.line      ; return false
+    return lhs.col < rhs.col
+
 fun >>(l: @Location, os: @OutStream)
-    os << l.start.line << ':' << l.start.col << '-'
-    os << l.end.line << ':' << l.end.col
+    os << l.start << '-' << l.end
     if l.sourceCode.data !== null
         os << " @" << l.sourceCode
+
+fun >>(lc: LineCol, os: @OutStream)
+    os << lc.line << ':' << lc.col
 
 // Source code & location functions exposed by the compiler
 [ct]

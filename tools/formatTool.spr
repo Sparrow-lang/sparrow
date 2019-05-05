@@ -8,41 +8,56 @@ using TransformFun = FunctionPtr(VoidType, @SourceData)
 
 fun sprMain
     if programArgs.size() < 2
-        _printArgsError
-    var cmd = programArgs(1)
-    var filename = programArgs(2)
+        _printArgsError('not enough arguments')
+    var filename = ''
 
+    var inPlace = false
     var transformFun: TransformFun
 
-    if cmd == '-format'             ; transformFun = \_defaultFormat
-    else if cmd == '-f=empty'       ; transformFun = \_emptyTransform
-    else if cmd == '-f=ref-to-mut'  ; transformFun = \_refToMut
-    else
-        _printArgsError
+    for i=1..programArgs.size
+        var arg = programArgs(i)
+
+        if arg == '-format'             ; transformFun = \_defaultFormat
+        else if arg == '-f=empty'       ; transformFun = \_emptyTransform
+        else if arg == '-f=ref-to-mut'  ; transformFun = \_refToMut
+        else if arg == '-i'             ; inPlace = true
+        else if arg.size > 0 && arg(0) == '-'.char
+            // This looks like a flag, but we don't recognize it
+            _printArgsError(toString('invalid argument: "', arg, '"').asStringRef)
+        else if !filename.isEmpty
+            // Another filename?
+            _printArgsError('can only have one filename')
+        else
+            filename = arg
+
+    if filename.isEmpty
+        // No filename?
+        _printArgsError('no filename given')
 
     // TODO -c == check
 
-    doTransform(filename, transformFun)
-
-
-fun _printArgsError
-    cout << 'ERROR: invalid arguments passed\n\n' // IGNORE-ERROR for test.py
-    cout << 'Usage:\n'
-    cout << '  ' << programArgs(0) << ' -format <sparrowSourceFile>\n\n'
-    exit(1)
-
-fun doTransform(filename: StringRef, transform: TransformFun)
+    // Load the source data
     var sourceData: SourceData
     sourceData load filename
 
     // Transform the tokens
-    transform(sourceData)
+    transformFun(sourceData)
 
-    sourceData.tokens _writeToStdout
+    // Write the output
+    if inPlace
+        sourceData.tokens _writeToFile filename
+    else
+        sourceData.tokens _writeToStdout
 
     // Write all the tokens to file
     //var destFilename = toString(filename, ".formatted")
     //sourceData.tokens _writeToFile destFilename.asStringRef
+
+fun _printArgsError(msg: StringRef)
+    cout << 'ERROR: Invalid arguments passed (' << msg << ')\n\n' // IGNORE-ERROR for test.py
+    cout << 'Usage:\n'
+    cout << '  ' << programArgs(0) << ' -i -format <sparrowSourceFile>\n\n'
+    exit(1)
 
 fun _writeToStdout(tokens: @TokenVector)
     for token = tokens.all

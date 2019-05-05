@@ -176,6 +176,8 @@ package _Impl
     //
 
     fun parseModuleName(this: @SparrowParser): Node
+        while this accept tkSEMICOLON
+            ;
         if this accept tkMODULE
             var qid = parseQualifiedName(this)
             this expect tkSEMICOLON

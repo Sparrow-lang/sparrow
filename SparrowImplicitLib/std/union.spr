@@ -1,0 +1,413 @@
+module std.union
+
+import std.staticArray
+
+[ct]
+fun _max(value1, value2: SizeType): SizeType
+    if value1 < value2
+        return value2
+    return value1
+
+package _Impl1
+    datatype Union1(t1: Type)
+        data: StaticArray(Char, sizeOf(t1))
+        using Type1 = t1
+    
+    fun get1(this: @Union1) = reinterpretCast(@this.Type1, this.data)
+
+package _Impl2
+    datatype Union2(t1, t2: Type)
+        data: StaticArray(Char, sizeOf(t1) _max sizeOf(t2))
+        using Type1 = t1
+        using Type2 = t2
+
+    fun get1(this: @Union2) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union2) = reinterpretCast(@this.Type2, this.data)
+
+package _Impl3
+    datatype Union3(t1, t2, t3: Type)
+        data: StaticArray(Char, sizeOf(t1) _max sizeOf(t2) _max sizeOf(t3))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+
+    fun get1(this: @Union3) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union3) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union3) = reinterpretCast(@this.Type3, this.data)
+
+package _Impl4
+    datatype Union4(t1, t2, t3, t4: Type)
+        data: StaticArray(Char, sizeOf(t1) _max sizeOf(t2) _max sizeOf(t3) _max sizeOf(t4))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+
+    fun get1(this: @Union4) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union4) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union4) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union4) = reinterpretCast(@this.Type4, this.data)
+
+package _Impl5
+    datatype Union5(t1, t2, t3, t4, t5: Type)
+        data: StaticArray(Char, sizeOf(t1) _max sizeOf(t2) _max sizeOf(t3) _max \
+                                sizeOf(t4) _max sizeOf(t5))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+        using Type5 = t5
+
+    fun get1(this: @Union5) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union5) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union5) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union5) = reinterpretCast(@this.Type4, this.data)
+    fun get5(this: @Union5) = reinterpretCast(@this.Type5, this.data)
+
+package _Impl6
+    datatype Union6(t1, t2, t3, t4, t5, t6: Type)
+        data: StaticArray(Char, sizeOf(t1) _max sizeOf(t2) _max sizeOf(t3) _max \
+                                sizeOf(t4) _max sizeOf(t5) _max sizeOf(t6))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+        using Type5 = t5
+        using Type6 = t6
+
+    fun get1(this: @Union6) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union6) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union6) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union6) = reinterpretCast(@this.Type4, this.data)
+    fun get5(this: @Union6) = reinterpretCast(@this.Type5, this.data)
+    fun get6(this: @Union6) = reinterpretCast(@this.Type6, this.data)
+
+package _Impl7
+    datatype Union7(t1, t2, t3, t4, t5, t6, t7: Type)
+        data: StaticArray(Char, sizeOf(t1) _max sizeOf(t2) _max sizeOf(t3) _max \
+                                sizeOf(t4) _max sizeOf(t5) _max sizeOf(t6) _max \
+                                sizeOf(t7))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+        using Type5 = t5
+        using Type6 = t6
+        using Type7 = t7
+
+    fun get1(this: @Union7) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union7) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union7) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union7) = reinterpretCast(@this.Type4, this.data)
+    fun get5(this: @Union7) = reinterpretCast(@this.Type5, this.data)
+    fun get6(this: @Union7) = reinterpretCast(@this.Type6, this.data)
+    fun get7(this: @Union7) = reinterpretCast(@this.Type7, this.data)
+
+package _Impl8
+    datatype Union8(t1, t2, t3, t4, t5, t6, t7, t8: Type)
+        data: StaticArray(Char, sizeOf(t1) _max sizeOf(t2) _max sizeOf(t3) _max \
+                                sizeOf(t4) _max sizeOf(t5) _max sizeOf(t6) _max \
+                                sizeOf(t7) _max sizeOf(t8))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+        using Type5 = t5
+        using Type6 = t6
+        using Type7 = t7
+        using Type8 = t8
+
+    fun get1(this: @Union8) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union8) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union8) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union8) = reinterpretCast(@this.Type4, this.data)
+    fun get5(this: @Union8) = reinterpretCast(@this.Type5, this.data)
+    fun get6(this: @Union8) = reinterpretCast(@this.Type6, this.data)
+    fun get7(this: @Union8) = reinterpretCast(@this.Type7, this.data)
+    fun get8(this: @Union8) = reinterpretCast(@this.Type8, this.data)
+
+package _Impl9
+    datatype Union9(t1, t2, t3, t4, t5, t6, t7, t8, t9: Type)
+        data: StaticArray(Char, sizeOf(t1) _max sizeOf(t2) _max sizeOf(t3) _max \
+                                sizeOf(t4) _max sizeOf(t5) _max sizeOf(t6) _max \
+                                sizeOf(t7) _max sizeOf(t8) _max sizeOf(t9))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+        using Type5 = t5
+        using Type6 = t6
+        using Type7 = t7
+        using Type8 = t8
+        using Type9 = t9
+
+    fun get1(this: @Union9) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union9) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union9) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union9) = reinterpretCast(@this.Type4, this.data)
+    fun get5(this: @Union9) = reinterpretCast(@this.Type5, this.data)
+    fun get6(this: @Union9) = reinterpretCast(@this.Type6, this.data)
+    fun get7(this: @Union9) = reinterpretCast(@this.Type7, this.data)
+    fun get8(this: @Union9) = reinterpretCast(@this.Type8, this.data)
+    fun get9(this: @Union9) = reinterpretCast(@this.Type9, this.data)
+
+package _Impl10
+    datatype Union10(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type)
+        data: StaticArray(Char, sizeOf(t1) _max sizeOf(t2) _max sizeOf(t3) _max \
+                                sizeOf(t4) _max sizeOf(t5) _max sizeOf(t6) _max \
+                                sizeOf(t7) _max sizeOf(t8) _max sizeOf(t9) _max \
+                                sizeOf(t10))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+        using Type5 = t5
+        using Type6 = t6
+        using Type7 = t7
+        using Type8 = t8
+        using Type9 = t9
+        using Type10 = t10
+
+    fun get1(this: @Union10) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union10) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union10) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union10) = reinterpretCast(@this.Type4, this.data)
+    fun get5(this: @Union10) = reinterpretCast(@this.Type5, this.data)
+    fun get6(this: @Union10) = reinterpretCast(@this.Type6, this.data)
+    fun get7(this: @Union10) = reinterpretCast(@this.Type7, this.data)
+    fun get8(this: @Union10) = reinterpretCast(@this.Type8, this.data)
+    fun get9(this: @Union10) = reinterpretCast(@this.Type9, this.data)
+    fun get10(this: @Union10) = reinterpretCast(@this.Type10, this.data)
+
+package _Impl11
+    datatype Union11(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11: Type)
+        data: StaticArray(Char, sizeOf(t1)  _max sizeOf(t2) _max sizeOf(t3) _max \
+                                sizeOf(t4)  _max sizeOf(t5) _max sizeOf(t6) _max \
+                                sizeOf(t7)  _max sizeOf(t8) _max sizeOf(t9) _max \
+                                sizeOf(t10) _max sizeOf(t11))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+        using Type5 = t5
+        using Type6 = t6
+        using Type7 = t7
+        using Type8 = t8
+        using Type9 = t9
+        using Type10 = t10
+        using Type11 = t11
+
+    fun get1(this: @Union11) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union11) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union11) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union11) = reinterpretCast(@this.Type4, this.data)
+    fun get5(this: @Union11) = reinterpretCast(@this.Type5, this.data)
+    fun get6(this: @Union11) = reinterpretCast(@this.Type6, this.data)
+    fun get7(this: @Union11) = reinterpretCast(@this.Type7, this.data)
+    fun get8(this: @Union11) = reinterpretCast(@this.Type8, this.data)
+    fun get9(this: @Union11) = reinterpretCast(@this.Type9, this.data)
+    fun get10(this: @Union11) = reinterpretCast(@this.Type10, this.data)
+    fun get11(this: @Union11) = reinterpretCast(@this.Type11, this.data)
+
+package _Impl12
+    datatype Union12(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12: Type)
+        data: StaticArray(Char, sizeOf(t1)  _max sizeOf(t2)  _max sizeOf(t3) _max \
+                                sizeOf(t4)  _max sizeOf(t5)  _max sizeOf(t6) _max \
+                                sizeOf(t7)  _max sizeOf(t8)  _max sizeOf(t9) _max \
+                                sizeOf(t10) _max sizeOf(t11) _max sizeOf(t12))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+        using Type5 = t5
+        using Type6 = t6
+        using Type7 = t7
+        using Type8 = t8
+        using Type9 = t9
+        using Type10 = t10
+        using Type11 = t11
+        using Type12 = t12
+
+    fun get1(this: @Union12) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union12) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union12) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union12) = reinterpretCast(@this.Type4, this.data)
+    fun get5(this: @Union12) = reinterpretCast(@this.Type5, this.data)
+    fun get6(this: @Union12) = reinterpretCast(@this.Type6, this.data)
+    fun get7(this: @Union12) = reinterpretCast(@this.Type7, this.data)
+    fun get8(this: @Union12) = reinterpretCast(@this.Type8, this.data)
+    fun get9(this: @Union12) = reinterpretCast(@this.Type9, this.data)
+    fun get10(this: @Union12) = reinterpretCast(@this.Type10, this.data)
+    fun get11(this: @Union12) = reinterpretCast(@this.Type11, this.data)
+    fun get12(this: @Union12) = reinterpretCast(@this.Type12, this.data)
+
+package _Impl13
+    datatype Union13(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13: Type)
+        data: StaticArray(Char, sizeOf(t1)  _max sizeOf(t2)  _max sizeOf(t3)  _max \
+                                sizeOf(t4)  _max sizeOf(t5)  _max sizeOf(t6)  _max \
+                                sizeOf(t7)  _max sizeOf(t8)  _max sizeOf(t9)  _max \
+                                sizeOf(t10) _max sizeOf(t11) _max sizeOf(t12) _max \
+                                sizeOf(t13))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+        using Type5 = t5
+        using Type6 = t6
+        using Type7 = t7
+        using Type8 = t8
+        using Type9 = t9
+        using Type10 = t10
+        using Type11 = t11
+        using Type12 = t12
+        using Type13 = t13
+
+    fun get1(this: @Union13) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union13) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union13) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union13) = reinterpretCast(@this.Type4, this.data)
+    fun get5(this: @Union13) = reinterpretCast(@this.Type5, this.data)
+    fun get6(this: @Union13) = reinterpretCast(@this.Type6, this.data)
+    fun get7(this: @Union13) = reinterpretCast(@this.Type7, this.data)
+    fun get8(this: @Union13) = reinterpretCast(@this.Type8, this.data)
+    fun get9(this: @Union13) = reinterpretCast(@this.Type9, this.data)
+    fun get10(this: @Union13) = reinterpretCast(@this.Type10, this.data)
+    fun get11(this: @Union13) = reinterpretCast(@this.Type11, this.data)
+    fun get12(this: @Union13) = reinterpretCast(@this.Type12, this.data)
+    fun get13(this: @Union13) = reinterpretCast(@this.Type13, this.data)
+
+package _Impl14
+    datatype Union14(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14: Type)
+        data: StaticArray(Char, sizeOf(t1)  _max sizeOf(t2)  _max sizeOf(t3)  _max \
+                                sizeOf(t4)  _max sizeOf(t5)  _max sizeOf(t6)  _max \
+                                sizeOf(t7)  _max sizeOf(t8)  _max sizeOf(t9)  _max \
+                                sizeOf(t10) _max sizeOf(t11) _max sizeOf(t12) _max \
+                                sizeOf(t13) _max sizeOf(t14))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+        using Type5 = t5
+        using Type6 = t6
+        using Type7 = t7
+        using Type8 = t8
+        using Type9 = t9
+        using Type10 = t10
+        using Type11 = t11
+        using Type12 = t12
+        using Type13 = t13
+        using Type14 = t14
+
+    fun get1(this: @Union14) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union14) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union14) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union14) = reinterpretCast(@this.Type4, this.data)
+    fun get5(this: @Union14) = reinterpretCast(@this.Type5, this.data)
+    fun get6(this: @Union14) = reinterpretCast(@this.Type6, this.data)
+    fun get7(this: @Union14) = reinterpretCast(@this.Type7, this.data)
+    fun get8(this: @Union14) = reinterpretCast(@this.Type8, this.data)
+    fun get9(this: @Union14) = reinterpretCast(@this.Type9, this.data)
+    fun get10(this: @Union14) = reinterpretCast(@this.Type10, this.data)
+    fun get11(this: @Union14) = reinterpretCast(@this.Type11, this.data)
+    fun get12(this: @Union14) = reinterpretCast(@this.Type12, this.data)
+    fun get13(this: @Union14) = reinterpretCast(@this.Type13, this.data)
+    fun get14(this: @Union14) = reinterpretCast(@this.Type14, this.data)
+
+package _Impl15
+    datatype Union15(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15: Type)
+        data: StaticArray(Char, sizeOf(t1)  _max sizeOf(t2)  _max sizeOf(t3)  _max \
+                                sizeOf(t4)  _max sizeOf(t5)  _max sizeOf(t6)  _max \
+                                sizeOf(t7)  _max sizeOf(t8)  _max sizeOf(t9)  _max \
+                                sizeOf(t10) _max sizeOf(t11) _max sizeOf(t12) _max \
+                                sizeOf(t13) _max sizeOf(t14) _max sizeOf(t15))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+        using Type5 = t5
+        using Type6 = t6
+        using Type7 = t7
+        using Type8 = t8
+        using Type9 = t9
+        using Type10 = t10
+        using Type11 = t11
+        using Type12 = t12
+        using Type13 = t13
+        using Type14 = t14
+        using Type15 = t15
+
+    fun get1(this: @Union15) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union15) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union15) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union15) = reinterpretCast(@this.Type4, this.data)
+    fun get5(this: @Union15) = reinterpretCast(@this.Type5, this.data)
+    fun get6(this: @Union15) = reinterpretCast(@this.Type6, this.data)
+    fun get7(this: @Union15) = reinterpretCast(@this.Type7, this.data)
+    fun get8(this: @Union15) = reinterpretCast(@this.Type8, this.data)
+    fun get9(this: @Union15) = reinterpretCast(@this.Type9, this.data)
+    fun get10(this: @Union15) = reinterpretCast(@this.Type10, this.data)
+    fun get11(this: @Union15) = reinterpretCast(@this.Type11, this.data)
+    fun get12(this: @Union15) = reinterpretCast(@this.Type12, this.data)
+    fun get13(this: @Union15) = reinterpretCast(@this.Type13, this.data)
+    fun get14(this: @Union15) = reinterpretCast(@this.Type14, this.data)
+    fun get15(this: @Union15) = reinterpretCast(@this.Type15, this.data)
+
+package _Impl16
+    datatype Union16(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16: Type)
+        data: StaticArray(Char, sizeOf(t1)  _max sizeOf(t2)  _max sizeOf(t3)  _max \
+                                sizeOf(t4)  _max sizeOf(t5)  _max sizeOf(t6)  _max \
+                                sizeOf(t7)  _max sizeOf(t8)  _max sizeOf(t9)  _max \
+                                sizeOf(t10) _max sizeOf(t11) _max sizeOf(t12) _max \
+                                sizeOf(t13) _max sizeOf(t14) _max sizeOf(t15) _max \
+                                sizeOf(t16))
+        using Type1 = t1
+        using Type2 = t2
+        using Type3 = t3
+        using Type4 = t4
+        using Type5 = t5
+        using Type6 = t6
+        using Type7 = t7
+        using Type8 = t8
+        using Type9 = t9
+        using Type10 = t10
+        using Type11 = t11
+        using Type12 = t12
+        using Type13 = t13
+        using Type14 = t14
+        using Type15 = t15
+        using Type16 = t16
+
+    fun get1(this: @Union16) = reinterpretCast(@this.Type1, this.data)
+    fun get2(this: @Union16) = reinterpretCast(@this.Type2, this.data)
+    fun get3(this: @Union16) = reinterpretCast(@this.Type3, this.data)
+    fun get4(this: @Union16) = reinterpretCast(@this.Type4, this.data)
+    fun get5(this: @Union16) = reinterpretCast(@this.Type5, this.data)
+    fun get6(this: @Union16) = reinterpretCast(@this.Type6, this.data)
+    fun get7(this: @Union16) = reinterpretCast(@this.Type7, this.data)
+    fun get8(this: @Union16) = reinterpretCast(@this.Type8, this.data)
+    fun get9(this: @Union16) = reinterpretCast(@this.Type9, this.data)
+    fun get10(this: @Union16) = reinterpretCast(@this.Type10, this.data)
+    fun get11(this: @Union16) = reinterpretCast(@this.Type11, this.data)
+    fun get12(this: @Union16) = reinterpretCast(@this.Type12, this.data)
+    fun get13(this: @Union16) = reinterpretCast(@this.Type13, this.data)
+    fun get14(this: @Union16) = reinterpretCast(@this.Type14, this.data)
+    fun get15(this: @Union16) = reinterpretCast(@this.Type15, this.data)
+    fun get16(this: @Union16) = reinterpretCast(@this.Type16, this.data)
+
+
+using Union = _Impl1.Union1
+using Union = _Impl2.Union2
+using Union = _Impl3.Union3
+using Union = _Impl4.Union4
+using Union = _Impl5.Union5
+using Union = _Impl6.Union6
+using Union = _Impl7.Union7
+using Union = _Impl8.Union8
+using Union = _Impl9.Union9
+using Union = _Impl10.Union10
+using Union = _Impl11.Union11
+using Union = _Impl12.Union12
+using Union = _Impl13.Union13
+using Union = _Impl14.Union14
+using Union = _Impl15.Union15
+using Union = _Impl16.Union16

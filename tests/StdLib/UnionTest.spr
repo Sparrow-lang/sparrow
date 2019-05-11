@@ -1,0 +1,233 @@
+import std.ptr
+import std.union
+
+datatype myType
+    a: Int
+    b: StaticArray(UByte, 100)
+
+datatype innerType
+    a: StaticArray(UInt, 25)
+
+datatype outerType
+    a: StaticArray(UByte, 9)
+    b: innerType
+
+/*<<<UnionSameType(1)
+10
+>>>*/
+fun test1
+    var union : Union(Int, Int)
+    union.get1 = 10
+
+    cout << (union.get2) << endl
+
+/*<<<UnionDiffType(2)
+27
+>>>*/
+fun test2
+    var union: Union(Int, Char)
+    union.get1 = 7963
+    
+    cout << Byte(union.get2) << endl
+
+/*<<<UnionArray(3)
+27
+31
+0
+0
+>>>*/
+fun test3
+    var union: Union(Int, StaticArray(Byte,4))
+    union.get1 = 7963
+    
+    cout << (union.get2).at(0) << endl
+    cout << (union.get2).at(1) << endl
+    cout << (union.get2).at(2) << endl
+    cout << (union.get2).at(3) << endl
+
+/*<<<SizeOfUnion(4)
+20
+>>>*/
+fun test4
+    var union: Union(Int, StaticArray(Byte, 20), Float)
+    
+    cout << sizeOf(union) << endl
+
+/*<<<ComplexSizeOfUnion(5)
+800
+>>>*/
+fun test5
+    var union: Union(Int, \
+                     StaticArray(Int, 100), \
+                     Float, \
+                     StaticArray(Byte, 100), \
+                     Char, \
+                     Long, \
+                     StaticArray(Long, 100))
+    
+    cout << sizeOf(union) << endl
+
+/*<<<ComplexUnion(6)
+1600
+210
+2
+150
+73
+>>>*/
+fun test6
+    var union: Union(Int, \
+                     StaticArray(UInt, 100), \
+                     Float, \
+                     StaticArray(UByte, 100), \
+                     Char, \
+                     Long, \
+                     StaticArray(Int, 100), \
+                     StaticArray(Float, 100), \
+                     StaticArray(Char, 100), \
+                     StaticArray(Long, 100), \
+                     StaticArray(ULong, 200))
+    
+    (union.get6) = 1234567890
+
+    cout << sizeOf(union) << endl
+
+    cout << (union.get4).at(0) << endl
+    cout << (union.get4).at(1) << endl
+    cout << (union.get4).at(2) << endl
+    cout << (union.get4).at(3) << endl
+
+/*<<<UnionStruct(7)
+104
+>>>*/
+fun test7
+    var union: Union(Int, StaticArray(Byte, 20), myType) 
+    cout << sizeOf(union) << endl
+
+/*<<<UnionComplexStruct(8)
+109
+12345
+1
+65536
+16777216
+>>>*/
+fun test8
+    var union: Union(myType, innerType, StaticArray(Byte, 20), outerType, ULong, UInt)
+    (union.get1).a = 12345
+    ((union.get1).b).at(2) = UByte(1)
+    (union.get3).at(19) = Byte(1)
+
+    cout << sizeOf(union) << endl
+    cout << union.get6 << endl
+    cout << ((union.get4).a).at(6) << endl
+    cout << (((union.get4).b).a).at(2) << endl
+    cout << ((union.get2).a).at(4) << endl
+
+/*<<<AllUnionSizes(9)
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+>>>*/
+fun test9
+    var union1: Union(Char)
+    var union2: Union(Char, StaticArray(Char, 2))
+    var union3: Union(Char, StaticArray(Char, 2), StaticArray(Char, 3))
+    var union4: Union(Char, StaticArray(Char, 2), StaticArray(Char, 3), StaticArray(Char, 4))
+
+    var union5: Union(Char, StaticArray(Char, 2), StaticArray(Char, 3), StaticArray(Char, 4), \
+                            StaticArray(Char, 5))
+
+    var union6: Union(Char, StaticArray(Char, 2), StaticArray(Char, 3), StaticArray(Char, 4), \
+                            StaticArray(Char, 5), StaticArray(Char, 6))
+
+    var union7: Union(Char, StaticArray(Char, 2), StaticArray(Char, 3), StaticArray(Char, 4), \
+                            StaticArray(Char, 5), StaticArray(Char, 6), StaticArray(Char, 7))
+
+    var union8: Union(Char, StaticArray(Char, 2), StaticArray(Char, 3), StaticArray(Char, 4), \
+                            StaticArray(Char, 5), StaticArray(Char, 6), StaticArray(Char, 7), \
+                            StaticArray(Char, 8))
+
+    var union9: Union(Char, StaticArray(Char, 2), StaticArray(Char, 3), StaticArray(Char, 4), \
+                            StaticArray(Char, 5), StaticArray(Char, 6), StaticArray(Char, 7), \
+                            StaticArray(Char, 8), StaticArray(Char, 9))
+
+    var union10: Union(Char, StaticArray(Char, 2), StaticArray(Char, 3), StaticArray(Char, 4), \
+                             StaticArray(Char, 5), StaticArray(Char, 6), StaticArray(Char, 7), \
+                             StaticArray(Char, 8), StaticArray(Char, 9), StaticArray(Char, 10))
+
+    var union11: Union(Char, StaticArray(Char, 2), StaticArray(Char, 3), StaticArray(Char, 4),  \
+                             StaticArray(Char, 5), StaticArray(Char, 6), StaticArray(Char, 7),  \
+                             StaticArray(Char, 8), StaticArray(Char, 9), StaticArray(Char, 10), \
+                             StaticArray(Char, 11))
+
+    var union12: Union(Char, StaticArray(Char, 2),  StaticArray(Char, 3), StaticArray(Char, 4),  \
+                             StaticArray(Char, 5),  StaticArray(Char, 6), StaticArray(Char, 7),  \
+                             StaticArray(Char, 8),  StaticArray(Char, 9), StaticArray(Char, 10), \
+                             StaticArray(Char, 11), StaticArray(Char, 12))
+
+    var union13: Union(Char, StaticArray(Char, 2),  StaticArray(Char, 3),  StaticArray(Char, 4),  \
+                             StaticArray(Char, 5),  StaticArray(Char, 6),  StaticArray(Char, 7),  \
+                             StaticArray(Char, 8),  StaticArray(Char, 9),  StaticArray(Char, 10), \
+                             StaticArray(Char, 11), StaticArray(Char, 12), StaticArray(Char, 13))
+
+    var union14: Union(Char, StaticArray(Char, 2),  StaticArray(Char, 3),  StaticArray(Char, 4),  \
+                             StaticArray(Char, 5),  StaticArray(Char, 6),  StaticArray(Char, 7),  \
+                             StaticArray(Char, 8),  StaticArray(Char, 9),  StaticArray(Char, 10), \
+                             StaticArray(Char, 11), StaticArray(Char, 12), StaticArray(Char, 13), \
+                             StaticArray(Char, 14))
+
+    var union15: Union(Char, StaticArray(Char, 2),  StaticArray(Char, 3),  StaticArray(Char, 4),  \
+                             StaticArray(Char, 5),  StaticArray(Char, 6),  StaticArray(Char, 7),  \
+                             StaticArray(Char, 8),  StaticArray(Char, 9),  StaticArray(Char, 10), \
+                             StaticArray(Char, 11), StaticArray(Char, 12), StaticArray(Char, 13), \
+                             StaticArray(Char, 14), StaticArray(Char, 15))
+
+    var union16: Union(Char, StaticArray(Char, 2),  StaticArray(Char, 3),  StaticArray(Char, 4),  \
+                             StaticArray(Char, 5),  StaticArray(Char, 6),  StaticArray(Char, 7),  \
+                             StaticArray(Char, 8),  StaticArray(Char, 9),  StaticArray(Char, 10), \
+                             StaticArray(Char, 11), StaticArray(Char, 12), StaticArray(Char, 13), \
+                             StaticArray(Char, 14), StaticArray(Char, 15), StaticArray(Char, 16))
+
+    cout << sizeOf(union1) << endl
+    cout << sizeOf(union2) << endl
+    cout << sizeOf(union3) << endl
+    cout << sizeOf(union4) << endl
+    cout << sizeOf(union5) << endl
+    cout << sizeOf(union6) << endl
+    cout << sizeOf(union7) << endl
+    cout << sizeOf(union8) << endl
+    cout << sizeOf(union9) << endl
+    cout << sizeOf(union10) << endl
+    cout << sizeOf(union11) << endl
+    cout << sizeOf(union12) << endl
+    cout << sizeOf(union13) << endl
+    cout << sizeOf(union14) << endl
+    cout << sizeOf(union15) << endl
+    cout << sizeOf(union16) << endl
+
+fun sprMain
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      n == 1  ; test1
+    else if n == 2  ; test2
+    else if n == 3  ; test3
+    else if n == 4  ; test4
+    else if n == 5  ; test5
+    else if n == 6  ; test6
+    else if n == 7  ; test7
+    else if n == 8  ; test8
+    else if n == 9  ; test9

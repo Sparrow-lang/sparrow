@@ -136,9 +136,7 @@ fun sprMain
         searchKeys(i) = 0x80000000 + i*2
     // TODO: random shuffling
 
-    var hashBag: TestHashMap
-    // format off
-    ;
+    var hashBag: TestHashMap;
         var t = TestTimer("Hash Insert", n)
         testInsert(hashBag, n)
     ;
@@ -153,7 +151,7 @@ fun sprMain
     ;
         var t = TestTimer("Hash Remove", n)
         testRemove(hashBag, n)
-    // format on
+    ;
 
 
 /*-<<<Basic hash test(10000)

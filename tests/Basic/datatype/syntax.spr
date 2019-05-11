@@ -40,9 +40,7 @@ datatype GenericIf2(t: Type) if t != Int
 
 [native("test")]
 fun test(n: Int)
-    // format off
     ;
-    // format on
         var o1: Empty
         var o2: Empty2
         var o3: Empty3

@@ -7,10 +7,7 @@ import formatDetails.sourceData
 fun useLayoutFormatter(src: @SourceData)
     var parenCount = 0
 
-    var prevLineIndent = 1
-    var curLineIndent = 1
-    var hasNonSpace = false
-    var lastLine = 0    // last line that contained a printable token
+    var layout: LayoutHelper
 
     var curlyStack: OpenCurlyInfo Vector
 
@@ -24,18 +21,14 @@ fun useLayoutFormatter(src: @SourceData)
             parenCount--
 
         // Check for layout change
-        if tok.type != tkWHITESPACE && tok.type != tkCOMMENT && tok.type != tkEOL
-            if tok.loc.start.line != lastLine
-                prevLineIndent = curLineIndent
-                curLineIndent = Int(tok.loc.start.col)
-                lastLine = Int(tok.loc.start.line)
+        layout onToken tok
 
         // Detect open-curly tokens; store the info in our stack
         // The decision to remove this or not will be made at the close-curly
         if tok.type == tkLCURLY
             var canRemove = tok.canFormat && nextIsNewline(remaining) \
-                && _getNextLineIndent(remaining) > curLineIndent
-            curlyStack += OpenCurlyInfo(i, curLineIndent, canRemove)
+                && layout.nextLineIndent(remaining) > layout.curLineIndent
+            curlyStack += OpenCurlyInfo(i, layout.curLineIndent, canRemove)
 
         if tok.type == tkRCURLY
             if curlyStack.isEmpty
@@ -47,22 +40,16 @@ fun useLayoutFormatter(src: @SourceData)
 
             // Can we remove both tokens?
             var canRemove = openInfo.canRemove && tok.canFormat && nextIsNewline(remaining) \
-                && prevLineIndent > curLineIndent
+                && layout.prevLineIndent > layout.curLineIndent
             if canRemove
-                clearTokenLine(openInfo.idx, src.tokens)
-                clearTokenLine(i, src.tokens)
+                src.tokens(openInfo.idx) _replaceWithSemicolon
+                //clearTokenLine(openInfo.idx, src.tokens)
+                // For the end, replace this with a semicolon; this may be removed later
+                tok _replaceWithSemicolon
 
-fun _getNextLineIndent(remaining: TokensRange): Int
-    if remaining.isEmpty
-        return 1
-    var line = remaining.front().loc.start.line
-    for tok: @TokenData = remaining
-        var tk = tok.type
-        if tk == tkEOL || tk == tkEND || tk == tkWHITESPACE || tk == tkCOMMENT
-            continue
-        else
-            return Int(tok.loc.start.col)
-    return 1
+fun _replaceWithSemicolon(token: @TokenData)
+    token.type = tkSEMICOLON
+    token.content = ';'
 
 //! Information to be kept for an open-curly.
 //! Needed to reason about what to do with the curly-pair, when reaching the close-curly.

@@ -26,9 +26,7 @@ package Inner
 using Inner.MyType2
 
 fun sprMain
-    // format off
     ;
-    // format on
         var x = 3
         var y = 5
         cout << x << ", " << y << endl

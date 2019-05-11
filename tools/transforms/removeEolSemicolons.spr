@@ -4,31 +4,43 @@ module formatTool.transforms.removeEolSemicolons
 import utils
 import formatDetails.sourceData
 
+//! Remove end-of-line semicolons that we don't need
 fun removeEolSemicolons(src: @SourceData)
-    var parenCount = 0
+    src _removePass1
+    src _removePass2
+
+//! Remove all the semicolons at the end of line, if:
+//!     - indent of prev line is the same as cur line
+fun _removePass1(src: @SourceData)
+    var layout: LayoutHelper
     for i = 0..Int(src.tokens.size)
-        var token: @TokenData = src.tokens(i)
+        var tok: @TokenData = src.tokens(i)
         var remaining = src.tokens.subrange(i+1)
 
-        if token.canFormat && token.type == tkSEMICOLON && nextIsNewline(remaining)
-            if !_inEmptyBlockStmt(token)
-                clearToken(token)
+        layout onToken tok
 
-//! Checks if the token (e.g., semicolon) is in an empty block statement
-//! This prevents us to remove semicolons from things like:
-//!     fun f(n: Int)
-//!         ;
-//!
-//!     if cond
-//!         ;
-//!     else
-//!         ;
-fun _inEmptyBlockStmt(token: @TokenData): Bool
-    var parent: Node = token.parentAst
-    if parent.isNull || (parent kind) != nkBlockStmt
-        return false
-    for child = (parent children)
-        if child.isSet
-            return false
-    return true
+        var canDelete = tok.canFormat && tok.type == tkSEMICOLON && nextIsNewline(remaining)
 
+        canDelete = canDelete && layout.prevLineIndent == layout.curLineIndent
+
+        if canDelete
+            clearTokenLine(i, src.tokens)
+
+//! Remove all the semicolons at the end of line, if:
+//!     - indent of next line is the same as cur line
+//! This pass is used to clear any semicolons that are followed by a non-semicolon line of the same
+//! indent
+fun _removePass2(src: @SourceData)
+    var layout: LayoutHelper
+    for i = 0..Int(src.tokens.size)
+        var tok: @TokenData = src.tokens(i)
+        var remaining = src.tokens.subrange(i+1)
+
+        layout onToken tok
+
+        var canDelete = tok.canFormat && tok.type == tkSEMICOLON && nextIsNewline(remaining)
+
+        canDelete = canDelete && layout.nextLineIndent(remaining) == layout.curLineIndent
+
+        if canDelete
+            clearTokenLine(i, src.tokens)

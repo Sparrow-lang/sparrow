@@ -41,9 +41,7 @@ fun dtor(this: @Pair)
     writeLn("Pair.dtor")
 
 [native("test")] fun test(n: Int)
-    // format off
     ;
-    // format on
         var x: MyObj
         var x1 = MyObj(1)
         var x2 = MyObj(1,2)

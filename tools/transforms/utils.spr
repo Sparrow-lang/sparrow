@@ -50,3 +50,32 @@ fun nextIsNewline(remaining: TokensRange): Bool
             continue
         else
             return false
+
+//! Helper class that keeps track of the layout of the code.
+//! It keeps track of the indent of the current and prev line
+datatype LayoutHelper
+    _prevLineIndent: Int = 1
+    _curLineIndent: Int = 1
+    _lastLine: Int = 0
+
+fun onToken(this: @LayoutHelper, tok: @TokenData)
+    if tok.type != tkWHITESPACE && tok.type != tkCOMMENT && tok.type != tkEOL
+        if tok.loc.start.line != _lastLine
+            _prevLineIndent = _curLineIndent
+            _curLineIndent = Int(tok.loc.start.col)
+            _lastLine = Int(tok.loc.start.line)
+
+fun curLineIndent(this: @LayoutHelper) = _curLineIndent
+fun prevLineIndent(this: @LayoutHelper) = _prevLineIndent
+
+//! Gets the indent of the next line
+fun nextLineIndent(this: @LayoutHelper, remaining: TokensRange): Int
+    if remaining.isEmpty
+        return 1
+    var line = remaining.front().loc.start.line
+    for tok: @TokenData = remaining
+        var tk = tok.type
+        if tk != tkEOL && tk != tkEND && tk != tkWHITESPACE && tk != tkCOMMENT
+            return Int(tok.loc.start.col)
+    return 1
+

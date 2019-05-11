@@ -1,76 +1,66 @@
 //!!
 
-import std.vector;
-import std.string;
-import std.algorithms;
-import std.tuple;
+import std.vector
+import std.string
+import std.algorithms
+import std.tuple
 
-using TypeOp.*;
+using TypeOp.*
 
 datatype MyRtOnlyType {}
 [ct] datatype MyCtOnlyType {}
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+        return
+    var n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
     else if n == 3; test3
     else if n == 4; test4
-}
 
 fun getMode(mode: Int): String
-{
     if ( mode == 1 )
-        return "rt    ";
+        return "rt    "
     if ( mode == 2 )
-        return "ct    ";
-    return "???   ";
-}
+        return "ct    "
+    return "???   "
 
 fun printHeader
-{
-    cout << "hasStorage  Mode  rt ref  Description\n";
-    cout << "-------------------------------------\n";
-}
+    cout << "hasStorage  Mode  rt ref  Description\n"
+    cout << "-------------------------------------\n"
 
 fun printType(t: Type)
-{
     cout << ife(hasStorage(t), "storage     ", "no storage  ")
     cout << getMode(mode(t)).asStringRef()
     cout << ife(canBeUsedAtRt(t), "y  ", "n  ")
     cout << numRef(t) << "    "
-    cout << description(t) << endl;
+    cout << description(t) << endl
 
-}
 
 fun test1
-{
-    var x: Double;
-    var xr: @Double = x;
-    var xrr: @ @Double = xr;
+    var x: Double
+    var xr: @Double = x
+    var xrr: @ @Double = xr
 
-    printHeader();
-    printType(Int);
-    printType(Int ct);
-    printType(Int rt);
-    printType(Double);
-    printType(typeOf(x));
-    printType(typeOf(xr));
-    printType(typeOf(xrr));
-    printType(Tuple(Int, Double));
-    printType(Vector(Int));
-    printType(typeOf(1 ... 10));
-    printType(Number);
-    printType(typeOf(test1()));
-    printType(typeOf(test1()) ct);
-    printType(typeOf(\test1));
-    printType(MyRtOnlyType);
+    printHeader()
+    printType(Int)
+    printType(Int ct)
+    printType(Int rt)
+    printType(Double)
+    printType(typeOf(x))
+    printType(typeOf(xr))
+    printType(typeOf(xrr))
+    printType(Tuple(Int, Double))
+    printType(Vector(Int))
+    printType(typeOf(1 ... 10))
+    printType(Number)
+    printType(typeOf(test1()))
+    printType(typeOf(test1()) ct)
+    printType(typeOf(\test1))
+    printType(MyRtOnlyType)
     //printType(MyCtOnlyType);
-}
 
 /*<<<Type properties and description(1)
 hasStorage  Mode  rt ref  Description
@@ -93,15 +83,13 @@ storage     rt    y  0    MyRtOnlyType
 >>>*/
 
 fun test2
-{
-    printHeader();
-    printType(Int);
-    printType(Int ct);
-    printType(Int rt);
-    printType(changeMode(Int, 0));
-    printType(changeMode(Int, 1));
-    printType(changeMode(Int, 2));
-}
+    printHeader()
+    printType(Int)
+    printType(Int ct)
+    printType(Int rt)
+    printType(changeMode(Int, 0))
+    printType(changeMode(Int, 1))
+    printType(changeMode(Int, 2))
 
 /*<<<Change type mode(2)
 hasStorage  Mode  rt ref  Description
@@ -115,20 +103,18 @@ storage     ct    y  0    Int/ct
 >>>*/
 
 fun test3
-{
-    var x: Double;
-    var xr: @Double = x;
-    var xrr: @ @Double = xr;
+    var x: Double
+    var xr: @Double = x
+    var xrr: @ @Double = xr
 
-    printHeader();
-    printType(typeOf(x));
-    printType(typeOf(xr));
-    printType(typeOf(xrr));
-    printType(changeRefCount(Int, 0));
-    printType(changeRefCount(Int, 1));
-    printType(changeRefCount(Int, 9));
-    printType(changeRefCount(typeOf(xrr), 0));
-}
+    printHeader()
+    printType(typeOf(x))
+    printType(typeOf(xr))
+    printType(typeOf(xrr))
+    printType(changeRefCount(Int, 0))
+    printType(changeRefCount(Int, 1))
+    printType(changeRefCount(Int, 9))
+    printType(changeRefCount(typeOf(xrr), 0))
 
 /*<<<Change num references(3)
 hasStorage  Mode  rt ref  Description
@@ -143,33 +129,31 @@ storage     rt    y  0    Double
 >>>*/
 
 fun test4
-{
-    var x: Double;
-    var xr: @Double = x;
-    var xrr: @ @Double = xr;
+    var x: Double
+    var xr: @Double = x
+    var xrr: @ @Double = xr
 
-    cout << ife(isRef(Int), "ref", "no ref") << endl;
-    cout << ife(isRef(@Int), "ref", "no ref") << endl;
-    cout << "---\n";
+    cout << ife(isRef(Int), "ref", "no ref") << endl
+    cout << ife(isRef(@Int), "ref", "no ref") << endl
+    cout << "---\n"
 
-    cout << description(addRef(Int)) << endl;
-    cout << description(addRef(@Int)) << endl;
-    cout << "---\n";
+    cout << description(addRef(Int)) << endl
+    cout << description(addRef(@Int)) << endl
+    cout << "---\n"
 
-    cout << description(removeRef(Int)) << endl;
-    cout << description(removeRef(@Int)) << endl;
-    cout << description(removeRef(@ @Int)) << endl;
-    cout << "---\n";
+    cout << description(removeRef(Int)) << endl
+    cout << description(removeRef(@Int)) << endl
+    cout << description(removeRef(@ @Int)) << endl
+    cout << "---\n"
 
-    cout << description(removeAllRef(Int)) << endl;
-    cout << description(removeAllRef(@Int)) << endl;
-    cout << description(removeAllRef(@ @Int)) << endl;
-    cout << "---\n";
+    cout << description(removeAllRef(Int)) << endl
+    cout << description(removeAllRef(@Int)) << endl
+    cout << description(removeAllRef(@ @Int)) << endl
+    cout << "---\n"
 
-    cout << description(atLeastOneRef(Int)) << endl;
-    cout << description(atLeastOneRef(@Int)) << endl;
-    cout << description(atLeastOneRef(@ @Int)) << endl;
-}
+    cout << description(atLeastOneRef(Int)) << endl
+    cout << description(atLeastOneRef(@Int)) << endl
+    cout << description(atLeastOneRef(@ @Int)) << endl
 
 /*<<<Type traits class(4)
 no ref

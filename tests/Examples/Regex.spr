@@ -1,151 +1,151 @@
 //!!
 // -O3 -dump-assembly
 
-import std.string;
-import std.tuple;
-import std.vector;
-import std.array;
-import std.staticArray;
-import std.ranges;
-import std.algorithms;
-import std.bitset;
-import std.ptr, std.rawPtr;
-import time = time;
-import precedenceUtils(getOperPrecedence, setOperPrecedence);
+import std.string
+import std.tuple
+import std.vector
+import std.array
+import std.staticArray
+import std.ranges
+import std.algorithms
+import std.bitset
+import std.ptr, std.rawPtr
+import time = time
+import precedenceUtils(getOperPrecedence, setOperPrecedence)
 
 // The type of test to execute:
 // - 0 = AnyType test
 // - 1 = RT/CT speedup test
 // - 2 = execution test
 // - 3 = timed test
-[ct] var testType = 0;
+[ct] var testType = 0
 
 
 fun **(str: StringRef, count: Int): String
-    var sz: SizeType = str.size();
-    var res: String = sz*count;
+    var sz: SizeType = str.size()
+    var res: String = sz*count
     for i = 0..count
-        memcpy(reinterpretCast(@Byte, res(i*sz)), str.begin, sz);
-    return res;
+        memcpy(reinterpretCast(@Byte, res(i*sz)), str.begin, sz)
+    return res
 
-setOperPrecedence("**", getOperPrecedence("*") + 1);
+setOperPrecedence("**", getOperPrecedence("*") + 1)
 
 /// Convert a regular expression from infix notation into postfix notation.
 /// Also inserts '.' character as a concatenation operator
 /// Cheesy parser, return static buffer
 fun re2post(re: StringRef): String
-    var paren: StaticArray(Int*Int, 100);
+    var paren: StaticArray(Int*Int, 100)
 
-    var parenIdx = 0;
-    var nAlt = 0;
-    var nAtom = 0;
+    var parenIdx = 0
+    var nAlt = 0
+    var nAtom = 0
 
-    var buf: StaticArray(Char, 8000);
-    var strSize = re.size();
+    var buf: StaticArray(Char, 8000)
+    var strSize = re.size()
     if ( strSize >= buf.size()/2 )
-        return String();
+        return String()
 
-    var dstIdx = 0;
-    var dst: @Char = buf.at(0);
+    var dstIdx = 0
+    var dst: @Char = buf.at(0)
     for i=0 .. strSize
-        var ch = re.at(i);
+        var ch = re.at(i)
         if ( ch == '('.char )
             if ( nAtom > 1 )
-                --nAtom;
-                buf(dstIdx++) = '.'.char;
+                --nAtom
+                buf(dstIdx++) = '.'.char
             if ( parenIdx >= 100 )
                 //cout << "Parenthesis index is above 100\n";
-                return String();
-            paren(parenIdx++) = (Int*Int)(nAlt, nAtom);
-            nAlt = 0;
-            nAtom = 0;
+                return String()
+            paren(parenIdx++) = (Int*Int)(nAlt, nAtom)
+            nAlt = 0
+            nAtom = 0
         else if ( ch == '|'.char )
             if ( nAtom == 0 )
                 //cout << "No atoms is zero at alternation\n";
-                return String();
+                return String()
             while --nAtom > 0
-                buf(dstIdx++) = '.'.char;
-            nAlt++;
+                buf(dstIdx++) = '.'.char
+            nAlt++
         else if ( ch == ')'.char )
             if ( parenIdx == 0 || nAtom == 0 )
                 //cout << "Invalid state at closing parenthesis (parenIdx:" << parenIdx << ", nAtom:" << nAtom << ")\n";
-                return String();
+                return String()
             while --nAtom > 0
-                buf(dstIdx++) = '.'.char;
+                buf(dstIdx++) = '.'.char
             while nAlt > 0 ; --nAlt
-                buf(dstIdx++) = '|'.char;
-            --parenIdx;
-            nAlt = paren(parenIdx).v1;
-            nAtom = paren(parenIdx).v2;
-            ++nAtom;
+                buf(dstIdx++) = '|'.char
+            --parenIdx
+            nAlt = paren(parenIdx).v1
+            nAtom = paren(parenIdx).v2
+            ++nAtom
         else if ( ch == '*'.char || ch == '+'.char || ch == '?'.char )
             if ( nAtom == 0 )
                 //cout << "Zero atoms at char" << ch << "\n";
-                return String();
-            buf(dstIdx++) = ch;
+                return String()
+            buf(dstIdx++) = ch
         else
             if ( nAtom > 1 )
-                --nAtom;
-                buf(dstIdx++) = '.'.char;
-            buf(dstIdx++) = ch;
-            nAtom++;
+                --nAtom
+                buf(dstIdx++) = '.'.char
+            buf(dstIdx++) = ch
+            nAtom++
 
     if ( parenIdx != 0 )
         //cout << "Parenthesis don't close correctly\n";
-        return String();
+        return String()
     while --nAtom > 0
-        buf(dstIdx++) = '.'.char;
+        buf(dstIdx++) = '.'.char
     while nAlt > 0 ; --nAlt
-        buf(dstIdx++) = '|'.char;
-    buf(dstIdx) = Char(0);
+        buf(dstIdx++) = '|'.char
+    buf(dstIdx) = Char(0)
 
-    return String(mkRawPtr(buf(0)), mkRawPtr(buf(dstIdx)));
+    return String(mkRawPtr(buf(0)), mkRawPtr(buf(dstIdx)))
 
 /// Factory for Nfa states
 datatype NfaStatesFactory
-    _numStates: Int;                    ///< Number of states created
-    _matchState: NfaState;              ///< The match state
-    _pages: Vector(RawPtr(NfaState));   ///< Pointers to the memory pages containing the actual NFA states
+    _numStates: Int                    ///< Number of states created
+    _matchState: NfaState              ///< The match state
+    _pages: Vector(RawPtr(NfaState))   ///< Pointers to the memory pages containing the actual NFA states
 
 fun ctor(this: @NfaStatesFactory)
-    _numStates ctor 0;
-    var nullObj: Ptr(NfaState);
-    _matchState.ctor(NfaState.match, nullObj, nullObj);
+    _numStates ctor 0
+    var nullObj: Ptr(NfaState)
+    _matchState.ctor(NfaState.match, nullObj, nullObj)
 
 fun dtor(this: @NfaStatesFactory)
     // Release the memory occupied by the states
     for page = _pages.all()
-        page freePtr;
+        page freePtr
 
-fun getCharState(this: @NfaStatesFactory, c: Char)                   = this._alloc(Int(c), Ptr(NfaState)(), Ptr(NfaState)());
-fun getSplitState(this: @NfaStatesFactory, s1, s2: Ptr(NfaState))    = this._alloc(NfaState.split, s1, s2);
-fun getSplitState(this: @NfaStatesFactory, s1: Ptr(NfaState))        = this._alloc(NfaState.split, s1, Ptr(NfaState)());
-fun getMatchState(this: @NfaStatesFactory)                           = Ptr(NfaState)(_matchState);
+fun getCharState(this: @NfaStatesFactory, c: Char)                   = this._alloc(Int(c), Ptr(NfaState)(), Ptr(NfaState)())
+fun getSplitState(this: @NfaStatesFactory, s1, s2: Ptr(NfaState))    = this._alloc(NfaState.split, s1, s2)
+fun getSplitState(this: @NfaStatesFactory, s1: Ptr(NfaState))        = this._alloc(NfaState.split, s1, Ptr(NfaState)())
+fun getMatchState(this: @NfaStatesFactory)                           = Ptr(NfaState)(_matchState)
 
 fun _alloc(this: @NfaStatesFactory, c: Int, out1, out2: Ptr(NfaState)): Ptr(NfaState)
-    using _statesPerPage = 100;
+    using _statesPerPage = 100
 
     if ( _numStates >= _statesPerPage*_pages.size() )
-        var p = allocRawPtr(NfaState, _statesPerPage);
-        _pages.pushBack(p);
-    var idx = _numStates % _statesPerPage;
-    ++_numStates;
-    var state: Ptr(NfaState) = _pages.back().advance(idx).value();
-    state.get().ctor(c, out1, out2);
-    return state;
+        var p = allocRawPtr(NfaState, _statesPerPage)
+        _pages.pushBack(p)
+    var idx = _numStates % _statesPerPage
+    ++_numStates
+    var state: Ptr(NfaState) = _pages.back().advance(idx).value()
+    state.get().ctor(c, out1, out2)
+    return state
 
 /// Class that represents a NFA state; it allows one or two output states out of this state
 [initCtor]
 datatype NfaState
-    c: Int;
-    out1, out2: Ptr(NfaState);
-    listId: Int = -1;
+    c: Int
+    out1, out2: Ptr(NfaState)
+    listId: Int = -1
 
-    using match = 256;
-    using split = 257;
+    using match = 256
+    using split = 257
 
-fun isSplit(this: NfaState) = c == NfaState.split;
-fun isMatch(this: NfaState) = c == NfaState.match;
+fun isSplit(this: NfaState) = c == NfaState.split
+fun isMatch(this: NfaState) = c == NfaState.match
 
 /// Class that stores the list of out pointers from a given NFA fragment (set of connected NfaState objects)
 ///
@@ -154,209 +154,209 @@ fun isMatch(this: NfaState) = c == NfaState.match;
 datatype OutPtrList
     /// Pointer to the next element.
     /// This actually represents two things: one the pointer to the next element, and the actual data that needs to be filled
-    _next: Ptr(OutPtrList);
+    _next: Ptr(OutPtrList)
 
 /// Construct the out-ptr list from a single out-ptr reference
 fun ctor(this: @OutPtrList, outPtr: @Ptr(NfaState))
-    _next ctor reinterpretPtr(OutPtrList, Ptr(Ptr(NfaState))(outPtr));
+    _next ctor reinterpretPtr(OutPtrList, Ptr(Ptr(NfaState))(outPtr))
 
 /// Append to this list another list of out-pointers
 fun append(this: @OutPtrList, other: OutPtrList)
-    var p = _next;
+    var p = _next
     while p.get()._next isSet
-        p = p.get()._next;
-    p.get()._next = other._next;
+        p = p.get()._next
+    p.get()._next = other._next
 
 /// Set the final value to all the out-pointers from this list
 /// After calling this method, the list will be actually destroyed (as we right the exact pointers that are used to chain the nodes)
 fun setFinalValue(this: @OutPtrList, finalPtr: Ptr(NfaState))
-    var p = _next;
+    var p = _next
     while p isSet
-        var _next = p.get()._next;
-        reinterpretPtr(Ptr(NfaState), p).get() = finalPtr;
-        p = _next;
+        var _next = p.get()._next
+        reinterpretPtr(Ptr(NfaState), p).get() = finalPtr
+        p = _next
 
 /// Class that represents a fragment of Nfa states
 /// A fragment consists of a tree of Nfa states, starting with only one Nfa state. It can have one or more out pointers
 /// The out-pointers are used to connect to the next Nfa fragment.
 datatype NfaFragment
-    start: Ptr(NfaState);                   ///< Start state of the NFA frament
-    outPtrChain: OutPtrList;  ///< Chain of out-pointers for this fragment that need to be set to the next state
+    start: Ptr(NfaState)                   ///< Start state of the NFA frament
+    outPtrChain: OutPtrList  ///< Chain of out-pointers for this fragment that need to be set to the next state
 
 fun ctor(this: @NfaFragment, start: Ptr(NfaState), outPtrChain: @OutPtrList)
-    this.start ctor start;
-    this.outPtrChain ctor outPtrChain;
+    this.start ctor start
+    this.outPtrChain ctor outPtrChain
 
 fun getChar(nfaStatesFactory: @NfaStatesFactory, c: Char): NfaFragment
-    var s = nfaStatesFactory.getCharState(c);
-    return NfaFragment(s, OutPtrList(s.get().out1));
+    var s = nfaStatesFactory.getCharState(c)
+    return NfaFragment(s, OutPtrList(s.get().out1))
 
 fun getConcatenation(nfaStatesFactory: @NfaStatesFactory, e1, e2: @NfaFragment): NfaFragment
-    e1.outPtrChain.setFinalValue(e2.start);        // e1 fragment is finalized by e2 fragment
-    return NfaFragment(e1.start, e2.outPtrChain);
+    e1.outPtrChain.setFinalValue(e2.start)        // e1 fragment is finalized by e2 fragment
+    return NfaFragment(e1.start, e2.outPtrChain)
 
 fun getAlternation(nfaStatesFactory: @NfaStatesFactory, e1, e2: @NfaFragment): NfaFragment
-    var splitState = nfaStatesFactory.getSplitState(e1.start, e2.start);
-    e1.outPtrChain.append(e2.outPtrChain);         // Consider both chains
-    return NfaFragment(splitState, e1.outPtrChain);
+    var splitState = nfaStatesFactory.getSplitState(e1.start, e2.start)
+    e1.outPtrChain.append(e2.outPtrChain)         // Consider both chains
+    return NfaFragment(splitState, e1.outPtrChain)
 
 fun getOptional(nfaStatesFactory: @NfaStatesFactory, e: @NfaFragment): NfaFragment
-    var splitState = nfaStatesFactory.getSplitState(e.start);
-    e.outPtrChain.append(OutPtrList(splitState.get().out2));   // Add second output of the split state to the out-ptr chain
-    return NfaFragment(splitState, e.outPtrChain);
+    var splitState = nfaStatesFactory.getSplitState(e.start)
+    e.outPtrChain.append(OutPtrList(splitState.get().out2))   // Add second output of the split state to the out-ptr chain
+    return NfaFragment(splitState, e.outPtrChain)
 
 fun getZeroOrMore(nfaStatesFactory: @NfaStatesFactory, e: @NfaFragment): NfaFragment
-    var splitState = nfaStatesFactory.getSplitState(e.start);
-    e.outPtrChain.setFinalValue(splitState);         // Out pointers of the fragment are connected back to the split state
-    return NfaFragment(splitState, OutPtrList(splitState.get().out2));
+    var splitState = nfaStatesFactory.getSplitState(e.start)
+    e.outPtrChain.setFinalValue(splitState)         // Out pointers of the fragment are connected back to the split state
+    return NfaFragment(splitState, OutPtrList(splitState.get().out2))
 
 fun getOneOrMore(nfaStatesFactory: @NfaStatesFactory, e: @NfaFragment): NfaFragment
-    var splitState = nfaStatesFactory.getSplitState(e.start);
-    e.outPtrChain.setFinalValue(splitState);         // Out pointers of the fragment are connected back to the split state
-    return NfaFragment(e.start, OutPtrList(splitState.get().out2));
+    var splitState = nfaStatesFactory.getSplitState(e.start)
+    e.outPtrChain.setFinalValue(splitState)         // Out pointers of the fragment are connected back to the split state
+    return NfaFragment(e.start, OutPtrList(splitState.get().out2))
 
 /// Finalize the current NFA fragment by ending it with a match Nfa state
 fun finalize(this: @NfaFragment, nfaStatesFactory: @NfaStatesFactory)
-    outPtrChain.setFinalValue(nfaStatesFactory.getMatchState());
+    outPtrChain.setFinalValue(nfaStatesFactory.getMatchState())
 
 fun nfaFromPostfix(nfaStatesFactory: @NfaStatesFactory, postfix: @StringRef): Ptr(NfaState)
     if ( postfix.size() == 0 )
-        return Ptr(NfaState)();
+        return Ptr(NfaState)()
 
-    var stack: StaticArray(NfaFragment, 1000);
-    var stackIdx = 0;
+    var stack: StaticArray(NfaFragment, 1000)
+    var stackIdx = 0
 
     //cout << "Postfix to parse: '" << postfix << "'\n";
     for i = 0 .. Int(postfix.size())
-        var ch = postfix(i);
+        var ch = postfix(i)
 
-        var e1, e2: NfaFragment;
+        var e1, e2: NfaFragment
         if ( ch == '.'.char )        // Concatenate
-            e2 = stack(--stackIdx);
-            e1 = stack(--stackIdx);
-            stack(stackIdx++) = getConcatenation(nfaStatesFactory, e1, e2);
+            e2 = stack(--stackIdx)
+            e1 = stack(--stackIdx)
+            stack(stackIdx++) = getConcatenation(nfaStatesFactory, e1, e2)
         else if ( ch == '|'.char )
-            e2 = stack(--stackIdx);
-            e1 = stack(--stackIdx);
-            stack(stackIdx++) = getAlternation(nfaStatesFactory, e1, e2);
+            e2 = stack(--stackIdx)
+            e1 = stack(--stackIdx)
+            stack(stackIdx++) = getAlternation(nfaStatesFactory, e1, e2)
         else if ( ch == '?'.char )
-            e1 = stack(--stackIdx);
-            stack(stackIdx++) = getOptional(nfaStatesFactory, e1);
+            e1 = stack(--stackIdx)
+            stack(stackIdx++) = getOptional(nfaStatesFactory, e1)
         else if ( ch == '*'.char )
-            e1 = stack(--stackIdx);
-            stack(stackIdx++) = getZeroOrMore(nfaStatesFactory, e1);
+            e1 = stack(--stackIdx)
+            stack(stackIdx++) = getZeroOrMore(nfaStatesFactory, e1)
         else if ( ch == '+'.char )
-            e1 = stack(--stackIdx);
-            stack(stackIdx++) = getOneOrMore(nfaStatesFactory, e1);
+            e1 = stack(--stackIdx)
+            stack(stackIdx++) = getOneOrMore(nfaStatesFactory, e1)
         else
-            stack(stackIdx++) = getChar(nfaStatesFactory, ch);
+            stack(stackIdx++) = getChar(nfaStatesFactory, ch)
 
-    var e = stack(--stackIdx);
+    var e = stack(--stackIdx)
     if ( stackIdx != 0 )
-        return Ptr(NfaState)();
-    e.finalize(nfaStatesFactory);
-    return e.start;
+        return Ptr(NfaState)()
+    e.finalize(nfaStatesFactory)
+    return e.start
 
 datatype NfaNodeList
-    nodes: Vector(Ptr(NfaState));
-    id: Int;
-    isMatch: Bool;
+    nodes: Vector(Ptr(NfaState))
+    id: Int
+    isMatch: Bool
 
 fun ctor(this: @NfaNodeList, noNfaNodes: Int)
-    nodes.reserve(noNfaNodes);
+    nodes.reserve(noNfaNodes)
 
 fun ctor(this, other: @NfaNodeList)   // move ctor
-    this.id ctor other.id;
-    this.isMatch ctor other.isMatch;
-    this.nodes ctor;
-    this.nodes swap other.nodes;
+    this.id ctor other.id
+    this.isMatch ctor other.isMatch
+    this.nodes ctor
+    this.nodes swap other.nodes
     //this.nodes ctor other.nodes;
 
 [protected]
     fun ==(this, other: @NfaNodeList): Bool
-        return this.isMatch == other.isMatch && this.nodes == other.nodes;
+        return this.isMatch == other.isMatch && this.nodes == other.nodes
 
 /// Initialize the list to be the epsilon-closure of the given node
 fun initFromState(this: @NfaNodeList, id: Int, start: Ptr(NfaState))
-    this.id = id;
-    this.isMatch = false;
-    nodes.clear();
-    this._addState(start);
-    sort(nodes.all());
+    this.id = id
+    this.isMatch = false
+    nodes.clear()
+    this._addState(start)
+    sort(nodes.all())
 
 /// Initialize the list as to be the result of moving from the previous list with the given char
 fun initAsNextList(this: @NfaNodeList, id: Int, prev: @NfaNodeList, c: Int)
-    this.id = id;
-    this.isMatch = false;
-    nodes.clear();
+    this.id = id
+    this.isMatch = false
+    nodes.clear()
     for node = prev.nodes.all()
         if ( node.get().c == c )
-            this._addState(node.get().out1);
-    sort(nodes.all());
+            this._addState(node.get().out1)
+    sort(nodes.all())
 
 fun print(this: @NfaNodeList)
-    cout << "NFA node list " << id;
+    cout << "NFA node list " << id
     if ( this.isMatch )
-        cout << " (match)";
-    cout << ":";
+        cout << " (match)"
+    cout << ":"
     for n = nodes.all()
-        cout << " " << n.get().c << " " << mkStreamRefWrapper(n.get());
-    cout << "\n";
+        cout << " " << n.get().c << " " << mkStreamRefWrapper(n.get())
+    cout << "\n"
 
 fun _addState(this: @NfaNodeList, state: Ptr(NfaState))
     if ( (state isNull) || state.get().listId == id )
-        return;
+        return
 
-    var s: @NfaState = state.get();
+    var s: @NfaState = state.get()
 
-    s.listId = id;
+    s.listId = id
 
     if ( s isSplit )
-        this._addState(s.out1);
-        this._addState(s.out2);
-        return;
-    this.isMatch = this.isMatch || s.isMatch();
-    nodes.pushBack(state);
+        this._addState(s.out1)
+        this._addState(s.out2)
+        return
+    this.isMatch = this.isMatch || s.isMatch()
+    nodes.pushBack(state)
 
 datatype Transition
-    start, end, ch: Int;
+    start, end, ch: Int
 
 fun ctor(this: @Transition, start, end, ch: Int)
-    this.start ctor start;
-    this.end ctor end;
-    this.ch ctor ch;
+    this.start ctor start
+    this.end ctor end
+    this.ch ctor ch
 
 /// Class that represent a Dfa state
 /// A Dfa state usually contains multiple NfaStates. It also contains a transition array for each possible input char
 datatype DfaState
-    next: StaticArray(Int, 256);
-    nfaNodes: NfaNodeList;
-    isMatch: Bool;
+    next: StaticArray(Int, 256)
+    nfaNodes: NfaNodeList
+    isMatch: Bool
 
 fun ctor(this: @DfaState, nfaNodes: @NfaNodeList) // moves the nodes list
-    next ctor -1;
-    this.nfaNodes ctor nfaNodes;
-    this.isMatch ctor nfaNodes.isMatch;
+    next ctor -1
+    this.nfaNodes ctor nfaNodes
+    this.isMatch ctor nfaNodes.isMatch
 
 datatype Automaton
-    nfaStatesFactory: NfaStatesFactory;
-    dfaStates: Vector(DfaState);
+    nfaStatesFactory: NfaStatesFactory
+    dfaStates: Vector(DfaState)
 
 fun ctor(this: @Automaton, re: StringRef)
     // Convert the regex from infix to postfix notation
-    var post = re2post(re);
+    var post = re2post(re)
     if ( post.size() == 0 )
-        cout << "Bad regular expression: " << re << endl;
-        return;
+        cout << "Bad regular expression: " << re << endl
+        return
 
     /// Convert the postfix form into a NFA
-    var nfaStart = nfaFromPostfix(nfaStatesFactory, post.asStringRef());
+    var nfaStart = nfaFromPostfix(nfaStatesFactory, post.asStringRef())
     if ( nfaStart.isNull() )
-        cout << "error in post2nfa for regexp: " << re << endl;
-        return;
+        cout << "error in post2nfa for regexp: " << re << endl
+        return
 
     // Create the DFA states
-    this.createDfaStates(nfaStart);
+    this.createDfaStates(nfaStart)
 
     // Print some statistics
     //cout << "We have " << nfaStatesFactory._numStates << " NFA states\n";
@@ -365,63 +365,63 @@ fun ctor(this: @Automaton, re: StringRef)
     //    cout << "DFA state " << i << " has " << dfaStates(i).nfaNodes.nodes.size() << " NFA states\n";
 
 fun ctorFromCt(this: @Automaton, src: Automaton ct)
-    nfaStatesFactory ctor;
-    dfaStates ctor;
-    dfaStates resize src.dfaStates.size();
+    nfaStatesFactory ctor
+    dfaStates ctor
+    dfaStates resize src.dfaStates.size()
 
-    [ct] var transitions = src.getTransitions();
+    [ct] var transitions = src.getTransitions()
     [ct] for tr = transitions all
         //cout << ctEval(tr.start) << ".." << ctEval(tr.end) << "/" << ctEval(tr.ch) << endl;
-        dfaStates.at(ctEval(tr.start)).next.at(ctEval(tr.ch)) = ctEval(tr.end);
+        dfaStates.at(ctEval(tr.start)).next.at(ctEval(tr.ch)) = ctEval(tr.end)
     [ct] for st = 0 .. src.dfaStates.size()
         [ct] if ( ctEval(src.dfaStates.at(st).isMatch) )
-            dfaStates.at(ctEval(st)).isMatch = true;
+            dfaStates.at(ctEval(st)).isMatch = true
             //cout << "State " << ctEval(st) << " is matching" << endl;
 
 [ct]
 fun getTransitions(this: @Automaton): Vector(Transition)
-    var res: Vector(Transition);
+    var res: Vector(Transition)
     for st = 0..(dfaStates.size()-1)
         for ch = 0..255
-            var nextState = dfaStates.at(st).next.at(ch);
+            var nextState = dfaStates.at(st).next.at(ch)
             if ( nextState >= 0 )
-                res.pushBack(Transition(Int(st), nextState, ch));
-    return res;
+                res.pushBack(Transition(Int(st), nextState, ch))
+    return res
 
 fun match(this: @Automaton, str: StringRef): Bool
     if ( dfaStates isEmpty )
-        return false;
+        return false
 
-    var curStateIdx = 0;
+    var curStateIdx = 0
     for i=0 .. str.size
-        var c = Int(str(i));
-        var nextStateIdx = dfaStates(curStateIdx).next(c);
+        var c = Int(str(i))
+        var nextStateIdx = dfaStates(curStateIdx).next(c)
         //cout << "Match: in DFA state " << curStateIdx << "; moving to DFA state " << nextStateIdx << " after char " << c << endl;
         if ( nextStateIdx < 0 )
-            return false;
-        curStateIdx = nextStateIdx;
-    return dfaStates(curStateIdx).isMatch;
+            return false
+        curStateIdx = nextStateIdx
+    return dfaStates(curStateIdx).isMatch
 
 fun createDfaStates(this: @Automaton, start: Ptr(NfaState))
-    var noNfaNodes = nfaStatesFactory._numStates;
-    var tmpList = NfaNodeList(noNfaNodes);
+    var noNfaNodes = nfaStatesFactory._numStates
+    var tmpList = NfaNodeList(noNfaNodes)
 
-    var exploredChars = Bitset(256);
+    var exploredChars = Bitset(256)
 
-    var listId = 0; // This will not be the same as the index of the DFA containing the list
+    var listId = 0 // This will not be the same as the index of the DFA containing the list
 
-    dfaStates.reserve(noNfaNodes/4);  // TODO: Check why we need this
+    dfaStates.reserve(noNfaNodes/4)  // TODO: Check why we need this
 
     // Create the first DFA state
-    tmpList.initFromState(++listId, start);
-    dfaStates.pushBack(DfaState(tmpList));
+    tmpList.initFromState(++listId, start)
+    dfaStates.pushBack(DfaState(tmpList))
 
     // Create the rest of the DFA states, starting from the first state and making all possible transitions
 
     // For each new DFA state ...
-    var i=0;
+    var i=0
     while i<dfaStates.size(); ++i
-        exploredChars.clear();
+        exploredChars.clear()
 
         //cout << "We are at state " << i << " - ";
         //dfaStates(i).nfaNodes.print();
@@ -429,139 +429,139 @@ fun createDfaStates(this: @Automaton, start: Ptr(NfaState))
         // Try to go trough all possible transitions (NFA states with actual characters)
         for nfaState = dfaStates(i).nfaNodes.nodes.all()
             if ( nfaState.get().isMatch() || nfaState.get().isSplit() )
-                continue;
+                continue
 
-            var c = nfaState.get().c;
+            var c = nfaState.get().c
             if ( exploredChars.testBit(c) )
-                continue;
+                continue
 
-            exploredChars.setBit(c);
+            exploredChars.setBit(c)
 
             // Compute the list with the next states by following the transition with char 'c'
-            tmpList.initAsNextList(++listId, dfaStates(i).nfaNodes, c);
+            tmpList.initAsNextList(++listId, dfaStates(i).nfaNodes, c)
 
             // Check if we already have a DFA state with this list
-            var found = false;
+            var found = false
             for j = 0 .. Int(dfaStates.size())
                 if ( dfaStates(j).nfaNodes == tmpList )
                     // Yes, we found the DFA with this list; make a transition to this DFA state
                     //cout << "Transition " << i << ": " << j << " for char " << c << "\n";
-                    dfaStates(i).next(c) = j;
-                    found = true;
-                    break;
+                    dfaStates(i).next(c) = j
+                    found = true
+                    break
             if ( !found )
                 // We didn't find the list trough the DFA states; create a new DFA state
-                dfaStates.pushBack(DfaState(tmpList));
-                dfaStates(i).next(c) = Int(dfaStates.size()-1);
+                dfaStates.pushBack(DfaState(tmpList))
+                dfaStates(i).next(c) = Int(dfaStates.size()-1)
                 //cout << "Transition " << i << ": " << Int(dfaStates.size()-1) << " (new state) for char " << c << "\n";
                 //if ( dfaStates.back().nfaNodes.isMatch )
                 //    cout << "State " << Int(dfaStates.size()-1) << " is a match state\n";
 
 fun regexMatch(re, str: StringRef): Bool
-    var automaton = Automaton(re);
-    return automaton.match(str);
+    var automaton = Automaton(re)
+    return automaton.match(str)
 
 fun regexMatch(re: StringRef ct, str: StringRef): Bool
-    cout << "At CT\n";
-    [ct] var automatonCt = Automaton(re);
-    var automaton = automatonCt;
-    return automaton.match(str);
+    cout << "At CT\n"
+    [ct] var automatonCt = Automaton(re)
+    var automaton = automatonCt
+    return automaton.match(str)
 
 
 fun testRe(re, str: StringRef)
     if ( regexMatch(re, str) )
-        cout << str << " match " << re << endl;
+        cout << str << " match " << re << endl
     else
-        cout << str << " no match " << re << endl;
+        cout << str << " no match " << re << endl
 
 fun testReCt(re: StringRef ct, str: StringRef)
     if ( regexMatch(re, str) )
-        cout << str << " match " << re << endl;
+        cout << str << " match " << re << endl
     else
-        cout << str << " no match " << re << endl;
+        cout << str << " no match " << re << endl
 
 fun timedTest(re, str: String, k, repCount: Int)
-    var matchCount = 0;
-    var timer: time.Timer;
+    var matchCount = 0
+    var timer: time.Timer
     for i = 0..repCount
         if ( regexMatch(re.asStringRef(), str.asStringRef()) )
-            ++matchCount;
-    var duration = timer elapsed;
+            ++matchCount
+    var duration = timer elapsed
     if ( matchCount != repCount )
-        cout << "Failed to match '" << str.asStringRef() << "' to regex '" << re.asStringRef() << "'\n";
-    cout << k << ": " << duration << endl;
+        cout << "Failed to match '" << str.asStringRef() << "' to regex '" << re.asStringRef() << "'\n"
+    cout << k << ": " << duration << endl
 
 fun testRt(re: StringRef, testRepCount, totalRepCount: Int, testStrings: Range)
-    cout << "'" << re << "'\t RT regex\n";
+    cout << "'" << re << "'\t RT regex\n"
     for i = 0..totalRepCount
-        var automaton = Automaton(re);
+        var automaton = Automaton(re)
 
         for j = 0..testRepCount
             for ts = programArgs
-                var res = automaton.match(ts);
+                var res = automaton.match(ts)
                 if ( !res )
-                    cout << "String '" << ts << "' doesn't match regular expression '" << re << "'\n";
+                    cout << "String '" << ts << "' doesn't match regular expression '" << re << "'\n"
 
 fun testCt(re: StringRef ct, testRepCount, totalRepCount: Int, testStrings: Range)
-    cout << "'" << re << "'\t CT regex\n";
+    cout << "'" << re << "'\t CT regex\n"
     for i = 0..totalRepCount
-        [ct] var automatonCt = Automaton(re);
-        var automaton = automatonCt;
+        [ct] var automatonCt = Automaton(re)
+        var automaton = automatonCt
 
         for j = 0..testRepCount
             for ts = testStrings
-                var res = automaton.match(ts);
+                var res = automaton.match(ts)
                 if ( !res )
-                    cout << "String '" << ts << "' doesn't match regular expression '" << re << "'\n";
+                    cout << "String '" << ts << "' doesn't match regular expression '" << re << "'\n"
 
 [ct] if ( testType == 1 )
 fun testCtVsRtPerf(ctRe: StringRef ct, str: StringRef, repCount: Int)
-    var rtRe = ctRe;
+    var rtRe = ctRe
 
-    var testStrings: Vector(StringRef);
-    testStrings.pushBack(str);
+    var testStrings: Vector(StringRef)
+    testStrings.pushBack(str)
 
-    var cnt = 0;
-    var timerCt: time.Timer;
-    testCt(ctRe, 1, repCount, testStrings.all());
-    var tCt = timerCt.elapsed();
-    cout << "Compile-time:\t" << ctRe << "\t\t" << str << "\t\t" << repCount << "\t\t" << cnt << "\t\t" << tCt << endl;
+    var cnt = 0
+    var timerCt: time.Timer
+    testCt(ctRe, 1, repCount, testStrings.all())
+    var tCt = timerCt.elapsed()
+    cout << "Compile-time:\t" << ctRe << "\t\t" << str << "\t\t" << repCount << "\t\t" << cnt << "\t\t" << tCt << endl
 
 
-    cnt = 0;
-    var timerRt: time.Timer;
-    testRt(rtRe, 1, repCount, testStrings.all());
-    var tRt = timerRt.elapsed();
-    cout << "Run-time:\t" << rtRe << "\t\t" << str << "\t\t" << repCount << "\t\t" << cnt << "\t\t" << tRt << endl;
-    cout << "Speedup = " << tRt/tCt << "\n\n";
+    cnt = 0
+    var timerRt: time.Timer
+    testRt(rtRe, 1, repCount, testStrings.all())
+    var tRt = timerRt.elapsed()
+    cout << "Run-time:\t" << rtRe << "\t\t" << str << "\t\t" << repCount << "\t\t" << cnt << "\t\t" << tRt << endl
+    cout << "Speedup = " << tRt/tCt << "\n\n"
 
 fun autoTest()
-    testRe("abc*", "ab");
-    testRe("abc*", "abccc");
-    testRe("abc*", "abcabc");
-    testRe("a|b", "a");
-    cout << "---" << endl;
-    testRe("abcdefg",    "abcdefg");
-    testRe("(a|b)*a",    "ababababab");
-    testRe("(a|b)*a",    "aaaaaaaaba");
-    testRe("(a|b)*a",    "aaaaaabac");
-    testRe("a(b|c)*d",   "abccbcccd");
-    testRe("a(b|c)*d",   "abccbcccde");
-    testRe("a(b|c)*d",   "abcccccccc");
-    testRe("a(b|c)*d",   "abcd");
+    testRe("abc*", "ab")
+    testRe("abc*", "abccc")
+    testRe("abc*", "abcabc")
+    testRe("a|b", "a")
+    cout << "---" << endl
+    testRe("abcdefg",    "abcdefg")
+    testRe("(a|b)*a",    "ababababab")
+    testRe("(a|b)*a",    "aaaaaaaaba")
+    testRe("(a|b)*a",    "aaaaaabac")
+    testRe("a(b|c)*d",   "abccbcccd")
+    testRe("a(b|c)*d",   "abccbcccde")
+    testRe("a(b|c)*d",   "abcccccccc")
+    testRe("a(b|c)*d",   "abcd")
 
-    cout << "---\n";
+    cout << "---\n"
 
-    testRe("a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa", "aaaaaaaaaa");
-    testRe("a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaa");
-    testRe("a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa", "aaaaaaaaa");
+    testRe("a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa", "aaaaaaaaaa")
+    testRe("a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaa")
+    testRe("a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa", "aaaaaaaaa")
 
-    cout << "---\n";
-    cout << "At compile-time:\n";
+    cout << "---\n"
+    cout << "At compile-time:\n"
 
-    testReCt("a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa", "aaaaaaaaaa");
-    testReCt("a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaa");
-    testReCt("a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa", "aaaaaaaaa");
+    testReCt("a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa", "aaaaaaaaaa")
+    testReCt("a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaa")
+    testReCt("a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa", "aaaaaaaaa")
 /*<<<Running(2 4 8 1 10 aaaaaaaaaa)
 ab match abc*
 abccc match abc*
@@ -595,51 +595,51 @@ aaaaaaaaa no match a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa
 // Case 3: {(a|b)?}^2n{(a|b)}^n{z}
 // Case 4: {(a|b)*a}{(a|b)}^n
 fun getReOfType(reType, n: Int): String
-    if      ( reType == 1 ) return "a?"**n + "a"**n;
-    else if ( reType == 2 ) return "(a|b)?"**n + "(a|b)"**n + "z";
-    else if ( reType == 3 ) return "(a|b)?"**(2*n) + "(a|b)"**n + "z";
-    else if ( reType == 4 ) return String("(a|b)*a") + "(a|b)"**n;
+    if      ( reType == 1 ) return "a?"**n + "a"**n
+    else if ( reType == 2 ) return "(a|b)?"**n + "(a|b)"**n + "z"
+    else if ( reType == 3 ) return "(a|b)?"**(2*n) + "(a|b)"**n + "z"
+    else if ( reType == 4 ) return String("(a|b)*a") + "(a|b)"**n
     else
-        cout << "WARNING: Invalid regex type: " << reType << "\n";
-        return "a";
+        cout << "WARNING: Invalid regex type: " << reType << "\n"
+        return "a"
 
 fun sprMain
     [ct] if ( testType == 0 )
-        autoTest();
+        autoTest()
     else [ct] if ( testType == 1 )
-        [ct] var re = getReOfType(4, 8);
+        [ct] var re = getReOfType(4, 8)
         //testCtVsRtPerf("a?a?a?aaa", "aaaaaa", 100000);
-        testCtVsRtPerf(re.asStringRef(), "aaaaaaaaaaaaaaaa", 1000);
+        testCtVsRtPerf(re.asStringRef(), "aaaaaaaaaaaaaaaa", 1000)
     else [ct] if ( testType == 2 )
-        var progType = 1;
-        var reType = 1;
-        var reLen = 5;
-        var testRepCount  = 1;
-        var totalRepCount = 1;
-        if ( programArgs.size() > 1 )  progType = asInt(programArgs(1));
-        if ( programArgs.size() > 2 )  reType = asInt(programArgs(2));
-        if ( programArgs.size() > 3 )  reLen = asInt(programArgs(3));
-        if ( programArgs.size() > 4 )  testRepCount = asInt(programArgs(4));
-        if ( programArgs.size() > 5 )  totalRepCount = asInt(programArgs(5));
-        programArgs.popFront();
-        programArgs.popFront();
-        programArgs.popFront();
-        programArgs.popFront();
-        programArgs.popFront();
-        programArgs.popFront();
+        var progType = 1
+        var reType = 1
+        var reLen = 5
+        var testRepCount  = 1
+        var totalRepCount = 1
+        if ( programArgs.size() > 1 )  progType = asInt(programArgs(1))
+        if ( programArgs.size() > 2 )  reType = asInt(programArgs(2))
+        if ( programArgs.size() > 3 )  reLen = asInt(programArgs(3))
+        if ( programArgs.size() > 4 )  testRepCount = asInt(programArgs(4))
+        if ( programArgs.size() > 5 )  totalRepCount = asInt(programArgs(5))
+        programArgs.popFront()
+        programArgs.popFront()
+        programArgs.popFront()
+        programArgs.popFront()
+        programArgs.popFront()
+        programArgs.popFront()
 
         if ( progType == 1 )
-            var re = getReOfType(reType, reLen);
-            testRt(re.asStringRef(), testRepCount, totalRepCount);
+            var re = getReOfType(reType, reLen)
+            testRt(re.asStringRef(), testRepCount, totalRepCount)
         else
             [ct] for t=1..4
                 [ct] for n=5..26
                     if ( reType == ctEval(t) && reLen == ctEval(n) )
-                        [ct] var re = getReOfType(t, n);
-                        testCt(re.asStringRef(), testRepCount, totalRepCount);
+                        [ct] var re = getReOfType(t, n)
+                        testCt(re.asStringRef(), testRepCount, totalRepCount)
                 [ct] for n=5..11
                     if ( reType == 4 && reLen == ctEval(n) )
-                        [ct] var re = getReOfType(4, n);
-                        testCt(re.asStringRef(), testRepCount, totalRepCount);
+                        [ct] var re = getReOfType(4, n)
+                        testCt(re.asStringRef(), testRepCount, totalRepCount)
     else [ct] if ( testType == 3 )
-        timedTest("(a|b)?"**100 + "(a|b)"**100 + "z", "a"**100 + "z", 1, 1000);
+        timedTest("(a|b)?"**100 + "(a|b)"**100 + "z", "a"**100 + "z", 1, 1000)

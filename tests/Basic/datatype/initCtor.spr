@@ -44,7 +44,9 @@ datatype S3
 
 [native("test")]
 fun test(n: Int)
+    // format off
     ;
+    // format on
         var o1: S1
     writeLn('---')
         var o1: S2

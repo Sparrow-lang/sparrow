@@ -1,191 +1,157 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x); // Always true
+concept AnyType(x) // Always true
 
 datatype Pair(t1, t2: Type)
-    first: t1;
-    second: t2;
+    first: t1
+    second: t2
 
-fun instanceOfType(t: Type): t;
-fun instanceOfTypeRef(t: Type): t@;
+fun instanceOfType(t: Type): t
+fun instanceOfTypeRef(t: Type): t@
 
 fun f(x: AnyType) if sizeOf(x)<=sizeOf(Double)
-{
-    write('S');
-    write(':');
-    write(' ');
-    writeLn(sizeOf(x));
-}
+    write('S')
+    write(':')
+    write(' ')
+    writeLn(sizeOf(x))
 
 fun f(x: AnyType) if sizeOf(x)>sizeOf(Double)
-{
-    write('B');
-    write(':');
-    write(' ');
-    writeLn(sizeOf(x));
-}
+    write('B')
+    write(':')
+    write(' ')
+    writeLn(sizeOf(x))
 
 fun f(x: AnyType) if false
-{
-    write('X');
-    write(':');
-    write(' ');
-    writeLn(sizeOf(x));
-}
+    write('X')
+    write(':')
+    write(' ')
+    writeLn(sizeOf(x))
 
 fun tst(x: AnyType) if typeOf(x) == Int
-{
-    write('I');
-    write('n');
-    writeLn('t');
-}
+    write('I')
+    write('n')
+    writeLn('t')
 
 fun tst(x: AnyType) if typeOf(x) == Double
-{
-    write('D');
-    write('o');
-    write('u');
-    write('b');
-    write('l');
-    writeLn('e');
-}
+    write('D')
+    write('o')
+    write('u')
+    write('b')
+    write('l')
+    writeLn('e')
 
 fun tst(x: AnyType) if isValid(x.second)
-{
-    write('P');
-    write('a');
-    write('i');
-    writeLn('r');
-}
+    write('P')
+    write('a')
+    write('i')
+    writeLn('r')
 
 
 
 fun tst2(x: AnyType) if typeOf(x) == Int
-{
-    write('I');
-    write('n');
-    writeLn('t');
-}
+    write('I')
+    write('n')
+    writeLn('t')
 
 fun tst2(x: AnyType) if typeOf(x) == Double
-{
-    write('D');
-    write('o');
-    write('u');
-    write('b');
-    write('l');
-    writeLn('e');
-}
+    write('D')
+    write('o')
+    write('u')
+    write('b')
+    write('l')
+    writeLn('e')
 
 fun tst2(x: AnyType) if isValid(x.second)
-{
-    write('P');
-    write('a');
-    write('i');
-    writeLn('r');
-}
+    write('P')
+    write('a')
+    write('i')
+    writeLn('r')
 
 
 
 fun tst3(x: AnyType) if typeOf(x) == Int
-{
-    write('I');
-    write('n');
-    writeLn('t');
-}
+    write('I')
+    write('n')
+    writeLn('t')
 
 fun tst3(x: AnyType) if typeOf(x) == Double
-{
-    write('D');
-    write('o');
-    write('u');
-    write('b');
-    write('l');
-    writeLn('e');
-}
+    write('D')
+    write('o')
+    write('u')
+    write('b')
+    write('l')
+    writeLn('e')
 
 fun tst3(x: AnyType) if typeOf(x.second) == Double
-{
-    write('P');
-    write('a');
-    write('i');
-    write('r');
-    write(' ');
-    writeLn('D');
-}
+    write('P')
+    write('a')
+    write('i')
+    write('r')
+    write(' ')
+    writeLn('D')
 
 fun tst3(x: AnyType) if typeOf(x.second) != Double
-{
-    write('P');
-    write('a');
-    write('i');
-    writeLn('r');
-}
+    write('P')
+    write('a')
+    write('i')
+    writeLn('r')
 
 
 
 fun ok()
-{
-    write('O');
-    writeLn('K');
-}
+    write('O')
+    writeLn('K')
 
 fun fail()
-{
-    write('F');
-    write('A');
-    write('I');
-    writeLn('L');
-}
+    write('F')
+    write('A')
+    write('I')
+    writeLn('L')
 
 fun separ()
-{
-    write('-');
-    write('-');
-    writeLn('-');
-}
+    write('-')
+    write('-')
+    writeLn('-')
 
 [native("test")] fun test(n: Int)
-{
-    var a: Pair(Int, Int);
-    var b: Pair(Double, Double);
-    var c: Pair(Int, Pair(Int, Int));
-    var d: Pair(Pair(Double, Double), Pair(Double, Double));
+    var a: Pair(Int, Int)
+    var b: Pair(Double, Double)
+    var c: Pair(Int, Pair(Int, Int))
+    var d: Pair(Pair(Double, Double), Pair(Double, Double))
 
-    f(1);
-    f(3.14);
-    f(a);
-    f(b);
-    f(c);
-    f(d);
+    f(1)
+    f(3.14)
+    f(a)
+    f(b)
+    f(c)
+    f(d)
 
-    separ();
+    separ()
 
-    tst(1);
-    tst(3.14);
-    tst(a);
-    tst(b);
-    tst(c);
-    tst(d);
+    tst(1)
+    tst(3.14)
+    tst(a)
+    tst(b)
+    tst(c)
+    tst(d)
 
-    separ();
+    separ()
 
-    tst2(1);
-    tst2(3.14);
-    tst2(a);
-    tst2(b);
-    tst2(c);
-    tst2(d);
+    tst2(1)
+    tst2(3.14)
+    tst2(a)
+    tst2(b)
+    tst2(c)
+    tst2(d)
 
-    separ();
+    separ()
 
-    tst3(1);
-    tst3(3.14);
-    tst3(a);
-    tst3(b);
-    tst3(c);
-    tst3(d);
-}
+    tst3(1)
+    tst3(3.14)
+    tst3(a)
+    tst3(b)
+    tst3(c)
+    tst3(d)
 
 
 /*<<<Running()

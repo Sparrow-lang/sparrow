@@ -11,7 +11,7 @@ datatype FibRange(valType: Type)
 fun isEmpty(this: @FibRange) = false
 fun front(this: @FibRange)   = _lastTwo.v2
 fun popFront(this: @FibRange)
-    _lastTwo = _lastTwo.v2 ~ (_lastTwo.v1 + _lastTwo.v2);
+    _lastTwo = _lastTwo.v2 ~ (_lastTwo.v1 + _lastTwo.v2)
 
 fun sprMain
     for n = take(FibRange(Int)(), 10)

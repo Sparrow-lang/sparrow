@@ -1,66 +1,50 @@
 
 fun +++(x: @Int): @Int
-{
-    x += 1;
-    return x;
-}
+    x += 1
+    return x
 
 fun ---(x: @Int): @Int
-{
-    x -= 1;
-    return x;
-}
+    x -= 1
+    return x
 
 
 fun pre_+++(x: @Int): @Int
-{
-    x += 1;
-    return x;
-}
+    x += 1
+    return x
 
 fun pre_---(x: @Int): @Int
-{
-    x -= 1;
-    return x;
-}
+    x -= 1
+    return x
 
 fun post_+++(x: @Int): Int
-{
-    var r = x;
-    x += 1;
-    return r;
-}
+    var r = x
+    x += 1
+    return r
 
 fun post_---(x: @Int): Int
-{
-    var r = x;
-    x -= 1;
-    return r;
-}
+    var r = x
+    x -= 1
+    return r
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+        return
+    var n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
     else if n == 3; test3
     else if n == 4; test4
-}
 
 fun test1
-{
-    var x = 10;
+    var x = 10
 
-    cout << (+++x) << endl;
-    cout << (+++x) << endl;
-    cout << (+++x) << endl;
-    cout << (---x) << endl;
-    cout << (---x) << endl;
-    cout << (---x) << endl;
-}
+    cout << (+++x) << endl
+    cout << (+++x) << endl
+    cout << (+++x) << endl
+    cout << (---x) << endl
+    cout << (---x) << endl
+    cout << (---x) << endl
 /*<<<Prefix operator(1)
 11
 12
@@ -71,16 +55,14 @@ fun test1
 >>>*/
 
 fun test2
-{
-    var x = 10;
+    var x = 10
 
-    cout << (x+++) << endl;
-    cout << (x+++) << endl;
-    cout << (x+++) << endl;
-    cout << (x---) << endl;
-    cout << (x---) << endl;
-    cout << (x---) << endl;
-}
+    cout << (x+++) << endl
+    cout << (x+++) << endl
+    cout << (x+++) << endl
+    cout << (x---) << endl
+    cout << (x---) << endl
+    cout << (x---) << endl
 /*<<<Postfix operator(2)
 10
 11
@@ -91,16 +73,14 @@ fun test2
 >>>*/
 
 fun test3
-{
-    var x = 10;
+    var x = 10
 
-    cout << (+++x---) << endl;
-    cout << (+++x---) << endl;
-    cout << (+++x---) << endl;
-    cout << (---x+++) << endl;
-    cout << (---x+++) << endl;
-    cout << (---x+++) << endl;
-}
+    cout << (+++x---) << endl
+    cout << (+++x---) << endl
+    cout << (+++x---) << endl
+    cout << (---x+++) << endl
+    cout << (---x+++) << endl
+    cout << (---x+++) << endl
 /*<<<Prefix & postfix operator(3)
 11
 11
@@ -111,15 +91,13 @@ fun test3
 >>>*/
 
 fun test4
-{
-    var x = 10;
+    var x = 10
 
-    cout << (+++x + +++x) << endl;
-    x = 10;
-    cout << (+++x + x+++) << endl;
-    x = 10;
-    cout << ((x+++) + +++x) << endl;
-}
+    cout << (+++x + +++x) << endl
+    x = 10
+    cout << (+++x + x+++) << endl
+    x = 10
+    cout << ((x+++) + +++x) << endl
 /*<<<Prefix & postfix + infix operator(4)
 23
 22

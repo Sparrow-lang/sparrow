@@ -1,64 +1,52 @@
 //!! -O2
 
-import std.array;
-import std.algorithms;
+import std.array
+import std.algorithms
 
 fun fannkuch(n: Int): Int
-{
-    var perm1: Int Array = 0..n;
-    var perm, count: Int Array = n;
-    var flips, nperm, checksum = 0;
+    var perm1: Int Array = 0..n
+    var perm, count: Int Array = n
+    var flips, nperm, checksum = 0
 
-    var r = n;
+    var r = n
     while r>0
-    {
-        (1...r) copy count.subrange(0, r);
+        (1...r) copy count.subrange(0, r)
         for i = 0..n
-            perm(i) = perm1(i);
+            perm(i) = perm1(i)
 
         // Count flips and update max and checksum
-        var f = 0;
-        var k = perm(0);
+        var f = 0
+        var k = perm(0)
         while k != 0
-        {
             for i = 0..(k+1)/2
-                swap(perm(i), perm(k-i));
-            k = perm(0);
-            ++f;
-        }
-        if f>flips;     flips = f;
-        if nperm%2==0;  checksum += f;
-        else            checksum -= f;
+                swap(perm(i), perm(k-i))
+            k = perm(0)
+            ++f
+        if f>flips;     flips = f
+        if nperm%2==0;  checksum += f
+        else            checksum -= f
 
         // Use incremental change to generate another permutation
-        r = 1;
+        r = 1
         while true
-        {
             if ( r == n )
-            {
-                cout << checksum << endl;
-                return flips;
-            }
-            var p0 = perm1(0);
+                cout << checksum << endl
+                return flips
+            var p0 = perm1(0)
             for i = 0..r
-                perm1(i) = perm1(i+1);
-            perm1(r) = p0;
+                perm1(i) = perm1(i+1)
+            perm1(r) = p0
 
-            --count(r);
-            if ( count(r) > 0 ) break;
-            else ++r;
-        }
-        ++nperm;
-    }
-    return flips;
-}
+            --count(r)
+            if ( count(r) > 0 ) break
+            else ++r
+        ++nperm
+    return flips
 
 fun sprMain
-{
-    var n = programArgs(1) asInt;
-    var r = fannkuch(n);
-    cout << "Pfannkuchen(" << n << ") = " << r << endl;
-}
+    var n = programArgs(1) asInt
+    var r = fannkuch(n)
+    cout << "Pfannkuchen(" << n << ") = " << r << endl
 
 /*<<<run (4)
 4

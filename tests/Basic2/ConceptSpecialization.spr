@@ -1,26 +1,20 @@
 //!!
 
-import std.ranges;
+import std.ranges
 
 fun getRangeSize(range: RandomAccessRange): SizeType
-{
-    cout << "RandomAccessRange fun selected" << endl;
-    return range.size();
-}
+    cout << "RandomAccessRange fun selected" << endl
+    return range.size()
 
 fun getRangeSize(range: Range): SizeType
-{
-    cout << "Range fun selected" << endl;
-    var n: SizeType = 0;
+    cout << "Range fun selected" << endl
+    var n: SizeType = 0
     while !range.isEmpty(); range.popFront()
-        ++n;
-    return n;
-}
+        ++n
+    return n
 
 fun sprMain
-{
-    cout << getRangeSize(1 ... 10) << endl;
-}
+    cout << getRangeSize(1 ... 10) << endl
 
 /*<<<Running()
 RandomAccessRange fun selected

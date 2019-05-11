@@ -1,16 +1,16 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x); // Always true
+concept AnyType(x) // Always true
 
 datatype Pair
-    x, y: Int;
+    x, y: Int
 
 fun ctor(this: @Pair, x,y: Int)
     this.x = x
     this.y = y
 
 datatype Pair2
-    x, y: Int;
+    x, y: Int
 
 fun ctor(this: @Pair2, x,y: Int)
     this.x = x
@@ -21,41 +21,35 @@ fun ctorFromCt(this: @Pair2, src: Pair2 ct)
     x ctor src.x
     y ctor src.y
 
-fun identity(obj: AnyType) = obj;
+fun identity(obj: AnyType) = obj
 
 fun print(p: Pair)
-{
-    write("Pair{"); write(p.x); write(", "); write(p.y); writeLn("}");
-}
+    write("Pair{"); write(p.x); write(", "); write(p.y); writeLn("}")
 fun print(p: Pair2)
-{
-    write("Pair2{"); write(p.x); write(", "); write(p.y); writeLn("}");
-}
+    write("Pair2{"); write(p.x); write(", "); write(p.y); writeLn("}")
 
 [native("test")] fun test(n: Int)
-{
-    var a = 101;
-    var b = 103;
-    [ct] var ca = 121;
-    [ct] var cb = 123;
+    var a = 101
+    var b = 103
+    [ct] var ca = 121
+    [ct] var cb = 123
 
-    var p1 = Pair(11,13);
-    [ct] var p2 = Pair(21, 23);
-    print(p1);
-    print(p2);
-    writeLn("---");
+    var p1 = Pair(11,13)
+    [ct] var p2 = Pair(21, 23)
+    print(p1)
+    print(p2)
+    writeLn("---")
 
-    var pp1 = Pair2(a,b);
-    [ct] var pp2 = Pair2(ca, cb);
-    print(pp1);
-    print(pp2);
-    writeLn("---");
+    var pp1 = Pair2(a,b)
+    [ct] var pp2 = Pair2(ca, cb)
+    print(pp1)
+    print(pp2)
+    writeLn("---")
 
-    var pp3 = pp2;
-    print(pp3);
-    var pp4 = identity(pp2);
-    print(pp4);
-}
+    var pp3 = pp2
+    print(pp3)
+    var pp4 = identity(pp2)
+    print(pp4)
 
 
 /*<<<Running()

@@ -7,7 +7,7 @@ datatype Book4 = Book
 
 datatype Pair(t: Type) { first, second: t }
 
-concept AnyType(x);
+concept AnyType(x)
 
 fun ctor(this: @Book)
     this.author ctor
@@ -40,19 +40,19 @@ fun ctor(this: @Pair(Int), f,s: Int)
 [native("test")]
 fun test(n: Int)
     var b = Book("LucTeo", "The wonders of Sparrow", "ISBN")
-    writeLn(b.author);
-    writeLn(b.name);
-    writeLn(b.isbn);
-    writeLn("---");
+    writeLn(b.author)
+    writeLn(b.name)
+    writeLn(b.isbn)
+    writeLn("---")
 
-    var b3 = Book3("LucTeo", "External ctors in Sparrow", "ISBN");
-    var b4 = Book4("LucTeo", "More external ctors in Sparrow", "ISBN");
-    writeLn(b3.name);
-    writeLn(b4.data.name);
+    var b3 = Book3("LucTeo", "External ctors in Sparrow", "ISBN")
+    var b4 = Book4("LucTeo", "More external ctors in Sparrow", "ISBN")
+    writeLn(b3.name)
+    writeLn(b4.data.name)
 
-    var b4_1 = Book4(b);
-    writeLn(b4_1.data.name);
-    writeLn("---");
+    var b4_1 = Book4(b)
+    writeLn(b4_1.data.name)
+    writeLn("---")
 
     using IntPair = Pair(Int)
 

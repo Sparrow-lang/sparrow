@@ -1,4 +1,4 @@
-import HeaderA;
-import HeaderB;
+import HeaderA
+import HeaderB
 
-var c = Int(3);
+var c = Int(3)

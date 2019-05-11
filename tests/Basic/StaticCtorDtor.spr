@@ -1,40 +1,38 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 datatype MyType
-    x: Int;
+    x: Int
 
 fun ctor(this: @MyType)
-    write('c'); write('t'); write('o'); write('r'); write('('); writeLn(')');
+    write('c'); write('t'); write('o'); write('r'); write('('); writeLn(')')
 fun ctor(this: @MyType, i: Int)
-    x = i;
-    write('c'); write('t'); write('o'); write('r'); write('('); write(i); writeLn(')');
+    x = i
+    write('c'); write('t'); write('o'); write('r'); write('('); write(i); writeLn(')')
 fun ctor(this, other: @MyType)
-    x = other.x;
-    write('c'); write('t'); write('o'); write('r'); write('('); write('C'); write(' '); write(x); writeLn(')');
+    x = other.x
+    write('c'); write('t'); write('o'); write('r'); write('('); write('C'); write(' '); write(x); writeLn(')')
 
 fun dtor(this: MyType)
-    write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x);
+    write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x)
 
 fun ctor()
-    write('c'); write('t'); write('o'); write('r'); write('-'); writeLn(1);
+    write('c'); write('t'); write('o'); write('r'); write('-'); writeLn(1)
 
 fun dtor
-    write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(1);
+    write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(1)
 
 /*fun ctor(i: Int)
     write('c'); write('t'); write('o'); write('r'); write('-'); writeLn(2);
 */
 
 fun ctor()
-    write('c'); write('t'); write('o'); write('r'); write('-'); writeLn(3);
+    write('c'); write('t'); write('o'); write('r'); write('-'); writeLn(3)
 
 fun dtor
-    write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(2);
+    write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(2)
 
 [native("test")] fun test(n: Int)
-{
-    write('o'); writeLn('k');
-}
+    write('o'); writeLn('k')
 
 /*<<<Running KNOWN-PROBLEM()
 ctor-1

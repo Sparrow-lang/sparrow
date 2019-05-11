@@ -1,45 +1,35 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 fun assert(b: Bool)
-{
     if ( !b )
-    {
-        write('F'); write('A'); write('I'); writeLn('L');
-    }
-}
+        write('F'); write('A'); write('I'); writeLn('L')
 
 fun fassert(b: Bool)
-{
     if ( ! !b )
-    {
-        write('F'); write('A'); write('I'); writeLn('L');
-    }
-}
+        write('F'); write('A'); write('I'); writeLn('L')
 
 [native("test")] fun test(n: Int)
-{
-    "mumu";
-    writeLn("Hello, world!");
-    write("Hello,"); writeLn(" world!");
+    "mumu"
+    writeLn("Hello, world!")
+    write("Hello,"); writeLn(" world!")
 
-    var s: StringRef = "abracadabra";
-    writeLn(s);
-    write(s.getChar(intToSizeType(0)));
-    write(s.getChar(intToSizeType(1)));
-    write(s.getChar(intToSizeType(2)));
-    write(s.getChar(intToSizeType(3)));
-    write(s.getChar(intToSizeType(4)));
-    write(s.getChar(intToSizeType(5)));
-    write(s.getChar(intToSizeType(6)));
-    write(s.getChar(intToSizeType(7)));
-    write(s.getChar(intToSizeType(8)));
-    write(s.getChar(intToSizeType(9)));
-    writeLn(s.getChar(intToSizeType(10)));
+    var s: StringRef = "abracadabra"
+    writeLn(s)
+    write(s.getChar(intToSizeType(0)))
+    write(s.getChar(intToSizeType(1)))
+    write(s.getChar(intToSizeType(2)))
+    write(s.getChar(intToSizeType(3)))
+    write(s.getChar(intToSizeType(4)))
+    write(s.getChar(intToSizeType(5)))
+    write(s.getChar(intToSizeType(6)))
+    write(s.getChar(intToSizeType(7)))
+    write(s.getChar(intToSizeType(8)))
+    write(s.getChar(intToSizeType(9)))
+    writeLn(s.getChar(intToSizeType(10)))
 
-    writeLn("---");
+    writeLn("---")
 
-    writeLn("Hello," + " world!");
-}
+    writeLn("Hello," + " world!")
 
 /*<<<Running()
 Hello, world!

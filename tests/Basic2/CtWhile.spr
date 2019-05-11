@@ -1,63 +1,45 @@
 //!!
 
-import std.ranges;
-import std.vector;
+import std.ranges
+import std.vector
 
 fun test1()
-{
-    [ct] var i=0;
+    [ct] var i=0
     [ct] while i<5; i++
-    {
-        cout << ctEval(i) << endl;
-    }
-}
+        cout << ctEval(i) << endl
 
 [ct] fun fact(n: Int): Int
-{
     if ( n < 2 )
-        return 1;
+        return 1
     else
-        return n*fact(n-1);
-}
+        return n*fact(n-1)
 
 fun test2()
-{
-    [ct] var i=0;
+    [ct] var i=0
     [ct] while i<5; i++
-    {
-        cout << ctEval(fact(i)) << endl;
-    }
-}
+        cout << ctEval(fact(i)) << endl
 
 [ct] fun createVector(min, max: Int): Vector(Int)
-{
-    var v = Vector(Int)(min..max);
-    return v;
-}
+    var v = Vector(Int)(min..max)
+    return v
 
 fun test3()
-{
-    [ct] var v = createVector(10, 15);
+    [ct] var v = createVector(10, 15)
 
-    [ct] var i=0;
+    [ct] var i=0
     [ct] while i<v.size(); i++
-    {
-        cout << ctEval(v(i)) << endl;
-    }
-}
+        cout << ctEval(v(i)) << endl
 
 fun sprMain
-{
-    var x = 10;
-    var y = 2;
-    [ct] var yy = 2;
+    var x = 10
+    var y = 2
+    [ct] var yy = 2
 
-    test1();
-    cout << "---" << endl;
-    test2();
-    cout << "---" << endl;
-    test3();
-}
+    test1()
+    cout << "---" << endl
+    test2()
+    cout << "---" << endl
+    test3()
 
 /*<<<Running()
 0

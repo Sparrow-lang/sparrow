@@ -2,7 +2,7 @@
 
 // Test purpose: various interaction patterns with datatypes (and their ctors)
 
-concept AnyType(x);
+concept AnyType(x)
 fun ctor(this: @AnyType, nothing: Uninitialized) {}
 
 datatype Book { author, name, isbn: StringRef }

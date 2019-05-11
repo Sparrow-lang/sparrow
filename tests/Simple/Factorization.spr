@@ -1,54 +1,42 @@
 //!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
 fun factor(n: Int)
-{
     if ( n < 1 )
-    {
-        write('T'); write('R'); write('O'); write('L'); writeLn('L');
-        return;
-    }
+        write('T'); write('R'); write('O'); write('L'); writeLn('L')
+        return
 
-    var i: Int;
-    i = 2;
+    var i: Int
+    i = 2
 
     while n != 1
-    {
         while n % i != 0
-            i = i + 1;
+            i = i + 1
 
-        var j: Int;
-        j = 0;
+        var j: Int
+        j = 0
 
         while n % i == 0
-        {
-            j = j + 1;
-            n = n / i;
-        }
+            j = j + 1
+            n = n / i
 
-        write(i);
-        write(' ');
-        write('^');
-        write(' ');
-        write(j);
+        write(i)
+        write(' ')
+        write('^')
+        write(' ')
+        write(j)
         if ( n != 1 )
-        {
-            write(' ');
-            write('*');
-            write(' ');
-        }
-    }
-    write('\n');
-}
+            write(' ')
+            write('*')
+            write(' ')
+    write('\n')
 
 [native("test")] fun test(n: Int)
-{
-    factor(2);
-    factor(60);
-    factor(541);
-    factor(1024);
-    factor(10080);
-    factor(10201);
-    factor(287699987);
-}
+    factor(2)
+    factor(60)
+    factor(541)
+    factor(1024)
+    factor(10080)
+    factor(10201)
+    factor(287699987)
 
 /*<<<Running()
 2 ^ 1

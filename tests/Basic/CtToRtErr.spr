@@ -1,40 +1,34 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-[ct] var t: Type = Int;
-[ct] var u: Type;
+[ct] var t: Type = Int
+[ct] var u: Type
 
-[ct] var x: Int = 1;
-[ct] var y: t = 2;
-var z = 3;
+[ct] var x: Int = 1
+[ct] var y: t = 2
+var z = 3
 
-[ct] var c1: Int@ = x;
+[ct] var c1: Int@ = x
 
 [ct] fun testCt(a: Int)
 {
 }
 
 [autoCt] fun id(x: Int@): Int@
-{
-    return x;
-}
+    return x
 
 fun printRef(x: Int@)
-{
-    writeLn(x);
-}
+    writeLn(x)
 
 [native("test")] fun test(n: Int)
-{
-    testCt(x);
-    testCt(y);
-    testCt(z);          // ERROR
+    testCt(x)
+    testCt(y)
+    testCt(z)          // ERROR
 
-    writeLn(x);
-    writeLn(y);
-    writeLn(z);
+    writeLn(x)
+    writeLn(y)
+    writeLn(z)
 
-    writeLn(c1);
-    writeLn(id(c1));
-    writeLn(id(id(id(id(c1)))));
-    printRef(id(c1));   // ERROR
-}
+    writeLn(c1)
+    writeLn(id(c1))
+    writeLn(id(id(id(id(c1)))))
+    printRef(id(c1))   // ERROR

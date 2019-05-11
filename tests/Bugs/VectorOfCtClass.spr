@@ -1,13 +1,13 @@
 //!!
 
-import std.vector;
+import std.vector
 
 
 [ct] datatype TestCt
 {
 }
 
-fun test(x: @Vector(TestCt));
+fun test(x: @Vector(TestCt))
 
 fun sprMain
 {

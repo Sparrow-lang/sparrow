@@ -5,7 +5,7 @@ datatype TestClass
     a: Int
 
 fun method(this: @TestClass)     // not quite, but close enough
-    a = 1;
+    a = 1
 
 datatype MyType { data: Int }
 datatype MyType2 { data: MyType }
@@ -19,7 +19,7 @@ fun printData(this: MyType2)
     writeLn(data.data)
 
 fun useAsVar
-    var this: Int;
+    var this: Int
     this = 100
     writeLn(this)
 

@@ -1,28 +1,24 @@
 //!!
-import logic.prologFrontend;
+import logic.prologFrontend
 
 fun fib(p_1: @LInt, p_2: @LInt): Predicate
-{
-    var l2_X2: LInt;
-    var l2_Y2: LInt;
-    var l2_X1: LInt;
-    var l2_Y1: LInt;
+    var l2_X2: LInt
+    var l2_Y2: LInt
+    var l2_X1: LInt
+    var l2_Y1: LInt
     return ( p_1 /=/ 0 && p_2 /=/ 0
         || p_1 /=/ 1 && p_2 /=/ 1
         || l2_X2 /=/ (p_1 /-/ 2) && rec(\fib, l2_X2, l2_Y2) && l2_X1 /=/ (p_1 /-/ 1) && rec(\fib, l2_X1, l2_Y1) && p_2 /=/ (l2_Y1 /+/ l2_Y2)
-        );
-}
+        )
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+        return
+    var n = programArgs(1) asInt
 
-    var res: LInt;
-    cout << fib(n, res)() << endl;
-    cout << "res=" << res.get() << endl;
-}
+    var res: LInt
+    cout << fib(n, res)() << endl
+    cout << "res=" << res.get() << endl
 
 /*<<<Logic Fibonacci (10)
 true

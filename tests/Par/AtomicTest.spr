@@ -10,9 +10,9 @@ import std.compilerInfo
     import os
     import test
 
-    [native("rand")] fun rand(): Int;
-    [native("srand")] fun srand(seed: UInt);
-    [native("time")] fun time(timer: @Int): Int;
+    [native("rand")] fun rand(): Int
+    [native("srand")] fun srand(seed: UInt)
+    [native("time")] fun time(timer: @Int): Int
 
     datatype UserDefined
         lo, hi: Short

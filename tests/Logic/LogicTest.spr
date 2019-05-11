@@ -1,101 +1,83 @@
 //!!
-import logic.predicates;
+import logic.predicates
 //import assert;
-import os = os;
+import os = os
 
 
-fun male(x: @LStr) = x /=/ "castor" || x /=/ "zeus";
+fun male(x: @LStr) = x /=/ "castor" || x /=/ "zeus"
 
-fun female(x: @LStr) = x /=/ "leda" || x /=/ "clytaemnestra";
+fun female(x: @LStr) = x /=/ "leda" || x /=/ "clytaemnestra"
 
-fun person(x: @LStr) = male(x) || female(x);
+fun person(x: @LStr) = male(x) || female(x)
 
 fun parents(father, mother, child: LRef(String)) \
      = father /=/ "zeus" && mother /=/ "leda" && child /=/ "castor" \
-    || father /=/ "zeus" && mother /=/ "leda" && child /=/ "clytaemnestra";
+    || father /=/ "zeus" && mother /=/ "leda" && child /=/ "clytaemnestra"
 
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+        return
+    var n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
     else if n == 3; test3
     else if n == 4; test4
     else if n == 5; test5
-}
 
 fun test1
-{
     if ( male("zeus")() )
-        cout << "Zeus is male\n";
+        cout << "Zeus is male\n"
     else
-        cout << "Zeus is not male\n";
+        cout << "Zeus is not male\n"
 
     if ( female("zeus")() )
-        cout << "Zeus is female\n";
+        cout << "Zeus is female\n"
     else
-        cout << "Zeus is not female\n";
-}
+        cout << "Zeus is not female\n"
 /*<<< Basic testing with all values defined(1)
 Zeus is male
 Zeus is not female
 >>>*/
 
 fun test2
-{
-    var x: LStr;
+    var x: LStr
     [ct] if ( isValid(logicDebug) )
-        cout << "Result constructed: x=" << x << endl;
-    var pred = male(x);
+        cout << "Result constructed: x=" << x << endl
+    var pred = male(x)
     while pred()
-    {
         [ct] if ( isValid(logicDebug) )
-            cout << "In while, x=" << x << endl;
+            cout << "In while, x=" << x << endl
         if ( x.isSet() )
-            cout << "Found male: " << x.get() << endl << flush;
+            cout << "Found male: " << x.get() << endl << flush
         else
-        {
-            cout << "Invalid male found!" << endl << flush;
-            os.exit(1);
-        }
-    }
-}
+            cout << "Invalid male found!" << endl << flush
+            os.exit(1)
 /*<<< Exploring male space(2)
 Found male: castor
 Found male: zeus
 >>>*/
 
 fun test3
-{
-    var x: LStr;
-    var pred = female(x);
+    var x: LStr
+    var pred = female(x)
     while pred()
-    {
         //assert(x.isSet());
-        cout << "Found female: " << x.get() << endl << flush;
-    }
+        cout << "Found female: " << x.get() << endl << flush
 
-}
 /*<<< Exploring female space(3)
 Found female: leda
 Found female: clytaemnestra
 >>>*/
 
 fun test4
-{
-    var x: LStr;
-    var pred = person(x);
+    var x: LStr
+    var pred = person(x)
     while pred()
-    {
         //assert(x.isSet());
-        cout << "Found person: " << x.get() << endl << flush;
-    }
+        cout << "Found person: " << x.get() << endl << flush
 
-}
 /*<<< Exploring person space(4)
 Found person: castor
 Found person: zeus
@@ -105,18 +87,14 @@ Found person: clytaemnestra
 
 
 fun test5
-{
-    var father, mother, child: LStr;
-    var pred = parents(father, mother, child);
+    var father, mother, child: LStr
+    var pred = parents(father, mother, child)
     while pred()
-    {
         //assert(father.isSet());
         //assert(mother.isSet());
         //assert(child.isSet());
-        cout << "Parent relation: (" << father.get() << " + " << mother.get() << ") = " << child.get() << endl << flush;
-    }
+        cout << "Parent relation: (" << father.get() << " + " << mother.get() << ") = " << child.get() << endl << flush
 
-}
 /*<<< Parenting(5)
 Parent relation: (zeus + leda) = castor
 Parent relation: (zeus + leda) = clytaemnestra

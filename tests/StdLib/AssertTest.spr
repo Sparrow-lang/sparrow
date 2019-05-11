@@ -1,62 +1,54 @@
 //!! -D DEBUG
-import assert;
+import assert
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+        return
+    var n = programArgs(1) asInt
 
     if      n == 1; test1
     //else if n == 2; test2
     //else if n == 3; test3
-}
 
 fun printerTrue: Bool
-{
-    cout << "Inside printerTrue" << endl << flush;
-    return true;
-}
+    cout << "Inside printerTrue" << endl << flush
+    return true
 
 fun printerFalse: Bool
-{
-    cout << "Inside printerFalse" << endl << flush;
-    return false;
-}
+    cout << "Inside printerFalse" << endl << flush
+    return false
 
-datatype FooType = Int;
+datatype FooType = Int
 
-fun fact(n: Int): Int = ife(n<=1, 1, n*fact(n-1));
+fun fact(n: Int): Int = ife(n<=1, 1, n*fact(n-1))
 
 fun test1
-{
-    assert(true);
-    assert(false);
-    assert(printerTrue());
-    assert(printerTrue(), "this needs to be true");
-    assert(printerFalse());
-    assert(2 == 1+1);
-    assert(2 != 1+1, "intentional error");
-    var a = 12;
-    var b = 13;
-    var c = 5;
-    var foo: FooType = 10;
-    assert(a == b);
-    assert(a+1 < b);
-    assert(a >= b, "intentional error");
-    assert(foo.data == 100, "non-printable vars work too");
-    assert(fact(c) != 120, "calling functions");
-}
+    assert(true)
+    assert(false)
+    assert(printerTrue())
+    assert(printerTrue(), "this needs to be true")
+    assert(printerFalse())
+    assert(2 == 1+1)
+    assert(2 != 1+1, "intentional error")
+    var a = 12
+    var b = 13
+    var c = 5
+    var foo: FooType = 10
+    assert(a == b)
+    assert(a+1 < b)
+    assert(a >= b, "intentional error")
+    assert(foo.data == 100, "non-printable vars work too")
+    assert(fact(c) != 120, "calling functions")
 /*<<<All asserts are ok (1)
-AssertTest.spr(34): assertion failure: check false has failed
+AssertTest.spr(27): assertion failure: check false has failed
 Inside printerTrue
 Inside printerTrue
 Inside printerFalse
-AssertTest.spr(37): assertion failure: check printerFalse() has failed
-AssertTest.spr(39): assertion failure: check 2 != 1+1 has failed: intentional error
-AssertTest.spr(44): assertion failure: check a[=12] == b[=13] has failed
-AssertTest.spr(45): assertion failure: check a[=12]+1 < b[=13] has failed
-AssertTest.spr(46): assertion failure: check a[=12] >= b[=13] has failed: intentional error
-AssertTest.spr(47): assertion failure: check foo.data == 100 has failed: non-printable vars work too
-AssertTest.spr(48): assertion failure: check fact(c[=5]) != 120 has failed: calling functions
+AssertTest.spr(30): assertion failure: check printerFalse() has failed
+AssertTest.spr(32): assertion failure: check 2 != 1+1 has failed: intentional error
+AssertTest.spr(37): assertion failure: check a[=12] == b[=13] has failed
+AssertTest.spr(38): assertion failure: check a[=12]+1 < b[=13] has failed
+AssertTest.spr(39): assertion failure: check a[=12] >= b[=13] has failed: intentional error
+AssertTest.spr(40): assertion failure: check foo.data == 100 has failed: non-printable vars work too
+AssertTest.spr(41): assertion failure: check fact(c[=5]) != 120 has failed: calling functions
 >>>*/

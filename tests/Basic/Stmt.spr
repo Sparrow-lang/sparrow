@@ -22,7 +22,7 @@ fun test(n: Int)
         writeIf         // writes
     if true ; writeIf   // writes
     if true ;;; writeIf // writes
-    if true ;
+    if true 
     if true
     if false
         writeIfErr
@@ -31,24 +31,24 @@ fun test(n: Int)
     writeMarker
 
     // while
-    n = 5;
+    n = 5
     while --n > 0       // only 4 iterations
         "." write
     "" writeLn
-    n = 5;
+    n = 5
     while n > 0 ; n=n-1
         "." write
     "" writeLn
-    n = 5;
+    n = 5
     while n > 0 ; n=n-1 ; "." write
     "" writeLn
-    n = 5;
+    n = 5
     while --n > 0 ;{} "." write
     "" writeLn
-    n = 5;
+    n = 5
     while --n > 0 { "." write }
     "" writeLn
-    n = 5;
+    n = 5
     while --n > 0 ; {break;}
         "." write
     "" writeLn

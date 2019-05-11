@@ -1,9 +1,7 @@
-import std.ranges(Range, .., map, filter);
+import std.ranges(Range, .., map, filter)
 
 fun sprMain
-{
-    cout << "Ok" << endl;
-}
+    cout << "Ok" << endl
 
 /*<<<Running
 Ok

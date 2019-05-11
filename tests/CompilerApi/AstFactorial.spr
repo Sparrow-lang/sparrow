@@ -1,80 +1,68 @@
 // !! -dump-ct-assembly
 
-import meta.sparrowNodes, meta.featherNodes;
-import std.ranges, std.vector;
+import meta.sparrowNodes, meta.featherNodes
+import std.ranges, std.vector
 
 [ct] fun mkNodeVector(p1: AstNode): Vector(AstNode)
-{
-    var res: Vector(AstNode);
-    res.pushBack(p1);
-    return res;
-}
+    var res: Vector(AstNode)
+    res.pushBack(p1)
+    return res
 
 [ct] fun mkNodeVector(p1, p2: AstNode): Vector(AstNode)
-{
-    var res: Vector(AstNode);
-    res.pushBack(p1);
-    res.pushBack(p2);
-    return res;
-}
+    var res: Vector(AstNode)
+    res.pushBack(p1)
+    res.pushBack(p2)
+    return res
 
 [ct] fun mkNodeVector(p1, p2, p3: AstNode): Vector(AstNode)
-{
-    var res: Vector(AstNode);
-    res.pushBack(p1);
-    res.pushBack(p2);
-    res.pushBack(p3);
-    return res;
-}
+    var res: Vector(AstNode)
+    res.pushBack(p1)
+    res.pushBack(p2)
+    res.pushBack(p3)
+    return res
 
-[ct] var nullNode: AstNode;
+[ct] var nullNode: AstNode
 
 
 [ct] fun addFactorialFun(context: CompilationContext, funName: StringRef): Bool
-{
-    var loc = mkLocation(currentSourceCode, mkLineCol(39, 1), mkLineCol(39, 79));
+    var loc = mkLocation(currentSourceCode, mkLineCol(39, 1), mkLineCol(39, 79))
 
-    var factParams = mkNodeList(loc, AstNodeRange(), true);
-    addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode));
-    var factReturnType = mkIdentifier(loc, "Int");
-    var ifCond = mkInfixOp(loc, "==", mkIdentifier(loc, "n"), mkIntLiteral(loc, 0));
-    var ifThen = mkReturnStmt(loc, mkIntLiteral(loc, 1));
-    var recFunArgs = mkNodeList(loc);
-    addToNodeList(recFunArgs, mkInfixOp(loc, "-", mkIdentifier(loc, "n"), mkIntLiteral(loc, 1)));
-    var recCall = mkFunApplication(loc, mkIdentifier(loc, funName), recFunArgs);
-    var ifElse = mkReturnStmt(loc, mkInfixOp(loc, "*", mkIdentifier(loc, "n"), recCall));
-    var bodyVec = mkNodeVector(mkIf(loc, ifCond, ifThen, ifElse));
-    var body = mkLocalSpace(loc, bodyVec.all);
-    var factFun = mkSprFunction(loc, funName, factParams, factReturnType, body, nullNode);
-    factFun setContext context;
-    factFun semanticCheck;
-    return !(factFun hasError);
-}
+    var factParams = mkNodeList(loc, AstNodeRange(), true)
+    addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode))
+    var factReturnType = mkIdentifier(loc, "Int")
+    var ifCond = mkInfixOp(loc, "==", mkIdentifier(loc, "n"), mkIntLiteral(loc, 0))
+    var ifThen = mkReturnStmt(loc, mkIntLiteral(loc, 1))
+    var recFunArgs = mkNodeList(loc)
+    addToNodeList(recFunArgs, mkInfixOp(loc, "-", mkIdentifier(loc, "n"), mkIntLiteral(loc, 1)))
+    var recCall = mkFunApplication(loc, mkIdentifier(loc, funName), recFunArgs)
+    var ifElse = mkReturnStmt(loc, mkInfixOp(loc, "*", mkIdentifier(loc, "n"), recCall))
+    var bodyVec = mkNodeVector(mkIf(loc, ifCond, ifThen, ifElse))
+    var body = mkLocalSpace(loc, bodyVec.all)
+    var factFun = mkSprFunction(loc, funName, factParams, factReturnType, body, nullNode)
+    factFun setContext context
+    factFun semanticCheck
+    return !(factFun hasError)
 
 [ct] fun addFactorialFun2(context: CompilationContext, funName: StringRef): Bool
-{
-    var loc = mkLocation(currentSourceCode, mkLineCol(39, 1), mkLineCol(39, 79));
+    var loc = mkLocation(currentSourceCode, mkLineCol(39, 1), mkLineCol(39, 79))
 
-    var factParams = mkNodeList(loc, AstNodeRange(), true);
-    addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode));
-    var factReturnType = mkIdentifier(loc, "Int");
-    var body = mkReturnStmt(loc, astLift( ife(n==0, 1, n*fact2(n-1))) );
-    var factFun = mkSprFunction(loc, funName, factParams, factReturnType, body, nullNode);
-    factFun setContext context;
-    factFun semanticCheck;
-    return !(factFun hasError);
-}
+    var factParams = mkNodeList(loc, AstNodeRange(), true)
+    addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode))
+    var factReturnType = mkIdentifier(loc, "Int")
+    var body = mkReturnStmt(loc, astLift( ife(n==0, 1, n*fact2(n-1))) )
+    var factFun = mkSprFunction(loc, funName, factParams, factReturnType, body, nullNode)
+    factFun setContext context
+    factFun semanticCheck
+    return !(factFun hasError)
 
-[ct] var factAdded = addFactorialFun(currentCompilationContext, "fact");
-[ct] var fact2Added = addFactorialFun2(currentCompilationContext, "fact2");
+[ct] var factAdded = addFactorialFun(currentCompilationContext, "fact")
+[ct] var fact2Added = addFactorialFun2(currentCompilationContext, "fact2")
 
 fun sprMain
-{
-    cout << fact(5) << endl;
-    cout << fact(6) << endl;
-    cout << fact2(5) << endl;
-    cout << fact2(6) << endl;
-}
+    cout << fact(5) << endl
+    cout << fact(6) << endl
+    cout << fact2(5) << endl
+    cout << fact2(6) << endl
 
 /*<<< Running()
 120

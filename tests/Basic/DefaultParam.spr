@@ -1,45 +1,43 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x) if true;
+concept AnyType(x) if true
 
-fun myadd(x: Int, y: Int = 1) = x+y;
+fun myadd(x: Int, y: Int = 1) = x+y
 
 
 datatype Foo
-    x: Int;
+    x: Int
 
 fun ctor(this: @Foo, x: Int = 10) { this.x = x; }
 fun ctor(this: @Foo, dummy1, dummy2: Int, x: Int = 10) { this.x = x; }
 
 fun ctor(this: @Foo, dummy1, dummy2, dummy3: AnyType, x: AnyType = 10) { this.x ctor x; }
 
-fun incWith(this: Foo, n: Int = 1) = x+n;
+fun incWith(this: Foo, n: Int = 1) = x+n
 
-fun genMember(this: Foo, x: AnyType = 10) = x;
+fun genMember(this: Foo, x: AnyType = 10) = x
 
 fun writeGen(x: AnyType = 1) { writeLn(x); }
 
 
 fun printType(t: Type)
-{
     if ( t == Int )
-        write("Int");
+        write("Int")
     else if ( t == Double )
-        write("Double");
+        write("Double")
     else if ( t == Char )
-        write("Char");
-}
+        write("Char")
 
 datatype TypePrinter(t1: Type, t2: Type = Int)
     using T1 = t1
     using T2 = t2
 
 fun print(this: TypePrinter)
-    write("t1=");
-    printType(T1);
-    write(", t2=");
-    printType(T2);
-    writeLn("");
+    write("t1=")
+    printType(T1)
+    write(", t2=")
+    printType(T2)
+    writeLn("")
 
 datatype Bar(t: Type = Int)
     using T = t
@@ -47,37 +45,35 @@ fun print(this: Bar)  { printType(T); writeLn(""); }
 
 
 [native("test")] fun test(n: Int)
-{
-    var foo = Foo(7);
+    var foo = Foo(7)
 
     // Functions with default args
-    writeLn(myadd(2,3));
-    writeLn(myadd(2));
-    writeLn(foo.incWith(2));
-    writeLn(foo.incWith());
+    writeLn(myadd(2,3))
+    writeLn(myadd(2))
+    writeLn(foo.incWith(2))
+    writeLn(foo.incWith())
     //writeLn(foo.plus); // TODO
 
     // Generics with default args
-    writeLn("---");
-    writeGen(3.14);
-    writeGen();
-    writeLn(foo.genMember(3.14));
-    writeLn(foo.genMember());
+    writeLn("---")
+    writeGen(3.14)
+    writeGen()
+    writeLn(foo.genMember(3.14))
+    writeLn(foo.genMember())
 
     // Ctor with default args
-    writeLn("---");
-    var foo2 = Foo(6, 7, 5);
-    var foo3 = Foo(6, 7);
-    writeLn(foo2.x);
-    writeLn(foo3.x);
+    writeLn("---")
+    var foo2 = Foo(6, 7, 5)
+    var foo3 = Foo(6, 7)
+    writeLn(foo2.x)
+    writeLn(foo3.x)
 
     // Generic classes
-    writeLn("---");
-    TypePrinter(Char, Double)().print();
-    TypePrinter(Char)().print();
-    Bar(Char)().print;
-    Bar()().print;
-}
+    writeLn("---")
+    TypePrinter(Char, Double)().print()
+    TypePrinter(Char)().print()
+    Bar(Char)().print
+    Bar()().print
 
 /*<<<Running()
 5

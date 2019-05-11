@@ -1,21 +1,15 @@
 //!!
 
-import std.ranges;
+import std.ranges
 
 fun sprMain
-{
-    var r = 0 .. 10;
+    var r = 0 .. 10
     for val = r
-    {
-        cout << ' ' << val;
-    }
-    cout << endl;
+        cout << ' ' << val
+    cout << endl
     for val = r
-    {
-        cout << ' ' << val;
-    }
-    cout << endl;
-}
+        cout << ' ' << val
+    cout << endl
 
 
 /*<<<Running()

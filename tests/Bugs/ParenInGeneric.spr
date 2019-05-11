@@ -1,40 +1,40 @@
 //!! -t ../Basic/SparrowImplicitLib.spr -fno-main
 
 datatype MyVector(t: Type)
-    start, end: t;
+    start, end: t
 
-fun ==(this, other: MyVector): Bool = start == other.start && end == other.end;
-fun !=(this, other: MyVector): Bool = !(this == other);
+fun ==(this, other: MyVector): Bool = start == other.start && end == other.end
+fun !=(this, other: MyVector): Bool = !(this == other)
 
 fun assert(b: Bool)
     if ( !b )
-        writeLn("Failure");
+        writeLn("Failure")
 
 fun assertF(b: Bool)
     if ( b )
-        writeLn("Failure");
+        writeLn("Failure")
 
 [native("test")]
 fun test(n: Int)
-    var v11: MyVector(Int);
-    v11.start = 4;
-    v11.end = 5;
-    var v12: MyVector(Int);
-    v12.start = 4;
-    v12.end = 4;
+    var v11: MyVector(Int)
+    v11.start = 4
+    v11.end = 5
+    var v12: MyVector(Int)
+    v12.start = 4
+    v12.end = 4
 
-    var v21: MyVector(Double);
-    v21.start = 10.0;
-    v21.end = 15.2;
-    var v22: MyVector(Double);
-    v22.start = 10.0;
-    v22.end = 11.2;
+    var v21: MyVector(Double)
+    v21.start = 10.0
+    v21.end = 15.2
+    var v22: MyVector(Double)
+    v22.start = 10.0
+    v22.end = 11.2
 
-    assert(v11 != v12);
-    assertF(v11 == v12);
-    assert(v21 != v22);
-    assertF(v21 == v22);
-    writeLn("OK");
+    assert(v11 != v12)
+    assertF(v11 == v12)
+    assert(v21 != v22)
+    assertF(v21 == v22)
+    writeLn("OK")
 
 
 /*<<<Running()

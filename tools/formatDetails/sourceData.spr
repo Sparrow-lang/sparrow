@@ -3,7 +3,7 @@ module formatTool.formatDetails.sourceData
 
 import tokenData, tokenDataSource, astNodes, consoleErrorReporter
 import node
-import std.string
+import std.string, std.sharedPtr
 
 //! Data used to represent a source file.
 //!
@@ -19,6 +19,10 @@ datatype SourceData
     //! The root node of the AST representing the syntax of the file
     rootNode: Node
 
+    //! The token data source
+    //! We need to keep this alive, so that all the StringRef point to a valid object
+    _src: TokenDataSource SharedPtr
+
 
 //! Load the source data from the given filename.
 //! Ensures that all the tokens are link to their appropriate AST nodes
@@ -26,8 +30,8 @@ fun load(res: @SourceData, filename: StringRef)
     res.filename = filename
 
     // Open the source filename & read the tokens
-    var src: TokenDataSource = filename
-    res.tokens assign src.all
+    res._src = mkShared(TokenDataSource, filename)
+    res.tokens assign res._src.all
 
     // Do another pass to read the AST
     res.rootNode = readAst(filename)

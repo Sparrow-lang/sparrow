@@ -1,0 +1,42 @@
+module formatTool.checks.moduleName
+
+import formatDetails.sourceData
+
+fun checkModuleName(src: @SourceData)
+    var node = src.rootNode
+    if node.isNull
+        return
+    var modName = (node children)(0)
+    if modName.isNull
+        return
+    var name = _getLastNameInQid(modName)
+    var filename = src.filename.asStringRef
+    var sz = filename.size
+    if sz > 4 //&& filename.subrange(sz-4, 4) == '.spr'
+        filename.popBack(4)
+        sz -= 4
+        if sz >= name.size
+            filename = filename.subrange(sz-name.size, name.size)
+        if !_caseInsensitiveCompare(name, filename)
+            reportWarning(node location, "Module name: '", name, "' doesn't match filename: '", src.filename, "'")
+
+fun _getLastNameInQid(node: Node): StringRef
+    var nk = node kind
+    if nk == nkIdentifier
+        return node name
+    else if nk == nkCompoundExpr
+        var id = (node children)(1)
+        if id.isNull
+            return ''
+        return id name
+
+fun _caseInsensitiveCompare(lhs, rhs: StringRef): Bool
+    if lhs.size != rhs.size
+        return false
+    var sz: Int = lhs.size
+    for i=0..sz
+        if (Int(lhs(i)) _tolower) != (Int(rhs(i)) _tolower)
+            return false
+    return true
+
+[native("tolower")] fun _tolower(c: Int): Int

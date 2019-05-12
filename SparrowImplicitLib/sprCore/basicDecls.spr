@@ -664,7 +664,7 @@ datatype StringRef
     fun popBack(this: @StringRef, n: SizeType)    { end := ptrSub(end, n); }
 
     fun subrange(this: @StringRef, index: SizeType, num: SizeType): StringRef
-        return StringRef(ptrAdd(begin, index), ptrAdd(begin, num))
+        return StringRef(ptrAdd(begin, index), ptrAdd(begin, index+num))
 
     fun cStr(this: @StringRef): @Char = reinterpretCast(@Char, begin)
 

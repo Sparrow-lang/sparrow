@@ -2,7 +2,7 @@
 import formatDetails.sourceData
 import transforms.emptyTransform, transforms.defaultFormat, transforms.refToMut
 import transforms.useLayout, transforms.removeEolSemicolons
-import checks.returnStmt
+import checks.returnStmt, checks.moduleName
 
 import os
 
@@ -34,7 +34,9 @@ fun sprMain
         else if arg == '-i'             ; inPlace = true
         else if arg == '-check'
             checks += \checkReturnInFunctions
+            checks += \checkModuleName
         else if arg == '-c=return'      ; checks += \checkReturnInFunctions
+        else if arg == '-c=modName'     ; checks += \checkModuleName
         else if arg == '-printAst'      ; doPrintAst = true
         else if arg.size > 0 && arg(0) == '-'.char
             // This looks like a flag, but we don't recognize it
@@ -123,6 +125,7 @@ fun _getCommentContent(tokenStr: StringRef): StringRef
         res popBack
     return res
 
-//<<<File scanning test(-format ../SparrowImplicitLib/std/ranges.spr)
+// <<<File scanning test(-format ../SparrowImplicitLib/std/ranges.spr)
+//<<<File scanning test(-check ../tests/Basic/Basic.spr)
 // <<<File scanning test(-format -i ../tests/StdLib/RangesTest.spr)
 // <<<File scanning test(-f=ref-to-mut ../SparrowImplicitLib/std/ranges.spr)

@@ -1,4 +1,4 @@
-module std.sortedPtr
+module std.sortedMap
 
 import sortedTable(SortedTable)
 import tuple(Tuple, PairFirst, PairSecond)

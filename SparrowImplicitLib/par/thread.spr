@@ -27,8 +27,8 @@ fun ctor(this: @Thread, f: AnyType) if isValid(f())
     _handle = _Impl.startThread(f)
 
 //! Cannot copy construct or assign a Thread object
-[private] fun ctor(this, other: @Thread);
-[private] fun =(this, other: @Thread);
+[private] fun ctor(this, other: @Thread)
+[private] fun =(this, other: @Thread)
 
 //! Destructor. Detach the thread if joinable
 fun dtor(this: @Thread)
@@ -110,13 +110,13 @@ package _Impl
     [initCtor] datatype TimeSpec
         tv_sec, tv_nsec: Long
 
-    [native("pthread_create")] fun pthread_create(handle: @NativeThreadHandle, attr: @Byte, f: ThreadFun, arg: @Byte): Int;
-    [native("pthread_join")] fun pthread_join(handle: NativeThreadHandle, valPtr: @ @Byte): Int;
-    [native("pthread_detach")] fun pthread_detach(handle: NativeThreadHandle): Int;
-    [native("pthread_self")] fun pthread_self: NativeThreadHandle;
+    [native("pthread_create")] fun pthread_create(handle: @NativeThreadHandle, attr: @Byte, f: ThreadFun, arg: @Byte): Int
+    [native("pthread_join")] fun pthread_join(handle: NativeThreadHandle, valPtr: @ @Byte): Int
+    [native("pthread_detach")] fun pthread_detach(handle: NativeThreadHandle): Int
+    [native("pthread_self")] fun pthread_self: NativeThreadHandle
 
-    [native("pthread_threadid_np")] fun pthread_threadid_np(t: NativeThreadHandle, res: @ULong): Int;
+    [native("pthread_threadid_np")] fun pthread_threadid_np(t: NativeThreadHandle, res: @ULong): Int
 
-    [native("sched_yield")] fun sched_yield;
-    [native("nanosleep")] fun nanosleep(req, rem: @TimeSpec): Int;
+    [native("sched_yield")] fun sched_yield
+    [native("nanosleep")] fun nanosleep(req, rem: @TimeSpec): Int
 

@@ -766,7 +766,7 @@ package TypeOp
     [ct]
         [native("$typeDescription")] fun description(t: Type): StringRef
         [native("$typeHasStorage")] fun hasStorage(t: Type): Bool
-        [native("$typeMode")] fun mode(t: Type): Int;    // 0=unspecified, 1=rt, 2=ct
+        [native("$typeMode")] fun mode(t: Type): Int    // 0=unspecified, 1=rt, 2=ct
         [native("$typeCanBeUsedAtRt")] fun canBeUsedAtRt(t: Type): Bool
         [native("$typeNumRef")] fun numRef(t: Type): Int
         [native("$typeChangeMode")] fun changeMode(t: Type, mode: Int): Type
@@ -799,7 +799,7 @@ package TypeOp
 [ct, native("$commonType")] fun commonType(t, u: Type): Type
 
 /// Concept that is satisfied by any type
-concept AnyType(x); // Always true
+concept AnyType(x) // Always true
 
 /// Gets an object of the given type
 fun valueOfType(t: Type): t

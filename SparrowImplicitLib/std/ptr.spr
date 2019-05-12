@@ -35,6 +35,6 @@ datatype Ptr(type: Type)
 
     fun .(this: Ptr) = _ptr
 
-fun mkPtr(v: @AnyType) = Ptr(-@typeOf(v))(v);
+fun mkPtr(v: @AnyType) = Ptr(-@typeOf(v))(v)
 fun reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull()) && isValid(p.get())
     return Ptr(t)(reinterpretCast(@t, ptr.get()))

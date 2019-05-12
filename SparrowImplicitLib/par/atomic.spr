@@ -27,26 +27,26 @@ datatype Atomic(T: Type) if sizeOf(T) <= 8
     fun =(this: @AtomicType, val: this.ValueType) = this store val
 
     //! Loads the value from an atomic; returns a non-atomic value
-    [native("_Atomic_load32")] fun load(this: @AtomicInt): Int;
-    [native("_Atomic_load64")] fun load(this: @AtomicLong): Long;
+    [native("_Atomic_load32")] fun load(this: @AtomicInt): Int
+    [native("_Atomic_load64")] fun load(this: @AtomicLong): Long
     fun load(this: @NonStdAtomicType): ValueType \
         = this._fromUnderlying(this._baseAtomic load)
 
     //! Stores a value inside the given atomic
-    [native("_Atomic_store32")] fun store(this: @AtomicInt, newVal: Int);
-    [native("_Atomic_store64")] fun store(this: @AtomicLong, newVal: Long);
+    [native("_Atomic_store32")] fun store(this: @AtomicInt, newVal: Int)
+    [native("_Atomic_store64")] fun store(this: @AtomicLong, newVal: Long)
     fun store(this: @NonStdAtomicType, newVal: AnyType)
         this._baseAtomic store this._toUnderlying(newVal)
 
     //! Fetches the current value of an atomic, and stores a new value in the atomic
-    [native("_Atomic_fetchAndStore32")] fun fetchAndStore(x: @AtomicInt, newVal: Int): Int;
-    [native("_Atomic_fetchAndStore64")] fun fetchAndStore(x: @AtomicLong, newVal: Long): Long;
+    [native("_Atomic_fetchAndStore32")] fun fetchAndStore(x: @AtomicInt, newVal: Int): Int
+    [native("_Atomic_fetchAndStore64")] fun fetchAndStore(x: @AtomicLong, newVal: Long): Long
     fun fetchAndStore(x: @NonStdAtomicType, newVal: AnyType): x.ValueType \
         = x._fromUnderlying(x._baseAtomic fetchAndStore x._toUnderlying(newVal))
 
     //! Fetch the value of the atomic, and then add the given value to it
-    [native("_Atomic_fetchAndAdd32")] fun fetchAndAdd(x: @AtomicInt, val: Int): Int;
-    [native("_Atomic_fetchAndAdd64")] fun fetchAndAdd(x: @AtomicLong, val: Long): Long;
+    [native("_Atomic_fetchAndAdd32")] fun fetchAndAdd(x: @AtomicInt, val: Int): Int
+    [native("_Atomic_fetchAndAdd64")] fun fetchAndAdd(x: @AtomicLong, val: Long): Long
     fun fetchAndAdd(x: @NonStdAtomicType, val: AnyType): x.ValueType \
         = x._fromUnderlying(x._baseAtomic fetchAndAdd x._toUnderlying(val)) \
         if Integer(#$x.ValueType)
@@ -83,8 +83,8 @@ datatype Atomic(T: Type) if sizeOf(T) <= 8
 
 
 //! Compare the atomic value with the given comparand; if equal store 'newVal' and return true; if not equal returns false
-[native("_Atomic_compareAndSwap32")] fun compareAndSwap(x: @AtomicInt, newVal, comparand: Int): Bool;
-[native("_Atomic_compareAndSwap64")] fun compareAndSwap(x: @AtomicLong, newVal, comparand: Long): Bool;
+[native("_Atomic_compareAndSwap32")] fun compareAndSwap(x: @AtomicInt, newVal, comparand: Int): Bool
+[native("_Atomic_compareAndSwap64")] fun compareAndSwap(x: @AtomicLong, newVal, comparand: Long): Bool
 fun compareAndSwap(x: @NonStdAtomicType, newVal, comparand: AnyType): Bool \
     = compareAndSwap(x._baseAtomic, x._toUnderlying(newVal), x._toUnderlying(comparand))
 

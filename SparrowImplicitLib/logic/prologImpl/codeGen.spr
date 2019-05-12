@@ -1,30 +1,27 @@
-import nodes;
-import location;
-import ir;
-package meta {
+import nodes
+import location
+import ir
+package meta 
     import meta.sparrowNodes, meta.featherNodes, meta.compiler;
-}
 
-[ct] fun genProlog(sps: @SparrowPrologSystem): meta.AstNode = Impl.genPrologSystem(sps);
+[ct] fun genProlog(sps: @SparrowPrologSystem): meta.AstNode = Impl.genPrologSystem(sps)
 
 package Impl
-{
-    using meta.AstNode;
-    using meta.Location;
+    using meta.AstNode
+    using meta.Location
 
-    [ct] var nullNode: AstNode;
+    [ct] var nullNode: AstNode
 
 
     [ct] fun genPrologSystem(sps: @SparrowPrologSystem): AstNode
-    {
-        var l = sps.loc;
-        var resNodes: Vector(AstNode);
-        resNodes.reserve(3 * sps.predicates.size() + 3);
+        var l = sps.loc
+        var resNodes: Vector(AstNode)
+        resNodes.reserve(3 * sps.predicates.size() + 3)
 
         // Add the import nodes
-        resNodes += mkImportName(l, mkStringLiteral(l, "logic/lRef.spr"), nullNode, "");
-        resNodes += mkImportName(l, mkStringLiteral(l, "logic/predicates.spr"), nullNode, "");
-        resNodes += mkImportName(l, mkStringLiteral(l, "logic/recurse.spr"), nullNode, "");
+        resNodes += mkImportName(l, mkStringLiteral(l, "logic/lRef.spr"), nullNode, "")
+        resNodes += mkImportName(l, mkStringLiteral(l, "logic/predicates.spr"), nullNode, "")
+        resNodes += mkImportName(l, mkStringLiteral(l, "logic/recurse.spr"), nullNode, "")
 
         // Generate code for the predicates
         for p: @SparrowPredicate = sps.predicates.all()
@@ -33,170 +30,137 @@ package Impl
         //    cout << ">> " << n.toStringExt() << endl;
 
         return mkNodeList(l, resNodes.all);
-    }
 
     [ct] fun genPredicate(pred: @SparrowPredicate, resNodes: @Vector(AstNode))
-    {
-        var genNative = allowNativeCodeGen && pred.canBeNative;
+        var genNative = allowNativeCodeGen && pred.canBeNative
 
-        var locPred = pred.firstClause.get().loc;
+        var locPred = pred.firstClause.get().loc
 
         // Generate nodes for parameters and return type
-        var paramsNode = genParameters(pred, genNative);
+        var paramsNode = genParameters(pred, genNative)
         var returnType = (
             ife(genNative
             , mkIdentifier(locPred, "Bool")
             , mkIdentifier(locPred, "Predicate"))
-        );
+        )
 
-        var bodyNodes: Vector(AstNode);
+        var bodyNodes: Vector(AstNode)
 
         // Add local variables to body nodes
         for lv: @ExpressionPtr = pred.localVars.all()
-        {
-            var locVar = lv.get().loc;
-            var typeName = getTypeName(pred, lv.get(), false, genNative);
-            var init = nullNode;
+            var locVar = lv.get().loc
+            var typeName = getTypeName(pred, lv.get(), false, genNative)
+            var init = nullNode
             if ( genNative )
-            {
                 // Don't initialize native integers
-                var typeSet: @LTypeSet = pred.typeSets(lv.get().typeSetIdx);
+                var typeSet: @LTypeSet = pred.typeSets(lv.get().typeSetIdx)
                 if ( typeSet.type.isNumberOnly() )
                     init = mkFunApplication(locVar, mkIdentifier(locVar, "Uninitialized"), nullNode);
-            }
-            bodyNodes.pushBack(mkSprVariable(locVar, lv.get().data.asStringRef(), typeName, init));
-        }
+            bodyNodes.pushBack(mkSprVariable(locVar, lv.get().data.asStringRef(), typeName, init))
 
         // Add the main logic as a disjunction of all the clauses
-        var logicNode: AstNode;
+        var logicNode: AstNode
         for clause: @PredicateClausePtr = pred.clauses.all()
-        {
-            var clauseNode = genClause(pred, clause.get());
+            var clauseNode = genClause(pred, clause.get())
             if ( clauseNode isSet )
-            {
                 if ( logicNode isNull )
                     logicNode = clauseNode;
                 else
                     logicNode = mkInfixOp(logicNode location, "||", logicNode, clauseNode);
-            }
-        }
+            ;
         //var logicNode = mkFunApplication(locPred, mkIdentifier(locPred, "mkTrue"), nullNode);
-        bodyNodes.pushBack(mkReturnStmt(locPred, logicNode));
+        bodyNodes.pushBack(mkReturnStmt(locPred, logicNode))
 
         // Finally create the function node
-        var body = mkLocalSpace(locPred, bodyNodes.all);
-        var funName = pred.name;
+        var body = mkLocalSpace(locPred, bodyNodes.all)
+        var funName = pred.name
         if ( genNative )
             funName += "_native";
-        var res = mkSprFunction(locPred, funName.asStringRef(), paramsNode, returnType, body, nullNode);
-        resNodes.pushBack(res);
+        var res = mkSprFunction(locPred, funName.asStringRef(), paramsNode, returnType, body, nullNode)
+        resNodes.pushBack(res)
 
         if ( genNative )
-        {
-            resNodes.pushBack(genWrapperClass(pred));
-            resNodes.pushBack(genWrapperPredicate(pred));
-        }
-    }
+            resNodes.pushBack(genWrapperClass(pred))
+            resNodes.pushBack(genWrapperPredicate(pred))
+        ;
 
     [ct] fun genParameters(pred: @SparrowPredicate, genNative: Bool): AstNode
-    {
-        var locPred = pred.firstClause.get().loc;
-        var params = mkNodeList(locPred, AstNodeRange(), true);
+        var locPred = pred.firstClause.get().loc
+        var params = mkNodeList(locPred, AstNodeRange(), true)
         for i = 0..pred.paramVars.size()
-        {
-            var param: @Parameter = pred.paramVars(i);
-            var p: @Expression = param.expr.get();
-            var locParam = p.loc;
-            var paramName = String("p_") + intToString(Int(i+1));
-            var isRef = !genNative || param.isOutput;
-            var typeName = getTypeName(pred, p, isRef, genNative);
-            addToNodeList(params, mkSprParameter(locParam, paramName.asStringRef(), typeName, nullNode));
-        }
-        return params;
-    }
+            var param: @Parameter = pred.paramVars(i)
+            var p: @Expression = param.expr.get()
+            var locParam = p.loc
+            var paramName = String("p_") + intToString(Int(i+1))
+            var isRef = !genNative || param.isOutput
+            var typeName = getTypeName(pred, p, isRef, genNative)
+            addToNodeList(params, mkSprParameter(locParam, paramName.asStringRef(), typeName, nullNode))
+        return params
 
     [ct] fun genClause(pred: @SparrowPredicate, clause: @PredicateClause): AstNode
-    {
-        var res = nullNode;
-        res = genBoundArgs(pred, clause);
-        res = genConditions(pred, clause, res);
+        var res = nullNode
+        res = genBoundArgs(pred, clause)
+        res = genConditions(pred, clause, res)
         if ( res isNull )
-        {
-            var loc = clause.loc;
-            res = mkFunApplication(loc, mkIdentifier(loc, "mkTrue"), nullNode);
-        }
-        return res;
-    }
+            var loc = clause.loc
+            res = mkFunApplication(loc, mkIdentifier(loc, "mkTrue"), nullNode)
+        return res
 
     [ct] fun genBoundArgs(pred: @SparrowPredicate, clause: @PredicateClause): AstNode
-    {
-        var genNative = allowNativeCodeGen && pred.canBeNative;
+        var genNative = allowNativeCodeGen && pred.canBeNative
 
-        var res = nullNode;
+        var res = nullNode
         for i = 0..clause.args.size()
-        {
-            var arg: @ExpressionPtr = clause.args(i);
+            var arg: @ExpressionPtr = clause.args(i)
             if ( arg.isSet() && arg.get().kind != ekVar )
-            {
-                var loc = arg.get().loc;
-                var name = String("p_") + intToString(Int(i+1));
-                var argName = mkIdentifier(loc, name.asStringRef());
-                var argValue = genExpr(pred, arg.get());
+                var loc = arg.get().loc
+                var name = String("p_") + intToString(Int(i+1))
+                var argName = mkIdentifier(loc, name.asStringRef())
+                var argValue = genExpr(pred, arg.get())
 
-                var idx = arg.get().paramIdx;
-                assert(idx >= 0);
-                var param: @Parameter = pred.paramVars(idx);
-                var oper: String;
+                var idx = arg.get().paramIdx
+                assert(idx >= 0)
+                var param: @Parameter = pred.paramVars(idx)
+                var oper: String
                 if ( genNative && param.isInput )
                     oper = "==";
                 else if ( genNative && param.isOutput )
                     oper = "=/";
                 else
                     oper = "/=/";
-                var thisCond = mkInfixOp(loc, oper.asStringRef(), argName, argValue);
+                var thisCond = mkInfixOp(loc, oper.asStringRef(), argName, argValue)
 
-                res = chainConditions(loc, res, thisCond);
-            }
-        }
-        return res;
-    }
+                res = chainConditions(loc, res, thisCond)
+            ;
+        return res
 
     [ct] fun genConditions(pred: @SparrowPredicate, clause: @PredicateClause, prevCond: AstNode): AstNode
-    {
         for cond: @ConditionPtr = clause.conditions.all()
-        {
-            var thisCond = nullNode;
+            var thisCond = nullNode
             if ( cond.get().kind == ckPredCall )
                 thisCond = genPredCall(pred, clause, cond.get());
             else
                 thisCond = genIsExpr(pred, clause, cond.get());
 
             prevCond = chainConditions(cond.get().loc, prevCond, thisCond);
-        }
-        return prevCond;
-    }
+        return prevCond
 
     [ct] fun chainConditions(loc: @Location, prev, cur: AstNode): AstNode
-    {
         if ( cur isSet )
-        {
             if ( prev isNull )
                 prev = cur;
             else
                 prev = mkInfixOp(loc, "&&", prev, cur);
-        }
-        return prev;
-    }
+        return prev
 
     [ct] fun genPredCall(pred: @SparrowPredicate, clause: @PredicateClause, predCall: @Condition): AstNode
-    {
-        var loc = predCall.loc;
+        var loc = predCall.loc
 
-        var genNative = allowNativeCodeGen && pred.canBeNative;
-        var isRecursive = predCall.predName == clause.name;
+        var genNative = allowNativeCodeGen && pred.canBeNative
+        var isRecursive = predCall.predName == clause.name
 
-        var argsAst = mkNodeList(loc, AstNodeRange(), true);
-        var size = predCall.args.size();
+        var argsAst = mkNodeList(loc, AstNodeRange(), true)
+        var size = predCall.args.size()
         if ( isRecursive && !genNative )
             ++size;
         if ( isRecursive && !genNative )
@@ -204,32 +168,26 @@ package Impl
         for arg: @ExpressionPtr = predCall.args.all()
             addToNodeList(argsAst, genExpr(pred, arg.get()) );
 
-        var funName: AstNode;
+        var funName: AstNode
         if ( isRecursive )
-        {
             if ( genNative )
                 funName = mkIdentifier(loc, predCall.predName.asStringRef() + "_native");
             else
                 funName = mkIdentifier(loc, "rec");
-        }
         else
             funName = mkIdentifier(loc, predCall.predName.asStringRef());
         return mkFunApplication(loc, funName, argsAst);
-    }
 
     [ct] fun genIsExpr(pred: @SparrowPredicate, clause: @PredicateClause, isExpr: @Condition): AstNode
-    {
-        var genNative = allowNativeCodeGen && pred.canBeNative;
-        var op = ife(genNative, "=/", "/=/");
+        var genNative = allowNativeCodeGen && pred.canBeNative
+        var op = ife(genNative, "=/", "/=/")
         return mkInfixOp(isExpr.loc, op,
             genExpr(pred, isExpr.args(0).get()),
-            genExpr(pred, isExpr.args(1).get()));
-    }
+            genExpr(pred, isExpr.args(1).get()))
 
     [ct] fun genExpr(pred: @SparrowPredicate, expr: @Expression): AstNode
-    {
-        var genNative = allowNativeCodeGen && pred.canBeNative;
-        var loc = expr.loc;
+        var genNative = allowNativeCodeGen && pred.canBeNative
+        var loc = expr.loc
         if ( expr.kind == ekAtom )
             return mkStringLiteral(loc, expr.data.asStringRef());
         if ( expr.kind == ekNumber )
@@ -246,12 +204,10 @@ package Impl
             return mkInfixOp(loc, ife(genNative, "*", "|*|"), genExpr(pred, expr.left.get()), genExpr(pred, expr.right.get()));
         if ( expr.kind == ekOpDiv )
             return mkInfixOp(loc, ife(genNative, "/", "|/|"), genExpr(pred, expr.left.get()), genExpr(pred, expr.right.get()));
-        assert("Invalid expression kind while generating code" != "");
-        return nullNode;
-    }
+        assert("Invalid expression kind while generating code" != "")
+        return nullNode
 
     [ct] fun generateNodeForSparrowExp(loc: meta.Location, exp: @String): AstNode
-    {
         return meta.parseSprExpression(loc, exp.asStringRef());
         //var sz = exp.size();
         //if ( sz == 0 )
@@ -262,166 +218,136 @@ package Impl
         //    return mkFunApplication(loc, mkIdentifier(loc, String(exp.subrange(0, sz-2)).asStringRef()), nullNode);
 
         //return mkIdentifier(loc, exp.asStringRef());
-    }
 
     [ct] fun getTypeName(pred: @SparrowPredicate, expr: @Expression, addRef: Bool, genNative: Bool): AstNode
-    {
-        assert(expr.typeSetIdx >= 0);
-        var typeSet: @LTypeSet = pred.typeSets(expr.typeSetIdx);
-        var str: StringRef;
+        assert(expr.typeSetIdx >= 0)
+        var typeSet: @LTypeSet = pred.typeSets(expr.typeSetIdx)
+        var str: StringRef
         if ( typeSet.type.isNumberOnly() )
             str = ife(genNative, "Int", "LInt");
         else
             str = ife(genNative, "String", "LStr");
-        var loc = expr.loc;
+        var loc = expr.loc
         //cout << "TypeName: " << str << " for " << expr << " with type=" << typeSet.type.bits << endl << flush;
-        var res = ife(genNative, mkIdentifier(loc, str), mkIdentifier(loc, str));
+        var res = ife(genNative, mkIdentifier(loc, str), mkIdentifier(loc, str))
         if ( addRef )
             res = mkPrefixOp(loc, "@", res);
         return res;
-    }
 
     [ct] fun genWrapperClass(pred: @SparrowPredicate): AstNode
-    {
-        var loc = pred.firstClause.get().loc;
+        var loc = pred.firstClause.get().loc
 
-        var children = mkNodeList(loc, AstNodeRange(), true);
+        var children = mkNodeList(loc, AstNodeRange(), true)
         if ( pred.arity > 0 )
-        {
-            genWrapperClassVars(pred, children);
-            addToNodeList(children, genWrapperClassCtor(pred));
-        }
-        addToNodeList(children, genWrapperClassCallOper(pred));
+            genWrapperClassVars(pred, children)
+            addToNodeList(children, genWrapperClassCtor(pred))
+        addToNodeList(children, genWrapperClassCallOper(pred))
 
-        var clsName = pred.name + "_pred_wrapper";
-        return mkSprDatatype(loc, clsName.asStringRef(), nullNode, nullNode, nullNode, children);
-    }
+        var clsName = pred.name + "_pred_wrapper"
+        return mkSprDatatype(loc, clsName.asStringRef(), nullNode, nullNode, nullNode, children)
 
     [ct] fun genWrapperClassVars(pred: @SparrowPredicate, classChildren: @AstNode)
-    {
         for i = 0..pred.paramVars.size()
-        {
-            var pe: @Expression = pred.paramVars(i).expr.get();
-            var paramName = String("p_") + intToString(Int(i+1));
-            var locVar = pe.loc;
-            var typeName = getTypeName(pred,pe, false, false);
-            addToNodeList(classChildren, mkSprVariable(locVar, paramName.asStringRef(), typeName, nullNode));
-        }
-    }
+            var pe: @Expression = pred.paramVars(i).expr.get()
+            var paramName = String("p_") + intToString(Int(i+1))
+            var locVar = pe.loc
+            var typeName = getTypeName(pred,pe, false, false)
+            addToNodeList(classChildren, mkSprVariable(locVar, paramName.asStringRef(), typeName, nullNode))
+        ;
     [ct] fun genWrapperClassCtor(pred: @SparrowPredicate): AstNode
-    {
-        var loc = pred.firstClause.get().loc;
+        var loc = pred.firstClause.get().loc
 
         // Create the body
-        var bodyNodes: Vector(AstNode);
-        bodyNodes.reserve(pred.arity);
+        var bodyNodes: Vector(AstNode)
+        bodyNodes.reserve(pred.arity)
         for i = 0..pred.paramVars.size()
-        {
-            var pe: @Expression = pred.paramVars(i).expr.get();
-            var locParam = pe.loc;
-            var paramName = String("p_") + intToString(Int(i+1));
-            var left = mkCompoundExp(locParam, mkIdentifier(locParam, "this"), paramName.asStringRef());
-            var right = mkIdentifier(locParam, paramName.asStringRef());
-            bodyNodes.pushBack(mkInfixOp(locParam, "ctor", left, right));
-        }
-        var body = mkLocalSpace(loc, bodyNodes.all);
+            var pe: @Expression = pred.paramVars(i).expr.get()
+            var locParam = pe.loc
+            var paramName = String("p_") + intToString(Int(i+1))
+            var left = mkCompoundExp(locParam, mkIdentifier(locParam, "this"), paramName.asStringRef())
+            var right = mkIdentifier(locParam, paramName.asStringRef())
+            bodyNodes.pushBack(mkInfixOp(locParam, "ctor", left, right))
+        var body = mkLocalSpace(loc, bodyNodes.all)
 
         // Finally create the function node
-        var paramsNode = genParameters(pred, false);
-        return mkSprFunction(loc, "ctor", paramsNode, nullNode, body, nullNode);
-    }
+        var paramsNode = genParameters(pred, false)
+        return mkSprFunction(loc, "ctor", paramsNode, nullNode, body, nullNode)
     [ct] fun genWrapperClassCallOper(pred: @SparrowPredicate): AstNode
-    {
-        var loc = pred.firstClause.get().loc;
-        var bodyNodes: Vector(AstNode);
-        bodyNodes.reserve(pred.arity + 1);
+        var loc = pred.firstClause.get().loc
+        var bodyNodes: Vector(AstNode)
+        bodyNodes.reserve(pred.arity + 1)
 
         // Checks for the input parameters
-        var inputChecks = nullNode;
+        var inputChecks = nullNode
         for i = 0..pred.paramVars.size()
-        {
-            var p: @Parameter = pred.paramVars(i);
+            var p: @Parameter = pred.paramVars(i)
             if ( p.isInput )
-            {
-                var pe: @Expression = p.expr.get();
-                var locParam = pe.loc;
-                var paramName = String("p_") + intToString(Int(i+1));
+                var pe: @Expression = p.expr.get()
+                var locParam = pe.loc
+                var paramName = String("p_") + intToString(Int(i+1))
 
-                var callFn = mkCompoundExp(locParam, mkIdentifier(locParam, paramName.asStringRef()), "isNull");
-                var call = mkFunApplication(locParam, callFn, nullNode);
+                var callFn = mkCompoundExp(locParam, mkIdentifier(locParam, paramName.asStringRef()), "isNull")
+                var call = mkFunApplication(locParam, callFn, nullNode)
 
                 if ( inputChecks isNull )
                     inputChecks = call;
                 else
                     inputChecks = mkInfixOp(locParam, "||", inputChecks, call);
-            }
-        }
+            ;
         if ( inputChecks isSet )
-        {
-            var thenClause = mkReturnStmt(loc, mkBoolLiteral(loc, false));
-            var ifStmt = mkIf(loc, inputChecks, thenClause, nullNode);
-            bodyNodes.pushBack(ifStmt);
-        }
+            var thenClause = mkReturnStmt(loc, mkBoolLiteral(loc, false))
+            var ifStmt = mkIf(loc, inputChecks, thenClause, nullNode)
+            bodyNodes.pushBack(ifStmt)
 
         // Create some values for the output parameters
         for i = 0..pred.paramVars.size()
-        {
-            var p: @Parameter = pred.paramVars(i);
+            var p: @Parameter = pred.paramVars(i)
             if ( p.isOutput )
-            {
-                var pe: @Expression = p.expr.get();
-                var locParam = pe.loc;
-                var paramName = String("p_") + intToString(Int(i+1));
+                var pe: @Expression = p.expr.get()
+                var locParam = pe.loc
+                var paramName = String("p_") + intToString(Int(i+1))
 
-                var paramId = mkIdentifier(locParam, paramName.asStringRef());
-                var ctorCall = mkFunApplication(locParam, getTypeName(pred, pe, false, true), nullNode);
-                var valSet = mkInfixOp(locParam, "=", paramId, ctorCall);
-                bodyNodes.pushBack(valSet);
-            }
-        }
+                var paramId = mkIdentifier(locParam, paramName.asStringRef())
+                var ctorCall = mkFunApplication(locParam, getTypeName(pred, pe, false, true), nullNode)
+                var valSet = mkInfixOp(locParam, "=", paramId, ctorCall)
+                bodyNodes.pushBack(valSet)
+            ;
 
         // The call to the native function
-        var callArgsNode = mkNodeList(loc, AstNodeRange(), true);
+        var callArgsNode = mkNodeList(loc, AstNodeRange(), true)
         for i = 0..pred.paramVars.size()
-        {
-            var p: @Parameter = pred.paramVars(i);
-            var pe: @Expression = p.expr.get();
-            var locParam = pe.loc;
-            var paramName = String("p_") + intToString(Int(i+1));
+            var p: @Parameter = pred.paramVars(i)
+            var pe: @Expression = p.expr.get()
+            var locParam = pe.loc
+            var paramName = String("p_") + intToString(Int(i+1))
 
-            var paramId = mkIdentifier(locParam, paramName.asStringRef());
-            var getName = mkCompoundExp(locParam, paramId, "get");
-            var getCall = mkFunApplication(locParam, getName, nullNode);
-            addToNodeList(callArgsNode, getCall);
-        }
-        var nativeFunName = mkIdentifier(loc, (pred.name + "_native").asStringRef());
-        var nativeFunCall = mkFunApplication(loc, nativeFunName, callArgsNode);
-        bodyNodes.pushBack(mkReturnStmt(loc, nativeFunCall));
+            var paramId = mkIdentifier(locParam, paramName.asStringRef())
+            var getName = mkCompoundExp(locParam, paramId, "get")
+            var getCall = mkFunApplication(locParam, getName, nullNode)
+            addToNodeList(callArgsNode, getCall)
+        var nativeFunName = mkIdentifier(loc, (pred.name + "_native").asStringRef())
+        var nativeFunCall = mkFunApplication(loc, nativeFunName, callArgsNode)
+        bodyNodes.pushBack(mkReturnStmt(loc, nativeFunCall))
 
         // Finally create the function node
-        var body = mkLocalSpace(loc, bodyNodes.all);
-        var returnType = mkIdentifier(loc, "Bool");
-        return mkSprFunction(loc, "()", nullNode, returnType, body, nullNode);
-    }
+        var body = mkLocalSpace(loc, bodyNodes.all)
+        var returnType = mkIdentifier(loc, "Bool")
+        return mkSprFunction(loc, "()", nullNode, returnType, body, nullNode)
     [ct] fun genWrapperPredicate(pred: @SparrowPredicate): AstNode
-    {
-        var loc = pred.firstClause.get().loc;
+        var loc = pred.firstClause.get().loc
 
         // Create the function application to call the predicate wrapper ctor
-        var argsAst = mkNodeList(loc, AstNodeRange(), true);
+        var argsAst = mkNodeList(loc, AstNodeRange(), true)
         for i = 0..pred.paramVars.size()
-        {
-            var p: @Expression = pred.paramVars(i).expr.get();
-            var locParam = p.loc;
-            var paramName = String("p_") + intToString(Int(i+1));
-            addToNodeList(argsAst, mkIdentifier(locParam, paramName.asStringRef()));
-        }
-        var funName = mkIdentifier(loc, pred.name.asStringRef() + "_pred_wrapper");
-        var bodyExp = mkFunApplication(loc, funName, argsAst);
+            var p: @Expression = pred.paramVars(i).expr.get()
+            var locParam = p.loc
+            var paramName = String("p_") + intToString(Int(i+1))
+            addToNodeList(argsAst, mkIdentifier(locParam, paramName.asStringRef()))
+        var funName = mkIdentifier(loc, pred.name.asStringRef() + "_pred_wrapper")
+        var bodyExp = mkFunApplication(loc, funName, argsAst)
 
         // Finally create the function node
-        var paramsNode = genParameters(pred, false);
-        var returnType = mkIdentifier(loc, "Predicate");
-        return mkSprFunctionExp(loc, pred.name.asStringRef(), paramsNode, returnType, bodyExp, nullNode);
-    }
-}
+        var paramsNode = genParameters(pred, false)
+        var returnType = mkIdentifier(loc, "Predicate")
+        return mkSprFunctionExp(loc, pred.name.asStringRef(), paramsNode, returnType, bodyExp, nullNode)
+    ;

@@ -20,13 +20,13 @@ import time = time
     var sourceStr: meta.AstNode = sourceString
     [ct] if ( (sourceString nodeKind) != meta.nkSparrowExpLiteral )
         meta.report("compileProlog should take a string literal as argument", (sourceStr location));
+        return CompilerAstNode()
     else
         sourceStr semanticCheck
         var loc = sourceStr location
         var ctx = sourceStr context
         var str: String = astEval(sourceString clone)
         return handlePrologCode(str, loc, ctx)
-    ;
 
 [ct] fun handlePrologCode(code: @String, location: meta.Location, context: meta.CompilationContext): meta.AstNode
     //cout << "(" << location.startLineNo << ":" << location.startColNo << " - " << location.endLineNo << ":" << location.endColNo << ')' << endl << flush;

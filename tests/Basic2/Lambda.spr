@@ -5,7 +5,7 @@ fun fact(n: Int): Int
     else return n*fact(n-1)
 
 datatype FactFun
-    
+
 fun ()(this: FactFun, n: Int) = fact(n)
 
 fun doCall(f: AnyType, val: Int): Int
@@ -89,6 +89,7 @@ datatype Foo
 
 fun getVector(): Foo
     var v = Foo(10)
+    return v
 
 fun testVector(f: AnyType)
     var v = f()

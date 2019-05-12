@@ -2,6 +2,7 @@
 import formatDetails.sourceData
 import transforms.emptyTransform, transforms.defaultFormat, transforms.refToMut
 import transforms.useLayout, transforms.removeEolSemicolons
+import checks.returnStmt
 
 import os
 
@@ -16,7 +17,8 @@ fun sprMain
     var filename = ''
 
     var inPlace = false
-    var transforms: Transforms
+    var doPrintAst = false
+    var transforms, checks: Transforms
 
     for i=1..programArgs.size
         var arg = programArgs(i)
@@ -24,9 +26,16 @@ fun sprMain
         if arg == '-format'
             transforms += \useLayoutFormatter
             transforms += \removeEolSemicolons
+        else if arg == '-f=layout'
+            transforms += \useLayoutFormatter
+            transforms += \removeEolSemicolons
         else if arg == '-f=empty'       ; transforms += \emptyTransform
         else if arg == '-f=ref-to-mut'  ; transforms += \refToMut
         else if arg == '-i'             ; inPlace = true
+        else if arg == '-check'
+            checks += \checkReturnInFunctions
+        else if arg == '-c=return'      ; checks += \checkReturnInFunctions
+        else if arg == '-printAst'      ; doPrintAst = true
         else if arg.size > 0 && arg(0) == '-'.char
             // This looks like a flag, but we don't recognize it
             _printArgsError(toString('invalid argument: "', arg, '"').asStringRef)
@@ -40,8 +49,6 @@ fun sprMain
         // No filename?
         _printArgsError('no filename given')
 
-    // TODO -c == check
-
     // Load the source data
     var sourceData: SourceData
     sourceData load filename
@@ -49,15 +56,24 @@ fun sprMain
     // Check the regions in which we should disable reformatting
     _checkDisableFormatting(sourceData)
 
+    if doPrintAst
+        sourceData.rootNode printAst
+        return
+
+    // Perform all the checks
+    for trFun = checks.all
+        trFun(sourceData)
+
     // Transform the tokens
     for trFun = transforms.all
         trFun(sourceData)
 
-    // Write the output
-    if inPlace
-        sourceData.tokens _writeToFile filename
-    else
-        sourceData.tokens _writeToStdout
+    if !transforms.isEmpty
+        // Write the output
+        if inPlace
+            sourceData.tokens _writeToFile filename
+        else
+            sourceData.tokens _writeToStdout
 
 fun _printArgsError(msg: StringRef)
     cout << 'ERROR: Invalid arguments passed (' << msg << ')\n\n' // IGNORE-ERROR for test.py

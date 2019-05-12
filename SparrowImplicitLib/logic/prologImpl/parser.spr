@@ -188,6 +188,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
                 left = mkOpMul(loc, left, right)
             else
                 left = mkOpDiv(loc, left, right)
+        return ExpressionPtr()
 
     fun _parsePlusMinusExpression(this: @Parser): ExpressionPtr
         // Parse left part of the expression
@@ -211,6 +212,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
                 left = mkOpPlus(loc, left, right)
             else
                 left = mkOpMinus(loc, left, right)
+        return ExpressionPtr()
 
     fun _parseSimpleExpression(this: @Parser): ExpressionPtr
         // Accept expression in parenthesis

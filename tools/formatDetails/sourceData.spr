@@ -91,8 +91,8 @@ fun printAst(node: Node, indent: Int = 0)
     cout << (node kind) << ' ' << (node location)
     if !(node name).isEmpty
         cout << ' name:"' << (node name) << '"'
-    if (node parent) isSet
-        cout << ' parent:' << ((node parent) kind)
+    //if (node parent) isSet
+    //    cout << ' parent:' << ((node parent) kind)
     cout << '\n'
     for child = (node children)
         printAst(child, indent+1)

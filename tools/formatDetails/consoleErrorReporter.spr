@@ -16,5 +16,25 @@ fun reportError(loc: @Location, msg: StringRef)
     cout << 'ERROR: ' << msg << '\n'    // IGNORE-ERROR for test.py
     exit(1)
 
+fun reportWarning(loc: @Location, msg: AnyType)
+    if loc.end.line > 1 || loc.end.col > 1
+        cout << loc << ' '
+    cout << 'WARNING: ' << msg << '\n'
+
+fun reportWarning(loc: @Location, m1, m2: AnyType)
+    if loc.end.line > 1 || loc.end.col > 1
+        cout << loc << ' '
+    cout << 'WARNING: ' << m1 << m2 << '\n'
+
+fun reportWarning(loc: @Location, m1, m2, m3: AnyType)
+    if loc.end.line > 1 || loc.end.col > 1
+        cout << loc << ' '
+    cout << 'WARNING: ' << m1 << m2 << m3 << '\n'
+
+fun reportWarning(loc: @Location, m1, m2, m3, m4: AnyType)
+    if loc.end.line > 1 || loc.end.col > 1
+        cout << loc << ' '
+    cout << 'WARNING: ' << m1 << m2 << m3 << m4 << '\n'
+
 fun reportError(this: @ConsoleErrorReporter, loc: @Location, msg: StringRef)
     reportError(loc, msg)

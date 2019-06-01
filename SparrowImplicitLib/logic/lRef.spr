@@ -20,10 +20,8 @@ concept LRefType(x) if (
     && isValid(x.reset(#$x.ValueType))
     )
 
-
 //using logicDebug = 1
 //using logicRefDebug = 1
-
 
 // A logical reference that contains strings
 using LStr = LRef(String)
@@ -39,7 +37,6 @@ fun ctor(this: @ScopeTracer, name: StringRef)
     cout << '<<< ' << name << '\n'
 fun dtor(this: @ScopeTracer)
     cout << '>>> ' << str << '\n'
-
 
 /// A logical reference
 ///
@@ -75,7 +72,6 @@ fun ctor(this, other: @LRef)
     _pptr ctor other._pptr
     [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
         cout << "copy ctor: " << this << "\n"
-
 
 [protected]
     fun dtor(this: @LRef)
@@ -180,7 +176,6 @@ package _Impl
         os << "BinaryOp(left=" << _left << ", right=" << _right << ", " << _oper << ")" << flush
 
     fun mkBinaryOp(l, r: @ValWrapper, oper: Int ct) = BinaryOp(-@typeOf(l), -@typeOf(r), oper)(l, r)
-
 
     fun mkPlusOp(l, r: @ValWrapper) = mkBinaryOp(l, r, _operPlus)
     fun mkMinusOp(l, r: @ValWrapper) = mkBinaryOp(l, r, _operMinus)

@@ -1,60 +1,46 @@
 //!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
 fun assert(b: Bool)
-{
     if ( !b )
-    {
-        write('F'); write('A'); write('I'); writeLn('L');
-    }
-}
+        write('F'); write('A'); write('I'); writeLn('L')
 
 fun fassert(b: Bool)
-{
     if ( ! !b )
-    {
-        write('F'); write('A'); write('I'); writeLn('L');
-    }
-}
+        write('F'); write('A'); write('I'); writeLn('L')
 
 fun isPrime(n: Int): Bool
-{
     if ( n < 2 )
-        return false;
+        return false
     if ( n == 2 )
-        return true;
+        return true
     if ( n % 2 == 0 )
-        return false;
+        return false
 
-    var i: Int;
-    i = 3;
+    var i: Int
+    i = 3
 
-    while i * i <= n ; i = i + 1;
-    {
+    while i * i <= n ; i = i + 1
         if ( n % i == 0 )
-            return false;
-    }
+            return false
 
-    return true;
-}
+    return true
 
 [native("test")] fun test(n: Int)
-{
-    fassert(isPrime(0));
-    fassert(isPrime(1));
-    assert(isPrime(2));
-    assert(isPrime(3));
-    fassert(isPrime(4));
-    assert(isPrime(5));
-    fassert(isPrime(6));
-    assert(isPrime(7));
-    fassert(isPrime(8));
-    fassert(isPrime(9));
-    assert(isPrime(541));
-    assert(isPrime(104729));
-    assert(isPrime(15485863));
-    fassert(isPrime(4972331));
+    fassert(isPrime(0))
+    fassert(isPrime(1))
+    assert(isPrime(2))
+    assert(isPrime(3))
+    fassert(isPrime(4))
+    assert(isPrime(5))
+    fassert(isPrime(6))
+    assert(isPrime(7))
+    fassert(isPrime(8))
+    fassert(isPrime(9))
+    assert(isPrime(541))
+    assert(isPrime(104729))
+    assert(isPrime(15485863))
+    fassert(isPrime(4972331))
 
-    write('O'); writeLn('K');
-}
+    write('O'); writeLn('K')
 
 /*<<<Running()
 OK

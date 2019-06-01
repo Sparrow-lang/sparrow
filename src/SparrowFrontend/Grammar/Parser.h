@@ -2,7 +2,8 @@
 
 namespace SprFrontend {
 struct ParserContext;
-struct Token;
+struct CompilerErrorReporter;
+struct CompilerAstBuilder;
 
 /// The parser for the Sparrow source files
 class Parser {
@@ -20,7 +21,11 @@ public:
     Node* parseExpression();
 
 private:
-    /// The context of the Parser; used for interop with the code in Sparrow
+    //! The error reporter passed to the Sparrow parser code
+    CompilerErrorReporter* errReporter_;
+    //! The AST builder object passed to the Sparrow parser code
+    CompilerAstBuilder* astBuilder_;
+    //! The context of the Parser; used for interop with the code in Sparrow
     ParserContext* ctx_;
 };
 } // namespace SprFrontend

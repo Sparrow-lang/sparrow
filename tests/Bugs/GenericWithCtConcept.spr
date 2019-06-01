@@ -2,7 +2,7 @@
 
 datatype TestData = Int
 
-concept MyConcept(x);
+concept MyConcept(x)
 
 [ct]
 fun getCtData(val: Int): TestData

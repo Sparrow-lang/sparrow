@@ -1,0 +1,18 @@
+import ext
+import os, std.ranges, std.string
+
+//! A char source that reads the content of a file
+datatype FileCharSource
+    _file: File
+
+fun ctor(this: @FileCharSource, filename: StringRef)
+    _file ctor filename
+
+fun isValid(this: @FileCharSource) = _file.isOpen
+
+fun readChars(this: @FileCharSource, dest: @String, numChars: Int)
+    for i = 0..numChars
+        var ch = _file.readChar
+        if _file.isEof
+            break
+        dest += ch

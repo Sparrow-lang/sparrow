@@ -1,7 +1,6 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 datatype A
-    ;
 
 fun ctor(this: @A)
     writeLn("A.ctor")
@@ -18,9 +17,7 @@ fun dtor(this: @A)
 fun =(this, other: @A)
     writeLn("A.=")
 
-
 datatype B
-    ;
 
 fun ctor(this: @B)
     writeLn("B.ctor")
@@ -36,7 +33,6 @@ fun dtor(this: @B)
 
 fun =(this, other: B)
     writeLn("B.=")
-
 
 datatype MyType
     a: A
@@ -65,14 +61,11 @@ fun ctor(this: @MyType, x,y: Double)
 fun dtor(this: @MyType)
     writeLn("MyType.dtor")
 
-
 datatype Empty
-    ;
 
 datatype AlmostEmpty
     a: A
     b: B
-
 
 [native("test")]
 fun test(n: Int)
@@ -94,7 +87,6 @@ fun t1_3
 
 fun t1_4
     let o = MyType(20.0, 21.0)
-
 
 fun test1
     t1_1
@@ -194,5 +186,4 @@ A.dtor
 B.dtor
 A.dtor
 >>>*/
-
 

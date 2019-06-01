@@ -22,7 +22,6 @@ fun ctor(this: @Generic, n: Int)
 fun dtor(this: @Generic)
     cout << "dtor " << _idx << endl
 
-
 fun sprMain
     let v00: Generic(Int, 00) = 999
     let v01: Generic(Int, 01) = 999

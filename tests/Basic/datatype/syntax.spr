@@ -2,11 +2,10 @@
 
 // Test purpose: different syntaxes for declaring datatypes
 
-datatype Empty;
+datatype Empty
 
 datatype Empty2 {}
 datatype Empty3
-    ;
 
 datatype WithFields
     x: Int

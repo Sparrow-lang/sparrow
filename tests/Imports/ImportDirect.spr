@@ -1,11 +1,9 @@
 //!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
-import "HeaderA.spr";
+import "HeaderA.spr"
 
 [native("test")] fun test(n: Int)
-{
-    a = 100;
-    writeLn("Ok");
-}
+    a = 100
+    writeLn("Ok")
 
 /*<<<Running
 Ok

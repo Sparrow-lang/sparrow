@@ -27,7 +27,6 @@ fun isSet(this: @Predicate) = predObj.isSet()
 
 fun ()(this: @Predicate): Bool = predObj()
 
-
 /// Logic equality: equality test + inference
 fun eq(l, r: @AnyType) = _mkEq(mkValOrRef(l), mkValOrRef(r))
 fun /=/(l, r: @AnyType) = _mkEq(mkValOrRef(l), mkValOrRef(r))
@@ -42,8 +41,6 @@ using oper_precedence_=/ = oper_precedence_== + 1
 //setOperPrecedence("/=/", getOperPrecedence("==") + 1)
 //setOperPrecedence("=/", getOperPrecedence("==") + 1)
 
-
-
 /// Logic Disjunction
 fun ||(l, r: @PredicateType) = OrRelation(-@typeOf(l), -@typeOf(r))(l, r)
 
@@ -54,7 +51,6 @@ fun &&(l, r: @PredicateType) = AndRelation(-@typeOf(l), -@typeOf(r))(l, r)
 fun mkFalse = LFalse()
 /// Relation that always returns true
 fun mkTrue = LTrue()
-
 
 datatype UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper(#$rightType)
     using ValueType = Bool
@@ -138,7 +134,6 @@ fun ()(this: @UnifyLR): Bool
         return false
 
 fun _mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r)
-
 
 datatype OrRelation(leftPredicateType, rightPredicateType: Type)
     using ValueType = Bool
@@ -224,8 +219,6 @@ fun ()(this: @AndRelation): Bool
         _coEntryPt = -1
         return false
     return false
-
-
 
 datatype LFalse
     ;

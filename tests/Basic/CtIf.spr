@@ -1,10 +1,10 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-[native("writeLnDouble"), autoCt] fun writeLnDoubleCt(x: Double);
+[native("writeLnDouble"), autoCt] fun writeLnDoubleCt(x: Double)
 
 // Function that can be called only with compile-time arguments
 [ct] fun ctTest(x: Double)
-    writeLnDoubleCt(x);
+    writeLnDoubleCt(x)
 
 [ct] if ( true )
     fun my_f { writeLn("f.1"); }
@@ -17,34 +17,28 @@ else
     fun my_g { writeLn("g.2"); }
 
 [native("test")] fun test(n: Int)
-{
     if ( true )
-        ctTest(1.0);
+        ctTest(1.0)
     else
-        ctTest(2.0);
+        ctTest(2.0)
 
     [ct] if ( true )
-        ctTest(11.0);
+        ctTest(11.0)
     else
-        ctTest(12.0);
+        ctTest(12.0)
     [ct] if ( false )
-        ctTest(21.0);
+        ctTest(21.0)
     else
-        ctTest(22.0);
+        ctTest(22.0)
 
     [ct] if ( true )
-    {
-        writeLn("ok");
-    }
+        writeLn("ok")
     else
-    {
-        writeLn("fail");
-        some error here;
-    }
+        writeLn("fail")
+        some error here
 
-    my_f();
-    my_g();
-}
+    my_f()
+    my_g()
 
 /*<<<Running()
 ok

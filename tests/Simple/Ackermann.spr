@@ -1,41 +1,37 @@
 //!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
 fun ackermann(m, n: Int): Int
-{
     if ( m == 0 )
-        return n + 1;
+        return n + 1
     if ( m > 0 && n == 0 )
-        return ackermann(m - 1, 1);
-    return ackermann(m - 1, ackermann(m, n - 1));
-}
+        return ackermann(m - 1, 1)
+    return ackermann(m - 1, ackermann(m, n - 1))
 
 [native("test")] fun test(n: Int)
-{
-    writeLnInt(ackermann(0, 0));
-    writeLnInt(ackermann(0, 1));
-    writeLnInt(ackermann(0, 2));
-    writeLnInt(ackermann(0, 3));
-    writeLnInt(ackermann(0, 4));
-    write('\n');
-    writeLnInt(ackermann(1, 0));
-    writeLnInt(ackermann(1, 1));
-    writeLnInt(ackermann(1, 2));
-    writeLnInt(ackermann(1, 3));
-    writeLnInt(ackermann(1, 4));
-    write('\n');
-    writeLnInt(ackermann(2, 0));
-    writeLnInt(ackermann(2, 1));
-    writeLnInt(ackermann(2, 2));
-    writeLnInt(ackermann(2, 3));
-    writeLnInt(ackermann(2, 4));
-    write('\n');
-    writeLnInt(ackermann(3, 0));
-    writeLnInt(ackermann(3, 1));
-    writeLnInt(ackermann(3, 2));
-    writeLnInt(ackermann(3, 3));
-    writeLnInt(ackermann(3, 4));
-    write('\n');
-    writeLnInt(ackermann(4, 0));
-}
+    writeLnInt(ackermann(0, 0))
+    writeLnInt(ackermann(0, 1))
+    writeLnInt(ackermann(0, 2))
+    writeLnInt(ackermann(0, 3))
+    writeLnInt(ackermann(0, 4))
+    write('\n')
+    writeLnInt(ackermann(1, 0))
+    writeLnInt(ackermann(1, 1))
+    writeLnInt(ackermann(1, 2))
+    writeLnInt(ackermann(1, 3))
+    writeLnInt(ackermann(1, 4))
+    write('\n')
+    writeLnInt(ackermann(2, 0))
+    writeLnInt(ackermann(2, 1))
+    writeLnInt(ackermann(2, 2))
+    writeLnInt(ackermann(2, 3))
+    writeLnInt(ackermann(2, 4))
+    write('\n')
+    writeLnInt(ackermann(3, 0))
+    writeLnInt(ackermann(3, 1))
+    writeLnInt(ackermann(3, 2))
+    writeLnInt(ackermann(3, 3))
+    writeLnInt(ackermann(3, 4))
+    write('\n')
+    writeLnInt(ackermann(4, 0))
 
 /*<<<Running()
 1

@@ -19,7 +19,6 @@ datatype HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     using _BucketsType = Array(_NodePtr)
     using _TraitsType = traitsType
 
-
     _buckets: _BucketsType
     _guard: _MyGuardNode
     _numElements: SizeType
@@ -311,7 +310,6 @@ fun >> (this: @_Node, os: @OutStream)
 datatype _GuardNode(valueType: Type)
     next: Ptr(_Node(valueType))
 
-
 [initCtor]
 datatype _HashRange(valueType: Type)
     using RetType = @valueType
@@ -323,7 +321,6 @@ datatype _HashRange(valueType: Type)
     fun isEmpty(this: _HashRange)               = _startElem == _endElem
     fun front(this: _HashRange): this.RetType   = _startElem.get().data
     fun popFront(this: @_HashRange)             { _startElem = _startElem.get().next; }
-
 
 var _bucketCounts: StaticArray(SizeType, 31)
 

@@ -2,7 +2,7 @@
 
 // Test purpose: generic datatypes test
 
-concept AnyType(x);
+concept AnyType(x)
 fun ctor(this: @AnyType, nothing: Uninitialized) {}
 
 fun writeLnBool(val: Bool)
@@ -40,7 +40,6 @@ fun Pair2(first, second: AnyType): Pair2(typeOf(first))
     res.data.first construct first
     res.data.second construct second
     return res
-
 
 [native("test")] fun test(n: Int)
     let pi = Pair(Int, 1, 2)

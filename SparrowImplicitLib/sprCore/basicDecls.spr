@@ -11,25 +11,25 @@
     [native("_Type_copy_ctor")] fun ctor(this: @Type, other: Type)
     //fun dtor(this: @Type) {}
 
-[noDefault]
+[noDefault, bitcopiable]
     datatype Uninitialized {}
 
-    [bitcopiable, native("Null")]            datatype Null {}
+    [native("Null")]            datatype Null {}
 
-    [bitcopiable, native("i1")]              datatype Bool {}
-    [bitcopiable, native("i8")]              datatype Byte {}
-    [bitcopiable, convert, native("u8")]     datatype UByte {}
-    [bitcopiable, convert, native("i16")]    datatype Short {}
-    [bitcopiable, convert, native("u16")]    datatype UShort {}
-    [bitcopiable, convert, native("i32")]    datatype Int {}
-    [bitcopiable, convert, native("u32")]    datatype UInt {}
-    [bitcopiable, convert, native("i64")]    datatype Long {}
-    [bitcopiable, convert, native("u64")]    datatype ULong {}
-    [bitcopiable, convert, native("u64")]    datatype SizeType {}
-    [bitcopiable, convert, native("i64")]    datatype DiffType {}
-    [bitcopiable, convert, native("float")]  datatype Float {}
-    [bitcopiable, convert, native("double")] datatype Double {}
-    [bitcopiable, native("i8")]              datatype Char {}
+    [native("i1")]              datatype Bool {}
+    [native("i8")]              datatype Byte {}
+    [convert, native("u8")]     datatype UByte {}
+    [convert, native("i16")]    datatype Short {}
+    [convert, native("u16")]    datatype UShort {}
+    [convert, native("i32")]    datatype Int {}
+    [convert, native("u32")]    datatype UInt {}
+    [convert, native("i64")]    datatype Long {}
+    [convert, native("u64")]    datatype ULong {}
+    [convert, native("u64")]    datatype SizeType {}
+    [convert, native("i64")]    datatype DiffType {}
+    [convert, native("float")]  datatype Float {}
+    [convert, native("double")] datatype Double {}
+    [native("i8")]              datatype Char {}
 
 [protected]
     fun ctor(this: Uninitialized) {}
@@ -306,7 +306,6 @@ concept Number(x)                   \
     || FloatingPointNumber(x)       \
 
 
-
 datatype NumericLimits(t: Type) if t == Byte
     using maxValue = Byte(0x7f)
     using minValue = Byte(0x80)
@@ -380,7 +379,6 @@ using oper_precedence_>>    = 50
 using oper_assoc_=          = -1
 using oper_assoc_:=         = -1
 
-
 ////////////////////////////////////////////////////////////////////////////////
 /// operations on Bool & Char
 ///
@@ -399,7 +397,6 @@ using oper_assoc_:=         = -1
     [native("_Char_opGT")] fun > (x, y: Char): Bool
     [native("_Char_opLE")] fun <= (x, y: Char): Bool
     [native("_Char_opGE")] fun >= (x, y: Char): Bool
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Numeric operations
@@ -616,10 +613,6 @@ using oper_assoc_:=         = -1
     fun post_--(n: @SizeType): SizeType { let old = n; n-=SizeType(1); return old; }
     fun post_--(n: @DiffType): DiffType { let old = n; n-=DiffType(1); return old; }
 
-
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
 /// StringRef
 ///
@@ -653,15 +646,18 @@ datatype StringRef
     fun size(this: @StringRef): SizeType    = ptrDiff(end, begin)
 
     fun front(this: @StringRef): @Char                = reinterpretCast(@Char, begin)
-    fun back(this: @StringRef): @Char                 = reinterpretCast(@Char, ptrAdd(end, -1))
+    fun back(this: @StringRef): @Char                 = reinterpretCast(@Char, ptrSub(end, 1))
     fun ()(this: @StringRef) : @Char                  = reinterpretCast(@Char, begin)
     fun ()(this: @StringRef, index: SizeType): @Char  = reinterpretCast(@Char, ptrAdd(begin, index))
     fun at(this: @StringRef, index: SizeType): @Char  = reinterpretCast(@Char, ptrAdd(begin, index))
 
     fun popFront(this: @StringRef)                { begin := ptrAdd(begin, 1); }
-    fun popBack(this: @StringRef)                 { end := ptrAdd(end, -1); }
+    fun popBack(this: @StringRef)                 { end := ptrSub(end, 1); }
     fun popFront(this: @StringRef, n: SizeType)   { begin := ptrAdd(begin, n); }
-    fun popBack(this: @StringRef, n: SizeType)    { end := ptrAdd(end, -DiffType(n)); }
+    fun popBack(this: @StringRef, n: SizeType)    { end := ptrSub(end, n); }
+
+    fun subrange(this: @StringRef, index: SizeType, num: SizeType): StringRef
+        return StringRef(ptrAdd(begin, index), ptrAdd(begin, index+num))
 
     fun cStr(this: @StringRef): @Char = reinterpretCast(@Char, begin)
 
@@ -738,7 +734,6 @@ fun construct()
     [native("$injectBackendCode")] fun injectBackendCode(code: StringRef)
     [native("$injectBackendCodeCt")] fun injectBackendCodeCt(code: StringRef)
 
-
 /// Type used to represent an untyped pointer
 [bitcopiable]
 datatype UntypedPtr = @Byte
@@ -763,7 +758,7 @@ package TypeOp
     [ct]
         [native("$typeDescription")] fun description(t: Type): StringRef
         [native("$typeHasStorage")] fun hasStorage(t: Type): Bool
-        [native("$typeMode")] fun mode(t: Type): Int;    // 0=unspecified, 1=rt, 2=ct
+        [native("$typeMode")] fun mode(t: Type): Int    // 0=unspecified, 1=rt, 2=ct
         [native("$typeCanBeUsedAtRt")] fun canBeUsedAtRt(t: Type): Bool
         [native("$typeNumRef")] fun numRef(t: Type): Int
         [native("$typeChangeMode")] fun changeMode(t: Type, mode: Int): Type
@@ -801,12 +796,11 @@ package TypeOp
 [ct, native("$commonType")] fun commonType(t, u: Type): Type
 
 /// Concept that is satisfied by any type
-concept AnyType(x); // Always true
+concept AnyType(x) // Always true
 
 /// Gets an object of the given type
 fun valueOfType(t: Type): t
 fun #$(t: Type): t
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Some low-level helper functions
@@ -828,7 +822,6 @@ fun #$(t: Type): t
 [native("strcmp"), autoCt] fun strcmp(lhs, rhs: @Byte): Int
 [native("system")] fun systemNative(x: @Char)
 [native("sleep")] fun sleep(x: Int)
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Range is such a fundamental concept

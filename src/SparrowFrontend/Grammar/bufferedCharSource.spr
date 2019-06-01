@@ -1,0 +1,39 @@
+module sparrowc.spr.grammar.bufferedCharSource
+//! A buffered CharSource and a range on top of it.
+//! Used to generate a Char range from a given CharSource
+
+import ext
+
+using _bufferSize = 4096
+
+datatype BufferedCharSource
+    _src: CharSource    //!< The source from which we read characters
+    _buffer: String     //!< Buffer in which we read characters; striving to keeping it with data
+    _curPos: Int        //!< The current position in _buffer from which we read the current char
+
+fun ctor(this: @BufferedCharSource, src: CharSource)
+    _src ctor src
+    _buffer ctor
+    _buffer reserve _bufferSize
+    _curPos ctor 0
+    this._ensureBufferHasData
+
+fun all(this: @BufferedCharSource) = BufferedCharSourceRange(this)
+
+fun _ensureBufferHasData(this: @BufferedCharSource)
+    if _curPos >= (_buffer size)
+        _buffer clear
+        _curPos = 0
+        _src.readChars(_buffer, _bufferSize)
+
+
+[initCtor]
+datatype BufferedCharSourceRange
+    using RetType = Char
+    _data: @BufferedCharSource
+
+fun isEmpty(this: @BufferedCharSourceRange): Bool = _data._buffer.isEmpty
+fun front(this: @BufferedCharSourceRange): Char   = _data._buffer(_data._curPos)
+fun popFront(this: @BufferedCharSourceRange)
+    _data._curPos++
+    _data._ensureBufferHasData

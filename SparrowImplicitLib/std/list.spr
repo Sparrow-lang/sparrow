@@ -436,7 +436,6 @@ datatype _NodeType(valueType: Type)
     fun popFront(this: @_ListRange)        { _begin = _begin.value().next }
     fun popBack(this: @_ListRange)         { _end = _end.value().prev }
 
-
     fun >>(this: _ListRange, os: @OutStream) if isValid(os << #$valueType)
         var first = true
         var p = _begin

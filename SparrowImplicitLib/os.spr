@@ -6,54 +6,61 @@ import std.string(String)
 fun exit(code: Int)
 
 fun systemCall(cmd: StringRef): Int
-    return _Impl.system(cmd.cStr)
+    return CApi.system(cmd.cStr)
 
-datatype File
-    _handle: @Byte
+datatype File = UntypedPtr
 
 [protected]
     fun ctor(this: @File)
-        _handle := null
-
-    fun ctor(this: @File, handle: @Byte)
-        this._handle := handle
-
+        ;
     fun ctor(this: @File, filename: StringRef, mode: StringRef = "r")
-        this._handle := _Impl.fopen(filename.cStr, mode.cStr)
+        this.data = CApi.fopen(filename.cStr, mode.cStr).data
 
     // Move ctor and operator
     fun ctor(this, other: @File)
-        this._handle := other._handle
-        other._handle := null
+        this.data = other.data
+        other.data = UntypedPtr()
 
     fun dtor(this: @File)
         this.close
 
     fun =(this, other: @File)
-        this._handle := other._handle
-        other._handle := null
+        this.data = other.data
+        other.data = UntypedPtr()
 
 fun openFile(filename: StringRef, mode: StringRef = "r"): File
-    return File(_Impl.fopen(filename.cStr, mode.cStr))
+    return CApi.fopen(filename.cStr, mode.cStr)
 
 fun close(this: @File)
     if this.isOpen
-        _Impl.fclose(_handle)
-    _handle := null
+        CApi.fclose(this)
+    data = UntypedPtr()
 
-fun flush(this: @File)       = ife(this.isOpen, _Impl.fflush(_handle), -1)
+fun flush(this: @File)       = ife(this.isOpen, CApi.fflush(this), -1)
 
-fun isOpen(this: @File)      = _handle !== null
-fun isEof(this: @File)       = 0 != _Impl.feof(_handle)
+fun isOpen(this: @File)      = data != UntypedPtr()
+fun isEof(this: @File)       = 0 != CApi.feof(this)
 
-fun readChar(this: @File): Char = Char(_Impl.fgetc(_handle))
+fun readChar(this: @File): Char = Char(CApi.fgetc(this))
 fun readLine(this: @File): String
     var res: String = 256
-    let cstr: @Char = _Impl.fgets(res(0), 256, _handle)
+    let cstr: @Char = CApi.fgets(res(0), 256, this)
     if cstr === null
         res.clear
     else
         res.resize(cStringLen(cstr))
+    return res
+
+fun write(this: @File, data: StringRef): Int
+    var res: Int = CApi.fwrite(reinterpretCast(@Byte, data.begin), 1, UInt(data.size), this)
+    return res
+
+//! Returns the file size.
+//! Note: as a side effect, seeks the file to the beginning
+fun size(this: @File): Int
+    CApi.fseek(this, 0, CApi.SEEK_END)
+    var res: Int = CApi.ftell(this)
+    CApi.rewind(this)
     return res
 
 fun all(this: @File) = FileRange(this)
@@ -82,13 +89,21 @@ fun ctor(this: @FileRange, file: @File)
         if s._file.isEof
             s._isEmpty = true
 
-package _Impl
+package CApi
     [native("system")]  fun system(x: @Char): Int
 
-    [native("fopen")]   fun fopen(filename, mode: @Char): @Byte
-    [native("fclose")]  fun fclose(handle: @Byte)
-    [native("fflush")]  fun fflush(handle: @Byte): Int
-    [native("feof")]    fun feof(handle: @Byte): Int
-    [native("fgetc")]   fun fgetc(handle: @Byte): Int
-    [native("fgets")]   fun fgets(buffer: @Char, bufSize: Int, handle: @Byte): @Char
-    [native("fread")]   fun fread(buffer: @Byte, size, count: UInt, handle: @Byte): UInt
+    [native("fopen")]   fun fopen(filename, mode: @Char): File
+    [native("fclose")]  fun fclose(file: File)
+    [native("fflush")]  fun fflush(file: File): Int
+    [native("feof")]    fun feof(file: File): Int
+    [native("fgetc")]   fun fgetc(file: File): Int
+    [native("fgets")]   fun fgets(buffer: @Char, bufSize: Int, file: File): @Char
+    [native("fread")]   fun fread(buffer: @Byte, size, count: UInt, file: File): UInt
+    [native("fwrite")]  fun fwrite(buffer: @Byte, size, count: UInt, file: File): UInt
+    [native("fseek")]   fun fseek(file: File, offset: Long, origin: Int)
+    [native("rewind")]  fun rewind(file: File)
+    [native("ftell")]   fun ftell(file: File): Long
+
+    using SEEK_SET = 0
+    using SEEK_CUR = 1
+    using SEEK_END = 2

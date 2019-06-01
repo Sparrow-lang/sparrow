@@ -1,0 +1,100 @@
+//! Defines the node kinds we extract from Sparrow parser.
+module formatTool.formatDetails.nodeKinds
+
+import meta.location
+import std.string
+
+//! An AST node kind; identifies the AST construct
+datatype NodeKind = Int
+
+// The list of all node kinds
+using nkNodeList        = NodeKind(0)
+using nkModifiers       = NodeKind(1)
+using nkModule          = NodeKind(2)
+using nkImportName      = NodeKind(3)
+using nkUsing           = NodeKind(4)
+using nkPackage         = NodeKind(5)
+using nkDatatype        = NodeKind(6)
+using nkField           = NodeKind(7)
+using nkConcept         = NodeKind(8)
+using nkVar             = NodeKind(9)
+using nkParameter       = NodeKind(10)
+using nkFun             = NodeKind(11)
+using nkParenthesisExpr = NodeKind(12)
+using nkPostfixOp       = NodeKind(13)
+using nkInfixOp         = NodeKind(14)
+using nkPrefixOp        = NodeKind(15)
+using nkIdentifier      = NodeKind(16)
+using nkCompoundExpr    = NodeKind(17)
+using nkStarExpr        = NodeKind(18)
+using nkDotExpr         = NodeKind(19)
+using nkFunAppExpr      = NodeKind(20)
+using nkLambdaExpr      = NodeKind(21)
+using nkNullLiteral     = NodeKind(22)
+using nkBoolLiteral     = NodeKind(23)
+using nkIntLiteral      = NodeKind(24)
+using nkUIntLiteral     = NodeKind(25)
+using nkLongLiteral     = NodeKind(26)
+using nkULongLiteral    = NodeKind(27)
+using nkFloatLiteral    = NodeKind(28)
+using nkDoubleLiteral   = NodeKind(29)
+using nkCharLiteral     = NodeKind(30)
+using nkStringLiteral   = NodeKind(31)
+using nkBlockStmt       = NodeKind(32)
+using nkIfStmt          = NodeKind(33)
+using nkForStmt         = NodeKind(34)
+using nkWhileStmt       = NodeKind(35)
+using nkBreakStmt       = NodeKind(36)
+using nkContinueStmt    = NodeKind(37)
+using nkReturnStmt      = NodeKind(38)
+
+// Not actually a node kind; just to represent a null node
+using nkNULL            = NodeKind(255)
+
+fun _asString(nk: NodeKind): StringRef
+    if      nk == nkNodeList        return 'NodeList'
+    else if nk == nkModifiers       return 'Modifiers'
+    else if nk == nkModule          return 'Module'
+    else if nk == nkImportName      return 'ImportName'
+    else if nk == nkUsing           return 'Using'
+    else if nk == nkPackage         return 'Package'
+    else if nk == nkDatatype        return 'Datatype'
+    else if nk == nkField           return 'Field'
+    else if nk == nkConcept         return 'Concept'
+    else if nk == nkVar             return 'Var'
+    else if nk == nkParameter       return 'Parameter'
+    else if nk == nkFun             return 'Fun'
+
+    else if nk == nkParenthesisExpr return 'ParenthesisExpr'
+    else if nk == nkPostfixOp       return 'PostfixOp'
+    else if nk == nkInfixOp         return 'InfixOp'
+    else if nk == nkPrefixOp        return 'PrefixOp'
+    else if nk == nkIdentifier      return 'Identifier'
+    else if nk == nkCompoundExpr    return 'CompoundExpr'
+    else if nk == nkStarExpr        return 'StarExpr'
+    else if nk == nkDotExpr         return 'DotExpr'
+    else if nk == nkFunAppExpr      return 'FunAppExpr'
+    else if nk == nkLambdaExpr      return 'LambdaExpr'
+    else if nk == nkNullLiteral     return 'NullLiteral'
+    else if nk == nkBoolLiteral     return 'BoolLiteral'
+    else if nk == nkIntLiteral      return 'IntLiteral'
+    else if nk == nkUIntLiteral     return 'UIntLiteral'
+    else if nk == nkLongLiteral     return 'LongLiteral'
+    else if nk == nkULongLiteral    return 'ULongLiteral'
+    else if nk == nkFloatLiteral    return 'FloatLiteral'
+    else if nk == nkDoubleLiteral   return 'DoubleLiteral'
+    else if nk == nkCharLiteral     return 'CharLiteral'
+    else if nk == nkStringLiteral   return 'StringLiteral'
+
+    else if nk == nkBlockStmt       return 'BlockStmt'
+    else if nk == nkIfStmt          return 'IfStmt'
+    else if nk == nkForStmt         return 'ForStmt'
+    else if nk == nkWhileStmt       return 'WhileStmt'
+    else if nk == nkBreakStmt       return 'BreakStmt'
+    else if nk == nkContinueStmt    return 'ContinueStmt'
+    else if nk == nkReturnStmt      return 'ReturnStmt'
+    else if nk == nkNULL            return '<null>'
+
+fun >>(nk: NodeKind, os: @OutStream)
+    os << (nk _asString)
+

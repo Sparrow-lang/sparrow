@@ -91,7 +91,6 @@ fun worker(task: @TaskPrefix): @Worker = reinterpretCast(@Worker, task.worker.ge
 fun waitingWorker(task: @TaskPrefix): @Worker = reinterpretCast(@Worker, task.waitingWorker.get())
 fun setWaitingWorker(task: @TaskPrefix, w: @Worker) { task.waitingWorker = reinterpretCast(@Byte, w); }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // TaskSystem datatype
 
@@ -159,7 +158,6 @@ fun onTaskAvailable(ts: @TaskSystem)
 
 //! Get the number of currently available workers
 fun numAvailableWorkers(ts: @TaskSystem): SizeType = (ts.workers size) - (ts.idleCounter numIdleWorkers)
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // InternalWorkerThread datatype

@@ -1,0 +1,10 @@
+module formatTool.transforms.defaultFormat
+
+import formatDetails.sourceData
+
+fun defaultFormat(src: @SourceData)
+    for token: @TokenData = src.tokens.all
+        if !token.canFormat
+            continue
+        if token.type == tkWHITESPACE && token.content.size > 2 && token.loc.start.col > 1
+            token.content = " "

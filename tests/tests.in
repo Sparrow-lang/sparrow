@@ -19,6 +19,7 @@ StdLib/TupleTest.spr:                   Std.Tuple
 StdLib/StringOperators.spr:             Std.String (StringRef not String)
 StdLib/FunTest.spr:                     Std.Function
 StdLib/AssertTest.spr:                  Assert
+StdLib/UnionTest.spr:                   Std.Union
 
 BenchmarkGame/nbody.spr:                Benchmark game - nbody
 BenchmarkGame/fannkuchredux.spr:        Benchmark game - fannkuchredux
@@ -168,5 +169,7 @@ Frontend/Identifiers.spr:               Frontend - identifiers
 Frontend/Operators.spr:                 Frontend - operators
 Frontend/PrefixPostfix.spr:             Frontend - prefix & postfix operators
 Frontend/StringAndDsl.spr:              Frontend - string and DSL
+Frontend/parserTest.spr:                Frontend - Parser test
 
-# ../src/SparrowFrontend/Grammar/parserTest.spr:  Sparrow parser test
+../tools/formatTool.spr:                Tools - Format tool
+

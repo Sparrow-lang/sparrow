@@ -10,7 +10,6 @@ concept Partitioner(x) \
     && isValid(x.partStart()) \
     && isValid(x.partition(valueOfType(x.RangeType), 0))
 
-
 fun parFor(r: Range, f: AnyType) if isValid(f(r.front()))
     Impl.parFor(r, f, DefaultPartitioner(typeOf(r))())
 
@@ -46,7 +45,6 @@ datatype BoundedRange(baseRangeType: Type)
 
     using RetType = baseRangeType.RetType
     using _RangeType = baseRangeType
-
 
 fun ctor(this: @BoundedRange, r: @this._RangeType)
     _baseRange ctor r

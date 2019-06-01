@@ -35,7 +35,6 @@ fun ctor(this: @Token, loc: @Location, type: Int, data: @String)
     this.type ctor type
     this.data ctor data
 
-
 fun >>(this: @Token, os: @OutStream)
     if type == tkEof
         os << "<eof>"

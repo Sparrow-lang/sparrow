@@ -1,6 +1,6 @@
 module sparrowc.spr.grammar.scanner
 
-import parserDefs, rangeWithLookahead, token
+import parserDefs, rangeWithLookahead, token, bufferedCharSource, ext
 import charType, std.ranges, std.vector
 
 import os = os
@@ -40,30 +40,34 @@ package _ImplLSCR
 /// This behaves just like a range transformation. Given the source range, this
 /// will represent a range of tokens extracted from the source characters.
 ///
-datatype SparrowScanner(sourceType, errorReporterType: Type) \
-        if CharRange(#$sourceType) && ErrorReporter(#$errorReporterType)
+datatype SparrowScanner
     using RetType = Token
-    using _SourceType = sourceType
-    using _ErrRepType = errorReporterType
 
     /// Location that we use to keep track of the source chars
     _curLocation: Location
+    /// The buffered source of chars
+    _bufferedSource: BufferedCharSource
     /// The source stream of chars (and locations) we are going to use
-    _src: _ImplLSCR.LocationSyncCharRange(RangeWithLookahead(sourceType))
+    _src: _ImplLSCR.LocationSyncCharRange(RangeWithLookahead(BufferedCharSourceRange))
     /// The current token we look at. We will reuse this object for all the
     /// tokens that we parse from the source stream
     _curToken: Token
     /// Indicates if '_curToken' is computed or not
     _tokenIsComputed: Bool
     /// Object used to report errors
-    _errorReporter: errorReporterType
+    _errorReporter: ErrorReporter
+    /// If true, also emit whitespace & comment tokens
+    _emitWitespace: Bool
 
-fun ctor(this: @SparrowScanner, source: this._SourceType, errorReporter: this._ErrRepType, iniLocation: @Location)
+fun ctor(this: @SparrowScanner, chars: CharSource, errorReporter: ErrorReporter, \
+        iniLocation: @Location, emitWitespace: Bool = false)
     this._curLocation ctor iniLocation
-    this._src.ctor(RangeWithLookahead(_SourceType)(source), _curLocation)
+    this._bufferedSource ctor chars
+    this._src.ctor(RangeWithLookahead(BufferedCharSourceRange)(_bufferedSource.all), _curLocation)
     this._curToken ctor
     this._tokenIsComputed ctor false
     this._errorReporter ctor errorReporter
+    this._emitWitespace = emitWitespace
 
 fun isEmpty(this: @SparrowScanner) = false
 fun front(this: @SparrowScanner): Token
@@ -147,12 +151,16 @@ package _Impl
             // Check for whitespace -- drop all the whitespace
             if ch == ' '.char
                 _src advanceIf (fun c = c==' '.char)
+                if _emitWitespace
+                    return tkWHITESPACE
                 continue
 
             // Check for tabs -- forbidden
             if ch == '\t'.char
                 this reportError toString("Tabs are not valid characters")
                 _src advanceIf (fun c = c=='\t'.char)
+                if _emitWitespace
+                    return tkWHITESPACE
                 continue
 
             // Check for new lines
@@ -164,6 +172,8 @@ package _Impl
             if ch == '/'.char && ch2 == '/'.char
                 _src.popFront
                 _src advanceIf (fun c = c!='\n'.char)
+                if _emitWitespace
+                    return tkCOMMENT
                 continue
 
             // Check for multi-line comments -- drop them
@@ -178,11 +188,15 @@ package _Impl
                     this reportError "End of file found inside comment"
                     return tkEND
                 _src.popFront     // move past '/'
+                if _emitWitespace
+                    return tkCOMMENT
                 continue
 
             // Backslash followed by a new-line collapses
             if ch == '\\'.char && ch2 == '\n'.char
                 _src advance 2
+                if _emitWitespace
+                    return tkLINECONTINUE
                 continue
 
             // Strings
@@ -308,7 +322,7 @@ package _Impl
                     return tkIDENTIFIER
 
 
-        var data: @StringRef = _curToken.data.asStringRef
+        var data: StringRef = _curToken.data.asStringRef
 
         // Check for reserved words
         if      data == "break"     return tkBREAK

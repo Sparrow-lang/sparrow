@@ -36,7 +36,6 @@ fun sprMain
     f = \(MyCharPackage.getType)
     cout << f() << endl
 
-
 /*<<<Ranges of ranges, with generic fun-ptr passed to map()
 TypePrint.ctor Int
 TypePrint.ctor Double

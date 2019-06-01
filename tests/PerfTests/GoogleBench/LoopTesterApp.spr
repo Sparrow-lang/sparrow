@@ -60,7 +60,6 @@ fun getNumNodes(this: @MaoCFG)                         = _basicBlockMap.size
 
 fun basicBlocksRange(this: @MaoCFG) = _basicBlockMap.values()
 
-
 //
 // SimpleLoop
 //
@@ -97,7 +96,6 @@ fun hash(this: @SimpleLoop) = counter
 
 fun >>(this: @SimpleLoop, os: @OutStream)
     os << "loop-" << counter << ", nest: " << nestingLevel << ", depth: " << depthLevel << endl
-
 
 //
 // LoopStructureGraph
@@ -245,7 +243,6 @@ using BB_LAST           = Byte(6)  // Sentinel
 
 using kUnvisited = -1              // Marker for uninitialized nodes.
 using kMaxNonBackPreds = 32*1024   // Safeguard against pathologic algorithm behavior.
-
 
 datatype HavlakLoopFinder
     _cfg: @MaoCFG

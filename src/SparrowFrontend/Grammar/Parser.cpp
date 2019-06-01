@@ -174,11 +174,11 @@ struct CompilerAstBuilder : AstBuilder {
     }
     static Node* mkLet_Impl(
             AstBuilder*, const Location* loc, StringRef name, Node* typeNode, Node* init) {
-        return VariableDecl::createMut(*loc, name, typeNode, init);
+        return VariableDecl::createConst(*loc, name, typeNode, init);
     }
     static Node* mkVar_Impl(
             AstBuilder*, const Location* loc, StringRef name, Node* typeNode, Node* init) {
-        return VariableDecl::createConst(*loc, name, typeNode, init);
+        return VariableDecl::createMut(*loc, name, typeNode, init);
     }
     static Node* mkParameter_Impl(
             AstBuilder*, const Location* loc, StringRef name, Node* typeNode, Node* init) {

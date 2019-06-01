@@ -99,6 +99,8 @@ fun mkField(this: @SimpleAstBuilder, loc: @Location, name: StringRef, typeNode, 
     = createNode(loc, nkField, values(typeNode, init), name)
 fun mkConcept(this: @SimpleAstBuilder, loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node) \
     = createNode(loc, nkConcept, values(baseConcept, ifClause), name)
+fun mkLet(this: @SimpleAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \
+    = createNode(loc, nkLet, values(typeNode, init), name)
 fun mkVar(this: @SimpleAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \
     = createNode(loc, nkVar, values(typeNode, init), name)
 fun mkParameter(this: @SimpleAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \

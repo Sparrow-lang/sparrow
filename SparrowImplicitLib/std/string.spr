@@ -84,7 +84,6 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
 
     fun asStringRef(this: @String)             = StringRef(_begin.bytePtr, _end.bytePtr)
 
-
     fun size(this: @String): SizeType          = _end.diff(_begin)
     fun isEmpty(this: @String)                 = _begin == _end
     fun capacity(this: @String): SizeType      = _endOfStore.diff(_begin)
@@ -256,7 +255,6 @@ fun + (x: String, y: StringRef): String
 //    memcpy(ptrAdd(res._begin, sz1), reinterpretCast(@Byte, y), sz2)
 
 //    return res
-
 
 fun intToString(x: Int): String
     var buf: static_buffer(12)

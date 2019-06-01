@@ -1,0 +1,14 @@
+module formatTool.transforms.refToMut
+
+import formatDetails.sourceData
+
+fun refToMut(src: @SourceData)
+    for i = 2..src.tokens.size
+        var prev2 = src.tokens(i-2)
+        var prev1 = src.tokens(i-1)
+        var cur: @TokenData = src.tokens(i)
+        if !cur.canFormat
+            continue
+        if prev2.type == tkCOLON && prev1.type == tkWHITESPACE && cur.content == '@'
+            cur.content = '!'
+

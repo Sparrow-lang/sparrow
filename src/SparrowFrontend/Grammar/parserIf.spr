@@ -1,79 +1,36 @@
 /// Interface between the parser (& scanner) and the Sparrow compiler
 module sparrowc.spr.grammar.parserIf
 
-import scanner, parser, layoutDecoder, ext
+import scanner, parser, layoutDecoder, bufferedCharSource, ext, fileCharSource, stringCharSource
 import os, std.newDelete
 
-datatype ExternalErrorReporter
-    ;
-
-fun reportError(this: @ExternalErrorReporter, loc: Location, msg: @String)
-    reportErrorExternal(loc, msg.asStringRef())
-
-datatype _CharSource
-    using RetType = Char
-
-    fileRange: @FileRange
-    stringRange: StringRef
-
-fun ctor(this: @_CharSource, fileRange: @FileRange, code: StringRef)
-    this.fileRange := fileRange
-    this.stringRange ctor code
-
-fun isEmpty(this: @_CharSource): Bool = ife(fileRange !== null, fileRange.isEmpty, stringRange.isEmpty)
-fun front(this: @_CharSource): Char
-    if ( fileRange !== null ) return fileRange.front
-    else return stringRange.front
-fun popFront(this: @_CharSource)
-    if fileRange !== null
-        fileRange.popFront
-    else stringRange.popFront
-
-
 datatype ParserContext
-    using _ScannerType = SparrowScanner(_CharSource, ExternalErrorReporter)
-    using _LayoutDecoderType = SparrowLayoutDecoder(_ScannerType, ExternalErrorReporter)
-    using _ParserType = SparrowParser(_LayoutDecoderType, ExternalErrorReporter)
+    using _LayoutDecoderType = SparrowLayoutDecoder(SparrowScanner)
+    using _ParserType = SparrowParser(_LayoutDecoderType)
 
-    _file: File
-    _fileRange: FileRange
-    _source: _CharSource
-    _scanner: _ScannerType
+    _scanner: SparrowScanner
     _layoutDecoder: _LayoutDecoderType
     _parser: _ParserType
 
-fun ctor(this: @ParserContext, filename, code: StringRef, loc: Location, scannerOnly: Bool = false)
-    var reporter = ExternalErrorReporter()
-
-    if code.isEmpty
-        // Open the file, and create a scanner on top of the file
-        _file ctor filename
-        _fileRange ctor _file.all
-        _source.ctor(_fileRange, "")
-
-        if !_file.isOpen
-            reporter.reportError(loc, toString("Cannot open file: ", filename))
-    else
-        // Use the code as a the input
-        _file ctor
-        _fileRange ctor
-        _source.ctor(null, code)
-
-    _scanner.ctor(_source, reporter, loc)
-    if !scannerOnly
-        _layoutDecoder.ctor(_scanner, reporter)
-        _parser.ctor(_layoutDecoder, reporter)
-
-// For testing only
-fun createScanner(filename, code: StringRef, loc: @Location): @ParserContext
-    return new(ParserContext, filename, code, loc, true)
+fun ctor(this: @ParserContext, chars: CharSource, loc: Location, astBuilder: @AstBuilder, reporter: ErrorReporter)
+    _scanner.ctor(chars, reporter, loc)
+    _layoutDecoder.ctor(_scanner, reporter)
+    _parser.ctor(_layoutDecoder, astBuilder, reporter)
 
 // Used by the compiler
 [noInline]
     [native("spr_parserIf_createParser")]
-    fun createParser(filename, code: StringRef, loc: @Location): @ParserContext
-        var res: @ParserContext = new(ParserContext, filename, code, loc)
+    fun createParser(chars: CharSource, loc: @Location, astBuilder: @AstBuilder, reporter: ErrorReporter): @ParserContext
+        var res: @ParserContext = new(ParserContext, chars, loc, astBuilder, reporter)
         return res
+    [native("spr_parserIf_createParserFile")]
+    fun createParserFile(filename: StringRef, loc: @Location, astBuilder: @AstBuilder, reporter: ErrorReporter): @ParserContext
+        var fileCharSource: @FileCharSource = new(FileCharSource, filename)
+        return createParser(mkCharSource(fileCharSource), loc, astBuilder, reporter)
+    [native("spr_parserIf_createParserStringRef")]
+    fun createParserStringRef(code: StringRef, loc: @Location, astBuilder: @AstBuilder, reporter: ErrorReporter): @ParserContext
+        var stringCharSource: @StringCharSource = new(StringCharSource, code)
+        return createParser(mkCharSource(stringCharSource), loc, astBuilder, reporter)
 
     [native("spr_parserIf_destroyParser")]
     fun destroyParser(ctx: @ParserContext)

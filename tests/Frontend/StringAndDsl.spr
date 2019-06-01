@@ -1,13 +1,11 @@
 
 fun sprMain
-{
-    cout << "Hello, world!" << endl;
-    cout << <{Hello, world!}> << endl;
+    cout << "Hello, world!" << endl
+    cout << <{Hello, world!}> << endl
     cout << <{Hello,
 
-        world!}> << endl;
-    cout << <{Hello,{} >"world"!}> << endl;
-}
+        world!}> << endl
+    cout << <{Hello,{} >"world"!}> << endl
 /*<<<Running()
 Hello, world!
 Hello, world!

@@ -148,4 +148,3 @@ datatype Array(valueType: Type)
         cout << "    begin: " << mkStreamRefWrapper(_begin.bytePtr) << endl
         cout << "    end: " << mkStreamRefWrapper(_end.bytePtr) << endl
 
-

@@ -1,6 +1,6 @@
 //!!
 
-import meta.sparrowNodes, meta.featherNodes;
+import meta.sparrowNodes, meta.featherNodes
 
 fun sprMain
 {

@@ -1,72 +1,63 @@
 //!!
 
-import std.ranges;
+import std.ranges
 
 fun getT: Bool
-{
-    cout << "T.";
-    return true;
-}
+    cout << "T."
+    return true
 
 fun getF: Bool
-{
-    cout << "F.";
-    return false;
-}
+    cout << "F."
+    return false
 
 datatype BoolValue
-    b: Bool;
+    b: Bool
 
 fun ctor(this: @BoolValue, b: Bool)
-    this.b ctor b;
-    cout << "C";
+    this.b ctor b
+    cout << "C"
     if ( b )
-        cout << "t";
+        cout << "t"
     else
-        cout << "f";
-    cout << '.';
+        cout << "f"
+    cout << '.'
 
 fun dtor(this: BoolValue)
-    cout << "D";
+    cout << "D"
     if ( b )
-        cout << "t";
+        cout << "t"
     else
-        cout << "f";
-    cout << '.';
+        cout << "f"
+    cout << '.'
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+        return
+    var n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
     else if n == 3; test3
     else if n == 4; test4
     else if n == 5; test5
-}
 
 fun test1
-{
-    var t = true;
-    var f = false;
+    var t = true
+    var f = false
 
-    cout << (t || t) << endl;
-    cout << (t || f) << endl;
-    cout << (f || t) << endl;
-    cout << (f || f) << endl;
-    cout << "---" << endl;
-    cout << (t || t || t) << endl;
-    cout << (t || t || f) << endl;
-    cout << (t || f || t) << endl;
-    cout << (t || f || f) << endl;
-    cout << (f || t || t) << endl;
-    cout << (f || t || f) << endl;
-    cout << (f || f || t) << endl;
-    cout << (f || f || f) << endl;
-}
-
+    cout << (t || t) << endl
+    cout << (t || f) << endl
+    cout << (f || t) << endl
+    cout << (f || f) << endl
+    cout << "---" << endl
+    cout << (t || t || t) << endl
+    cout << (t || t || f) << endl
+    cout << (t || f || t) << endl
+    cout << (t || f || f) << endl
+    cout << (f || t || t) << endl
+    cout << (f || t || f) << endl
+    cout << (f || f || t) << endl
+    cout << (f || f || f) << endl
 
 /*<<<Simple logical or(1)
 true
@@ -85,25 +76,22 @@ false
 >>>*/
 
 fun test2
-{
-    var t = true;
-    var f = false;
+    var t = true
+    var f = false
 
-    cout << (t && t) << endl;
-    cout << (t && f) << endl;
-    cout << (f && t) << endl;
-    cout << (f && f) << endl;
-    cout << "---" << endl;
-    cout << (t && t && t) << endl;
-    cout << (t && t && f) << endl;
-    cout << (t && f && t) << endl;
-    cout << (t && f && f) << endl;
-    cout << (f && t && t) << endl;
-    cout << (f && t && f) << endl;
-    cout << (f && f && t) << endl;
-    cout << (f && f && f) << endl;
-}
-
+    cout << (t && t) << endl
+    cout << (t && f) << endl
+    cout << (f && t) << endl
+    cout << (f && f) << endl
+    cout << "---" << endl
+    cout << (t && t && t) << endl
+    cout << (t && t && f) << endl
+    cout << (t && f && t) << endl
+    cout << (t && f && f) << endl
+    cout << (f && t && t) << endl
+    cout << (f && t && f) << endl
+    cout << (f && f && t) << endl
+    cout << (f && f && f) << endl
 
 /*<<<Simple logical and(2)
 true
@@ -122,22 +110,19 @@ false
 >>>*/
 
 fun test3
-{
-    cout << (getT() || getT()) << endl;
-    cout << (getT() || getF()) << endl;
-    cout << (getF() || getT()) << endl;
-    cout << (getF() || getF()) << endl;
-    cout << "---" << endl;
-    cout << (getT() || getT() || getT()) << endl;
-    cout << (getT() || getT() || getF()) << endl;
-    cout << (getT() || getF() || getT()) << endl;
-    cout << (getT() || getF() || getF()) << endl;
-    cout << (getF() || getT() || getT()) << endl;
-    cout << (getF() || getT() || getF()) << endl;
-    cout << (getF() || getF() || getT()) << endl;
-    cout << (getF() || getF() || getF()) << endl;
-}
-
+    cout << (getT() || getT()) << endl
+    cout << (getT() || getF()) << endl
+    cout << (getF() || getT()) << endl
+    cout << (getF() || getF()) << endl
+    cout << "---" << endl
+    cout << (getT() || getT() || getT()) << endl
+    cout << (getT() || getT() || getF()) << endl
+    cout << (getT() || getF() || getT()) << endl
+    cout << (getT() || getF() || getF()) << endl
+    cout << (getF() || getT() || getT()) << endl
+    cout << (getF() || getT() || getF()) << endl
+    cout << (getF() || getF() || getT()) << endl
+    cout << (getF() || getF() || getF()) << endl
 
 /*<<<Logical or with side effects(3)
 T.true
@@ -156,22 +141,19 @@ F.F.F.false
 >>>*/
 
 fun test4
-{
-    cout << (getT() && getT()) << endl;
-    cout << (getT() && getF()) << endl;
-    cout << (getF() && getT()) << endl;
-    cout << (getF() && getF()) << endl;
-    cout << "---" << endl;
-    cout << (getT() && getT() && getT()) << endl;
-    cout << (getT() && getT() && getF()) << endl;
-    cout << (getT() && getF() && getT()) << endl;
-    cout << (getT() && getF() && getF()) << endl;
-    cout << (getF() && getT() && getT()) << endl;
-    cout << (getF() && getT() && getF()) << endl;
-    cout << (getF() && getF() && getT()) << endl;
-    cout << (getF() && getF() && getF()) << endl;
-}
-
+    cout << (getT() && getT()) << endl
+    cout << (getT() && getF()) << endl
+    cout << (getF() && getT()) << endl
+    cout << (getF() && getF()) << endl
+    cout << "---" << endl
+    cout << (getT() && getT() && getT()) << endl
+    cout << (getT() && getT() && getF()) << endl
+    cout << (getT() && getF() && getT()) << endl
+    cout << (getT() && getF() && getF()) << endl
+    cout << (getF() && getT() && getT()) << endl
+    cout << (getF() && getT() && getF()) << endl
+    cout << (getF() && getF() && getT()) << endl
+    cout << (getF() && getF() && getF()) << endl
 
 /*<<<Logical and with side effects(4)
 T.T.true
@@ -190,22 +172,19 @@ F.false
 >>>*/
 
 fun test5
-{
-    cout << (BoolValue(false).b || BoolValue(false).b);                         cout << endl;
-    cout << (BoolValue(false).b || BoolValue(true).b);                          cout << endl;
-    cout << (BoolValue(true).b || BoolValue(false).b);                          cout << endl;
-    cout << (BoolValue(true).b || BoolValue(true).b);                           cout << endl;
-    cout << "---" << endl;
-    cout << (BoolValue(false).b && BoolValue(false).b);                         cout << endl;
-    cout << (BoolValue(false).b && BoolValue(true).b);                          cout << endl;
-    cout << (BoolValue(true).b && BoolValue(false).b);                          cout << endl;
-    cout << (BoolValue(true).b && BoolValue(true).b);                           cout << endl;
+    cout << (BoolValue(false).b || BoolValue(false).b);                         cout << endl
+    cout << (BoolValue(false).b || BoolValue(true).b);                          cout << endl
+    cout << (BoolValue(true).b || BoolValue(false).b);                          cout << endl
+    cout << (BoolValue(true).b || BoolValue(true).b);                           cout << endl
+    cout << "---" << endl
+    cout << (BoolValue(false).b && BoolValue(false).b);                         cout << endl
+    cout << (BoolValue(false).b && BoolValue(true).b);                          cout << endl
+    cout << (BoolValue(true).b && BoolValue(false).b);                          cout << endl
+    cout << (BoolValue(true).b && BoolValue(true).b);                           cout << endl
 
-    cout << "------" << endl;
-    cout << (BoolValue(false).b || BoolValue(false).b || BoolValue(true).b);    cout << endl;
-    cout << (BoolValue(true).b && BoolValue(true).b && BoolValue(false).b);     cout << endl;
-}
-
+    cout << "------" << endl
+    cout << (BoolValue(false).b || BoolValue(false).b || BoolValue(true).b);    cout << endl
+    cout << (BoolValue(true).b && BoolValue(true).b && BoolValue(false).b);     cout << endl
 
 /*<<<Logical operators with temporaries(5)
 Cf.Cf.falseDf.Df.

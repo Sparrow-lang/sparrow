@@ -1,6 +1,6 @@
-import metaloc = meta.location;
+import metaloc = meta.location
 
 // Use the same location infrastructure as the one we use in the compiler
-using LLocation = metaloc.Location;
-using Location = metaloc.Location;
+using LLocation = metaloc.Location
+using Location = metaloc.Location
 

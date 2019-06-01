@@ -1,4 +1,4 @@
-import prolog;
-import meta.compiler;
+import prolog
+import meta.compiler
 
-[ct] var dummy1 = registerFrontendFun(".pl", "logic/prolog.spr:handlePrologCode");
+[ct] var dummy1 = registerFrontendFun(".pl", "logic/prolog.spr:handlePrologCode")

@@ -1,0 +1,83 @@
+//! Various utilities needed for source code transformations
+module formatTool.transforms.utils
+
+import formatDetails.sourceData
+
+//! The range over our token vector
+using TokensRange = TokenVector.RangeType
+
+//! Clears the given token; transforms it into a whitespace without any content
+fun clearToken(token: @TokenData)
+    token.type = tkWHITESPACE
+    token.content = ''
+
+//! Clears the token; if this is the only printable token from the line, remove the entire line.
+//! Note that comments would prevent deleting the line
+fun clearTokenLine(idx: Int, tokens: @TokenVector)
+    var tok: @TokenData = tokens(idx)
+    clearToken(tok)
+
+    // Check if the line has other printable tokens
+    var line = tok.loc.start.line
+    var idxStart = idx-1
+    while idxStart >= 0 ; idxStart--
+        if tokens(idxStart).loc.start.line != line
+            break
+        var tok2: @TokenData = tokens(idxStart)
+        if tok2.type != tkWHITESPACE
+            return
+    var idxEnd = idx+1
+    while idxEnd < Int(tokens.size) ; idxEnd++
+        if tokens(idxEnd).loc.start.line != line
+            break
+        var tok2: @TokenData = tokens(idxEnd)
+        if tok2.type != tkWHITESPACE && tok2.type != tkEOL
+            return
+
+    // If we are here, it means that all the tokens remaining on the line are whitespace
+    if tokens(idxStart).loc.start.line != line
+        idxStart++
+    for i = idxStart..idxEnd
+        clearToken(tokens(i))
+
+//! Checks if the next character is a newline (ignoring whitespaces and comments)
+fun nextIsNewline(remaining: TokensRange, ignoreComment: Bool = true): Bool
+    for tok: @TokenData = remaining
+        var tk = tok.type
+        if tk == tkEOL || tk == tkEND
+            return true
+        if tk == tkWHITESPACE
+            continue
+        else if ignoreComment && tk == tkCOMMENT
+            continue
+        else
+            return false
+
+//! Helper class that keeps track of the layout of the code.
+//! It keeps track of the indent of the current and prev line
+datatype LayoutHelper
+    _prevLineIndent: Int = 1
+    _curLineIndent: Int = 1
+    _lastLine: Int = 0
+
+fun onToken(this: @LayoutHelper, tok: @TokenData)
+    if tok.type != tkWHITESPACE && tok.type != tkCOMMENT && tok.type != tkEOL
+        if tok.loc.start.line != _lastLine
+            _prevLineIndent = _curLineIndent
+            _curLineIndent = Int(tok.loc.start.col)
+            _lastLine = Int(tok.loc.start.line)
+
+fun curLineIndent(this: @LayoutHelper) = _curLineIndent
+fun prevLineIndent(this: @LayoutHelper) = _prevLineIndent
+
+//! Gets the indent of the next line
+fun nextLineIndent(this: @LayoutHelper, remaining: TokensRange): Int
+    if remaining.isEmpty
+        return 1
+    var line = remaining.front().loc.start.line
+    for tok: @TokenData = remaining
+        var tk = tok.type
+        if tk != tkEOL && tk != tkEND && tk != tkWHITESPACE && tk != tkCOMMENT
+            return Int(tok.loc.start.col)
+    return 1
+

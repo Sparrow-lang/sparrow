@@ -10,10 +10,8 @@ import meta.location
 ///
 /// All the nodes are created outside the parser; we only care about node pointers
 ///
-datatype SparrowParser(tokensRangeType, errorReporterType: Type) \
-        if TokenRange(#$tokensRangeType) && ErrorReporter(#$errorReporterType)
+datatype SparrowParser(tokensRangeType: Type) if TokenRange(#$tokensRangeType)
     using _TokensRangeType = tokensRangeType
-    using _ErrRepType = errorReporterType
 
     /// The source ranges of tokens we will used while parsing
     _tokens: RangeWithLookahead(tokensRangeType)
@@ -21,12 +19,15 @@ datatype SparrowParser(tokensRangeType, errorReporterType: Type) \
     _lastToken: Token
     /// Indicates whether we have some syntax errors
     _hasErrors: Bool
+    /// Object used to create the AST nodes
+    _astBuilder: AstBuilder
     /// Object used to report errors
-    _errorReporter: errorReporterType
+    _errorReporter: ErrorReporter
 
-fun ctor(this: @SparrowParser, tokens: this._TokensRangeType, errorReporter: this._ErrRepType)
+fun ctor(this: @SparrowParser, tokens: this._TokensRangeType, astBuilder: @AstBuilder, errorReporter: ErrorReporter)
     this._tokens ctor tokens
     this._hasErrors ctor false
+    this._astBuilder ctor astBuilder
     this._errorReporter ctor errorReporter
 
 using parseModule = _Impl.parseModule
@@ -74,7 +75,7 @@ package _Impl
         var decls: Node
         parseStmts(this, true, decls)
         this expect tkEND
-        return mkModule(loc span (this lastLoc), moduleName, decls)
+        return _astBuilder.mkModule(loc span (this lastLoc), moduleName, decls)
 
     fun parseExpression(this: @SparrowParser): Node
         var res = parseExpr(this)
@@ -133,15 +134,15 @@ package _Impl
     fun parseQualifiedName(this: @SparrowParser, allowStar: Bool = false): Node
         var loc = this curLoc
         this expect tkIDENTIFIER
-        var base = mkIdentifier(loc, _lastToken.data.asStringRef)
+        var base = _astBuilder.mkIdentifier(loc, _lastToken.data.asStringRef)
 
         var lastId = _lastToken.data
         while this accept tkDOT
             if allowStar && (this accept tkOPERATOR)
-                base = mkStarExpr(loc span (this lastLoc), base, _lastToken.data.asStringRef)
+                base = _astBuilder.mkStarExpr(loc span (this lastLoc), base, _lastToken.data.asStringRef)
                 break
             this expect tkIDENTIFIER
-            base = mkCompoundExpr(loc span (this lastLoc), base, _lastToken.data.asStringRef)
+            base = _astBuilder.mkCompoundExpr(loc span (this lastLoc), base, _lastToken.data.asStringRef)
         return base
 
     fun parseIdList(this: @SparrowParser): LocStringVec
@@ -155,19 +156,19 @@ package _Impl
     fun parseIdListNode(this: @SparrowParser): Node
         var res: Node
         var id = parseId(this)
-        res = addToNodeList(res, mkIdentifier(_lastToken.loc, id.asStringRef))
+        res = _astBuilder.addToNodeList(res, _astBuilder.mkIdentifier(_lastToken.loc, id.asStringRef))
         while this accept tkCOMMA
             id = parseId(this)
-            res = addToNodeList(res, mkIdentifier(_lastToken.loc, id.asStringRef))
+            res = _astBuilder.addToNodeList(res, _astBuilder.mkIdentifier(_lastToken.loc, id.asStringRef))
         return res
 
     fun parseIdOrOperListNode(this: @SparrowParser): Node
         var res: Node
         var id = parseIdOrOper(this)
-        res = addToNodeList(res, mkIdentifier(_lastToken.loc, id.asStringRef))
+        res = _astBuilder.addToNodeList(res, _astBuilder.mkIdentifier(_lastToken.loc, id.asStringRef))
         while this accept tkCOMMA
             id = parseIdOrOper(this)
-            res = addToNodeList(res, mkIdentifier(_lastToken.loc, id.asStringRef))
+            res = _astBuilder.addToNodeList(res, _astBuilder.mkIdentifier(_lastToken.loc, id.asStringRef))
         return res
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -175,6 +176,8 @@ package _Impl
     //
 
     fun parseModuleName(this: @SparrowParser): Node
+        while this accept tkSEMICOLON
+            ;
         if this accept tkMODULE
             var qid = parseQualifiedName(this)
             this expect tkSEMICOLON
@@ -186,10 +189,10 @@ package _Impl
         if this accept tkLBRACKET
             var e: Node
             e = parseExpr(this)
-            res = addToNodeList(res, e)
+            res = _astBuilder.addToNodeList(res, e)
             while this accept tkCOMMA
                 e = parseExpr(this)
-                res = addToNodeList(res, e)
+                res = _astBuilder.addToNodeList(res, e)
             this expect tkRBRACKET
 
             // Ignore any possible semicolons (newlines) after the modifiers
@@ -200,7 +203,7 @@ package _Impl
         while true
             var child = parseStmt(this, topLevel)
             if child isSet
-                res = addToNodeList(res, child)
+                res = _astBuilder.addToNodeList(res, child)
                 continue
 
             // No more top level decls found
@@ -233,7 +236,7 @@ package _Impl
 
         if mods isSet
             if found
-                res = mkModifiers(loc span (this lastLoc), res, mods)
+                res = _astBuilder.mkModifiers(loc span (this lastLoc), res, mods)
             else
                 this reportError toString("Syntax error, unexpected ", (*_tokens).type, ", expecting statement")
 
@@ -247,19 +250,19 @@ package _Impl
         return false
     fun parseImportNames(this: @SparrowParser): Node
         var res: Node
-        res = addToNodeList(res, parseImportName(this))
+        res = _astBuilder.addToNodeList(res, parseImportName(this))
         while this accept tkCOMMA
-            res = addToNodeList(res, parseImportName(this))
+            res = _astBuilder.addToNodeList(res, parseImportName(this))
         return res
     fun parseImportName(this: @SparrowParser): Node
         var loc = this curLoc
         var id = parseIdEqualOpt(this)
         var toImport = parseQidOrString(this)
         var declNames = parseImportDeclNamesOpt(this)
-        return mkImportName(loc span (this lastLoc), id.asStringRef, toImport, declNames)
+        return _astBuilder.mkImportName(loc span (this lastLoc), id.asStringRef, toImport, declNames)
     fun parseQidOrString(this: @SparrowParser): Node
         if this accept tkSTRING_LITERAL
-            return mkStringLiteral(_lastToken.loc, _lastToken.data.asStringRef)
+            return _astBuilder.mkStringLiteral(_lastToken.loc, _lastToken.data.asStringRef)
         return parseQualifiedName(this)
     fun parseImportDeclNamesOpt(this: @SparrowParser): Node
         var res: Node
@@ -280,7 +283,7 @@ package _Impl
             usingNode = parseExpr(this)
         loc copyEnd _lastToken.loc
         this expect tkSEMICOLON
-        res = mkUsing(loc, id.asStringRef, usingNode)
+        res = _astBuilder.mkUsing(loc, id.asStringRef, usingNode)
         return true
     fun parsePackageDecl(this: @SparrowParser, res: @Node): Bool
         if !(this accept tkPACKAGE)
@@ -294,7 +297,7 @@ package _Impl
         parseStmts(this, true, children)
         this expect tkRCURLY
         loc copyEnd _lastToken.loc
-        res = mkPackage(loc, id.asStringRef, children, formals, ifClause)
+        res = _astBuilder.mkPackage(loc, id.asStringRef, children, formals, ifClause)
         return true
     fun parseDatatypeDecl(this: @SparrowParser, res: @Node): Bool
         if !(this accept tkDATATYPE)
@@ -307,7 +310,7 @@ package _Impl
             var ifClause = parseIfClauseOpt(this)
             this expect tkSEMICOLON
             loc copyEnd _lastToken.loc
-            res = mkDatatype(loc, id.asStringRef, formals, underlyingData, ifClause, Node())
+            res = _astBuilder.mkDatatype(loc, id.asStringRef, formals, underlyingData, ifClause, Node())
         else
             var ifClause = parseIfClauseOpt(this)
             var children: Node
@@ -320,13 +323,13 @@ package _Impl
                     if this nextIs tkRCURLY break
                     var usingNode: Node
                     if parseUsingDecl(this, usingNode)
-                        children = addToNodeList(children, usingNode)
+                        children = _astBuilder.addToNodeList(children, usingNode)
                     else
                         parseFieldsLine(this, children)
                     while (this accept tkCOMMA) || (this accept tkSEMICOLON) {}
                 this expect tkRCURLY
             loc copyEnd _lastToken.loc
-            res = mkDatatype(loc, id.asStringRef, formals, Node(), ifClause, children)
+            res = _astBuilder.mkDatatype(loc, id.asStringRef, formals, Node(), ifClause, children)
         return true
     fun parseConceptDecl(this: @SparrowParser, res: @Node): Bool
         if !(this accept tkCONCEPT)
@@ -340,7 +343,7 @@ package _Impl
         var ifClause = parseIfClauseOpt(this)
         this expect tkSEMICOLON
         loc copyEnd _lastToken.loc
-        res = mkConcept(loc, id.asStringRef, paramName.asStringRef, baseConcept, ifClause)
+        res = _astBuilder.mkConcept(loc, id.asStringRef, paramName.asStringRef, baseConcept, ifClause)
         return true
     fun parseVarDecl(this: @SparrowParser, res: @Node): Bool
         if !(this accept tkVAR)
@@ -356,7 +359,7 @@ package _Impl
             init = parseExpr(this)
         this expect tkSEMICOLON
 
-        createFormals(ids, typeNode, init, true, res)
+        createFormals(_astBuilder, ids, typeNode, init, true, res)
         return true
     fun parseFunDecl(this: @SparrowParser, res: @Node): Bool
         if !(this accept tkFUN)
@@ -374,7 +377,7 @@ package _Impl
             ifClause = parseIfClauseOpt(this)
             body = parseFunBody(this)
         loc copyEnd _lastToken.loc
-        res = mkFun(loc, id.asStringRef, formals, retType, body, bodyExp, ifClause)
+        res = _astBuilder.mkFun(loc, id.asStringRef, formals, retType, body, bodyExp, ifClause)
         return true
 
     fun parseFunNameString(this: @SparrowParser): String
@@ -398,7 +401,7 @@ package _Impl
             // Simplified versions: just names, without parenthesis
             var loc = this curLoc
             var ids = parseIdList(this)
-            createFormals(ids, mkIdentifier(loc span (this lastLoc), "AnyType"), Node(), varFormals, res)
+            createFormals(_astBuilder, ids, _astBuilder.mkIdentifier(loc span (this lastLoc), "AnyType"), Node(), varFormals, res)
         return res
     fun parseFormal(this: @SparrowParser, varFormals: Bool, res: @Node)
         var ids = parseIdList(this)
@@ -407,16 +410,16 @@ package _Impl
         var init: Node
         if this accept tkEQUAL
             init = parseExpr(this)
-        createFormals(ids, typeNode, init, varFormals, res)
-    fun createFormals(ids: @LocStringVec, typeNode, init: Node, varFormals: Bool, res: @Node)
+        createFormals(_astBuilder, ids, typeNode, init, varFormals, res)
+    fun createFormals(astBuilder: @AstBuilder, ids: @LocStringVec, typeNode, init: Node, varFormals: Bool, res: @Node)
         if varFormals
             for id: @LocString = ids.all
-                var v = mkVar(id.data.v1, id.data.v2.asStringRef, typeNode, init)
-                res = addToNodeList(res, v)
+                var v = astBuilder.mkVar(id.data.v1, id.data.v2.asStringRef, typeNode, init)
+                res = astBuilder.addToNodeList(res, v)
         else
             for id: @LocString = ids.all
-                var p = mkParameter(id.data.v1, id.data.v2.asStringRef, typeNode, init)
-                res = addToNodeList(res, p)
+                var p = astBuilder.mkParameter(id.data.v1, id.data.v2.asStringRef, typeNode, init)
+                res = astBuilder.addToNodeList(res, p)
     fun parseFieldsLine(this: @SparrowParser, res: @Node)
         var ids = parseIdList(this)
         this expect tkCOLON
@@ -425,8 +428,8 @@ package _Impl
         if this accept tkEQUAL
             init = parseExpr(this)
         for id: @LocString = ids.all
-            var v = mkField(id.data.v1, id.data.v2.asStringRef, typeNode, init)
-            res = addToNodeList(res, v)
+            var v = _astBuilder.mkField(id.data.v1, id.data.v2.asStringRef, typeNode, init)
+            res = _astBuilder.addToNodeList(res, v)
     fun parseTypeNode(this: @SparrowParser): Node
         if this accept tkCOLON
             return parseExpr(this, false)
@@ -455,7 +458,7 @@ package _Impl
         if this accept tkELSE
             elseClause = parseStmt(this, true)
         loc copyEnd _lastToken.loc
-        res = mkIfStmt(loc, expr, thenClause, elseClause)
+        res = _astBuilder.mkIfStmt(loc, expr, thenClause, elseClause)
         return true
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -499,10 +502,10 @@ package _Impl
         var expr: Node
         if !parseExprOpt(this, expr)
             return res // no expression found
-        res = addToNodeList(res, expr)
+        res = _astBuilder.addToNodeList(res, expr)
         while this accept tkCOMMA
             expr = parseExpr(this)
-            res = addToNodeList(res, expr)
+            res = _astBuilder.addToNodeList(res, expr)
         return res
 
     // Logic for parsing infix & postfix expressions
@@ -517,10 +520,10 @@ package _Impl
             if nextIsExpr(this, withEqual)
                 // Infix expression
                 var rhs = parsePrefixExpr(this, withEqual)
-                baseExpr = mkInfixOp(loc span (this lastLoc), baseExpr, op.asStringRef, rhs)
+                baseExpr = _astBuilder.mkInfixOp(loc span (this lastLoc), baseExpr, op.asStringRef, rhs)
             else
                 // The end of a postfix expression
-                baseExpr = mkPostfixOp(loc span (this lastLoc), baseExpr, op.asStringRef)
+                baseExpr = _astBuilder.mkPostfixOp(loc span (this lastLoc), baseExpr, op.asStringRef)
                 break
         return baseExpr
 
@@ -537,7 +540,7 @@ package _Impl
             return parseSimpleExpr(this)
         else
             var baseExpr = parsePrefixExpr(this)
-            return mkPrefixOp(loc span (this lastLoc), op.asStringRef, baseExpr)
+            return _astBuilder.mkPrefixOp(loc span (this lastLoc), op.asStringRef, baseExpr)
 
     fun parseSimpleExpr(this: @SparrowParser, withEqual: Bool = true): Node
         var res: Node
@@ -545,32 +548,32 @@ package _Impl
         if (this nextIs tkLPAREN) && (this next2Is tkFUN)
             res = parseLambdaExpr(this)
         else if this accept tkLPAREN
-            res = mkParenthesisExpr(parseExpr(this))
+            res = _astBuilder.mkParenthesisExpr(parseExpr(this))
             this expect tkRPAREN
         else if this accept tkIDENTIFIER
-            res = mkIdentifier(_lastToken.loc, _lastToken.data.asStringRef)
+            res = _astBuilder.mkIdentifier(_lastToken.loc, _lastToken.data.asStringRef)
         else if this accept tkNULLCT
-            res = mkNullLiteral(_lastToken.loc)
+            res = _astBuilder.mkNullLiteral(_lastToken.loc)
         else if this accept tkTRUE
-            res = mkBoolLiteral(_lastToken.loc, true)
+            res = _astBuilder.mkBoolLiteral(_lastToken.loc, true)
         else if this accept tkFALSE
-            res = mkBoolLiteral(_lastToken.loc, false)
+            res = _astBuilder.mkBoolLiteral(_lastToken.loc, false)
         else if this accept tkINT_LITERAL
-            res = mkIntLiteral(_lastToken.loc, Int(_lastToken.intData))
+            res = _astBuilder.mkIntLiteral(_lastToken.loc, Int(_lastToken.intData))
         else if this accept tkUINT_LITERAL
-            res = mkUIntLiteral(_lastToken.loc, UInt(_lastToken.intData))
+            res = _astBuilder.mkUIntLiteral(_lastToken.loc, UInt(_lastToken.intData))
         else if this accept tkLONG_LITERAL
-            res = mkLongLiteral(_lastToken.loc, Long(_lastToken.intData))
+            res = _astBuilder.mkLongLiteral(_lastToken.loc, Long(_lastToken.intData))
         else if this accept tkULONG_LITERAL
-            res = mkULongLiteral(_lastToken.loc, ULong(_lastToken.intData))
+            res = _astBuilder.mkULongLiteral(_lastToken.loc, ULong(_lastToken.intData))
         else if this accept tkFLOAT_LITERAL
-            res = mkFloatLiteral(_lastToken.loc, Float(_lastToken.floatData))
+            res = _astBuilder.mkFloatLiteral(_lastToken.loc, Float(_lastToken.floatData))
         else if this accept tkDOUBLE_LITERAL
-            res = mkDoubleLiteral(_lastToken.loc, Double(_lastToken.floatData))
+            res = _astBuilder.mkDoubleLiteral(_lastToken.loc, Double(_lastToken.floatData))
         else if this accept tkCHAR_LITERAL
-            res = mkCharLiteral(_lastToken.loc, _lastToken.data(0))
+            res = _astBuilder.mkCharLiteral(_lastToken.loc, _lastToken.data(0))
         else if this accept tkSTRING_LITERAL
-            res = mkStringLiteral(_lastToken.loc, _lastToken.data.asStringRef)
+            res = _astBuilder.mkStringLiteral(_lastToken.loc, _lastToken.data.asStringRef)
 
         if res isNull
             this reportError toString("Syntax error, unexpected ", (*_tokens).type, ", expecting expression")
@@ -581,14 +584,14 @@ package _Impl
             if this accept tkLPAREN
                 var args = parseExprListOpt(this)
                 this expect tkRPAREN
-                res = mkFunAppExpr(loc span (this lastLoc), res, args)
+                res = _astBuilder.mkFunAppExpr(loc span (this lastLoc), res, args)
             else if this accept tkDOT
                 if this accept tkLPAREN
                     this expect tkRPAREN
-                    res = mkDotExpr(loc span (this lastLoc), res, "()")
+                    res = _astBuilder.mkDotExpr(loc span (this lastLoc), res, "()")
                 else
                     var id = parseIdOrOper(this, withEqual)
-                    res = mkDotExpr(loc span (this lastLoc), res, id.asStringRef)
+                    res = _astBuilder.mkDotExpr(loc span (this lastLoc), res, id.asStringRef)
             else
                 break
 
@@ -606,7 +609,7 @@ package _Impl
         else
             body = parseFunBody(this)
         this expect tkRPAREN
-        return mkLambdaExpr(loc span (this lastLoc), closureParams, formals, retType, body, bodyExp)
+        return _astBuilder.mkLambdaExpr(loc span (this lastLoc), closureParams, formals, retType, body, bodyExp)
     fun parseClosureParams(this: @SparrowParser): Node
         var res: Node
         if this accept tkDOT
@@ -630,12 +633,12 @@ package _Impl
             while !(this nextIs tkRCURLY) && !_hasErrors
                 var s = parseStmt(this, topLevel)
                 if s isSet
-                    res = addToNodeList(res, s)
+                    res = _astBuilder.addToNodeList(res, s)
                 else
                     break
             this expect tkRCURLY
             if !topLevel
-                res = mkBlockStmt(loc span (this lastLoc), res)
+                res = _astBuilder.mkBlockStmt(loc span (this lastLoc), res)
             return true
         return false
     fun parseIfStmt(this: @SparrowParser, res: @Node, topLevel: Bool): Bool
@@ -647,7 +650,7 @@ package _Impl
             if this accept tkELSE
                 elseClause = parseStmt(this, topLevel)
             loc copyEnd _lastToken.loc
-            res = mkIfStmt(loc, expr, thenClause, elseClause)
+            res = _astBuilder.mkIfStmt(loc, expr, thenClause, elseClause)
             return true
         return false
     fun parseForStmt(this: @SparrowParser, res: @Node, topLevel: Bool): Bool
@@ -661,7 +664,7 @@ package _Impl
             var range = parseExpr(this)
             var action = parseStmt(this, topLevel)
             loc copyEnd _lastToken.loc
-            res = mkForStmt(loc, id.asStringRef, typeNode, range, action)
+            res = _astBuilder.mkForStmt(loc, id.asStringRef, typeNode, range, action)
             return true
         return false
     fun parseWhileStmt(this: @SparrowParser, res: @Node, topLevel: Bool): Bool
@@ -676,21 +679,21 @@ package _Impl
                     this reportError toString("Syntax error, unexpected ", (*_tokens).type, ", expecting expression or block statement")
             var body = parseStmt(this, topLevel)
             loc copyEnd _lastToken.loc
-            res = mkWhileStmt(loc, expr, stepAction, body)
+            res = _astBuilder.mkWhileStmt(loc, expr, stepAction, body)
             return true
         return false
     fun parseBreakStmt(this: @SparrowParser, res: @Node): Bool
         if this accept tkBREAK
             var loc = _lastToken.loc
             this expect tkSEMICOLON
-            res = mkBreakStmt(loc)
+            res = _astBuilder.mkBreakStmt(loc)
             return true
         return false
     fun parseContinueStmt(this: @SparrowParser, res: @Node): Bool
         if this accept tkCONTINUE
             var loc = _lastToken.loc
             this expect tkSEMICOLON
-            res = mkContinueStmt(loc)
+            res = _astBuilder.mkContinueStmt(loc)
             return true
         return false
 
@@ -703,6 +706,6 @@ package _Impl
             else
                 expr = parseExpr(this)
                 this expect tkSEMICOLON
-            res = mkReturnStmt(loc, expr)
+            res = _astBuilder.mkReturnStmt(loc, expr)
             return true
         return false

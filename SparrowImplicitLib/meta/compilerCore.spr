@@ -1,7 +1,6 @@
 [public] import meta.location
 import std.contiguousMemoryRange
 
-
 // Main types
 
 /// Type representing a compilation context -- some information describing how
@@ -17,12 +16,10 @@ using AstNode = CompilerAstNode
 /// A range of nodes (contiguously aligned in memory)
 using AstNodeRange = ContiguousMemoryRange(AstNode)
 
-
 // Evaluation modes
 using modeUnspecified = 0
 using modeRt = 1
 using modeCt = 2
-
 
 // Diagnostic
 
@@ -54,7 +51,6 @@ fun mkDiagnostic(type: Int, loc: Location, message: StringRef): Diagnostic
     [native("$meta.raise")]
     fun raise()
 
-
 [ct]
 
     // CompilationContext functions
@@ -69,7 +65,6 @@ fun mkDiagnostic(type: Int, loc: Location, message: StringRef): Diagnostic
     /// Gets the source code object of the given compilation context
     [native("$meta.CompilationContext.sourceCode")]
     fun sourceCode(ctx: CompilationContext): SourceCode
-
 
     // AstType functions
 
@@ -91,7 +86,6 @@ fun mkDiagnostic(type: Int, loc: Location, message: StringRef): Diagnostic
     /// Returns true if the given type can be used at run-time
     [native("$meta.AstType.canBeUsedAtRt")]
     fun canBeUsedAtRt(t: AstType): Bool
-
 
     // AstNode functions
 

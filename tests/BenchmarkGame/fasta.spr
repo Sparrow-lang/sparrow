@@ -1,59 +1,50 @@
 //!! -O2
 
-import std.staticArray;
-import std.ranges;
-import std.algorithms;
-import std.string;
+import std.staticArray
+import std.ranges
+import std.algorithms
+import std.string
 
 fun write(r: Range, length: Int) if isValid(Char(r.front))
-{
-    using lineLength = 60;
-    var line: String = lineLength;
+    using lineLength = 60
+    var line: String = lineLength
     for n = length..0 ../ (-lineLength)
-    {
-        var len = min(n, lineLength);
+        var len = min(n, lineLength)
         for i = 0..len
-            line(i) = (r++);
+            line(i) = (r++)
         if ( len < lineLength )
-            line.resize(len);
-        cout << line << "\n";
-    }
-}
+            line.resize(len)
+        cout << line << "\n"
 
-var seed: Int = 42;
+var seed: Int = 42
 fun nextRandom: Double
-{
-    using IM = 139968;
-    seed = (seed * 3877 + 29573) % IM;
-    return seed * 1.0/IM;
-}
-var randomRange = generate(\nextRandom);
+    using IM = 139968
+    seed = (seed * 3877 + 29573) % IM
+    return seed * 1.0/IM
+var randomRange = generate(\nextRandom)
 
 [initCtor]
 datatype RandomCharRange(distribValsRangeType: Type)
-    using RetType = Char;
-    distribStr: StringRef;
-    distribVals: distribValsRangeType;
+    using RetType = Char
+    distribStr: StringRef
+    distribVals: distribValsRangeType
 
-fun isEmpty(this: @RandomCharRange) = false;
+fun isEmpty(this: @RandomCharRange) = false
 fun popFront(this: @RandomCharRange) {}
 fun front(this: @RandomCharRange): Char
-    var randVal: Float = (randomRange++);
-    var i = 0;
-    var r = distribVals;
+    var randVal: Float = (randomRange++)
+    var i = 0
+    var r = distribVals
     while !r.isEmpty; r.popFront()
-    {
         if ( randVal < *r )
-            break;
-        ++i;
-    }
-    return distribStr(i);
+            break
+        ++i
+    return distribStr(i)
 
-fun mkRandomCharRange(s: StringRef, v: Range) = RandomCharRange(typeOf(v))(s,v);
+fun mkRandomCharRange(s: StringRef, v: Range) = RandomCharRange(typeOf(v))(s,v)
 
 fun sprMain
-{
-    var n = (programArgs(1) asInt);
+    var n = (programArgs(1) asInt)
 
     var alu: String = (
         "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGG" +
@@ -62,26 +53,25 @@ fun sprMain
         "ACAAAAATTAGCCGGGCGTGGTGGCGCGCGCCTGTAATCCCA" +
         "GCTACTCGGGAGGCTGAGGCAGGAGAATCGCTTGAACCCGGG" +
         "AGGCGGAGGTTGCAGTGAGCCGAGATCGCGCCACTGCACTCC" +
-        "AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA");
+        "AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA")
 
-    var iubStr = "acgtBDHKMNRSVWY";
-    var iubDist = mkValues(0.27f, 0.12f, 0.12f, 0.27f).all ++ repeat(0.02f, 11);
-    var iubCum = scanLeft(0.0f, iubDist, (fun acc,v = acc+v));
+    var iubStr = "acgtBDHKMNRSVWY"
+    var iubDist = mkValues(0.27f, 0.12f, 0.12f, 0.27f).all ++ repeat(0.02f, 11)
+    var iubCum = scanLeft(0.0f, iubDist, (fun acc,v = acc+v))
 
-    var homoSapiensStr = "acgt";
+    var homoSapiensStr = "acgt"
     var hsDist = mkValues(
-        0.3029549426680f, 0.1979883004921f, 0.1975473066391f, 0.3015094502008f);
-    var hsCum = scanLeft(0.0f, hsDist.all, (fun acc,v = acc+v));
+        0.3029549426680f, 0.1979883004921f, 0.1975473066391f, 0.3015094502008f)
+    var hsCum = scanLeft(0.0f, hsDist.all, (fun acc,v = acc+v))
 
-    cout << ">ONE Homo sapiens alu\n";
-    write(alu.all cycle, n*2);
+    cout << ">ONE Homo sapiens alu\n"
+    write(alu.all cycle, n*2)
 
-    cout << ">TWO IUB ambiguity codes\n";
-    write(mkRandomCharRange(iubStr, iubCum), n*3);
+    cout << ">TWO IUB ambiguity codes\n"
+    write(mkRandomCharRange(iubStr, iubCum), n*3)
 
-    cout << ">THREE Homo sapiens frequency\n";
-    write(mkRandomCharRange(homoSapiensStr, hsCum), n*5);
-}
+    cout << ">THREE Homo sapiens frequency\n"
+    write(mkRandomCharRange(homoSapiensStr, hsCum), n*5)
 
 /*<<<fasta (10)
 >ONE Homo sapiens alu

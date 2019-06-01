@@ -1,35 +1,27 @@
 // !! -O2
 
-import std.algorithms;
+import std.algorithms
 
-fun fib(n: UInt): UInt {
-    var a: UInt = 0;
-    var b: UInt = 1;
-    for i = 0..n {
-        var aOld = a;
-        a = b;
-        b += aOld;
-    }
-    return b;
-}
+fun fib(n: UInt): UInt
+    var a: UInt = 0
+    var b: UInt = 1
+    for i = 0..n
+        var aOld = a
+        a = b
+        b += aOld
+    return b
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+        return
+    var n = programArgs(1) asInt
 
-    var res: UInt = 0;
+    var res: UInt = 0
     for i = 1...n
-    {
-        var f = fib(i);
+        var f = fib(i)
         if ( f % 2 != 0 )
-        {
-            res += f*f;
-        }
-    }
-    cout << res << endl;
-}
+            res += f*f
+    cout << res << endl
 
 /*-<<<Basic test (50000)
 >>>*/

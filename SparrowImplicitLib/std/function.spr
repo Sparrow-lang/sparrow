@@ -116,8 +116,6 @@ package _Impl2
     fun >>(this: @Function2, os: @OutStream)
         os << _data
 
-
-
 package _Impl3
     datatype Function3(resT, t1, t2, t3: Type)
         using arity = 3

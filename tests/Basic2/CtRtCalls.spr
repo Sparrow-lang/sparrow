@@ -1,62 +1,46 @@
 //!!
 
 [rt] fun mallocRt()
-{
-    var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)));
-    pi = 10;
-    cout << pi << endl;
-    free(reinterpretCast(@Byte, pi));
-}
+    var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)))
+    pi = 10
+    cout << pi << endl
+    free(reinterpretCast(@Byte, pi))
 
 [ct] fun mallocCt()
-{
-    var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)));
-    pi = 11;
-    cout << pi << endl;
-    free(reinterpretCast(@Byte, pi));
-}
+    var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)))
+    pi = 11
+    cout << pi << endl
+    free(reinterpretCast(@Byte, pi))
 
 fun mallocRtCt()
-{
-    var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)));
-    pi = 12;
-    cout << pi << endl;
-    free(reinterpretCast(@Byte, pi));
-}
+    var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)))
+    pi = 12
+    cout << pi << endl
+    free(reinterpretCast(@Byte, pi))
 
 fun rtCaller()
-{
-    mallocRtCt();
-}
+    mallocRtCt()
 
 [ct] fun ctCaller()
-{
-    mallocRtCt();
-}
+    mallocRtCt()
 
 fun test1()
-{
-    mallocRt();
-    mallocCt(); // Displays 11 at compile-time
-}
+    mallocRt()
+    mallocCt() // Displays 11 at compile-time
 
 fun test2()
-{
     // Call the same rtct function from two different contexts: one at rt, one at ct
-    rtCaller();
-    ctCaller(); // Display 12 at compile-time
-}
+    rtCaller()
+    ctCaller() // Display 12 at compile-time
 
 fun sprMain
-{
-    var x = 10;
-    var y = 2;
-    [ct] var yy = 2;
+    var x = 10
+    var y = 2
+    [ct] var yy = 2
 
-    test1();
-    cout << "---" << endl;
-    test2();
-}
+    test1()
+    cout << "---" << endl
+    test2()
 
 /*<<<Running()
 10

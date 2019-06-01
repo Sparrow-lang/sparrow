@@ -86,3 +86,13 @@ ADD_LIBRARY( SparrowFrontend
 )
 TARGET_LINK_LIBRARIES(SparrowFrontend ${REQ_LLVM_LIBRARIES})
 TARGET_LINK_LIBRARIES(SparrowFrontend ${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+
+# if(BOOTSTRAP_SPARROW)
+#     # Copy the generated assembly back to the source dir, so that we can commit it.
+#     add_custom_command(
+#         TARGET SparrowFrontend POST_BUILD
+#         COMMAND
+#             ${CMAKE_COMMAND} -E copy
+#             ${CMAKE_CURRENT_BINARY_DIR}/Grammar/parserIf.ll
+#             ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/parserIf.ll)
+# endif()

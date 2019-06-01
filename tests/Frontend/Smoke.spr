@@ -1,19 +1,15 @@
-import Nothing;
+import Nothing
 
-using Nothing.*;
+using Nothing.*
 
 package A
-{
     package B
-    {
         datatype C
-            a: Int;
-            b: Bool;
+            a: Int
+            b: Bool
 
         fun ctor(this: @C, aa: Int, bb: Bool) { a=aa; b=bb; }
-        fun f(x: Int): Int { return a; }
-    }
-}
-
+        fun f(x: Int): Int
+            return a
 
 ( . )     // ERROR

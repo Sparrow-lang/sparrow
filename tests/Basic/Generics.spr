@@ -1,80 +1,70 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x); // Always true
+concept AnyType(x) // Always true
 
 fun f1(t: Type, i: Int): Int
-{
-    var tmp: t;
-    tmp = i;
-    return tmp + i;
-}
+    var tmp: t
+    tmp = i
+    return tmp + i
 
 fun f2(t: Type)
-{
-    var tmp: t;
-    write('S');
-    write('i');
-    write('z');
-    write('e');
-    write(':');
-    write(' ');
-    writeLn(sizeOf(tmp));
-}
+    var tmp: t
+    write('S')
+    write('i')
+    write('z')
+    write('e')
+    write(':')
+    write(' ')
+    writeLn(sizeOf(tmp))
 
 datatype MyVector(t: Type)
-    start, end: t;
+    start, end: t
     using glob = _MyVectorHelper(t).glob
 
 package _MyVectorHelper(t: Type)
-    var glob: t;
+    var glob: t
 
 fun print(this: @MyVector)
-    write(start);
-    write(' ');
-    write('-');
-    write(' ');
-    writeLn(end);
-
+    write(start)
+    write(' ')
+    write('-')
+    write(' ')
+    writeLn(end)
 
 fun valSize(x: AnyType): SizeType
-{
-    return sizeOf(x);
-}
+    return sizeOf(x)
 
 [native("test")] fun test(n: Int)
-{
-    writeLn(f1(Int, 4));
+    writeLn(f1(Int, 4))
     //writeLn(f1(Double, 4));
-    f2(Int);
-    f2(Double);
-    f2(Byte);
+    f2(Int)
+    f2(Double)
+    f2(Byte)
 
     if ( Int == Double )
-        writeLn('F');
+        writeLn('F')
     if ( Int == Int )
-        write('O'); writeLn('K');
+        write('O'); writeLn('K')
 
-    var v1: MyVector(Int);
-    v1.start = 4;
-    v1.end = 5;
-    v1.print();
-    v1.glob = 100;
-    writeLn(MyVector(Int).glob);
+    var v1: MyVector(Int)
+    v1.start = 4
+    v1.end = 5
+    v1.print()
+    v1.glob = 100
+    writeLn(MyVector(Int).glob)
 
-    var v2: MyVector(Double);
-    v2.start = 10.0;
-    v2.end = 15.2;
-    v2.print();
-    v2.glob = 3.14;
-    writeLn(MyVector(Double).glob);
+    var v2: MyVector(Double)
+    v2.start = 10.0
+    v2.end = 15.2
+    v2.print()
+    v2.glob = 3.14
+    writeLn(MyVector(Double).glob)
 
-    writeLn('-');
-    writeLn(valSize(10));
-    writeLn(valSize(3.14));
-    writeLn(valSize(v1));
-    writeLn(valSize(v2));
-}
-
+    writeLn('-')
+    writeLn(valSize(10))
+    writeLn(valSize(3.14))
+    writeLn(valSize(v1))
+    writeLn(valSize(v2))
 
 /*<<<Running()
 8

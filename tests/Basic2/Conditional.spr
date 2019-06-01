@@ -1,7 +1,7 @@
 //!!
 
 datatype MyObj
-    a: Int;
+    a: Int
 
 fun ctor(this: @MyObj, i: Int) { a = i; cout << "ctor(" << a << ")" << endl; }
 fun ctor(this: @MyObj, other: MyObj) { a = other.a; cout << "copy ctor(" << a << ")" << endl; }
@@ -13,69 +13,56 @@ fun f1(): Int { return 101; }
 fun f2(): Int { return 102; }
 
 fun test1(b: Bool)
-{
-    var x: Int;
-    x = ife(b, 11, 12);
-    cout << x << endl;
-}
+    var x: Int
+    x = ife(b, 11, 12)
+    cout << x << endl
 
 fun test2(b: Bool, i1, i2: Int)
-{
-    var x: Int;
-    x = ife(b, i1, i2);
-    cout << x << endl;
-}
+    var x: Int
+    x = ife(b, i1, i2)
+    cout << x << endl
 
 fun test3(b: Bool)
-{
-    var x: Int;
-    x = ife(b, f1(), f2());
-    cout << x << endl;
-}
+    var x: Int
+    x = ife(b, f1(), f2())
+    cout << x << endl
 
 fun test4(b: Bool)
-{
-    cout << "before" << endl;
-    ife(b, MyObj(41), MyObj(42)).print();
-    cout << "after" << endl;
-}
+    cout << "before" << endl
+    ife(b, MyObj(41), MyObj(42)).print()
+    cout << "after" << endl
 
 fun testDifferentTypes1(cond: Bool)
-{
-    var s: Short = 11;
-    var b: Byte = 13;
-    cout << ife(cond, s, b) << endl;
+    var s: Short = 11
+    var b: Byte = 13
+    cout << ife(cond, s, b) << endl
     [ct] if ( typeOf(ife(cond, s, b)) != Int )
-        cout << "FAIL 1" << endl;
+        cout << "FAIL 1" << endl
 
     [ct] if ( typeOf(ife(cond, 1.0, 1)) != Double )
-        cout << "FAIL 2" << endl;
+        cout << "FAIL 2" << endl
 
     [ct] if ( typeOf(ife(cond, 1.0f, 1)) != Float )
-        cout << "FAIL 3" << endl;
+        cout << "FAIL 3" << endl
 
     [ct] if ( typeOf(ife(cond, ULong(1), Long(1))) != ULong )
-        cout << "FAIL 4" << endl;
-}
+        cout << "FAIL 4" << endl
 
 fun sprMain
-{
-    test1(true);
-    test1(false);
-    cout << "---" << endl;
-    test2(true, 21, 22);
-    test2(false, 21, 22);
-    cout << "---" << endl;
-    test3(true);
-    test3(false);
-    cout << "---" << endl;
-    test4(true);
-    test4(false);
+    test1(true)
+    test1(false)
+    cout << "---" << endl
+    test2(true, 21, 22)
+    test2(false, 21, 22)
+    cout << "---" << endl
+    test3(true)
+    test3(false)
+    cout << "---" << endl
+    test4(true)
+    test4(false)
 
-    cout << "===" << endl;
-    testDifferentTypes1(true);
-}
-
+    cout << "===" << endl
+    testDifferentTypes1(true)
 
 /*<<<Running()
 11

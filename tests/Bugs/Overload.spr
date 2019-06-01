@@ -1,27 +1,19 @@
 
-import std.algorithms;
+import std.algorithms
 
 fun f(a: Int, b: Int)
-{
-    cout << "f a b " << a << " " << b << endl;
-}
+    cout << "f a b " << a << " " << b << endl
 
 fun f(x: Double)
-{
-    cout << "f x " << x << endl;
-}
+    cout << "f x " << x << endl
 
 fun f(p: Int*Int)
-{
-    cout << "f p " << p._1 << " " << p._2 << endl;
-}
+    cout << "f p " << p._1 << " " << p._2 << endl
 
 fun sprMain
-{
-    f(2, 3);
-    f(2.0);
-    f(3 ~ 4);
-}
+    f(2, 3)
+    f(2.0)
+    f(3 ~ 4)
 /*<<<Running()
 f a b 2 3
 f x 2

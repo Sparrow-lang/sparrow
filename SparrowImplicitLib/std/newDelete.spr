@@ -25,6 +25,16 @@ fun new(t: Type, arg1, arg2, arg3, arg4: @AnyType): @t if isValid((#$t).ctor(arg
     res.ctor(arg1, arg2, arg3, arg4)
     return res
 
+fun new(t: Type, arg1, arg2, arg3, arg4, arg5: @AnyType): @t if isValid((#$t).ctor(arg1, arg2, arg3, arg4, arg5))
+    var res: @t = reinterpretCast(@t, malloc(sizeOf(t)))
+    res.ctor(arg1, arg2, arg3, arg4, arg5)
+    return res
+
+fun new(t: Type, arg1, arg2, arg3, arg4, arg5, arg6: @AnyType): @t if isValid((#$t).ctor(arg1, arg2, arg3, arg4, arg5, arg6))
+    var res: @t = reinterpretCast(@t, malloc(sizeOf(t)))
+    res.ctor(arg1, arg2, arg3, arg4, arg5, arg6)
+    return res
+
 fun delete(obj: @AnyType) if !isValid(obj.release)
     if obj !== null
         obj dtor

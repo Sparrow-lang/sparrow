@@ -1,16 +1,15 @@
 //!!
-import std.algorithms;
-import std.contiguousMemoryRange(ContiguousMemoryRange);
-import std.rawPtr(RawPtr, allocRawPtr);
-import std.list(List);
-import std.ranges;
-import std.tuple(~);
+import std.algorithms
+import std.contiguousMemoryRange(ContiguousMemoryRange)
+import std.rawPtr(RawPtr, allocRawPtr)
+import std.list(List)
+import std.ranges
+import std.tuple(~)
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+        return
+    var n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
@@ -21,63 +20,49 @@ fun sprMain
     else if n == 7; test7
     else if n == 8; test8
     else if n == 9; test9
-}
 
 [initCtor]
 datatype MyObj
-    x: Int;
+    x: Int
 
 fun <(this, other: @MyObj): Bool { return x < other.x; }
 
 datatype Greater
-    ;
+
 fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
-
 fun printRange(nr: ContiguousMemoryRange(Int))
-{
     while !nr.isEmpty()
-    {
-        cout << nr.front();
-        nr.popFront();
+        cout << nr.front()
+        nr.popFront()
         if ( nr.isEmpty() )
-            cout << endl;
+            cout << endl
         else
-            cout << " ";
-    }
-}
+            cout << " "
 
 fun printRange(nr: List(Int).RangeType)
-{
     while !nr.isEmpty()
-    {
-        cout << nr.front();
-        nr.popFront();
+        cout << nr.front()
+        nr.popFront()
         if ( nr.isEmpty() )
-            cout << endl;
+            cout << endl
         else
-            cout << " ";
-    }
-}
+            cout << " "
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
-{
-    var ptr = allocRawPtr(Int, size);
-    var ptrEnd = ptr.advance(DiffType(size));
-    var i = 0;
+    var ptr = allocRawPtr(Int, size)
+    var ptrEnd = ptr.advance(DiffType(size))
+    var i = 0
 
-    while i < size ; i = i + 1;
-        ptr.advance(i).value() = i;
+    while i < size ; i = i + 1
+        ptr.advance(i).value() = i
 
-    return ContiguousMemoryRange(Int)(ptr, ptrEnd);
-}
+    return ContiguousMemoryRange(Int)(ptr, ptrEnd)
 
 fun test1()
-{
-    cout << min(-3, 10) << endl;
-    cout << min(10, 10) << endl;
-    cout << min(MyObj(40), MyObj(23)).x << endl;
-}
+    cout << min(-3, 10) << endl
+    cout << min(10, 10) << endl
+    cout << min(MyObj(40), MyObj(23)).x << endl
 /*<<<Minimum(1)
 -3
 10
@@ -85,11 +70,9 @@ fun test1()
 >>>*/
 
 fun test2()
-{
-    cout << max(-3, 10) << endl;
-    cout << max(10, 10) << endl;
-    cout << max(MyObj(40), MyObj(23)).x << endl;
-}
+    cout << max(-3, 10) << endl
+    cout << max(10, 10) << endl
+    cout << max(MyObj(40), MyObj(23)).x << endl
 /*<<<Maximum(2)
 10
 10
@@ -97,11 +80,9 @@ fun test2()
 >>>*/
 
 fun test3()
-{
-    cout << min(-5, 5, Greater()) << endl;
-    cout << min(35, 5, Greater()) << endl;
-    cout << min(3, 3, Greater()) << endl;
-}
+    cout << min(-5, 5, Greater()) << endl
+    cout << min(35, 5, Greater()) << endl
+    cout << min(3, 3, Greater()) << endl
 /*<<<Predicate minimum(3)
 5
 35
@@ -109,11 +90,9 @@ fun test3()
 >>>*/
 
 fun test4()
-{
-    cout << max(-5, 5, Greater()) << endl;
-    cout << max(35, 5, Greater()) << endl;
-    cout << max(3, 3, Greater()) << endl;
-}
+    cout << max(-5, 5, Greater()) << endl
+    cout << max(35, 5, Greater()) << endl
+    cout << max(3, 3, Greater()) << endl
 /*<<<Predicate maximum(4)
 -5
 5
@@ -121,16 +100,14 @@ fun test4()
 >>>*/
 
 fun test5()
-{
-    var a = MyObj(10);
-    var b = MyObj(20);
+    var a = MyObj(10)
+    var b = MyObj(20)
 
-    swap(a, b);
-    cout << a.x << endl;
-    cout << b.x << endl;
-    swap(a, a);
-    cout << a.x << endl;
-}
+    swap(a, b)
+    cout << a.x << endl
+    cout << b.x << endl
+    swap(a, a)
+    cout << a.x << endl
 /*<<<Swapping(5)
 20
 10
@@ -138,60 +115,52 @@ fun test5()
 >>>*/
 
 fun test6()
-{
-    var cmr = createRangeAscending(10);
+    var cmr = createRangeAscending(10)
 
-    advance(cmr, 5);
-    printRange(cmr);
-}
+    advance(cmr, 5)
+    printRange(cmr)
 /*<<<Range advance(6)
 5 6 7 8 9
 >>>*/
 
 fun test7()
-{
-    var cmr = createRangeAscending(10);
-    var l = List(Int)(cmr);
-    var lr = l.all();
+    var cmr = createRangeAscending(10)
+    var l = List(Int)(cmr)
+    var lr = l.all()
 
-    retract(cmr, 5);
-    printRange(cmr);
-    retract(lr, 5);
-    printRange(lr);
-}
+    retract(cmr, 5)
+    printRange(cmr)
+    retract(lr, 5)
+    printRange(lr)
 /*<<<Range retract(7)
 0 1 2 3 4
 0 1 2 3 4
 >>>*/
 
 fun test8()
-{
-    var cmr = createRangeAscending(20);
-    var cmr0 = createRangeAscending(0);
+    var cmr = createRangeAscending(20)
+    var cmr0 = createRangeAscending(0)
 
-    cout << rangeSize(cmr) << endl;
-    cout << rangeSize(cmr0) << endl;
-}
+    cout << rangeSize(cmr) << endl
+    cout << rangeSize(cmr0) << endl
 /*<<<Range size(8)
 20
 0
 >>>*/
 
 fun test9()
-{
-    var x = 10;
-    var nr = createRangeAscending(5);
-    var pair = x ~ nr;
+    var x = 10
+    var nr = createRangeAscending(5)
+    var pair = x ~ nr
 
-    cout << pair.v1 << endl;
-    printRange(pair.v2);
+    cout << pair.v1 << endl
+    printRange(pair.v2)
 
-    var pair2 = 20 ~ (50 ~ "bla");
+    var pair2 = 20 ~ (50 ~ "bla")
 
-    cout << pair2.v1 << endl;
-    cout << pair2.v2.v1 << endl;
-    cout << pair2.v2.v2 << endl;
-}
+    cout << pair2.v1 << endl
+    cout << pair2.v2.v1 << endl
+    cout << pair2.v2.v2 << endl
 /*<<<Pair making(9)
 10
 0 1 2 3 4

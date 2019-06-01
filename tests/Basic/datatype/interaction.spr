@@ -2,7 +2,7 @@
 
 // Test purpose: various interaction patterns with datatypes (and their ctors)
 
-concept AnyType(x);
+concept AnyType(x)
 fun ctor(this: @AnyType, nothing: Uninitialized) {}
 
 datatype Book { author, name, isbn: StringRef }
@@ -53,7 +53,6 @@ fun CollectionBook(author, name, isbn, collection: StringRef): CollectionBook
     v2: t2
 
 [ctGeneric] fun *(t1,t2: Type): Type = Tuple(t1, t2)
-
 
 [native("test")] fun test(n: Int)
     var b = Book("LucTeo", "The wonders of Sparrow", "ISBN")

@@ -1,19 +1,15 @@
 //!!
 
-concept Swappable(x) if isValid(x.swap(x));
+concept Swappable(x) if isValid(x.swap(x))
 
 [autoCt] fun swap(a, b: @AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
-{
-    cout << "Simple swap called" << endl;
-    var tmp = a;
-    a = b;
-    b = tmp;
-}
+    cout << "Simple swap called" << endl
+    var tmp = a
+    a = b
+    b = tmp
 [autoCt] fun swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
-{
-    cout << "Fast swap called" << endl;
-    a.swap(b);
-}
+    cout << "Fast swap called" << endl
+    a.swap(b)
 
 [initCtor] datatype MyType1
     val: Int
@@ -23,38 +19,31 @@ package Inner
         val: Int
 
     fun swap(this, other: @MyType2)
-        var tmp = val;
-        val = other.val;
-        other.val = tmp;
+        var tmp = val
+        val = other.val
+        other.val = tmp
 
 using Inner.MyType2
 
 fun sprMain
-{
-    {
-        var x = 3;
-        var y = 5;
-        cout << x << ", " << y << endl;
-        swap(x, y);
-        cout << x << ", " << y << endl;
-    }
-    cout << "---" << endl;
-    {
-        var x = MyType1(13);
-        var y = MyType1(15);
-        cout << x.val << ", " << y.val << endl;
-        swap(x, y);
-        cout << x.val << ", " << y.val << endl;
-    }
-    cout << "---" << endl;
-    {
-        var x = MyType2(23);
-        var y = MyType2(25);
-        cout << x.val << ", " << y.val << endl;
-        swap(x, y);
-        cout << x.val << ", " << y.val << endl;
-    }
-}
+    ;
+        var x = 3
+        var y = 5
+        cout << x << ", " << y << endl
+        swap(x, y)
+        cout << x << ", " << y << endl
+    cout << "---" << endl
+        var x = MyType1(13)
+        var y = MyType1(15)
+        cout << x.val << ", " << y.val << endl
+        swap(x, y)
+        cout << x.val << ", " << y.val << endl
+    cout << "---" << endl
+        var x = MyType2(23)
+        var y = MyType2(25)
+        cout << x.val << ", " << y.val << endl
+        swap(x, y)
+        cout << x.val << ", " << y.val << endl
 
 /*<<<Running()
 3, 5

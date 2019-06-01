@@ -1,6 +1,6 @@
 module sparrowc.spr.grammar.layoutDecoder
 
-import parserDefs, node, token, ext, rangeWithLookahead
+import parserDefs, node, token, ext, rangeWithLookahead, ext
 import meta.location
 
 /**
@@ -19,16 +19,15 @@ import meta.location
  * 4) inside parenthesis or brackets, we don't insert anything, except:
  *     - if we are inside curly braces that are inside the inner most paren/brackets
  */
-datatype SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type) \
-        if TokenRange(#$tokensRangeType) && ErrorReporter(#$errorReporterType)
+datatype SparrowLayoutDecoder(tokensRangeType: Type) \
+        if TokenRange(#$tokensRangeType)
     using RetType = Token
     using _TokensRangeType = tokensRangeType
-    using _ErrRepType = errorReporterType
 
     /// The source ranges of tokens we will used while parsing
     _src: RangeWithLookahead(tokensRangeType)
     /// Object used to report errors
-    _errorReporter: errorReporterType
+    _errorReporter: ErrorReporter
     /// The vector containing the current indents levels
     _indents: UInt Vector
     /// The vector of currently open parenthesis and brackets
@@ -39,7 +38,7 @@ datatype SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type) \
     /// If the number of tokens is greater than 1, we change the type to '}'
     _toInjectCnt: Int
 
-fun ctor(this: @SparrowLayoutDecoder, tokens: this._TokensRangeType, errorReporter: this._ErrRepType)
+fun ctor(this: @SparrowLayoutDecoder, tokens: this._TokensRangeType, errorReporter: ErrorReporter)
     this._src ctor tokens
     this._errorReporter ctor errorReporter
     this._indents += 1      // Start at column 1

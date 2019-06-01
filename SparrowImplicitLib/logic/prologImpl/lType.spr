@@ -19,7 +19,6 @@ import meta = meta.compilerCore
     fun isAtomOnly(this: LType): Bool    = this._testBit(atom) && !this._testBit(number)
     fun isNumberOnly(this: LType): Bool  = this._testBit(number) && !this._testBit(atom)
 
-
     fun setAtomOnly(this: @LType): Bool   = this._setAlternativeBits(atom, number)
     fun setNumberOnly(this: @LType): Bool = this._setAlternativeBits(number, atom)
 

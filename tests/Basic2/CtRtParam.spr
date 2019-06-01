@@ -1,54 +1,40 @@
 //!!
 
-import std.ranges;
+import std.ranges
 
 fun doCompute(x: Int, y: Int ct): Int
-{
-    cout << "doCompute, ct" << endl;
-    return x * y;
-}
+    cout << "doCompute, ct" << endl
+    return x * y
 
 fun doCompute(x: Int, y: Int rt): Int
-{
-    cout << "doCompute, rt" << endl;
-    return x * y;
-}
+    cout << "doCompute, rt" << endl
+    return x * y
 
 fun apply(f: AnyType, n: Int ct)
-{
     [ct] if ( n != 0 )
-    {
-        f();
-        apply(f, n-1);
-    }
+        f()
+        apply(f, n-1)
     else
-        cout << " @ct" << endl;
-}
+        cout << " @ct" << endl
 
 fun apply(f: AnyType, n: Int rt)
-{
     for i = 0..n
-    {
-        f();
-    }
-    cout << " @rt" << endl;
-}
+        f()
+    cout << " @rt" << endl
 
 fun sprMain
-{
-    var x = 10;
-    var y = 2;
-    [ct] var yy = 2;
+    var x = 10
+    var y = 2
+    [ct] var yy = 2
 
-    cout << doCompute(x, y) << endl;
-    cout << doCompute(x, yy) << endl;
+    cout << doCompute(x, y) << endl
+    cout << doCompute(x, yy) << endl
 
-    cout << "---" << endl;
+    cout << "---" << endl
 
-    var n = 5;
-    apply((fun {cout << 'x';}), 5);
-    apply((fun {cout << 'x';}), n);
-}
+    var n = 5
+    apply((fun {cout << 'x';}), 5)
+    apply((fun {cout << 'x';}), n)
 
 /*<<<Running()
 doCompute, rt

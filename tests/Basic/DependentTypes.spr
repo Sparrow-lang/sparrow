@@ -1,6 +1,6 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x);
+concept AnyType(x)
 
 fun writeType(a: AnyType) if typeOf(a) == Int
     write('Int')

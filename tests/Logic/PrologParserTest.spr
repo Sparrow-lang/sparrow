@@ -1,5 +1,5 @@
 //!!
-import logic = logic.prolog;
+import logic = logic.prolog
 
 logic.compileProlog("
     orbits(mercury, sun).
@@ -13,7 +13,7 @@ logic.compileProlog("
     planet(P) :- orbits(P, sun).
 
     satellite(S) :- orbits(S, P), planet(P).
-");
+")
 
 logic.compileProlog("
     children(sam, mary).
@@ -38,7 +38,7 @@ logic.compileProlog("
 
     ancestor(A, C) :- children(C, A).
     ancestor(A, C) :- children(C, P), ancestor(A, P).
-");
+")
 
 [ct] var solarProlog = <{
     orbits(mercury, sun).
@@ -52,7 +52,7 @@ logic.compileProlog("
     planet(P) :- orbits(P, sun).
 
     satellite(S) :- orbits(S, P), planet(P).
-}>;
+}>
 
 [ct] var parentsProlog = <{
     children(sam, mary).
@@ -77,35 +77,27 @@ logic.compileProlog("
 
     ancestor(A, C) :- children(C, A).
     ancestor(A, C) :- children(C, P), ancestor(A, P).
-}>;
-
-
+}>
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+        return
+    var n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
     else if n == 3; test3
     else if n == 4; test4
-}
 
 fun test1
-{
-    cout << "Is Mercury orbiting Sun? " << orbits("mercury", "sun")() << endl;
-    cout << "Is Mercury a planet? " << planet("mercury")() << endl;
+    cout << "Is Mercury orbiting Sun? " << orbits("mercury", "sun")() << endl
+    cout << "Is Mercury a planet? " << planet("mercury")() << endl
 
-    var x: logic.LStr;
-    var pred = satellite(x);
+    var x: logic.LStr
+    var pred = satellite(x)
     while pred()
-    {
         //assert(x.isSet());
-        cout << "Satellite: " << x.get() << endl;
-    }
-}
+        cout << "Satellite: " << x.get() << endl
 /*<<<Injecting Prolog - solar system KNOWN-PROBLEM(1)
 Is Mercury orbiting Sun? true
 Is Mercury a planet? true
@@ -115,23 +107,19 @@ Satellite: deimos
 >>>*/
 
 fun test2
-{
-    cout << "?- children(sam, mary) => " << children("sam", "mary")() << endl;
-    cout << "?- gender(sam, male) => " << gender("sam", "male")() << endl;
-    cout << "?- parent(mary, sam) => " << parent("mary", "sam")() << endl;
-    cout << "?- father(frank, sam) => " << father("frank", "sam")() << endl;
-    cout << "?- mother(mary, sam) => " << mother("mary", "sam")() << endl;
-    cout << "?- ancestor(garry, sam) => " << ancestor("garry", "sam")() << endl;
+    cout << "?- children(sam, mary) => " << children("sam", "mary")() << endl
+    cout << "?- gender(sam, male) => " << gender("sam", "male")() << endl
+    cout << "?- parent(mary, sam) => " << parent("mary", "sam")() << endl
+    cout << "?- father(frank, sam) => " << father("frank", "sam")() << endl
+    cout << "?- mother(mary, sam) => " << mother("mary", "sam")() << endl
+    cout << "?- ancestor(garry, sam) => " << ancestor("garry", "sam")() << endl
 
-    var x, y: logic.LStr;
-    var pred = ancestor(x, y);
+    var x, y: logic.LStr
+    var pred = ancestor(x, y)
     while pred()
-    {
         //assert(x.isSet());
         //assert(y.isSet());
-        cout << x.get() << " is an ancestor of " << y.get() << endl;
-    }
-}
+        cout << x.get() << " is an ancestor of " << y.get() << endl
 /*<<<Injecting Prolog - parents KNOWN-PROBLEM(2)
 ?- children(sam, mary) => true
 ?- gender(sam, male) => true

@@ -1,5 +1,5 @@
 //!!
-import logic = logic.prolog;
+import logic = logic.prolog
 
 logic.compileProlog("
     orbits(mercury, sun).
@@ -13,10 +13,8 @@ logic.compileProlog("
     planet(P) :- orbits(P, sun).#           // ERROR
 
     satellite(S) :- orbits(S, P), planet(P).
-");
+")
 
 fun test1
-{
-    var x: LStr;
-    var pred = satellite(x);
-}
+    var x: LStr
+    var pred = satellite(x)

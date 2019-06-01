@@ -434,7 +434,7 @@ fun _quickSort(range: RandomAccessRange, m, n: SizeType, pred: AnyType)
 fun binarySearch(range: RandomAccessRange, value: AnyType): Bool \
         if isValid(value == *range)
     while !!range
-        var sz = range size;
+        var sz = range size
         var mid = (sz - 1) / 2
         var t = range(mid)
         if value == t
@@ -449,7 +449,7 @@ fun binarySearch(range: RandomAccessRange, value: AnyType): Bool \
 fun binarySearch(range: RandomAccessRange, value: AnyType, pred: AnyType): Bool \
         if typeOf(pred(value, *range)) == Bool
     while !!range
-        var sz = range size;
+        var sz = range size
         var mid = (sz - 1) / 2
         var t = range(mid)
         if pred(value, t)

@@ -1,20 +1,18 @@
 //!!
 
-var a = 2048;
+var a = 2048
 
 fun ctor
-    cout << 42 << endl;
+    cout << 42 << endl
 
 datatype MyObj(n: Int ct)
-    using b = 1024;
-    using c = n;
+    using b = 1024
+    using c = n
 
 fun sprMain
-{
-    cout << MyObj(0).b << endl;
-    cout << a << endl;
-    cout << MyObj(4096).c << endl;
-}
+    cout << MyObj(0).b << endl
+    cout << a << endl
+    cout << MyObj(4096).c << endl
 /*<<<Running()
 42
 1024

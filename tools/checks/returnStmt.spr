@@ -1,0 +1,50 @@
+module formatTool.checks.returnStmt
+
+import formatDetails.sourceData
+
+fun checkReturnInFunctions(src: @SourceData)
+    _findFun(src.rootNode)
+
+fun _findFun(node: Node)
+    if node.isNull
+        return
+    if (node kind) == nkFun
+        _checkFun(node)
+    for child = (node children)
+        _findFun(child)
+
+fun _checkFun(node: Node)
+    // Ignore functions with no return type or with no explicit body
+    if (node children)(1).isNull || (node children)(2).isNull
+        return
+    var res = (node children)(2) _checkBody
+    if res == _resEndsWithOther
+        reportWarning(node location, 'Function ', node name, ' does not end with return')
+    else if res == _resPartialReturn
+        reportWarning(node location, 'Function ', node name, ': not all alternatives end with return')
+
+fun _checkBody(node: Node): Int
+    if node.isNull
+        return _resEndsWithOther
+    var nk = node kind
+    if nk == nkBlockStmt || nk == nkNodeList
+        return _checkBody((node children) back)
+    else if nk == nkReturnStmt
+        return _resEndsWithReturn
+    if nk == nkModifiers
+        return _checkBody((node children) front)
+    else if nk == nkIfStmt
+        var r1 = _checkBody((node children)(1))
+        var r2 = _checkBody((node children)(2))
+        if r1 == _resEndsWithReturn && r2 == _resEndsWithReturn
+            return _resEndsWithReturn
+        else if r1 == _resEndsWithOther && r2 == _resEndsWithOther
+            return _resEndsWithOther
+        else
+            return _resPartialReturn
+    else
+        return _resEndsWithOther
+
+using _resEndsWithReturn = 0
+using _resEndsWithOther = 1
+using _resPartialReturn = 2

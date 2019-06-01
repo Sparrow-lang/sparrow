@@ -1,66 +1,55 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 [rt] fun pow1(x: Double, n: Int): Double
-{
     if ( equal(n, 0) )
-        return 1.0;
+        return 1.0
     else if ( equal(n, 1) )
-        return x;
+        return x
     else
         //return mul(x, pow1(x, sub(n,1)));
-        return mul(pow1(mul(x,x), div(n,2)), pow1(x, mod(n,2)));
-}
+        return mul(pow1(mul(x,x), div(n,2)), pow1(x, mod(n,2)))
 
 [ct] fun pow2(x: Double, n: Int): Double
-{
     if ( equal(n, 0) )
-        return 1.0;
+        return 1.0
     else if ( equal(n, 1) )
-        return x;
+        return x
     else
-        return mul(pow2(mul(x,x), div(n,2)), pow2(x, mod(n,2)));
-}
+        return mul(pow2(mul(x,x), div(n,2)), pow2(x, mod(n,2)))
 
 [autoCt] fun pow3(x: Double, n: Int): Double
-{
     if ( equal(n, 0) )
-        return 1.0;
+        return 1.0
     else
-        return mul(x, pow3(x, sub(n,1)));
-    return x;
-}
+        return mul(x, pow3(x, sub(n,1)))
+    return x
 
-[native("writeLnDouble"), autoCt] fun writeLnDoubleCt(x: Double);
-
+[native("writeLnDouble"), autoCt] fun writeLnDoubleCt(x: Double)
 
 // Function that can be called only with compile-time arguments
 [ct] fun ctTest(x: Double)
-{
-    writeLnDoubleCt(x);
-}
+    writeLnDoubleCt(x)
 
 [native("test")] fun test(n: Int)
-{
-    writeLnDouble(pow1(2.0, 0));
-    writeLnDouble(pow1(2.0, 1));
-    writeLnDouble(pow1(2.0, 2));
-    writeLnDouble(pow1(2.0, 3));
-    writeLnDouble(pow1(2.0, 4));
-    writeLnDouble(pow1(2.0, 5));
-    writeLnDouble(pow1(2.0, 6));
-    writeLnDouble(pow1(2.0, 7));
-    writeLnDouble(pow1(2.0, 8));
+    writeLnDouble(pow1(2.0, 0))
+    writeLnDouble(pow1(2.0, 1))
+    writeLnDouble(pow1(2.0, 2))
+    writeLnDouble(pow1(2.0, 3))
+    writeLnDouble(pow1(2.0, 4))
+    writeLnDouble(pow1(2.0, 5))
+    writeLnDouble(pow1(2.0, 6))
+    writeLnDouble(pow1(2.0, 7))
+    writeLnDouble(pow1(2.0, 8))
 
-    writeLnDouble(mathPow(3.0, 4.0));
-    writeLnDouble(pow1(3.0, 4));
-    writeLnDouble(pow2(3.0, 4));
-    pow3(3.0, 4);
-    writeLnDouble(pow3(3.0, 4));
+    writeLnDouble(mathPow(3.0, 4.0))
+    writeLnDouble(pow1(3.0, 4))
+    writeLnDouble(pow2(3.0, 4))
+    pow3(3.0, 4)
+    writeLnDouble(pow3(3.0, 4))
 
     //ctTest(pow1(4.0, 4));
-    ctTest(pow2(4.0, 4));
-    ctTest(pow3(4.0, 4));
-}
+    ctTest(pow2(4.0, 4))
+    ctTest(pow3(4.0, 4))
 
 /*<<<Running()
 1

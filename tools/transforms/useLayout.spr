@@ -1,0 +1,60 @@
+//! Transformation that uses spaces & layout in favor of curly braces
+module formatTool.transforms.useLayout
+
+import utils
+import formatDetails.sourceData
+
+fun useLayoutFormatter(src: @SourceData)
+    var parenCount = 0
+
+    var layout: LayoutHelper
+
+    var curlyStack: OpenCurlyInfo Vector
+
+    for i = 0..Int(src.tokens.size)
+        var tok: @TokenData = src.tokens(i)
+        var remaining = src.tokens.subrange(i+1)
+
+        if tok.type == tkLPAREN
+            parenCount++
+        else if tok.type == tkRPAREN && parenCount > 0
+            parenCount--
+
+        // Check for layout change
+        layout onToken tok
+
+        // Detect open-curly tokens; store the info in our stack
+        // The decision to remove this or not will be made at the close-curly
+        if tok.type == tkLCURLY
+            var canRemove = tok.canFormat && nextIsNewline(remaining) \
+                && layout.nextLineIndent(remaining) > layout.curLineIndent
+            curlyStack += OpenCurlyInfo(i, layout.curLineIndent, canRemove)
+
+        if tok.type == tkRCURLY
+            if curlyStack.isEmpty
+                reportError(tok.loc, 'Close curly found without the matching open curly')
+
+            // Take the open curly info off our stack
+            var openInfo = curlyStack.back
+            curlyStack.popBack
+
+            // Can we remove both tokens?
+            var canRemove = openInfo.canRemove && tok.canFormat && nextIsNewline(remaining) \
+                && layout.prevLineIndent > layout.curLineIndent
+            if canRemove
+                src.tokens(openInfo.idx) _replaceWithSemicolon
+                //clearTokenLine(openInfo.idx, src.tokens)
+                // For the end, replace this with a semicolon; this may be removed later
+                tok _replaceWithSemicolon
+
+fun _replaceWithSemicolon(token: @TokenData)
+    token.type = tkSEMICOLON
+    token.content = ';'
+
+//! Information to be kept for an open-curly.
+//! Needed to reason about what to do with the curly-pair, when reaching the close-curly.
+[initCtor]
+datatype OpenCurlyInfo
+    idx: Int        //!< The index in the tokens vector where the open-curly is found
+    lineIndent: Int //!< The indent of the line containing the open-curly
+    canRemove: Bool //!< True if we can eliminate this curly

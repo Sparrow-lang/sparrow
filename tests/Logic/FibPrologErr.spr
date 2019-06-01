@@ -1,5 +1,5 @@
 //!!
-import logic.prologFrontend;
+import logic.prologFrontend
 //import "FibonacciErr.pl";
 
 compileProlog("
@@ -11,16 +11,13 @@ compileProlog("
         X1 is X-1, fib(X1, Y1),
         Y is Y1 + Y2.
     fib(sun, earth).    %% ERROR
-");
-
+")
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+        return
+    var n = programArgs(1) asInt
 
-    var res: LInt;
-    cout << fib(n, res)() << endl;
-    cout << "res=" << res.get() << endl;
-}
+    var res: LInt
+    cout << fib(n, res)() << endl
+    cout << "res=" << res.get() << endl

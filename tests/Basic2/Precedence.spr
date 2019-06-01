@@ -1,18 +1,13 @@
 //!!
 
 fun writeLnBool(b: Bool)
-{
-    cout << ife(b, "true", "false") << endl;
-}
+    cout << ife(b, "true", "false") << endl
 
 fun sprMain
-{
-    cout << (1 + 2 * 3) << endl;
-    writeLnBool(true || true && false);
-    writeLnBool(1==1 || 2==2 && 1==2);
-    writeLnBool(1<=1 || 2>=2 && 1>=2);
-}
-
+    cout << (1 + 2 * 3) << endl
+    writeLnBool(true || true && false)
+    writeLnBool(1==1 || 2==2 && 1==2)
+    writeLnBool(1<=1 || 2>=2 && 1>=2)
 
 /*<<<Running()
 7

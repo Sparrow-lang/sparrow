@@ -1,17 +1,15 @@
 //!!
-import logic.prologFrontend;
-import "Fibonacci.pl";
+import logic.prologFrontend
+import "Fibonacci.pl"
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+        return
+    var n = programArgs(1) asInt
 
-    var res: LInt;
-    fib(n, res)();
-    cout << res.get();
-}
+    var res: LInt
+    fib(n, res)()
+    cout << res.get()
 
 /*<<<Logic Fibonacci (10)
 55>>>*/

@@ -3,7 +3,6 @@ module std.rMath
 import math(sqrt)
 import algorithms(foldLeft)
 
-
 fun sqr n = n*n
 
 fun sum(r: Range) = foldLeft(r, (fun x,y = x+y), r.RetType(0))
@@ -12,10 +11,8 @@ fun mean(r: Range): Double if Number(r.front)
     var sum: r.RetType = 0
     var count = 0
     for x = r
-    {
         sum += x
         ++count
-    }
     return Double(sum) / Double(count)
 
 fun rootMeanSquare r = sqrt(mean(r map \sqr))

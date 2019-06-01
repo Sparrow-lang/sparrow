@@ -49,7 +49,6 @@ fun pre_*(r: @Range): r.RetType = r.front
 // Call operator on range == range.front
 //fun post_()(r: @Range) = r.front
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // General range operations
 //
@@ -96,7 +95,6 @@ fun ...(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(e
 fun post_..(start: Number) = NumericRangeInc(typeOf(start))(start, NumericLimits(typeOf(start)).maxValue)
 
 fun ../(range: Range, step: Number) = NumericRangeWithStep(range.RetType)(range, step)
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Range constructors
@@ -165,7 +163,6 @@ fun zip(range1, range2: Range) = zip(range1, range2, MakePair(-@typeOf(range1.fr
 
 /// Scans left a range for the given functor and initial accumulator value
 fun scanLeft(acc: AnyType, range: Range, function: AnyType) = ScanLeftRange(typeOf(acc), typeOf(range), typeOf(function))(acc, range, function)
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Classes that implement ranges
@@ -541,7 +538,6 @@ datatype ValuesRange(contType: Type) if isValid((#$contType)(1))
     _idx: SizeType = 0
 
     using RetType       = contType.ValueType
-
 
 [protected]
     fun isEmpty(this: @ValuesRange)         = _idx >= _values.size

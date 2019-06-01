@@ -3,74 +3,62 @@
 // Test purpose: Test calling ctor & dtor for objects
 
 datatype MyObj
-    v: Int;
+    v: Int
 
 fun ctor(this: @MyObj)
-    writeLn("MyObj.ctor()");
+    writeLn("MyObj.ctor()")
 fun ctor(this: @MyObj, i: Int)
-    write("MyObj.ctor("); write(i); writeLn(")");
+    write("MyObj.ctor("); write(i); writeLn(")")
 fun ctor(this: @MyObj, i,j: Int)
-    write("MyObj.ctor("); write(i); write(", "); write(j); writeLn(")");
+    write("MyObj.ctor("); write(i); write(", "); write(j); writeLn(")")
 fun ctor(this: @MyObj, src: @MyObj)
-    writeLn("MyObj.ctor(copy)");
+    writeLn("MyObj.ctor(copy)")
 
 fun dtor(this: @MyObj)
-    writeLn("MyObj.dtor");
-
+    writeLn("MyObj.dtor")
 
 fun reconstruct(this: @MyObj)
-    this.dtor();
-    this.ctor(100);
+    this.dtor()
+    this.ctor(100)
 
 datatype Pair
-    first, second: MyObj;
+    first, second: MyObj
 
 fun ctor(this: @Pair)
-    first.ctor();
-    second.ctor();
-    writeLn("Pair.ctor()");
+    first.ctor()
+    second.ctor()
+    writeLn("Pair.ctor()")
 fun ctor(this: @Pair, i,j: Int)
-    first.ctor(i);
-    second.ctor(j);
-    write("Pair.ctor("); write(i); write(", "); write(j); writeLn(")");
+    first.ctor(i)
+    second.ctor(j)
+    write("Pair.ctor("); write(i); write(", "); write(j); writeLn(")")
 fun ctor(this: @Pair, src: Pair@)
-    first.ctor(src.first);
-    second.ctor(src.second);
-    writeLn("Pair.ctor(copy)");
+    first.ctor(src.first)
+    second.ctor(src.second)
+    writeLn("Pair.ctor(copy)")
 fun dtor(this: @Pair)
-    writeLn("Pair.dtor");
+    writeLn("Pair.dtor")
 
 [native("test")] fun test(n: Int)
-{
-    {
-        var x: MyObj;
-        var x1 = MyObj(1);
-        var x2 = MyObj(1,2);
-    }
-    writeLn("---");
-    {
-        var x: MyObj;
-        x.dtor();
-        x.ctor(10);
-    }
-    writeLn("---");
-    {
-        var x: MyObj;
-        x.reconstruct();
-    }
-    writeLn("---");
-    {
-        var x: Pair;
-        var x1 = Pair(15,16);
-    }
-    writeLn("---");
-    {
-        var p: @MyObj = reinterpretCast(@MyObj, mallocRt(sizeOf(MyObj)));
-        p.ctor(10);
-        p.dtor();
-        free(reinterpretCast(@Byte, p));
-    }
-}
+    ;
+        var x: MyObj
+        var x1 = MyObj(1)
+        var x2 = MyObj(1,2)
+    writeLn("---")
+        var x: MyObj
+        x.dtor()
+        x.ctor(10)
+    writeLn("---")
+        var x: MyObj
+        x.reconstruct()
+    writeLn("---")
+        var x: Pair
+        var x1 = Pair(15,16)
+    writeLn("---")
+        var p: @MyObj = reinterpretCast(@MyObj, mallocRt(sizeOf(MyObj)))
+        p.ctor(10)
+        p.dtor()
+        free(reinterpretCast(@Byte, p))
 
 /*<<<Running()
 MyObj.ctor()

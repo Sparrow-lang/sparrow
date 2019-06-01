@@ -174,7 +174,6 @@ package _Impl11
     [native("$funptr")] fun _doCall(this: @FunctionPtr11, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT
     fun ()(this: @FunctionPtr11, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
 
-
 package _Impl12
     datatype FunctionPtr12(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12: Type)
         using arity = 12
@@ -264,7 +263,6 @@ package _Impl15
 
     [native("$funptr")] fun _doCall(this: @FunctionPtr15, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): ResT
     fun ()(this: @FunctionPtr15, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15)
-
 
 using FunctionPtr = _Impl0.FunctionPtr0
 using FunctionPtr = _Impl1.FunctionPtr1

@@ -1,13 +1,11 @@
 //!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
-import HeaderD;
-import HeaderC;
-import HeaderB;
-import HeaderA;
+import HeaderD
+import HeaderC
+import HeaderB
+import HeaderA
 
 [native("test")] fun test(n: Int)
-{
-    writeLn("Ok");
-}
+    writeLn("Ok")
 
 /*<<<Running
 Ok

@@ -1,0 +1,285 @@
+//!! -I../../src/SparrowFrontend/Grammar -I../../tools/
+import parserIf, parser, parserDefs, scanner, bufferedCharSource
+
+import formatDetails.consoleErrorReporter
+
+import std.ranges
+import std.vector
+import std.newDelete
+
+var _nullNodeImpl: NodeImpl
+
+datatype NodeImpl
+    kind: String
+    loc: Location
+    name: String
+    children: Vector(Node)
+
+fun ctor(this: @NodeImpl)
+    this.kind ctor "<null>"
+fun ctor(this: @NodeImpl, l: Location, kind: StringRef)
+    this.kind ctor kind
+    this.loc ctor l
+    // cout << "Parsed: " << kind << endl
+fun ctor(this: @NodeImpl, l: Location, kind: StringRef, r: Range)
+    this.kind ctor kind
+    this.loc ctor l
+    children ctor r
+    // cout << "Parsed: " << kind << endl
+fun ctor(this: @NodeImpl, l: Location, kind: StringRef, r: Range, name: StringRef)
+    this.kind ctor kind
+    this.loc ctor l
+    this.name ctor name
+    children ctor r
+    // cout << "Parsed: " << kind << endl
+
+fun toImpl(n: Node): @NodeImpl = ife(n.data.data !== null, reinterpretCast(@NodeImpl, n.data.data), _nullNodeImpl)
+fun toNode(impl: @NodeImpl)    = Node(UntypedPtr(reinterpretCast(@Byte, impl)))
+
+fun >> (n: @NodeImpl, os: @OutStream)
+    os << n.kind
+    if !(n.children isEmpty)
+        os << "("
+        var first = true
+        for c = n.children.all
+            if first ; first = false
+            else os << ", "
+            os << (c toImpl)
+        os << ")"
+    // os << "/(" << n.loc << ")"
+
+fun createNode(l: Location, kind: StringRef): Node = new(NodeImpl, l, kind) toNode
+fun createNode(l: Location, kind: StringRef, children: Range): Node = new(NodeImpl, l, kind, children) toNode
+fun createNode(l: Location, kind: StringRef, children: Range, name: StringRef): Node = new(NodeImpl, l, kind, children, name) toNode
+
+datatype MyAstBuilder
+
+fun addToNodeList(this: @MyAstBuilder, nl, newNode: Node): Node
+    if nl isSet
+        if newNode isSet
+            (nl toImpl).children += newNode
+    else if newNode isSet
+        nl = createNode((newNode toImpl).loc, "nodeList", repeat(newNode, 1))
+    return nl
+
+fun mkModifiers(this: @MyAstBuilder, loc: @Location, main, mods: Node) \
+    = ife(mods isSet, createNode(loc, "modifiers", values(main, mods)), main)
+fun mkModule(this: @MyAstBuilder, loc: @Location, moduleName, decls: Node) \
+    = createNode(loc, "module", values(moduleName, decls))
+fun mkImportName(this: @MyAstBuilder, loc: @Location, alias: StringRef, toImport, decls: Node) \
+    = createNode(loc, "importName", values(toImport, decls), alias)
+fun mkUsing(this: @MyAstBuilder, loc: @Location, alias: StringRef, usingNode: Node) \
+    = createNode(loc, "using", repeat(usingNode, 1), alias)
+fun mkPackage(this: @MyAstBuilder, loc: @Location, name: StringRef, children, params, ifClause: Node) \
+    = createNode(loc, "package", repeat(children, 1), name)
+fun mkDatatype(this: @MyAstBuilder, loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node) \
+    = createNode(loc, "datatype", values(params, underlyingData, ifClause, children), name)
+fun mkField(this: @MyAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node): Node \
+    = createNode(loc, "field", values(typeNode, init), name)
+fun mkConcept(this: @MyAstBuilder, loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node) \
+    = createNode(loc, "concept", values(baseConcept, ifClause), name)
+fun mkVar(this: @MyAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \
+    = createNode(loc, "var", values(typeNode, init), name)
+fun mkParameter(this: @MyAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \
+    = createNode(loc, "param", values(typeNode, init), name)
+fun mkFun(this: @MyAstBuilder, loc: @Location, name: StringRef, formals, retType, body, bodyExp, ifClause: Node) \
+    = createNode(loc, "fun", values(formals, retType, body, bodyExp, ifClause), name)
+
+fun mkParenthesisExpr(this: @MyAstBuilder, expr: Node) \
+    = createNode((expr toImpl).loc, "paren", repeat(expr, 1))
+fun mkPostfixOp(this: @MyAstBuilder, loc: @Location, base: Node, op: StringRef) \
+    = createNode(loc, "postfix", values(base, createNode(loc, op)))
+fun mkInfixOp(this: @MyAstBuilder, loc: @Location, lhs: Node, op: StringRef, rhs: Node) \
+    = createNode(loc, "infix", values(lhs, createNode(loc, op), rhs))
+fun mkPrefixOp(this: @MyAstBuilder, loc: @Location, op: StringRef, base: Node) \
+    = createNode(loc, "prefix", values(createNode(loc, op), base))
+fun mkIdentifier(this: @MyAstBuilder, loc: @Location, id: StringRef) \
+    = createNode(loc, id)
+fun mkCompoundExpr(this: @MyAstBuilder, loc: @Location, base: Node, id: StringRef) \
+    = createNode(loc, "compoundExpr", values(base, createNode(loc, id)))
+fun mkStarExpr(this: @MyAstBuilder, loc: @Location, base: Node, id: StringRef) \
+    = createNode(loc, "starExpr", values(base, createNode(loc, id)))
+fun mkDotExpr(this: @MyAstBuilder, loc: @Location, base: Node, id: StringRef) \
+    = createNode(loc, "dotExpr", values(base, createNode(loc, id)))
+fun mkFunAppExpr(this: @MyAstBuilder, loc: @Location, base, args: Node) \
+    = createNode(loc, "funApp", values(base, args))
+fun mkLambdaExpr(this: @MyAstBuilder, loc: @Location, closureParams, formals, retType, body, bodyExpr: Node) \
+    = createNode(loc, "lambda", values(closureParams, formals, retType, body, bodyExpr))
+fun mkNullLiteral(this: @MyAstBuilder, loc: @Location) \
+    = createNode(loc, "null")
+fun mkBoolLiteral(this: @MyAstBuilder, loc: @Location, val: Bool) \
+    = createNode(loc, "boolLit")
+fun mkIntLiteral(this: @MyAstBuilder, loc: @Location, val: Int) \
+    = createNode(loc, "intLit")
+fun mkUIntLiteral(this: @MyAstBuilder, loc: @Location, val: UInt) \
+    = createNode(loc, "uintLit")
+fun mkLongLiteral(this: @MyAstBuilder, loc: @Location, val: Long) \
+    = createNode(loc, "longLit")
+fun mkULongLiteral(this: @MyAstBuilder, loc: @Location, val: ULong) \
+    = createNode(loc, "ulongLit")
+fun mkFloatLiteral(this: @MyAstBuilder, loc: @Location, val: Float) \
+    = createNode(loc, "floatLit")
+fun mkDoubleLiteral(this: @MyAstBuilder, loc: @Location, val: Double) \
+    = createNode(loc, "doubleLit")
+fun mkCharLiteral(this: @MyAstBuilder, loc: @Location, val: Char) \
+    = createNode(loc, "charLit")
+fun mkStringLiteral(this: @MyAstBuilder, loc: @Location, data: StringRef) \
+    = createNode(loc, "stringLit")
+
+fun mkBlockStmt(this: @MyAstBuilder, loc: @Location, stmts: Node) \
+    = createNode(loc, "block", repeat(stmts, 1))
+fun mkIfStmt(this: @MyAstBuilder, loc: @Location, expr, thenClause, elseClause: Node) \
+    = createNode(loc, "if", values(expr, thenClause, elseClause))
+fun mkForStmt(this: @MyAstBuilder, loc: @Location, id: StringRef, typeNode, range, action: Node) \
+    = createNode(loc, "for", values(createNode(loc, id), typeNode, range, action))
+fun mkWhileStmt(this: @MyAstBuilder, loc: @Location, expr, stepAction, body: Node) \
+    = createNode(loc, "while", values(expr, stepAction, body))
+fun mkBreakStmt(this: @MyAstBuilder, loc: @Location) \
+    = createNode(loc, "break")
+fun mkContinueStmt(this: @MyAstBuilder, loc: @Location) \
+    = createNode(loc, "continue")
+fun mkReturnStmt(this: @MyAstBuilder, loc: @Location, expr: Node) \
+    = createNode(loc, "return", repeat(expr, 1))
+
+fun sprMain
+    if programArgs.size() < 2
+        return
+    var n = programArgs(1) asInt
+
+    if      n == 0 ; doScan(mkCharSource(FileCharSource(programArgs(2))))
+    else if n == 1 ; doParse(mkCharSource(FileCharSource(programArgs(2))))
+    else if n == 2 ; test2()
+    else if n == 3 ; test3()
+    else if n == 4 ; test4()
+    else if n == 5 ; test5()
+    else if n == 6 ; test6()
+    else if n == 7 ; test7()
+
+fun doScan(charSource: CharSource)
+    var loc = mkLocation()
+    var errorReporter: ConsoleErrorReporter
+    var scanner = SparrowScanner(charSource, mkErrorReporter(errorReporter), loc)
+
+    var token: Token
+    while true
+        token = (scanner++)
+        cout << token.type.data << " - '" << token.data << "' - " << token.loc << endl
+        if token.type == tkEND
+            break
+
+fun doParse(charSource: CharSource)
+    var loc = mkLocation()
+    var astBuilder: MyAstBuilder
+    var errorReporter: ConsoleErrorReporter
+    var parser: @ParserContext = createParser(charSource, loc, mkAstBuilder(astBuilder), mkErrorReporter(errorReporter))
+
+    var rootNode = parser parseModule
+    cout << (rootNode toImpl) << endl
+
+    parser destroyParser
+
+fun test2
+    var code = "1 2 3 4 5 0xff, 0b101, 0777, 0789, .123 0.123 1.123 12.34e2f 123_456 1_2.3_4"
+    doScan(mkCharSource(StringCharSource(code)))
+/*<<<Scan: numbers test(2)
+40 - '1' - 1:1-1:2
+40 - '2' - 1:3-1:4
+40 - '3' - 1:5-1:6
+40 - '4' - 1:7-1:8
+40 - '5' - 1:9-1:10
+40 - 'ff' - 1:11-1:15
+32 - '' - 1:15-1:16
+40 - '101' - 1:17-1:22
+32 - '' - 1:22-1:23
+40 - '0777' - 1:24-1:28
+32 - '' - 1:28-1:29
+40 - '0789' - 1:30-1:34
+32 - '' - 1:34-1:35
+45 - '.123' - 1:36-1:40
+45 - '0.123' - 1:41-1:46
+45 - '1.123' - 1:47-1:52
+44 - '12.34e2' - 1:53-1:61
+40 - '123456' - 1:62-1:69
+44 - '12.34' - 1:70-1:77
+0 - '' - 1:77-1:77
+>>>*/
+
+fun test3
+    var code = "a b c d e if then else abc_def _1 _a a1 a@#$ a.b.c ab.bc.cd abc.*"
+    doScan(mkCharSource(StringCharSource(code)))
+/*<<<Scan: ids test(3)
+36 - 'a' - 1:1-1:2
+36 - 'b' - 1:3-1:4
+36 - 'c' - 1:5-1:6
+36 - 'd' - 1:7-1:8
+36 - 'e' - 1:9-1:10
+15 - 'if' - 1:11-1:13
+36 - 'then' - 1:14-1:18
+23 - 'else' - 1:19-1:23
+36 - 'abc_def' - 1:24-1:31
+36 - '_1' - 1:32-1:34
+36 - '_a' - 1:35-1:37
+36 - 'a1' - 1:38-1:40
+36 - 'a' - 1:41-1:42
+37 - '@#$' - 1:42-1:45
+36 - 'a' - 1:46-1:47
+33 - '' - 1:47-1:48
+36 - 'b' - 1:48-1:49
+33 - '' - 1:49-1:50
+36 - 'c' - 1:50-1:51
+36 - 'ab' - 1:52-1:54
+33 - '' - 1:54-1:55
+36 - 'bc' - 1:55-1:57
+33 - '' - 1:57-1:58
+36 - 'cd' - 1:58-1:60
+36 - 'abc' - 1:61-1:64
+33 - '' - 1:64-1:65
+37 - '*' - 1:65-1:66
+0 - '' - 1:66-1:66
+>>>*/
+
+fun test4
+    var code = ". .. ... !!! .* # !@#$%^&*-+="
+    doScan(mkCharSource(StringCharSource(code)))
+/*<<<Scan: operators test(4)
+33 - '' - 1:1-1:2
+37 - '..' - 1:3-1:5
+37 - '...' - 1:6-1:9
+37 - '!!!' - 1:10-1:13
+33 - '' - 1:14-1:15
+37 - '*' - 1:15-1:16
+37 - '#' - 1:17-1:18
+37 - '!@#$%^&*-+=' - 1:19-1:30
+0 - '' - 1:30-1:30
+>>>*/
+
+fun test5
+    var code = "\"abcd\" 'a' <{abc\\nop}>"
+    doScan(mkCharSource(StringCharSource(code)))
+/*<<<Scan: strings test(5)
+39 - 'abcd' - 1:1-1:7
+39 - 'a' - 1:8-1:11
+39 - 'abc\nop' - 1:12-1:23
+0 - '' - 1:23-1:23
+>>>*/
+
+//<<<File scanning test(0 ~/work/sparrow/SparrowImplicitLib/std/ranges.spr)
+//<<<File scanning test(0 ~/work/sparrow/SparrowImplicitLib/std/vector.spr)
+
+fun test6
+    var code = "module a.b.c.d;"
+    doParse(mkCharSource(StringCharSource(code)))
+/*<<<Parse: module name only(6)
+module(compoundExpr(compoundExpr(compoundExpr(a, b), c), d), <null>)
+>>>*/
+
+fun test7
+    var code = "import x.y.z, k, l(a,b,c);"
+    doParse(mkCharSource(StringCharSource(code)))
+/*<<<Parse: just an import(7)
+module(<null>, nodeList(nodeList(importName(compoundExpr(compoundExpr(x, y), z), <null>), importName(k, <null>), importName(l, nodeList(a, b, c)))))
+>>>*/
+
+//<<<File parsing test(1 ../../SparrowImplicitLib/std/ranges.spr)
+//<<<File parsing test(1 ../../SparrowImplicitLib/std/vector.spr)
+//<<<File parsing test(1 ../../SparrowImplicitLib/sprCore/basicDecls.spr)

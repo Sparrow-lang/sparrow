@@ -1,0 +1,164 @@
+//! Define simple AST nodes for capturing the syntax of Sparrow source files and
+//! provides an implementation for the AstBuilder interface.
+module formatTool.formatDetails.astNodeImpls
+
+import nodeKinds
+
+// from SparrowFrontend/Grammar
+import parserIf, parser, parserDefs, node
+
+import std.ranges, std.vector, std.newDelete
+
+//! An AST node; we use this to represent the basic properties of our AST
+datatype AstNodeImpl
+    kind: NodeKind
+    loc: Location
+    name: String
+    children: Vector(Node)
+    parent: Node = Node()
+
+fun ctor(this: @AstNodeImpl)
+    this.kind ctor nkNULL
+fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind)
+    this.kind ctor kind
+    this.loc ctor l
+    // cout << "Parsed: " << kind << endl
+fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, r: Range)
+    this.kind ctor kind
+    this.loc ctor l
+    this.children ctor r
+    // cout << "Parsed: " << kind << endl
+fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, r: Range, name: StringRef)
+    this.kind ctor kind
+    this.loc ctor l
+    this.name ctor name
+    this.children ctor r
+    // cout << "Parsed: " << kind << endl
+fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, name: StringRef)
+    this.kind ctor kind
+    this.loc ctor l
+    this.name ctor name
+    // cout << "Parsed: " << kind << endl
+
+fun _toImpl(n: Node): @AstNodeImpl = ife(n.data.data !== null, reinterpretCast(@AstNodeImpl, n.data.data), _nullAstNodeImpl)
+fun _toNode(impl: @AstNodeImpl)    = Node(UntypedPtr(reinterpretCast(@Byte, impl)))
+
+fun isSet(this: Node)                   = this.data.data !== null
+fun isNull(this: Node)                  = this.data.data === null
+fun kind(this: Node): NodeKind          = _toImpl(this).kind
+fun location(this: Node): Location      = _toImpl(this).loc
+fun name(this: Node): StringRef         = _toImpl(this).name.all
+fun parent(this: Node): Node            = _toImpl(this).parent
+fun setParent(this: Node, parent: Node) { _toImpl(this).parent = parent }
+fun children(this: Node)                = _toImpl(this).children.all
+
+fun >> (n: @AstNodeImpl, os: @OutStream)
+    os << n.kind
+    if !(n.children isEmpty)
+        os << "("
+        var first = true
+        for c = n.children.all
+            if first ; first = false
+            else os << ", "
+            os << (c _toImpl)
+        os << ")"
+    // os << "/(" << n.loc << ")"
+
+fun createNode(l: Location, kind: NodeKind): Node = new(AstNodeImpl, l, kind) _toNode
+fun createNode(l: Location, kind: NodeKind, children: Range): Node = new(AstNodeImpl, l, kind, children) _toNode
+fun createNode(l: Location, kind: NodeKind, children: Range, name: StringRef): Node = new(AstNodeImpl, l, kind, children, name) _toNode
+fun createNode(l: Location, kind: NodeKind, name: StringRef): Node = new(AstNodeImpl, l, kind, name) _toNode
+
+var _nullAstNodeImpl: AstNodeImpl
+
+//! Simple AST builder; creates AST based on AstNodeImpl objects
+datatype SimpleAstBuilder
+
+fun addToNodeList(this: @SimpleAstBuilder, nl, newNode: Node): Node
+    if nl isSet
+        if newNode isSet
+            (nl _toImpl).children += newNode
+            (nl _toImpl).loc copyEnd (newNode location)
+    else if newNode isSet
+        nl = createNode((newNode _toImpl).loc, nkNodeList, repeat(newNode, 1))
+    return nl
+
+fun mkModifiers(this: @SimpleAstBuilder, loc: @Location, main, mods: Node) \
+    = ife(mods isSet, createNode(loc, nkModifiers, values(main, mods)), main)
+fun mkModule(this: @SimpleAstBuilder, loc: @Location, moduleName, decls: Node) \
+    = createNode(loc, nkModule, values(moduleName, decls))
+fun mkImportName(this: @SimpleAstBuilder, loc: @Location, alias: StringRef, toImport, decls: Node) \
+    = createNode(loc, nkImportName, values(toImport, decls), alias)
+fun mkUsing(this: @SimpleAstBuilder, loc: @Location, alias: StringRef, usingNode: Node) \
+    = createNode(loc, nkUsing, repeat(usingNode, 1), alias)
+fun mkPackage(this: @SimpleAstBuilder, loc: @Location, name: StringRef, children, params, ifClause: Node) \
+    = createNode(loc, nkPackage, repeat(children, 1), name)
+fun mkDatatype(this: @SimpleAstBuilder, loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node) \
+    = createNode(loc, nkDatatype, values(params, underlyingData, ifClause, children), name)
+fun mkField(this: @SimpleAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node): Node \
+    = createNode(loc, nkField, values(typeNode, init), name)
+fun mkConcept(this: @SimpleAstBuilder, loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node) \
+    = createNode(loc, nkConcept, values(baseConcept, ifClause), name)
+fun mkVar(this: @SimpleAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \
+    = createNode(loc, nkVar, values(typeNode, init), name)
+fun mkParameter(this: @SimpleAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \
+    = createNode(loc, nkParameter, values(typeNode, init), name)
+fun mkFun(this: @SimpleAstBuilder, loc: @Location, name: StringRef, formals, retType, body, bodyExp, ifClause: Node) \
+    = createNode(loc, nkFun, values(formals, retType, body, bodyExp, ifClause), name)
+
+fun mkParenthesisExpr(this: @SimpleAstBuilder, expr: Node) \
+    = createNode((expr _toImpl).loc, nkParenthesisExpr, repeat(expr, 1))
+fun mkPostfixOp(this: @SimpleAstBuilder, loc: @Location, base: Node, op: StringRef) \
+    = createNode(loc, nkPostfixOp, values(base, createNode(loc, nkIdentifier, op)))
+fun mkInfixOp(this: @SimpleAstBuilder, loc: @Location, lhs: Node, op: StringRef, rhs: Node) \
+    = createNode(loc, nkInfixOp, values(lhs, createNode(loc, nkIdentifier, op), rhs))
+fun mkPrefixOp(this: @SimpleAstBuilder, loc: @Location, op: StringRef, base: Node) \
+    = createNode(loc, nkPrefixOp, values(createNode(loc, nkIdentifier, op), base))
+fun mkIdentifier(this: @SimpleAstBuilder, loc: @Location, id: StringRef) \
+    = createNode(loc, nkIdentifier, id)
+fun mkCompoundExpr(this: @SimpleAstBuilder, loc: @Location, base: Node, id: StringRef) \
+    = createNode(loc, nkCompoundExpr, values(base, createNode(loc, nkIdentifier, id)))
+fun mkStarExpr(this: @SimpleAstBuilder, loc: @Location, base: Node, id: StringRef) \
+    = createNode(loc, nkStarExpr, repeat(base, 1), id)
+fun mkDotExpr(this: @SimpleAstBuilder, loc: @Location, base: Node, id: StringRef) \
+    = createNode(loc, nkDotExpr, repeat(base, 1), id)
+fun mkFunAppExpr(this: @SimpleAstBuilder, loc: @Location, base, args: Node) \
+    = createNode(loc, nkFunAppExpr, values(base, args))
+fun mkLambdaExpr(this: @SimpleAstBuilder, loc: @Location, closureParams, formals, retType, body, bodyExpr: Node) \
+    = createNode(loc, nkLambdaExpr, values(closureParams, formals, retType, body, bodyExpr))
+fun mkNullLiteral(this: @SimpleAstBuilder, loc: @Location) \
+    = createNode(loc, nkNullLiteral)
+fun mkBoolLiteral(this: @SimpleAstBuilder, loc: @Location, val: Bool) \
+    = createNode(loc, nkBoolLiteral)
+fun mkIntLiteral(this: @SimpleAstBuilder, loc: @Location, val: Int) \
+    = createNode(loc, nkIntLiteral)
+fun mkUIntLiteral(this: @SimpleAstBuilder, loc: @Location, val: UInt) \
+    = createNode(loc, nkUIntLiteral)
+fun mkLongLiteral(this: @SimpleAstBuilder, loc: @Location, val: Long) \
+    = createNode(loc, nkLongLiteral)
+fun mkULongLiteral(this: @SimpleAstBuilder, loc: @Location, val: ULong) \
+    = createNode(loc, nkULongLiteral)
+fun mkFloatLiteral(this: @SimpleAstBuilder, loc: @Location, val: Float) \
+    = createNode(loc, nkFloatLiteral)
+fun mkDoubleLiteral(this: @SimpleAstBuilder, loc: @Location, val: Double) \
+    = createNode(loc, nkDoubleLiteral)
+fun mkCharLiteral(this: @SimpleAstBuilder, loc: @Location, val: Char) \
+    = createNode(loc, nkCharLiteral)
+fun mkStringLiteral(this: @SimpleAstBuilder, loc: @Location, data: StringRef) \
+    = createNode(loc, nkStringLiteral)
+
+fun mkBlockStmt(this: @SimpleAstBuilder, loc: @Location, stmts: Node) \
+    = createNode(loc, nkBlockStmt, repeat(stmts, 1))
+fun mkIfStmt(this: @SimpleAstBuilder, loc: @Location, expr, thenClause, elseClause: Node) \
+    = createNode(loc, nkIfStmt, values(expr, thenClause, elseClause))
+fun mkForStmt(this: @SimpleAstBuilder, loc: @Location, id: StringRef, typeNode, range, action: Node) \
+    = createNode(loc, nkForStmt, values(createNode(loc, nkIdentifier, id), typeNode, range, action))
+fun mkWhileStmt(this: @SimpleAstBuilder, loc: @Location, expr, stepAction, body: Node) \
+    = createNode(loc, nkWhileStmt, values(expr, stepAction, body))
+fun mkBreakStmt(this: @SimpleAstBuilder, loc: @Location) \
+    = createNode(loc, nkBreakStmt)
+fun mkContinueStmt(this: @SimpleAstBuilder, loc: @Location) \
+    = createNode(loc, nkContinueStmt)
+fun mkReturnStmt(this: @SimpleAstBuilder, loc: @Location, expr: Node) \
+    = createNode(loc, nkReturnStmt, repeat(expr, 1))
+

@@ -1,0 +1,133 @@
+//!! -I../src/SparrowFrontend/Grammar
+import formatDetails.sourceData
+import transforms.emptyTransform, transforms.defaultFormat, transforms.refToMut
+import transforms.useLayout, transforms.removeEolSemicolons, transforms.removeExtraSpaces
+import checks.returnStmt, checks.moduleName
+
+import os
+
+//! The type of a basic transformation function
+using TransformFun = FunctionPtr(VoidType, @SourceData)
+//! A vector of transformations to apply
+using Transforms = TransformFun Vector
+
+fun sprMain
+    if programArgs.size() < 2
+        _printArgsError('not enough arguments')
+    var filename = ''
+
+    var inPlace = false
+    var doPrintAst = false
+    var transforms, checks: Transforms
+
+    for i=1..programArgs.size
+        var arg = programArgs(i)
+
+        if arg == '-format'
+            transforms += \useLayoutFormatter
+            transforms += \removeEolSemicolons
+            transforms += \removeExtraSpaces
+        else if arg == '-f=layout'
+            transforms += \useLayoutFormatter
+            transforms += \removeEolSemicolons
+        else if arg == '-f=empty'       ; transforms += \emptyTransform
+        else if arg == '-f=spaces'      ; transforms += \removeExtraSpaces
+        else if arg == '-f=ref-to-mut'  ; transforms += \refToMut
+        else if arg == '-i'             ; inPlace = true
+        else if arg == '-check'
+            checks += \checkReturnInFunctions
+            checks += \checkModuleName
+        else if arg == '-c=return'      ; checks += \checkReturnInFunctions
+        else if arg == '-c=modName'     ; checks += \checkModuleName
+        else if arg == '-printAst'      ; doPrintAst = true
+        else if arg.size > 0 && arg(0) == '-'.char
+            // This looks like a flag, but we don't recognize it
+            _printArgsError(toString('invalid argument: "', arg, '"').asStringRef)
+        else if !filename.isEmpty
+            // Another filename?
+            _printArgsError('can only have one filename')
+        else
+            filename = arg
+
+    if filename.isEmpty
+        // No filename?
+        _printArgsError('no filename given')
+
+    // Load the source data
+    var sourceData: SourceData
+    sourceData load filename
+
+    // Check the regions in which we should disable reformatting
+    _checkDisableFormatting(sourceData)
+
+    if doPrintAst
+        sourceData.rootNode printAst
+        return
+
+    // Perform all the checks
+    for trFun = checks.all
+        trFun(sourceData)
+
+    // Transform the tokens
+    for trFun = transforms.all
+        trFun(sourceData)
+
+    if !transforms.isEmpty
+        // Write the output
+        if inPlace
+            sourceData.tokens _writeToFile filename
+        else
+            sourceData.tokens _writeToStdout
+
+fun _printArgsError(msg: StringRef)
+    cout << 'ERROR: Invalid arguments passed (' << msg << ')\n\n' // IGNORE-ERROR for test.py
+    cout << 'Usage:\n'
+    cout << '  ' << programArgs(0) << ' -i -format <sparrowSourceFile>\n\n'
+    exit(1)
+
+fun _writeToStdout(tokens: @TokenVector)
+    for token = tokens.all
+        cout << token.content
+        //cout << '<' << (token.parentAst kind) << '>'
+
+fun _writeToFile(tokens: @TokenVector, filename: StringRef)
+    var destFile = File(filename, 'w')
+    if !destFile.isOpen
+        reportError(Location(), toString('cannot open output file: ', filename).asStringRef)
+
+    for token = tokens.all
+        destFile write token.content
+
+fun _checkDisableFormatting(src: @SourceData)
+    var formatOffCount = 0
+    for token: @TokenData = src.tokens.all
+        // Disable formatting if we are in a marked area
+        if formatOffCount > 0
+            token.canFormat = false
+
+        // Check fort star/end of the formatting-off area
+        if token.type == tkCOMMENT
+            var commentContent = _getCommentContent(token.content)
+            if commentContent == 'format off'
+                formatOffCount++
+            else if commentContent == 'format on' && formatOffCount > 0
+                formatOffCount--
+
+fun _getCommentContent(tokenStr: StringRef): StringRef
+    var res = tokenStr
+    if res.subrange(0, 2) == '//'
+        res popFront 2
+    else if res.subrange(0, 2) == '/*'
+        res popFront 2
+        res popBack 2
+    // Trim spaces
+    while !res.isEmpty && isSpace(res.front)
+        res popFront
+    while !res.isEmpty && isSpace(res.back)
+        res popBack
+    return res
+
+// <<<File scanning test(-format ../SparrowImplicitLib/std/ranges.spr)
+//<<<File scanning test(-check ../tests/Basic/Basic.spr)
+// <<<File scanning test(-format -i ../tests/StdLib/RangesTest.spr)
+// <<<File scanning test(-f=ref-to-mut ../SparrowImplicitLib/std/ranges.spr)

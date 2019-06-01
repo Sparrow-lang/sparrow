@@ -10,7 +10,6 @@ datatype SourceCode = @Byte
 fun >>(s: @SourceCode, os: @OutStream)
     os << mkStreamRefWrapper(s.data)
 
-
 /// Type that holds the location information: a source code and a range of chars into it
 datatype Location
     sourceCode: SourceCode
@@ -43,7 +42,6 @@ fun mkLocation: Location
         res.start = start
         res.end = end
         return res
-
 
 /// Set the location to (1,1,1,1), the first character in a stream
 fun setOne(l: @Location)
@@ -99,10 +97,19 @@ fun <(lhs, rhs: @Location): Bool
     if lhs.end.line > rhs.end.line      ; return false
     return lhs.end.col < rhs.end.col
 
+/// Compare location line-col
+fun <(lhs, rhs: @LineCol): Bool
+    if lhs.line < rhs.line      ; return true
+    if lhs.line > rhs.line      ; return false
+    return lhs.col < rhs.col
+
 fun >>(l: @Location, os: @OutStream)
-    os << l.start.line << ':' << l.start.col << '-'
-    os << l.end.line << ':' << l.end.col
-    os << " @" << l.sourceCode
+    os << l.start << '-' << l.end
+    if l.sourceCode.data !== null
+        os << " @" << l.sourceCode
+
+fun >>(lc: LineCol, os: @OutStream)
+    os << lc.line << ':' << lc.col
 
 // Source code & location functions exposed by the compiler
 [ct]

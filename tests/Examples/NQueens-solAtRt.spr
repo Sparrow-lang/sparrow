@@ -1,75 +1,55 @@
 //!!
 
-import std.array;
-import std.vector;
-import math = math;
+import std.array
+import std.vector
+import math = math
 
-[ct] var PlacementType = Array(Int);
-[ct] var SolutionsType = Vector(PlacementType);
+[ct] var PlacementType = Array(Int)
+[ct] var SolutionsType = Vector(PlacementType)
 
 fun testQueens(placements: @PlacementType, k, y: Int): Bool
-{
     for i = 0..k
-    {
         if ( y == placements(i) || math.abs(k-i) == math.abs(y-placements(i)) )
-            return false;
-    }
-    return true;
-}
+            return false
+    return true
 
 fun backtracking(x: @PlacementType, k, n: Int, res: @SolutionsType)
-{
     for y = 0..n
-    {
         if ( testQueens(x, k, y) )
-        {
-            x(k) = y;
+            x(k) = y
             if ( k == n-1 )
-                res.pushBack(x);
+                res.pushBack(x)
             else
-                backtracking(x, k+1, n, res);
-        }
-    }
-}
+                backtracking(x, k+1, n, res)
 
 fun writeSolution(x: @PlacementType)
-{
     for v = x.all()
-    {
         for i = 0..v
-            cout << "| ";
-        cout << "|Q";
+            cout << "| "
+        cout << "|Q"
         for i = (v+1)..(x.size())
-            cout << "| ";
-        cout << "|\n";
-    }
-    cout << "\n";
-}
+            cout << "| "
+        cout << "|\n"
+    cout << "\n"
 
 fun writeSolutionBasic(x: @PlacementType)
-{
     for v = x.all()
-        cout << v;
-    cout << "\n";
-}
+        cout << v
+    cout << "\n"
 
 [autoCt] fun nQueens(n: Int): SolutionsType
-{
-    var x: PlacementType = n;
-    var res: SolutionsType;
-    backtracking(x, 0, n, res);
+    var x: PlacementType = n
+    var res: SolutionsType
+    backtracking(x, 0, n, res)
     for sol = res.all()
-        writeSolution(sol);
-    return res;
-}
+        writeSolution(sol)
+    return res
 
 fun sprMain
-{
-    [ct] var solutionsCt = nQueens(4);
-    var solutions = solutionsCt;
+    [ct] var solutionsCt = nQueens(4)
+    var solutions = solutionsCt
     for sol = solutions.all()
-        writeSolution(sol);
-}
+        writeSolution(sol)
 
 /*<<<Running()
 | |Q| | |

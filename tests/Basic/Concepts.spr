@@ -1,24 +1,24 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x); // Always true
+concept AnyType(x) // Always true
 
 datatype A
-    ;
-fun f1(this: A) = 1;
-fun f2(this: A) = 2;
-fun f3(this: A) = 3;
+
+fun f1(this: A) = 1
+fun f2(this: A) = 2
+fun f3(this: A) = 3
 
 datatype B
-    ;
-fun f1(this: B) = 1;
+
+fun f1(this: B) = 1
 
 datatype C
-    ;
-fun f3(this: C) = 3;
 
-concept HasF1(x) if isValid(x.f1());
-concept HasF2(x) if isValid(x.f2());
-concept HasF3(x) if isValid(x.f3());
+fun f3(this: C) = 3
+
+concept HasF1(x) if isValid(x.f1())
+concept HasF2(x) if isValid(x.f2())
+concept HasF3(x) if isValid(x.f3())
 
 fun test1(x: HasF1)            { writeLn(x.f1()); }
 fun test2(x: HasF2)            { writeLn(x.f2()); }
@@ -28,55 +28,50 @@ fun test1(x: AnyType) if !HasF1(x)  { writeLn('-'); }
 fun test2(x: AnyType) if !HasF2(x)  { writeLn('-'); }
 fun test3(x: AnyType) if !HasF3(x)  { writeLn('-'); }
 
-
-fun valueOfType(t: Type): t;
+fun valueOfType(t: Type): t
 
 datatype Tester(t: Type) if HasF1(valueOfType(t))
     using T = t
 
 fun call(this: Tester)
-    var x: T;
-    writeLn(x.f1());
-
+    var x: T
+    writeLn(x.f1())
 
 [native("test")] fun test(n: Int)
-{
-    var a: A;
-    var b: B;
-    var c: C;
+    var a: A
+    var b: B
+    var c: C
 
-    test1(a);
-    test1(b);
-    test1(c);
-    test2(a);
-    test2(b);
-    test2(c);
-    test3(a);
-    test3(b);
-    test3(c);
+    test1(a)
+    test1(b)
+    test1(c)
+    test2(a)
+    test2(b)
+    test2(c)
+    test3(a)
+    test3(b)
+    test3(c)
 
-
-    writeLn("---");
+    writeLn("---")
     if a HasF1 ; writeLn("concept ok") else writeLn("concept failed")
     if b HasF1 ; writeLn("concept ok") else writeLn("concept failed")
     if c HasF1 ; writeLn("concept ok") else writeLn("concept failed")
 
-    writeLn("---");
-    var t1: Tester(A);
-    var t2: Tester(B);
+    writeLn("---")
+    var t1: Tester(A)
+    var t2: Tester(B)
     //var t3: Tester(C);
-    t1.call();
-    t2.call();
+    t1.call()
+    t2.call()
 
-    writeLn("---");
-    var aa: HasF1 = a;
-    var bb: HasF1 = b;
-    var cc: HasF3 = c;
+    writeLn("---")
+    var aa: HasF1 = a
+    var bb: HasF1 = b
+    var cc: HasF3 = c
     //var cc: HasF1 = c;
-    test1(aa);
-    test1(bb);
-    test3(cc);
-}
+    test1(aa)
+    test1(bb)
+    test3(cc)
 
 /*<<<Running()
 1

@@ -1,15 +1,14 @@
-import std.ranges;
-import std.vector(Vector);
-import std.list(List);
-import std.contiguousMemoryRange(ContiguousMemoryRange);
-import std.rawPtr(RawPtr, allocRawPtr);
-import std.algorithms;
+import std.ranges
+import std.vector(Vector)
+import std.list(List)
+import std.contiguousMemoryRange(ContiguousMemoryRange)
+import std.rawPtr(RawPtr, allocRawPtr)
+import std.algorithms
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+        return
+    var n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -30,115 +29,103 @@ fun sprMain
     else if n == 17 ; test17
     else if n == 18 ; test18
     else if n == 19 ; test19
-}
 
 [initCtor]
 datatype MyObj
-    x: Int;
+    x: Int
 
 fun =(this, other: @MyObj): @MyObj { x = other.x; return this; }
 fun ==(this, other: @MyObj): Bool = x == other.x
 fun <(this, other: @MyObj): Bool = x < other.x
 
 datatype Greater
-    ;
+
 fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
 datatype Even
-    ;
+
 fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
 datatype Minus
-    ;
-fun ()(this: Minus, x: Int, y: Int) = x - y;
+
+fun ()(this: Minus, x: Int, y: Int) = x - y
 
 datatype Square
-    ;
-fun ()(this: Square, x: AnyType) = x * x;
+
+fun ()(this: Square, x: AnyType) = x * x
 
 datatype Multiply
-    ;
-fun ()(this: Multiply, x: AnyType, y: AnyType) = x * y;
+
+fun ()(this: Multiply, x: AnyType, y: AnyType) = x * y
 
 datatype Fact
-    _res: Int = 1;
-    _k: Int = 0;
+    _res: Int = 1
+    _k: Int = 0
 
 fun ()(this: @Fact): Int
-    ++_k;
-    _res *= _k;
+    ++_k
+    _res *= _k
 
-    return _res;
+    return _res
 
-fun isOdd(n: Int) = n%2==1;
+fun isOdd(n: Int) = n%2==1
 
 fun printRange(nr: Range)
-{
     while !nr.isEmpty()
-    {
-        cout << nr.front();
-        nr.popFront();
+        cout << nr.front()
+        nr.popFront()
         if (nr.isEmpty() )
-            cout << endl;
+            cout << endl
         else
-            cout << ' ';
-    }
-}
+            cout << ' '
 
 fun makeList(): List(Int)
-{
-    var li: List(Int);
+    var li: List(Int)
 
-    li.pushBack(3);
-    li.pushBack(1);
-    li.pushBack(-4);
-    li.pushBack(-8);
-    li.pushBack(-8);
-    li.pushBack(7);
-    li.pushBack(-4);
-    li.pushBack(-8);
-    li.pushBack(3);
-    li.pushBack(-5);
-    li.pushBack(-10);
-    li.pushBack(-6);
-    li.pushBack(-10);
-    li.pushBack(7);
-    li.pushBack(-8);
+    li.pushBack(3)
+    li.pushBack(1)
+    li.pushBack(-4)
+    li.pushBack(-8)
+    li.pushBack(-8)
+    li.pushBack(7)
+    li.pushBack(-4)
+    li.pushBack(-8)
+    li.pushBack(3)
+    li.pushBack(-5)
+    li.pushBack(-10)
+    li.pushBack(-6)
+    li.pushBack(-10)
+    li.pushBack(7)
+    li.pushBack(-8)
 
-    return li;
-}
+    return li
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
-{
-    var ptr = allocRawPtr(Int, size);
-    var ptrEnd = ptr.advance(DiffType(size));
-    var i = 0;
+    var ptr = allocRawPtr(Int, size)
+    var ptrEnd = ptr.advance(DiffType(size))
+    var i = 0
 
     while i < size ; i++
-        ptr.advance(i).value() = i;
+        ptr.advance(i).value() = i
 
-    return ContiguousMemoryRange(Int)(ptr, ptrEnd);
-}
-
+    return ContiguousMemoryRange(Int)(ptr, ptrEnd)
 
 fun test1()
-{
-    var l = makeList();
-    var lr = l.all();
-    var v = Vector(Int)(lr);
-    var vr = v.all();
-    var ev = Vector(Int)();
-    var evr = ev.all();
+    var l = makeList()
+    var lr = l.all()
+    var v = Vector(Int)(lr)
+    var vr = v.all()
+    var ev = Vector(Int)()
+    var evr = ev.all()
 
-    printRange(retro(lr));
-    printRange(retro(retro(lr)));
-    printRange(retro(vr));
-    cout << retro(evr).isEmpty() << endl;
+    printRange(retro(lr))
+    printRange(retro(retro(lr)))
+    printRange(retro(vr))
+    cout << retro(evr).isEmpty() << endl
 
-    var rvr = retro(vr);
+    var rvr = retro(vr)
 
-    cout << rvr.front() << endl;
-}
+    cout << rvr.front() << endl
 /*<<<Retro ranges(1)
 -8 7 -10 -6 -10 -5 3 -8 -4 7 -8 -8 -4 1 3
 3 1 -4 -8 -8 7 -4 -8 3 -5 -10 -6 -10 7 -8
@@ -148,15 +135,13 @@ true
 >>>*/
 
 fun test2()
-{
-    var li = makeList();
-    var lr = li.all();
+    var li = makeList()
+    var lr = li.all()
 
-    printRange(take(lr, 5));
-    printRange(take(take(lr, 5), 3));
-    cout << take(lr, 0).isEmpty() << endl;
-    printRange(take(lr, 100));
-}
+    printRange(take(lr, 5))
+    printRange(take(take(lr, 5), 3))
+    cout << take(lr, 0).isEmpty() << endl
+    printRange(take(lr, 100))
 /*<<<Take ranges(2)
 3 1 -4 -8 -8
 3 1 -4
@@ -165,19 +150,17 @@ true
 >>>*/
 
 fun test3()
-{
-    var li = makeList();
-    var lr = li.all();
+    var li = makeList()
+    var lr = li.all()
 
-    cout << takeWhile(lr, Even()).isEmpty() << endl;
-    lr.popFront();
-    lr.popFront();
-    printRange(takeWhile(lr, Even()));
+    cout << takeWhile(lr, Even()).isEmpty() << endl
+    lr.popFront()
+    lr.popFront()
+    printRange(takeWhile(lr, Even()))
 
-    var nr = NumericRangeWithStep(Int)(0, 10, 2);
+    var nr = NumericRangeWithStep(Int)(0, 10, 2)
 
-    printRange(takeWhile(nr, Even()));
-}
+    printRange(takeWhile(nr, Even()))
 /*<<<Take while ranges(3)
 true
 -4 -8 -8
@@ -185,19 +168,17 @@ true
 >>>*/
 
 fun test4()
-{
-    var li = makeList();
-    var lr = li.all();
+    var li = makeList()
+    var lr = li.all()
 
-    cout << takeWhile(lr, Even(), 2).isEmpty() << endl;
-    lr.popFront();
-    lr.popFront();
-    printRange(takeWhile(lr, Even(), 2));
+    cout << takeWhile(lr, Even(), 2).isEmpty() << endl
+    lr.popFront()
+    lr.popFront()
+    printRange(takeWhile(lr, Even(), 2))
 
-    var nr = NumericRangeWithStep(Int)(0, 10, 2);
+    var nr = NumericRangeWithStep(Int)(0, 10, 2)
 
-    printRange(takeWhile(nr, Even(), 3));
-}
+    printRange(takeWhile(nr, Even(), 3))
 /*<<<Take while counted ranges(4)
 true
 -4 -8
@@ -205,18 +186,16 @@ true
 >>>*/
 
 fun test5()
-{
-    var li = makeList();
-    var lr = li.all();
+    var li = makeList()
+    var lr = li.all()
 
-    printRange(filter(lr, Even()));
-    printRange(lr filter Even());
-    printRange(lr filter ((fun x = x%2 == 0)));
+    printRange(filter(lr, Even()))
+    printRange(lr filter Even())
+    printRange(lr filter ((fun x = x%2 == 0)))
 
-    var nr = NumericRangeWithStep(Int)(1, 11, 2);
+    var nr = NumericRangeWithStep(Int)(1, 11, 2)
 
-    cout << filter(nr, Even()).isEmpty() << endl;
-}
+    cout << filter(nr, Even()).isEmpty() << endl
 /*<<<Filtered ranges(5)
 -4 -8 -8 -4 -8 -10 -6 -10 -8
 -4 -8 -8 -4 -8 -10 -6 -10 -8
@@ -225,14 +204,12 @@ true
 >>>*/
 
 fun test6()
-{
-    var li = makeList();
-    var lr = li.all();
+    var li = makeList()
+    var lr = li.all()
 
-    printRange(transform(lr, Square()));
-    printRange(lr map Square());
-    printRange(lr map ((fun x = x*x)));
-}
+    printRange(transform(lr, Square()))
+    printRange(lr map Square())
+    printRange(lr map ((fun x = x*x)))
 /*<<<Transformed ranges(6)
 9 1 16 64 64 49 16 64 9 25 100 36 100 49 64
 9 1 16 64 64 49 16 64 9 25 100 36 100 49 64
@@ -240,37 +217,31 @@ fun test6()
 >>>*/
 
 fun test7()
-{
-    var range = repeat(42);
-    var i = 0;
+    var range = repeat(42)
+    var i = 0
 
     while i < 1000
-    {
         if ( range.front() != 42 )
-            cout << "Test failed" << endl;
-        i = i + 1;
-        range.popFront();
-    }
-    printRange(repeat(42, 10));
-}
+            cout << "Test failed" << endl
+        i = i + 1
+        range.popFront()
+    printRange(repeat(42, 10))
 /*<<<Repeat ranges(7)
 42 42 42 42 42 42 42 42 42 42
 >>>*/
 
 fun test8()
-{
-    var li = makeList();
-    var lr = li.all();
-    var nr = NumericRangeWithStep(Int)(0, 5, 1);
-    var enr = NumericRangeWithStep(Int)(5, 5, 1);
-    var elr = List(Int)().all();
+    var li = makeList()
+    var lr = li.all()
+    var nr = NumericRangeWithStep(Int)(0, 5, 1)
+    var enr = NumericRangeWithStep(Int)(5, 5, 1)
+    var elr = List(Int)().all()
 
-    printRange(chain(lr, nr));
-    printRange(chain(nr, lr));
-    printRange(chain(nr, elr));
-    printRange(chain(enr, nr));
-    cout << chain(enr, elr).isEmpty() << endl;
-}
+    printRange(chain(lr, nr))
+    printRange(chain(nr, lr))
+    printRange(chain(nr, elr))
+    printRange(chain(enr, nr))
+    cout << chain(enr, elr).isEmpty() << endl
 /*<<<Chain ranges(8)
 3 1 -4 -8 -8 7 -4 -8 3 -5 -10 -6 -10 7 -8 0 1 2 3 4
 0 1 2 3 4 3 1 -4 -8 -8 7 -4 -8 3 -5 -10 -6 -10 7 -8
@@ -280,25 +251,23 @@ true
 >>>*/
 
 fun test9()
-{
-    var l = makeList();
-    var lr = l.all();
+    var l = makeList()
+    var lr = l.all()
 
-    printRange(stride(lr, 5));
+    printRange(stride(lr, 5))
 
-    var nr = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr = NumericRangeWithStep(Int)(0, 10, 1)
 
-    printRange(stride(nr, 3));
+    printRange(stride(nr, 3))
 
-    var v = Vector(Int)(makeList().all());
-    var vr = v.all();
+    var v = Vector(Int)(makeList().all())
+    var vr = v.all()
 
-    printRange(stride(vr, 5));
+    printRange(stride(vr, 5))
 
-    var nr2 = NumericRangeWithStep(Int)(0, 5, 1);
+    var nr2 = NumericRangeWithStep(Int)(0, 5, 1)
 
-    printRange(stride(nr2, 10));
-}
+    printRange(stride(nr2, 10))
 /*<<<Strided ranges(9)
 3 7 -10
 0 3 6 9
@@ -307,24 +276,22 @@ fun test9()
 >>>*/
 
 fun test10()
-{
-    var v = Vector(Int)(NumericRangeWithStep(Int)(0, 5, 1));
-    var vr = v.all();
+    var v = Vector(Int)(NumericRangeWithStep(Int)(0, 5, 1))
+    var vr = v.all()
 
-    printRange(radial(vr, 0));
-    printRange(radial(vr, 1));
-    printRange(radial(vr, 2));
-    printRange(radial(vr, 3));
-    printRange(radial(vr, 4));
+    printRange(radial(vr, 0))
+    printRange(radial(vr, 1))
+    printRange(radial(vr, 2))
+    printRange(radial(vr, 3))
+    printRange(radial(vr, 4))
 
-    var v2 = Vector(Int)(NumericRangeWithStep(Int)(0, 4, 1));
-    var vr2 = v2.all();
+    var v2 = Vector(Int)(NumericRangeWithStep(Int)(0, 4, 1))
+    var vr2 = v2.all()
 
-    printRange(radial(vr2, 0));
-    printRange(radial(vr2, 1));
-    printRange(radial(vr2, 2));
-    printRange(radial(vr2, 3));
-}
+    printRange(radial(vr2, 0))
+    printRange(radial(vr2, 1))
+    printRange(radial(vr2, 2))
+    printRange(radial(vr2, 3))
 /*<<<Radial ranges(10)
 0 1 2 3 4
 1 2 0 3 4
@@ -338,14 +305,12 @@ fun test10()
 >>>*/
 
 fun test11()
-{
-    var nr = NumericRangeWithStep(Int)(0, 5, 1);
+    var nr = NumericRangeWithStep(Int)(0, 5, 1)
 
-    printRange(cycle(nr, 4));
-    cout << cycle(nr, 0).isEmpty() << endl;
-    printRange(cycle(nr, 1));
-    printRange(take(cycle(nr), 13));
-}
+    printRange(cycle(nr, 4))
+    cout << cycle(nr, 0).isEmpty() << endl
+    printRange(cycle(nr, 1))
+    printRange(take(cycle(nr), 13))
 /*<<<Cyclic ranges(11)
 0 1 2 3 4 0 1 2 3 4 0 1 2 3 4 0 1 2 3 4
 true
@@ -353,18 +318,16 @@ true
 0 1 2 3 4 0 1 2 3 4 0 1 2
 >>>*/
 
-fun nextCollatz(n: Int) = ife(n%2==0, n/2, n*3+1);
+fun nextCollatz(n: Int) = ife(n%2==0, n/2, n*3+1)
 
 fun test12()
-{
-    printRange(take(generate(Fact()), 5));
-    printRange(generate(Fact(), 6));
-    cout << generate(Fact(), 0).isEmpty() << endl;
-    cout << "---" << endl;
+    printRange(take(generate(Fact()), 5))
+    printRange(generate(Fact(), 6))
+    cout << generate(Fact(), 0).isEmpty() << endl
+    cout << "---" << endl
 
-    printRange( generate1(13, \nextCollatz, 15) );
-    printRange( generate1(13 ,\nextCollatz) takeUntil (fun n = n==1) );
-}
+    printRange( generate1(13, \nextCollatz, 15) )
+    printRange( generate1(13 ,\nextCollatz) takeUntil (fun n = n==1) )
 /*<<<Generated ranges(12)
 1 2 6 24 120
 1 2 6 24 120 720
@@ -375,18 +338,16 @@ true
 >>>*/
 
 fun test13()
-{
-    printRange(numericRange(-5, 5, 2));
-    printRange(numericRange(5, -5, -2));
-    printRange(numericRange(-5, 5));
-    printRange(numericRange(5, -5, -1));
-    cout << "---" << endl;
-    printRange(-5 .. 5);
-    printRange(5 .. -5 ../ -1);
-    cout << "---" << endl;
-    printRange(-5...5);
-    printRange(5... -5 ../ -1);
-}
+    printRange(numericRange(-5, 5, 2))
+    printRange(numericRange(5, -5, -2))
+    printRange(numericRange(-5, 5))
+    printRange(numericRange(5, -5, -1))
+    cout << "---" << endl
+    printRange(-5 .. 5)
+    printRange(5 .. -5 ../ -1)
+    cout << "---" << endl
+    printRange(-5...5)
+    printRange(5... -5 ../ -1)
 /*<<<Numeric ranges(13)
 -5 -3 -1 1 3
 5 3 1 -1 -3
@@ -401,14 +362,12 @@ fun test13()
 >>>*/
 
 fun test14()
-{
-    printRange(zip(numericRange(0, 6), numericRange(3, 12), Multiply()));
+    printRange(zip(numericRange(0, 6), numericRange(3, 12), Multiply()))
 
-    var zr = zip(numericRange(0, 4), numericRange(0, -4, -1));
+    var zr = zip(numericRange(0, 4), numericRange(0, -4, -1))
 
     for p = zr
-        cout << p.v1 << ' ' << p.v2 << '\n';
-}
+        cout << p.v1 << ' ' << p.v2 << '\n'
 /*<<<Zipping(14)
 0 4 10 18 28 40
 0 0
@@ -418,24 +377,22 @@ fun test14()
 >>>*/
 
 fun test15()
-{
-    var r = 1...10;
-    printRange(r);
+    var r = 1...10
+    printRange(r)
 
     while !r.isEmpty()
-        cout << ' ' << (r++);
-    cout << endl;
+        cout << ' ' << (r++)
+    cout << endl
 
-    r = 1...10;
+    r = 1...10
     while ! !r        // call isEmpty() by pre_! operator
-        cout << ' ' << (r++);
-    cout << endl;
+        cout << ' ' << (r++)
+    cout << endl
 
-    r = 1...10;
+    r = 1...10
     while !r.isEmpty() && r.front() != 10
-        cout << ' ' << (++r);
-    cout << endl;
-}
+        cout << ' ' << (++r)
+    cout << endl
 /*<<<Pre and post ++ operators (15)
 1 2 3 4 5 6 7 8 9 10
  1 2 3 4 5 6 7 8 9 10
@@ -444,19 +401,17 @@ fun test15()
 >>>*/
 
 fun test16()
-{
-    var r = 1...10;
-    printRange(r);
+    var r = 1...10
+    printRange(r)
 
     while !r.isEmpty()
-        cout << ' ' << (r--);
-    cout << endl;
+        cout << ' ' << (r--)
+    cout << endl
 
-    r = 1...10;
+    r = 1...10
     while !r.isEmpty() && r.back() != 1
-        cout << ' ' << (--r);
-    cout << endl;
-}
+        cout << ' ' << (--r)
+    cout << endl
 /*<<<Pre and post -- operators (16)
 1 2 3 4 5 6 7 8 9 10
  10 9 8 7 6 5 4 3 2 1
@@ -464,15 +419,13 @@ fun test16()
 >>>*/
 
 fun test17()
-{
-    printRange( filter(1...10, \isOdd) );     // 1 3 5 7 9
-    printRange( map(1...5, (fun n = n*2)) ); // 2 4 6 8 10
+    printRange( filter(1...10, \isOdd) )     // 1 3 5 7 9
+    printRange( map(1...5, (fun n = n*2)) ) // 2 4 6 8 10
 
-    printRange( 1...10 filter \isOdd );       // 1 3 5 7 9
-    printRange( 1...5 map ((fun n = n*2)) ); // 2 4 6 8 10
+    printRange( 1...10 filter \isOdd )       // 1 3 5 7 9
+    printRange( 1...5 map ((fun n = n*2)) ) // 2 4 6 8 10
 
-    printRange( 1...10 filter \isOdd map (fun n = n*2) );  // 2 6 10 14 18
-}
+    printRange( 1...10 filter \isOdd map (fun n = n*2) )  // 2 6 10 14 18
 /*<<<Map and filter easy test (17)
 1 3 5 7 9
 2 4 6 8 10
@@ -482,13 +435,11 @@ fun test17()
 >>>*/
 
 fun test18()
-{
-    printRange( (1..) take 10 );
-    printRange( (21..) take 10 );
-    printRange( (Byte(1)..) take 10 );
-    printRange( Byte(120).. );
-    printRange( (Long(1)..) take 10 );
-}
+    printRange( (1..) take 10 )
+    printRange( (21..) take 10 )
+    printRange( (Byte(1)..) take 10 )
+    printRange( Byte(120).. )
+    printRange( (Long(1)..) take 10 )
 /*<<<Unbound numeric range (18)
 1 2 3 4 5 6 7 8 9 10
 21 22 23 24 25 26 27 28 29 30
@@ -498,12 +449,10 @@ fun test18()
 >>>*/
 
 fun test19()
-{
-    var count = 0;
-    var rcount: @Int = count;
-    printRange( (0..10) map (fun.{rcount} (n: Int): Int { ++rcount; return n; }) );
-    cout << count << endl;
-}
+    var count = 0
+    var rcount: @Int = count
+    printRange( (0..10) map (fun.{rcount} (n: Int): Int { ++rcount; return n; }) )
+    cout << count << endl
 /*<<<Map doen't call the function too often (19)
 0 1 2 3 4 5 6 7 8 9
 10

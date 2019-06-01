@@ -1070,8 +1070,6 @@ define void @_Type_copy_ctor(i8** %$this, i8* %other)
     fun dtor(this: Char) {}
     [native("_ass_8_8")] fun = (this: @Char, other: Char)
 
-
-
 [noDefault, bitcopiable, native("StringRef")]
 datatype StringRef
     begin: @Byte
@@ -1291,11 +1289,8 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("implOpRefEQ")] fun implOpRefEQ(x,y: @Byte): Bool
 [autoCt, native("implOpRefNE")] fun implOpRefNE(x,y: @Byte): Bool
 
-
 [ct, native("$typeEQ")] fun == (x, y: Type): Bool
 [ct, native("$typeAddRef")] fun @ (t: Type): Type
-
-
 
 [native("writeLnByte")] fun writeLn(x: Byte)
 [native("writeLnByte")] fun writeLn(x: UByte)
@@ -1336,7 +1331,6 @@ fun write(x: StringRef) { writeStringImpl(reinterpretCast(@Char, x.begin)); }
 
 [native("intToSizeType"), autoCt] fun intToSizeType(n: Int): SizeType
 [native("intToByte"), autoCt] fun intToByte(n: Int): Byte
-
 
 [native("mulInt"), autoCt] fun mul(x,y: Int): Int
 [native("mulDouble"), autoCt] fun mul(x,y: Double): Double
@@ -1415,7 +1409,6 @@ using oper_precedence_>>    = 50
 
 using oper_assoc_=          = -1
 using oper_assoc_:=         = -1
-
 
 [native("atoi")]
 fun _atoi(str: @Char): Int

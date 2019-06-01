@@ -53,7 +53,6 @@ fun isEmpty(this: @TokenDataSourceRange) = _data._atEnd
 fun front(this: @TokenDataSourceRange)   = _data._curToken
 fun popFront(this: @TokenDataSourceRange) = _data._popFront
 
-
 fun readAst(filename: StringRef): Node
     var loc = mkLocation()
     var astBuilder: SimpleAstBuilder

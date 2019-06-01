@@ -10,7 +10,7 @@ fun check_associativity(x: Int) = x+2 == 2+x
 
 fun check_IntIdentity(x: Int) = (x+0) == x && (0+x) == x
 
-fun classifier(x: Int): String 
+fun classifier(x: Int): String
     if ( x < 10 )   return "<10"
     if ( x < 20 )   return "<20"
     if ( x < 30 )   return "<30"
@@ -18,7 +18,7 @@ fun classifier(x: Int): String
 
 fun isTrivial(x: Int) = x<5
 
-fun sprMain 
+fun sprMain
     if ( programArgs.size() < 2 )
         return
     var n = programArgs(1) asInt
@@ -26,7 +26,7 @@ fun sprMain
     if      n == 1; testOk
     else if n == 2; testFailure
 
-fun testOk 
+fun testOk
     forAll(Int) check (fun x = true) ~ "that we have something running"
 
     forAll(Int) check \check_associativity ~ "Int associativity"
@@ -50,8 +50,7 @@ fun testOk
 
 //<<<Check non-failure cases (1)
 
-
-fun testFailure 
+fun testFailure
     forAll(0..10) check (fun x = x < 5) ~ "than we can report failures"
 
 /*<<<Report failures (2)

@@ -79,8 +79,6 @@ logic.compileProlog("
     ancestor(A, C) :- children(C, P), ancestor(A, P).
 }>
 
-
-
 fun sprMain
     if ( programArgs.size() < 2 )
         return

@@ -8,7 +8,6 @@ import tp = tasksImpl.taskPrefix
 import tasksImpl.workerImpl
 import schedulerIf = tasksImpl.schedulerIf
 
-
 fun spawnRootAndWait(task: @TaskType)
     [ct] if isValidAndTrue(tasksImpl.traceCalls) && isValid(cout << task)
         cout << "spawnRootAndWait(" << task << ")" << endl

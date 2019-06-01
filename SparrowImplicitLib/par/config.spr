@@ -12,7 +12,6 @@ fun >>(h: NativeThreadHandle, os: @OutStream)
 
 using InvalidThreadHandle = NativeThreadHandle()
 
-
 //! Get the number of available logical CPU cores for our process
 //! This dictates how much parallelism we have to be exploit
 fun getAvailableCoresNum(): UInt

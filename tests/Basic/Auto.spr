@@ -22,7 +22,6 @@ fun f2(x: @AnyType) if typeOf(x) == (Int@)
     f2(a)
     writeLn(a)
 
-
 /*<<<Running()
 non-ref
 5

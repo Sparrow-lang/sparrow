@@ -41,15 +41,14 @@ datatype MyObj
 fun <(this, other: @MyObj): Bool { return x < other.x; }
 
 datatype Greater
-    
+
 fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
 datatype Even
-    
+
 fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
 datatype Minus
-    
 
 fun ()(this: Minus, x: Int, y: Int) = x - y
 
@@ -95,7 +94,6 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
         ptr.advance(i).value() = i
 
     return ContiguousMemoryRange(Int)(ptr, ptrEnd)
-
 
 fun test1()
     var nr = 0..10

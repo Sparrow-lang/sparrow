@@ -28,9 +28,8 @@ datatype MyObj
 fun <(this, other: @MyObj): Bool { return x < other.x; }
 
 datatype Greater
-    
-fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
+fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
 fun printRange(nr: ContiguousMemoryRange(Int))
     while !nr.isEmpty()

@@ -86,7 +86,6 @@ fun popBack(q: @TaskQueue): TaskPtr
 
     return res
 
-
 [initCtor] datatype TasksPrinter
     _first: TaskPtr
     list: @TaskQueue

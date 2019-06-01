@@ -13,7 +13,6 @@ fun collatzLen(n: ULong): UInt
         ++len
     return len
 
-
 fun sprMain
     if ( programArgs.size() < 2 )
         return

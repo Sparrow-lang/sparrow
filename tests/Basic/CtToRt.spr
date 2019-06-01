@@ -33,7 +33,6 @@ fun printRef(x: Int@)
     writeLn(id(id(id(id(c1)))))
     //printRef(id(c1)); // Should raise an error
 
-
 /*<<<Running()
 1
 2

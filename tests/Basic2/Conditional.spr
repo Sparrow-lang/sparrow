@@ -64,7 +64,6 @@ fun sprMain
     cout << "===" << endl
     testDifferentTypes1(true)
 
-
 /*<<<Running()
 11
 12

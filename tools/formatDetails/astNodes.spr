@@ -9,7 +9,6 @@ import parserIf, parser, parserDefs, node
 
 import std.ranges, std.vector, std.newDelete
 
-
 //! An AST node; we use this to represent the basic properties of our AST
 datatype AstNodeImpl
     kind: NodeKind
@@ -71,7 +70,6 @@ fun createNode(l: Location, kind: NodeKind, children: Range, name: StringRef): N
 fun createNode(l: Location, kind: NodeKind, name: StringRef): Node = new(AstNodeImpl, l, kind, name) _toNode
 
 var _nullAstNodeImpl: AstNodeImpl
-
 
 //! Simple AST builder; creates AST based on AstNodeImpl objects
 datatype SimpleAstBuilder

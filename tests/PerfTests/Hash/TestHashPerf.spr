@@ -153,6 +153,5 @@ fun sprMain
         testRemove(hashBag, n)
     ;
 
-
 /*-<<<Basic hash test(10000)
 >>>*/

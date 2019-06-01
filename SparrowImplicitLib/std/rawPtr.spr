@@ -35,7 +35,6 @@ fun ctor(this: @RawPtr, byteRef: @Byte) if this.ValueType != Byte
         _ptr := other._ptr
         other._ptr := t
 
-
     fun >>(this: RawPtr, os: @OutStream)
         os << "RawPtr(" << mkStreamRefWrapper(this.bytePtr) << ")"
 

@@ -16,7 +16,6 @@ fun printUInt(x: UInt)
     write("UI: ")
     writeLn(x)
 
-
 [native("test")] fun test(n: Int)
     var sb: Byte = 1
     var ub: UByte = 2

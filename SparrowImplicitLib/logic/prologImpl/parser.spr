@@ -244,7 +244,6 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
             this._invalidToken(tok, String("atom, variable, number or antiquote"))
         return ExpressionPtr()
 
-
     fun _expectToken(this: @Parser, tok: @Token, expected: Int)
         if tok.type != expected
             this._invalidToken(tok, tokenTypeToString(expected))
@@ -252,6 +251,5 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
     fun _invalidToken(this: @Parser, tok: @Token, expected: @String)
         var msg: String = String("Invalid token found: ") + tokenTypeToString(tok.type) + String("; expected: ") + expected
         this._errorReporter.raiseError(tok.loc, msg.asStringRef)
-
 
     fun mkParser(lexer: @TokenRange, errorReporter: @AnyType) = Parser(-@typeOf(lexer), -@typeOf(errorReporter))(lexer, errorReporter)

@@ -19,7 +19,7 @@ import time = time
 [macro] fun compileProlog(sourceString: CompilerAstNode): CompilerAstNode
     var sourceStr: meta.AstNode = sourceString
     [ct] if ( (sourceString nodeKind) != meta.nkSparrowExpLiteral )
-        meta.report("compileProlog should take a string literal as argument", (sourceStr location));
+        meta.report("compileProlog should take a string literal as argument", (sourceStr location))
         return CompilerAstNode()
     else
         sourceStr semanticCheck

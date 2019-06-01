@@ -7,10 +7,8 @@ concept Regular(x) if (
     && typeOf(x == x) == Bool   // Equality is defined
     )
 
-
 [noDefault, convert]
 datatype NullType
-    
 
 fun ctor(this: @NullType) {}
 [convert] fun ctor(this: @NullType, other: AnyType) {}
@@ -19,7 +17,6 @@ fun dtor(this: NullType) {}
 fun ==(this, other: NullType) = true
 fun ==(this, other: AnyType) = false
 
-
 fun testRegular(x: Regular)
     cout << TypeOp.description(typeOf(x)) << " is Regular\n"
 
@@ -27,13 +24,12 @@ fun testRegular(x: AnyType) if !Regular(x)
     cout << TypeOp.description(typeOf(x)) << " is not Regular\n"
 
 datatype MyType
-    
+
     // Operators are implicitly defined
 
 package Isolated
     [noDefault]
     datatype EmptyType
-        
 
 fun sprMain
     testRegular(1)

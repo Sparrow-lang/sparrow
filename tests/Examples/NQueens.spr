@@ -14,7 +14,6 @@ import os = os
 using numQueens = 4
 using autoTestMode = true
 
-
 using PlacementType = Array(Int)
 using SolutionsType = Vector(PlacementType)
 
@@ -100,7 +99,6 @@ fun readFileLines(filename: StringRef): Vector(String)
             lines.pushBack(s)
     return lines
 
-
 [rt] fun toRt(sols: SolutionsType ct): SolutionsType
     var solsRt = sols
     return solsRt
@@ -171,7 +169,6 @@ fun readFileLines(filename: StringRef): Vector(String)
 
 [rt] fun toRt4(sols: SolutionsType ct): SolutionsType
     return fromStringBuffer(toStringBuffer(sols))
-
 
 fun sprMain
     [ct] if ( autoTestMode )

@@ -16,8 +16,6 @@ fun ctor(this: @ThreadId, h: NativeThreadHandle)
 fun >>(tid: @ThreadId, os: @OutStream)
     os << tid.id
 
-
-
 datatype Thread
     _handle: NativeThreadHandle
 
@@ -70,7 +68,6 @@ fun getId(t: Thread): ThreadId = ThreadId(t._handle)
 
 //! Get the native handle of the given thread
 fun getNativeHandle(t: Thread): NativeThreadHandle = t._handle
-
 
 //! Get the current thread id
 fun curThreadId: ThreadId = ThreadId(NativeThreadHandle())

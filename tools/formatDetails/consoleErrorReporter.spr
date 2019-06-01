@@ -6,7 +6,6 @@ import ext
 
 import os
 
-
 //! An error reporter that prints errors to the console
 datatype ConsoleErrorReporter
 

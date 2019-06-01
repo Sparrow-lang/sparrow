@@ -169,7 +169,6 @@ fun test4()
 43 destroyed
 >>>*/
 
-
 fun test5()
     var obj: @MyObj = newObj(42)
     var p = Ptr(MyObj)(obj)
@@ -192,7 +191,6 @@ MyObj.print(some argument)
 13
 42 destroyed
 >>>*/
-
 
 fun test6()
     var obj: @MyObj = newObj(42)

@@ -31,7 +31,6 @@ datatype ScopedTryLock(T: Type) if TryLockable(#$T)
     _theLock: @LockType
     _lockSucceeded: Bool
 
-
 fun ctor(this: @ScopedTryLock, theLock: @this.LockType)
     this._theLock := theLock
     this._lockSucceeded  = (_theLock tryLock)

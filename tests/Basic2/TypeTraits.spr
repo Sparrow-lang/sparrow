@@ -38,7 +38,6 @@ fun printType(t: Type)
     cout << numRef(t) << "    "
     cout << description(t) << endl
 
-
 fun test1
     var x: Double
     var xr: @Double = x

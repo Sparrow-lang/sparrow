@@ -51,7 +51,6 @@ fun print(p: Pair2)
     var pp4 = identity(pp2)
     print(pp4)
 
-
 /*<<<Running()
 Pair{11, 13}
 Pair{21, 23}

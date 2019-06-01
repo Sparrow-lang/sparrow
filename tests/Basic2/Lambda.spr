@@ -43,7 +43,6 @@ fun test1
 25
 >>>*/
 
-
 fun test2
     var x = 10
     var y = 11

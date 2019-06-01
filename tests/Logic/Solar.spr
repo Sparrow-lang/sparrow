@@ -2,7 +2,6 @@
 import logic.predicates
 //import assert;
 
-
 fun orbits(a, b: @LStr) = (
        a /=/ "Mercury"  && b /=/ "Sun"
     || a /=/ "Venus"    && b /=/ "Sun"

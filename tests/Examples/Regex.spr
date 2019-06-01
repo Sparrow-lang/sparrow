@@ -20,7 +20,6 @@ import precedenceUtils(getOperPrecedence, setOperPrecedence)
 // - 3 = timed test
 [ct] var testType = 0
 
-
 fun **(str: StringRef, count: Int): String
     var sz: SizeType = str.size()
     var res: String = sz*count
@@ -467,7 +466,6 @@ fun regexMatch(re: StringRef ct, str: StringRef): Bool
     var automaton = automatonCt
     return automaton.match(str)
 
-
 fun testRe(re, str: StringRef)
     if ( regexMatch(re, str) )
         cout << str << " match " << re << endl
@@ -526,7 +524,6 @@ fun testCtVsRtPerf(ctRe: StringRef ct, str: StringRef, repCount: Int)
     testCt(ctRe, 1, repCount, testStrings.all())
     var tCt = timerCt.elapsed()
     cout << "Compile-time:\t" << ctRe << "\t\t" << str << "\t\t" << repCount << "\t\t" << cnt << "\t\t" << tCt << endl
-
 
     cnt = 0
     var timerRt: time.Timer

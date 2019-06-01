@@ -19,8 +19,6 @@ fun regexMatch(re: StringRef ct, str: StringRef): Bool
     cout << "CT: regexMatch(" << re << ", " << str << ")\n"
     return false
 
-
-
 fun sprMain
     var n = 5
 

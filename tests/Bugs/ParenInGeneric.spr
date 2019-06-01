@@ -36,7 +36,6 @@ fun test(n: Int)
     assertF(v21 == v22)
     writeLn("OK")
 
-
 /*<<<Running()
 OK
 >>>*/

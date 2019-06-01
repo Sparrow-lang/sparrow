@@ -33,7 +33,6 @@ fun sprMain
     cout << r2 << endl
     cout << r3 << endl
 
-
 /*<<<Running KNOWN-PROBLEM()
 100
 100

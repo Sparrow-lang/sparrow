@@ -51,7 +51,6 @@ using nkReturnStmt      = NodeKind(38)
 // Not actually a node kind; just to represent a null node
 using nkNULL            = NodeKind(255)
 
-
 fun _asString(nk: NodeKind): StringRef
     if      nk == nkNodeList        return 'NodeList'
     else if nk == nkModifiers       return 'Modifiers'

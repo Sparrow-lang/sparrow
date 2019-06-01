@@ -26,11 +26,11 @@ datatype MyObj
 fun <(this, other: @MyObj): Bool { return x < other.x; }
 
 datatype Greater
-    
+
 fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
 datatype Even
-    
+
 fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
 fun printRange(nr: AnyType)
@@ -111,7 +111,6 @@ fun test1()
     var li: List(Int)
     makeList(li)
     var lr = li.all()
-
 
     printRange(copy(nr, lr))
     printRange(lr)

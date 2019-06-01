@@ -41,12 +41,14 @@ fun clearTokenLine(idx: Int, tokens: @TokenVector)
         clearToken(tokens(i))
 
 //! Checks if the next character is a newline (ignoring whitespaces and comments)
-fun nextIsNewline(remaining: TokensRange): Bool
+fun nextIsNewline(remaining: TokensRange, ignoreComment: Bool = true): Bool
     for tok: @TokenData = remaining
         var tk = tok.type
         if tk == tkEOL || tk == tkEND
             return true
-        if tk == tkWHITESPACE || tk == tkCOMMENT
+        if tk == tkWHITESPACE
+            continue
+        else if ignoreComment && tk == tkCOMMENT
             continue
         else
             return false

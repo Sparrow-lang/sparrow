@@ -9,22 +9,22 @@ import check
 [initCtor] datatype MyObj2
     x, y: Int
 
-fun >>(o: MyObj1, os: @OutStream) 
+fun >>(o: MyObj1, os: @OutStream)
     os << o.x
-fun >>(o: MyObj2, os: @OutStream) 
+fun >>(o: MyObj2, os: @OutStream)
     os << o.x << '#' << o.y
 
 using T2 = Tuple(MyObj1, MyObj2)
 using T4 = Tuple(MyObj1, MyObj2, Int rt, Bool rt)
 
-fun arbitrary(t: Type): T2 Gen if t == T2 
+fun arbitrary(t: Type): T2 Gen if t == T2
     return mkGen(T2, \generateT2)
 
-fun arbitrary(t: Type): T4 Gen if t == T4 
+fun arbitrary(t: Type): T4 Gen if t == T4
     return mkGen(T4, \generateT4)
 
 //! Generate an arbitrary tuple 2
-fun generateT2(sizeHint: UInt): T2 
+fun generateT2(sizeHint: UInt): T2
     var res: T2
     var h: Int = sizeHint + 5
     res.v1.x = randBetween(-h, h+1)
@@ -32,7 +32,7 @@ fun generateT2(sizeHint: UInt): T2
     res.v2.y = randBetween(-h, h+1)
     return res
 //! Generate an arbitrary tuple 4
-fun generateT4(sizeHint: UInt): T4 
+fun generateT4(sizeHint: UInt): T4
     var res: T4
     var h: Int = sizeHint + 5
     res.v1.x = randBetween(-h, h+1)
@@ -45,7 +45,7 @@ fun generateT4(sizeHint: UInt): T4
 fun isDefault2(t: T2) = t.v1.x == 0 && t.v2.x == 0 && t.v2.y == 0
 fun isDefault4(t: T4) = t.v1.x == 0 && t.v2.x == 0 && t.v2.y == 0 && t.v3 == 0 && t.v4 == false
 
-fun sprMain 
+fun sprMain
     var t2_1 = MyObj1(3) ~ MyObj2(4,5)
     var t4_1 = MyObj1(3) ~ MyObj2(4,5) ~ 6 ~ true
     var t2_2 = t2_1

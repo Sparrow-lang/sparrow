@@ -26,7 +26,6 @@
 
 [native("writeLnDouble"), autoCt] fun writeLnDoubleCt(x: Double)
 
-
 // Function that can be called only with compile-time arguments
 [ct] fun ctTest(x: Double)
     writeLnDoubleCt(x)

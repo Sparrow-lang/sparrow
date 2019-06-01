@@ -83,7 +83,6 @@ package NearClass
     fun = (this: @MyInt2, other: MyInt2)
         this.x = other.x
 
-
 using NearClass.MyInt2
 
 fun + (x,y: MyInt2): MyInt2
@@ -102,7 +101,6 @@ fun < (x,y: MyInt2): Bool
 
 fun = (x: MyInt2@, y: MyInt2)
     writeLn("failure")
-
 
 [native("test")] fun test(n: Int)
     writeLn(pow1(2.0, 0))
@@ -189,7 +187,6 @@ fun = (x: MyInt2@, y: MyInt2)
     assert(r1 === r2)
     r2 := trei
     assert(r1 !== r2)
-
 
         write('='); write('='); writeLn('=')
         var doi,trei,t: MyInt2

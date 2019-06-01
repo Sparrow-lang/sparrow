@@ -90,7 +90,6 @@ using nRotations = 12
 //    return Piece(PosTypeArr(offseted));
 //}
 
-
 //var models: StaticArray(Piece, nPieces);
 //fun ctor
 //{
@@ -105,7 +104,6 @@ using nRotations = 12
 //    models(8).ctor(0~0, 1~0, 2~  0, 2~  1, 3~  1);
 //    models(9).ctor(0~0, 1~0, 2~  0, 3~ -1, 3~  0);
 //}
-
 
 //fun init
 //{
@@ -152,7 +150,6 @@ datatype Direction
 fun ctor(this: @Direction, id: Int)
     this.id ctor id
 
-
 var pieceDef: StaticArray2d(Direction, 10, 4)
 
 fun setPiece(p: @StaticArray(Direction, 4), a, b, c, d: Direction)
@@ -170,7 +167,6 @@ fun ctor
     setPiece(pieceDef(7),  E, SE, SE,  W)
     setPiece(pieceDef(8),  E, SE,  E,  E)
     setPiece(pieceDef(9),  E,  E,  E, SW)
-
 
 /* To minimize the amount of work done in the recursive solve function below,
  * I'm going to allocate enough space for all legal rotations of each piece
@@ -196,8 +192,6 @@ fun rotate(dir: Direction) = Direction((dir.id+2) % Direction.numValues)
 
 /* Returns the direction flipped on the horizontal axis */
 fun flip(dir: Direction) = Direction((Direction.numValues-dir.id) % Direction.numValues)
-
-
 
 /* Returns the new cell index from the specified cell in the
  * specified direction.  The index is only valid if the
@@ -307,7 +301,7 @@ fun minimumOfCells(cell: @StaticArray(Byte, 5)): Byte
  * Used to later reduce the amount of time searching for open cells in the
  * solve function.
  */
-fun firstEmptyCell(cell: @StaticArray(Byte, 5), min: Byte): Byte 
+fun firstEmptyCell(cell: @StaticArray(Byte, 5), min: Byte): Byte
     while ( min == cell(0) || min == cell(1) || min == cell(2)
          || min == cell(3) || min == cell(4) )
         ++min
@@ -330,7 +324,6 @@ fun recordPiece(piece, min: Int, firstEmpty: Byte, pieceMask: ULong)
     nextCell(piece)(min)(pieceCounts(piece)(min)) = firstEmpty
     ++pieceCounts(piece)(min)
 
-
 /* Fill the entire board going cell by cell.  If any cells are "trapped"
  * they will be left alone.
  */
@@ -345,7 +338,6 @@ fun fillContiguousSpace(board: @StaticArray(Byte, nPositions), index: Byte)
     if !outOfBounds(index, W)  ; fillContiguousSpace(board, shift(index, W))
     if !outOfBounds(index, NW) ; fillContiguousSpace(board, shift(index, NW))
     if !outOfBounds(index, NE) ; fillContiguousSpace(board, shift(index, NE))
-
 
 /* To thin the number of pieces, I calculate if any of them trap any empty
  * cells at the edges.  There are only a handful of exceptions where the
@@ -368,7 +360,6 @@ fun hasIsland(cell: @StaticArray(Byte, 5), piece: Int): Bool
             ++c
     return c != 0 && !(c == 5 && piece == 8) && !(c == 40 && piece == 8) \
         && !(c % 5 == 0 && piece == 0)
-
 
 /* Calculate all six rotations of the specified piece at the specified index.
  * We calculate only half of piece 3's rotations.  This is because any solution
@@ -397,9 +388,7 @@ fun calcPieces
             flipPiece(piece)
             calcSixRotations(piece, index)
 
-
 }
-
 
 /* Calculate all 32 possible states for a 5-bit row and all rows that will
  * create islands that follow any of the 32 possible rows.  These pre-
@@ -466,7 +455,6 @@ fun tripleIsOkay(row1, row2, row3: Byte, even: Bool): Bool
         return ((r1 == 0x13) && (r2 == 0x11)) \
             || ((r1 == 0x15) && (r2 == 0x11))
 
-
 fun calcRows
     for row1: Byte = 0..32
         for row2: Byte = 0..32
@@ -489,9 +477,7 @@ fun calcRows
                 else
                    badOddTriple(row1+(row2*32)+(row3*1024)) = res1 || res2
 
-
 var board = ULong(0xFFFC000000000000L)
-
 
 /* Calculate islands while solving the board.
  */
@@ -504,7 +490,6 @@ fun boardHasIslands(cell: Byte): Bool
         return badOddTriple(currentTriple)
     else
         return badEvenTriple(currentTriple)
-
 
 /* The recursive solve algorithm.  Try to place each permutation in the upper-
  * leftmost empty cell.  Mark off available pieces as it goes along.
@@ -559,14 +544,12 @@ fun solve(depth, cell: Int)
                 board !^!= pieceMask(rotation)
         avail !^!= pieceNoMask
 
-
 /* qsort comparator - used to find first and last solutions */
 fun solutionSort(l,r: @StaticArray(Byte, nPositions)): Bool
     for i = 0..nPositions
         if ( l(i) != r(i) )
             return l(i) < r(i)
     return false
-
 
 /* pretty print a board in the specified hexagonal format */
 fun pretty(s: @StaticArray(Byte, nPositions))

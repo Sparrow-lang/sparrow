@@ -4,7 +4,6 @@ concept AnyType(x) if true
 
 fun myadd(x: Int, y: Int = 1) = x+y
 
-
 datatype Foo
     x: Int
 
@@ -18,7 +17,6 @@ fun incWith(this: Foo, n: Int = 1) = x+n
 fun genMember(this: Foo, x: AnyType = 10) = x
 
 fun writeGen(x: AnyType = 1) { writeLn(x); }
-
 
 fun printType(t: Type)
     if ( t == Int )
@@ -42,7 +40,6 @@ fun print(this: TypePrinter)
 datatype Bar(t: Type = Int)
     using T = t
 fun print(this: Bar)  { printType(T); writeLn(""); }
-
 
 [native("test")] fun test(n: Int)
     var foo = Foo(7)

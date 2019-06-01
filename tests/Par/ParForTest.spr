@@ -9,7 +9,6 @@ import std.compilerInfo
     import par.atomic
     import test
 
-
     var counter: Int Atomic
     var outOfOrderCount: Int Atomic
 

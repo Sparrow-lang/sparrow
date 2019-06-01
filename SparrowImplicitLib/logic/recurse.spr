@@ -24,7 +24,6 @@ fun rec(pred, a1, a2, a3, a4, a5: @AnyType) \
 
 fun _mkRecurse(predGenerator: @AnyType) = Recurse(-@typeOf(predGenerator))(predGenerator)
 
-
 datatype Recurse(predGeneratorType: Type)
     _relation: Predicate
     _predGenerator: predGeneratorType
@@ -47,7 +46,6 @@ fun ()(this: @Recurse): Bool
     [ct] if isValid(logicDebug)
         cout << "Recurse.(): " << this << "\n"
     return _relation()
-
 
 fun >>(this: @Recurse, os: @OutStream)
     os << "Recurse(this=" << mkStreamRefWrapper(this) \

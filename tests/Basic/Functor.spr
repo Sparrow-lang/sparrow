@@ -1,7 +1,6 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 datatype Test
-    
 
 fun ()(this: Test)
     writeLn("call operator")
@@ -28,7 +27,6 @@ fun selfCall(this: Test)
     t(10, 20)
     writeLn("---")
     t.selfCall()
-
 
 /*<<<Running()
 call operator

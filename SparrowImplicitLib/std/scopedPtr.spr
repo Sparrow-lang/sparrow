@@ -16,7 +16,6 @@ datatype ScopedPtr(type: Type)
     fun isNull(this: ScopedPtr)                  = _ref === null
     fun isSet(this: ScopedPtr)                   = _ref !== null
 
-
     fun reset(this: @ScopedPtr)                         { delete(_ref); _ref := null }
     fun reset(this: @ScopedPtr, ref: @this.ValueType)   { delete(this._ref); this._ref := ref }
 

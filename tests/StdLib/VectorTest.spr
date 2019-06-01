@@ -7,7 +7,6 @@ import std.algorithms(equal)
 import std.tuple
 import check
 
-
 fun sprMain
     forAll(repeat(Vec(), 3)) check (fun x = x.isEmpty && x.size == 0) ~ "that a vector can be empty"
     forAll(Vec arbitrary) check (fun x = x.isEmpty || x.size > 0) ~ "that size is syncrhonized with isEmpty"
@@ -17,7 +16,7 @@ fun sprMain
             if ( v.isEmpty != r.isEmpty ) return false
             if ( v.size != (r rangeSize) ) return false
             var sz = v.size
-            for i = 0..sz 
+            for i = 0..sz
                 if ( v(i) != r.front ) return false
                 r.popFront
             return true
@@ -27,7 +26,7 @@ fun sprMain
             var vec2: Vec = vec
             if ( vec2.isEmpty != vec.isEmpty ) return false
             if ( vec2.size != vec.size ) return false
-            for i = 0..vec.size 
+            for i = 0..vec.size
                 if ( vec2(i) != vec(i) ) return false
             return true
     }) ~ "vector's copy constructor"
@@ -52,7 +51,7 @@ fun sprMain
     forAll(SizeType) check (fun sz: Bool {
             var vec: Vec = sz
             if ( vec.size != sz ) return false
-            for i = 0..sz 
+            for i = 0..sz
                 if ( vec(i) != Vec.ValueType() ) return false
             return true
     }) ~ "vector's sized constructor"
@@ -68,7 +67,7 @@ fun sprMain
     }) ~ "that we have zero capacity of empty vectors"
 
     forAll(Vec arbitrary) check(fun vec: Bool {
-            for i = 0..vec.size 
+            for i = 0..vec.size
                 if ( vec(i) != vec.at(i) ) return false
             return true
     }) ~ "that at function yields the same as call operator"
@@ -86,7 +85,7 @@ fun sprMain
     forAll(Vec arbitrary) check(fun vec: Bool {
             var r = vec.all
             if ( vec.size != (r rangeSize) ) return false
-            for i = 0..vec.size 
+            for i = 0..vec.size
                 if ( vec(i) != r.front ) return false
                 r.popFront
             return r.isEmpty
@@ -251,18 +250,17 @@ fun sprMain
 
 //<<< Vector checks
 
-
 using Vec = Vector(Int)
 using TestRange = ContiguousMemoryRange(Int)
 
-fun arbitrary(t: Type): Vec Gen if t == Vec 
+fun arbitrary(t: Type): Vec Gen if t == Vec
     return mkGen(Vec, \generateVec)
 
-fun arbitrary(t: Type): TestRange Gen if t == TestRange 
+fun arbitrary(t: Type): TestRange Gen if t == TestRange
     return mkGen(t, \generateTestRange)
 
 //! Generate an arbitrary vector
-fun generateVec(sizeHint: UInt): Vec 
+fun generateVec(sizeHint: UInt): Vec
     var res: Vec
     var h: Int = sizeHint + 5
     var size = randBetween(0, h)
@@ -272,7 +270,7 @@ fun generateVec(sizeHint: UInt): Vec
     return res
 
 //! Generate an arbitrary test range
-fun generateTestRange(sizeHint: UInt): TestRange 
+fun generateTestRange(sizeHint: UInt): TestRange
     var h: Int = sizeHint + 3
     var size = randBetween(0, h+1)
 
@@ -287,7 +285,6 @@ fun generateTestRange(sizeHint: UInt): TestRange
         val = randBetween(-h, h+1)
     return ContiguousMemoryRange(Int)(ptr, ptrEnd)
 
-
 datatype SubrangeTestData
     vec: Vec
     start, count: SizeType
@@ -295,7 +292,7 @@ datatype SubrangeTestData
 fun >>(this: @SubrangeTestData, os: @OutStream)
     os << vec << ", start=" << start << ", count=" << count
 
-fun arbitrary(t: Type): SubrangeTestData Gen if t == SubrangeTestData 
+fun arbitrary(t: Type): SubrangeTestData Gen if t == SubrangeTestData
     return mkGen(SubrangeTestData, (fun (sizeHint: UInt): SubrangeTestData {
         var res: SubrangeTestData
         res.vec = generateVec(sizeHint)
@@ -313,7 +310,7 @@ datatype InsertValueTestData
 fun >>(this: @InsertValueTestData, os: @OutStream)
     os << vec << ", idx=" << idx << ", value=" << value
 
-fun arbitrary(t: Type): InsertValueTestData Gen if t == InsertValueTestData 
+fun arbitrary(t: Type): InsertValueTestData Gen if t == InsertValueTestData
     return mkGen(InsertValueTestData, (fun (sizeHint: UInt): InsertValueTestData {
         var res: InsertValueTestData
         res.vec = generateVec(sizeHint)
@@ -330,7 +327,7 @@ datatype InsertRangeTestData
 fun >>(this: @InsertRangeTestData, os: @OutStream)
     os << vec << ", idx=" << idx << ", values=" << values
 
-fun arbitrary(t: Type): InsertRangeTestData Gen if t == InsertRangeTestData 
+fun arbitrary(t: Type): InsertRangeTestData Gen if t == InsertRangeTestData
     return mkGen(InsertRangeTestData, (fun (sizeHint: UInt): InsertRangeTestData {
         var res: InsertRangeTestData
         res.vec = generateVec(sizeHint)
@@ -348,7 +345,6 @@ datatype Data
 fun >>(this: @Data, os: @OutStream)
     os << 'Data(' << x << ')\n'
 
-
 fun ctor(this: @Data, other: Data)
     copyCtorCnt++
 
@@ -359,5 +355,4 @@ fun arbitrary(t: Type): DataVec Gen if t == DataVec
 
 fun generateDataVec(sizeHint: UInt): DataVec
     return DataVec(generateVec(sizeHint).all map (fun x = Data(x)))
-
 

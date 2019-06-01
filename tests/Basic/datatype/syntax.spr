@@ -7,7 +7,6 @@ datatype Empty
 datatype Empty2 {}
 datatype Empty3
 
-
 datatype WithFields
     x: Int
     y: Int

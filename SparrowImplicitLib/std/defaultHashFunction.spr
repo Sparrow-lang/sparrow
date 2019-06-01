@@ -16,7 +16,6 @@ fun defaultHash(arg: Integer)     = SizeType(arg)
 fun defaultHash(arg: StringRef)   = _doHash(arg, _seed)
 fun defaultHash(arg: @String)     = _doHash(arg.asStringRef(), _seed)
 
-
 using _seed = 0xfadef00d
 
 /// FNV hash generator

@@ -46,8 +46,6 @@ fun tst(x: AnyType) if isValid(x.second)
     write('i')
     writeLn('r')
 
-
-
 fun tst2(x: AnyType) if typeOf(x) == Int
     write('I')
     write('n')
@@ -66,8 +64,6 @@ fun tst2(x: AnyType) if isValid(x.second)
     write('a')
     write('i')
     writeLn('r')
-
-
 
 fun tst3(x: AnyType) if typeOf(x) == Int
     write('I')
@@ -95,8 +91,6 @@ fun tst3(x: AnyType) if typeOf(x.second) != Double
     write('a')
     write('i')
     writeLn('r')
-
-
 
 fun ok()
     write('O')
@@ -152,7 +146,6 @@ fun separ()
     tst3(b)
     tst3(c)
     tst3(d)
-
 
 /*<<<Running()
 S: 4

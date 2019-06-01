@@ -59,7 +59,6 @@ fun test1
     cout << (f || f || t) << endl
     cout << (f || f || f) << endl
 
-
 /*<<<Simple logical or(1)
 true
 true
@@ -94,7 +93,6 @@ fun test2
     cout << (f && f && t) << endl
     cout << (f && f && f) << endl
 
-
 /*<<<Simple logical and(2)
 true
 false
@@ -125,7 +123,6 @@ fun test3
     cout << (getF() || getT() || getF()) << endl
     cout << (getF() || getF() || getT()) << endl
     cout << (getF() || getF() || getF()) << endl
-
 
 /*<<<Logical or with side effects(3)
 T.true
@@ -158,7 +155,6 @@ fun test4
     cout << (getF() && getF() && getT()) << endl
     cout << (getF() && getF() && getF()) << endl
 
-
 /*<<<Logical and with side effects(4)
 T.T.true
 T.F.false
@@ -189,7 +185,6 @@ fun test5
     cout << "------" << endl
     cout << (BoolValue(false).b || BoolValue(false).b || BoolValue(true).b);    cout << endl
     cout << (BoolValue(true).b && BoolValue(true).b && BoolValue(false).b);     cout << endl
-
 
 /*<<<Logical operators with temporaries(5)
 Cf.Cf.falseDf.Df.

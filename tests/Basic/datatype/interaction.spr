@@ -54,7 +54,6 @@ fun CollectionBook(author, name, isbn, collection: StringRef): CollectionBook
 
 [ctGeneric] fun *(t1,t2: Type): Type = Tuple(t1, t2)
 
-
 [native("test")] fun test(n: Int)
     var b = Book("LucTeo", "The wonders of Sparrow", "ISBN")
     writeLn(b.author)

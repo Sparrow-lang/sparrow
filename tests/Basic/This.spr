@@ -1,6 +1,5 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-
 datatype TestClass
     a: Int
 
@@ -22,7 +21,6 @@ fun useAsVar
     var this: Int
     this = 100
     writeLn(this)
-
 
 concept Range(x) if (
        typeOf(x.RetType) == Type

@@ -2,7 +2,6 @@
 
 import std.vector
 
-
 [ct] datatype TestCt
 {
 }

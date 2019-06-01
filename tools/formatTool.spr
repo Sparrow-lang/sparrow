@@ -1,7 +1,7 @@
 //!! -I../src/SparrowFrontend/Grammar
 import formatDetails.sourceData
 import transforms.emptyTransform, transforms.defaultFormat, transforms.refToMut
-import transforms.useLayout, transforms.removeEolSemicolons
+import transforms.useLayout, transforms.removeEolSemicolons, transforms.removeExtraSpaces
 import checks.returnStmt, checks.moduleName
 
 import os
@@ -26,10 +26,12 @@ fun sprMain
         if arg == '-format'
             transforms += \useLayoutFormatter
             transforms += \removeEolSemicolons
+            transforms += \removeExtraSpaces
         else if arg == '-f=layout'
             transforms += \useLayoutFormatter
             transforms += \removeEolSemicolons
         else if arg == '-f=empty'       ; transforms += \emptyTransform
+        else if arg == '-f=spaces'      ; transforms += \removeExtraSpaces
         else if arg == '-f=ref-to-mut'  ; transforms += \refToMut
         else if arg == '-i'             ; inPlace = true
         else if arg == '-check'

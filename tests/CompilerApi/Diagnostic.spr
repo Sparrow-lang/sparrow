@@ -2,9 +2,8 @@
 
 import meta.compilerCore
 
-
 fun sprMain // ERROR - introduced by the last meta.report
-    [ct] var loc = mkLocation(currentSourceCode, mkLineCol(6, 5), mkLineCol(6, 12))
+    [ct] var loc = mkLocation(currentSourceCode, mkLineCol(5, 5), mkLineCol(5, 12))
 
     [ct] var diag1 = mkDiagnostic(diagInfo, loc, "Some information")
     report(diag1)

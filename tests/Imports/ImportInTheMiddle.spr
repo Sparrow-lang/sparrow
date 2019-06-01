@@ -1,13 +1,13 @@
 //!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
 
-package Foo1 
-    fun test1 
+package Foo1
+    fun test1
         Foo2.a = 1
         Foo2.b = 2
         Foo2.c = 3
         Foo2.d = 4
 
-package Foo2 
+package Foo2
     import HeaderD
     import HeaderC
     import HeaderB

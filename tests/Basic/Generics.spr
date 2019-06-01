@@ -31,7 +31,6 @@ fun print(this: @MyVector)
     write(' ')
     writeLn(end)
 
-
 fun valSize(x: AnyType): SizeType
     return sizeOf(x)
 
@@ -66,7 +65,6 @@ fun valSize(x: AnyType): SizeType
     writeLn(valSize(3.14))
     writeLn(valSize(v1))
     writeLn(valSize(v2))
-
 
 /*<<<Running()
 8

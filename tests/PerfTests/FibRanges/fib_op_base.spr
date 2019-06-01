@@ -2,10 +2,10 @@
 
 import std.algorithms
 
-fun fib(n: UInt): UInt 
+fun fib(n: UInt): UInt
     var a: UInt = 0
     var b: UInt = 1
-    for i = 0..n 
+    for i = 0..n
         var aOld = a
         a = b
         b += aOld

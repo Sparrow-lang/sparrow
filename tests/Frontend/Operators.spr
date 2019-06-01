@@ -186,7 +186,6 @@ fun test9
 26
 >>>*/
 
-
 fun test10
     var x = 3
     var y = 4
@@ -206,7 +205,6 @@ fun test10
 3 +++ 4 = 7
 7
 >>>*/
-
 
 fun test11
     var x = 3

@@ -39,23 +39,23 @@ fun ==(this, other: @MyObj): Bool = x == other.x
 fun <(this, other: @MyObj): Bool = x < other.x
 
 datatype Greater
-    
+
 fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
 datatype Even
-    
+
 fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
 datatype Minus
-    
+
 fun ()(this: Minus, x: Int, y: Int) = x - y
 
 datatype Square
-    
+
 fun ()(this: Square, x: AnyType) = x * x
 
 datatype Multiply
-    
+
 fun ()(this: Multiply, x: AnyType, y: AnyType) = x * y
 
 datatype Fact
@@ -109,7 +109,6 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
         ptr.advance(i).value() = i
 
     return ContiguousMemoryRange(Int)(ptr, ptrEnd)
-
 
 fun test1()
     var l = makeList()

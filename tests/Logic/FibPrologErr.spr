@@ -13,7 +13,6 @@ compileProlog("
     fib(sun, earth).    %% ERROR
 ")
 
-
 fun sprMain
     if ( programArgs.size() < 2 )
         return

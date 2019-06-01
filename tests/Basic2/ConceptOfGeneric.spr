@@ -7,7 +7,6 @@ datatype FibRange(valType: Type)
 
     _lastTwo: valType*valType = 1 ~ 1
 
-
 fun isEmpty(this: @FibRange) = false
 fun front(this: @FibRange)   = _lastTwo.v2
 fun popFront(this: @FibRange)

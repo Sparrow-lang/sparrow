@@ -44,11 +44,11 @@ fun <(this, other: @MyObj): Bool { return x < other.x; }
 fun >>(this: MyObj, os: @OutStream)      { os << x; }
 
 datatype Greater
-    
+
 fun ()(this: Greater, x: MyObj, y: MyObj): Bool { return x.x > y.x; }
 
 datatype Even
-    
+
 fun ()(this: Even, x: MyObj): Bool { return x.x % 2 == 0; }
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
@@ -296,7 +296,6 @@ false
 0 0 0 0 0 0
 >>>*/
 
-
 fun test10()
     var li: List(MyObj) = createRangeAscending(4)
 
@@ -376,7 +375,6 @@ false
 8
 42 0 11 1 2 22 3 43
 >>>*/
-
 
 fun test13()
     var li: List(MyObj) = createRangeAscending(4)
@@ -541,7 +539,6 @@ false
 6
 0 1 2 3 4 5
 >>>*/
-
 
 fun test15()
     var li: List(MyObj)
@@ -833,7 +830,6 @@ false
 11
 100 10 10 7 7 7 5 5 4 1 0
 >>>*/
-
 
 fun test20()
 {

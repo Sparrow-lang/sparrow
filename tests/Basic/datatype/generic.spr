@@ -41,7 +41,6 @@ fun Pair2(first, second: AnyType): Pair2(typeOf(first))
     res.data.second construct second
     return res
 
-
 [native("test")] fun test(n: Int)
     var pi = Pair(Int, 1, 2)
     writeLn(pi.first)

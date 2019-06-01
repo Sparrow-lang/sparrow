@@ -1,7 +1,6 @@
 //!!
 import logic.prologFrontend
 
-
 fun fib_native(p_1: Int, p_2: @Int): Bool
     var l2_X2: Int = Uninitialized()
     var l2_Y2: Int = Uninitialized()

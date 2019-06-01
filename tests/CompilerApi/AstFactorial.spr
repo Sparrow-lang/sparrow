@@ -23,7 +23,6 @@ import std.ranges, std.vector
 
 [ct] var nullNode: AstNode
 
-
 [ct] fun addFactorialFun(context: CompilationContext, funName: StringRef): Bool
     var loc = mkLocation(currentSourceCode, mkLineCol(39, 1), mkLineCol(39, 79))
 

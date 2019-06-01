@@ -81,7 +81,6 @@ datatype Atomic(T: Type) if sizeOf(T) <= 8
         return res
     fun _baseAtomic(this: @Atomic): @Atomic(_UnderlyingType) = reinterpretCast(@Atomic(_UnderlyingType), this)
 
-
 //! Compare the atomic value with the given comparand; if equal store 'newVal' and return true; if not equal returns false
 [native("_Atomic_compareAndSwap32")] fun compareAndSwap(x: @AtomicInt, newVal, comparand: Int): Bool
 [native("_Atomic_compareAndSwap64")] fun compareAndSwap(x: @AtomicLong, newVal, comparand: Long): Bool
@@ -93,7 +92,6 @@ fun compareAndSwap(x: @NonStdAtomicType, newVal, comparand: AnyType): Bool \
 //! Used to make it possible to use atomic operations
 fun asAtomic(val: @AnyType): @Atomic(-@typeOf(val)) if sizeOf(val) == sizeOf(Atomic(-@typeOf(val)))
     return reinterpretCast(@Atomic(-@typeOf(val)), val)
-
 
 package _Impl
     datatype AtomicTypeTraits(T: Type) if sizeOf(T) <= 4

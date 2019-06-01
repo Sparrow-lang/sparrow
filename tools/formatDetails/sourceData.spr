@@ -23,7 +23,6 @@ datatype SourceData
     //! We need to keep this alive, so that all the StringRef point to a valid object
     _src: TokenDataSource SharedPtr
 
-
 //! Load the source data from the given filename.
 //! Ensures that all the tokens are link to their appropriate AST nodes
 fun load(res: @SourceData, filename: StringRef)

@@ -3,17 +3,17 @@
 concept AnyType(x) // Always true
 
 datatype A
-    
+
 fun f1(this: A) = 1
 fun f2(this: A) = 2
 fun f3(this: A) = 3
 
 datatype B
-    
+
 fun f1(this: B) = 1
 
 datatype C
-    
+
 fun f3(this: C) = 3
 
 concept HasF1(x) if isValid(x.f1())
@@ -28,7 +28,6 @@ fun test1(x: AnyType) if !HasF1(x)  { writeLn('-'); }
 fun test2(x: AnyType) if !HasF2(x)  { writeLn('-'); }
 fun test3(x: AnyType) if !HasF3(x)  { writeLn('-'); }
 
-
 fun valueOfType(t: Type): t
 
 datatype Tester(t: Type) if HasF1(valueOfType(t))
@@ -37,7 +36,6 @@ datatype Tester(t: Type) if HasF1(valueOfType(t))
 fun call(this: Tester)
     var x: T
     writeLn(x.f1())
-
 
 [native("test")] fun test(n: Int)
     var a: A
@@ -53,7 +51,6 @@ fun call(this: Tester)
     test3(a)
     test3(b)
     test3(c)
-
 
     writeLn("---")
     if a HasF1 ; writeLn("concept ok") else writeLn("concept failed")

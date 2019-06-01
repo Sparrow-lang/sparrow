@@ -38,7 +38,6 @@ fun f2(): @MyObj
     f2().print()
     writeLn(f2().st)
 
-
 /*<<<Running()
 10
 MyObj: 10

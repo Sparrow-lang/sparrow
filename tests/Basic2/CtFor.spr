@@ -13,7 +13,6 @@ import std.vector
     fun popFront(this: @MyRange) { _min += 1; }
     fun isEmpty(this: MyRange) = _min > _max
 
-
 fun test1()
     [ct] for i = MyRange(0, 4)
         cout << ctEval(i) << endl

@@ -9,7 +9,6 @@ fun sprMain
     writeLnBool(1==1 || 2==2 && 1==2)
     writeLnBool(1<=1 || 2>=2 && 1>=2)
 
-
 /*<<<Running()
 7
 true

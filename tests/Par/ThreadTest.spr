@@ -9,7 +9,6 @@ import std.compilerInfo
     import std.vector
     import std.string
 
-
     fun sprMain
         if programArgs.size() < 2
             return

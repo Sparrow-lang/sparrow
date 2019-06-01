@@ -18,13 +18,10 @@ fun ()(this: @Gen, sizeHint: UInt): ValueType = _generator(sizeHint)
 
 fun isValid(this: @Gen): Bool = _generator isSet
 
-
-
 concept GenType(x)                  \
     if typeOf(x.ValueType) == Type  \
     && typeOf(x.isValid) == Bool  \
     && typeOf(x(0)) == x.ValueType
-
 
 //! Arbitrary prototype
 //fun arbitrary(t: Type): t Gen
@@ -32,7 +29,6 @@ concept GenType(x)                  \
 //! Arbitrary definition for the integer types
 fun arbitrary(t: Type): t Gen if Integer(#$t)
     return mkGen(t, \_Impl.NumericGen(t).gen)
-
 
 //! Configuration options for our check function
 [initCtor]
@@ -170,7 +166,6 @@ fun frequency(gens: Range): typeOf((#$gens.RetType).v2) if FreqGenType(#$gens.Re
         curAcc += fg.v1
     return typeOf((#$gens.RetType).v2)()
 
-
 fun randBetween(min, max: Integer): commonType(typeOf(min), typeOf(max))
     using T = commonType(typeOf(min), typeOf(max))
     using RAND_MAX = 0x7fffffff
@@ -259,7 +254,6 @@ package _Impl
         var res = _range.front
         res.isTrivial = _pred(res.value)
         return res
-
 
     [initCtor]
     datatype ClassifierRange(rangeType, predType: Type) \

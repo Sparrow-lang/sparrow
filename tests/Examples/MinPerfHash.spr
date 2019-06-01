@@ -47,7 +47,6 @@ package _Impl
     fun doHash(value, start: UInt): UInt
         return (start !^! value) * 0x01000193
 
-
 datatype MinPerfHash
     displacements: Array(Int)
     numKeys: UInt
@@ -191,7 +190,6 @@ fun search(this: @MinPerfHashSet, str: StringRef): Int       // Yields -1 if 'st
         return Int(pos)
     else
         return -1
-
 
 [autoCt] fun minPerfHash(keys: @Vector(String)): MinPerfHash
     return MinPerfHash(keys)

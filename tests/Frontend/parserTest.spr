@@ -141,7 +141,6 @@ fun mkContinueStmt(this: @MyAstBuilder, loc: @Location) \
 fun mkReturnStmt(this: @MyAstBuilder, loc: @Location, expr: Node) \
     = createNode(loc, "return", repeat(expr, 1))
 
-
 fun sprMain
     if programArgs.size() < 2
         return

@@ -108,7 +108,6 @@ fun advance(this: @NBodySystem, dt: Double)
     for body = bodies.all
         body.move(dt)
 
-
 [native("printf")] fun printf(fmt: @Char, x: Double)
 [native("printf")] fun printf(fmt: @Char, x,y: Double)
 [native("printf")] fun printf(fmt: @Char, x,y,z: Double)

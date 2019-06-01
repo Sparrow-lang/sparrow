@@ -1,7 +1,7 @@
 import nodes
 import location
 import ir
-package meta 
+package meta
     import meta.sparrowNodes, meta.featherNodes, meta.compiler;
 
 [ct] fun genProlog(sps: @SparrowPrologSystem): meta.AstNode = Impl.genPrologSystem(sps)
@@ -11,7 +11,6 @@ package Impl
     using meta.Location
 
     [ct] var nullNode: AstNode
-
 
     [ct] fun genPrologSystem(sps: @SparrowPrologSystem): AstNode
         var l = sps.loc

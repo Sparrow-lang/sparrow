@@ -12,7 +12,7 @@ package _Impl1
     datatype Union1(t1: Type)
         data: StaticArray(Char, sizeOf(t1))
         using Type1 = t1
-    
+
     fun get1(this: @Union1) = reinterpretCast(@this.Type1, this.data)
 
 package _Impl2
@@ -393,7 +393,6 @@ package _Impl16
     fun get14(this: @Union16) = reinterpretCast(@this.Type14, this.data)
     fun get15(this: @Union16) = reinterpretCast(@this.Type15, this.data)
     fun get16(this: @Union16) = reinterpretCast(@this.Type16, this.data)
-
 
 using Union = _Impl1.Union1
 using Union = _Impl2.Union2

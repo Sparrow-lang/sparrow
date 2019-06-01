@@ -1,14 +1,13 @@
-import std.sortedSet;
-import std.sortedTable(Less);
-import std.ranges;
-import std.list;
-import std.vector;
+import std.sortedSet
+import std.sortedTable(Less)
+import std.ranges
+import std.list
+import std.vector
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
         return;
-    let n = programArgs(1) asInt;
+    let n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -29,60 +28,52 @@ fun sprMain
     else if n == 17 ; test17
     else if n == 18 ; test18
     else if n == 19 ; test19
-}
 
 fun makeList(): List(Int)
-{
-    var li: List(Int);
+    var li: List(Int)
 
-    li.pushBack(3);
-    li.pushBack(145);
-    li.pushBack(834);
-    li.pushBack(8);
-    li.pushBack(73);
-    li.pushBack(73);
-    li.pushBack(101);
-    li.pushBack(4);
-    li.pushBack(8);
-    li.pushBack(4);
-    li.pushBack(106);
-    li.pushBack(3);
-    li.pushBack(5);
-    li.pushBack(53);
-    li.pushBack(62);
+    li.pushBack(3)
+    li.pushBack(145)
+    li.pushBack(834)
+    li.pushBack(8)
+    li.pushBack(73)
+    li.pushBack(73)
+    li.pushBack(101)
+    li.pushBack(4)
+    li.pushBack(8)
+    li.pushBack(4)
+    li.pushBack(106)
+    li.pushBack(3)
+    li.pushBack(5)
+    li.pushBack(53)
+    li.pushBack(62)
 
-    return li;
-}
+    return li
 
 fun printRange(nr: AnyType)
-{
-    let v: Vector(Int) = nr;
+    let v: Vector(Int) = nr
 
-    var r = v.all();
+    var r = v.all()
     while !r.isEmpty()
-    {
-        cout << r.front();
-        r.popFront();
+        cout << r.front()
+        r.popFront()
         if (r.isEmpty() )
             cout << endl;
         else
             cout << ' ';
-    }
-}
+    ;
 
 datatype Equal(type: Type)
     using ValueType = type
 fun ()(this: Equal, x, y: this.ValueType): Bool = x == y
 
 fun test1()
-{
-    let ss: SortedSet(Int, Less(Int), Equal(Int));
+    let ss: SortedSet(Int, Less(Int), Equal(Int))
 
-    cout << ss.isEmpty() << endl;
-    cout << ss.size() << endl;
-    cout << ss.capacity() << endl;
-    cout << ss.contains(10) << endl;
-}
+    cout << ss.isEmpty() << endl
+    cout << ss.size() << endl
+    cout << ss.capacity() << endl
+    cout << ss.contains(10) << endl
 /*<<<Default constructor(1)
 true
 0
@@ -91,14 +82,12 @@ false
 >>>*/
 
 fun test2()
-{
-    let ss = SortedSet(Int, Less(Int), Equal(Int))(60);
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(60)
 
-    cout << ss.isEmpty() << endl;
-    cout << ss.size() << endl;
-    cout << ss.capacity() << endl;
-    cout << ss.contains(10) << endl;
-}
+    cout << ss.isEmpty() << endl
+    cout << ss.size() << endl
+    cout << ss.capacity() << endl
+    cout << ss.contains(10) << endl
 /*<<<Capacity constructor(2)
 true
 0
@@ -107,17 +96,15 @@ false
 >>>*/
 
 fun test3()
-{
-    let ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all());
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
 
-    cout << ss.isEmpty() << endl;
-    cout << ss.size() << endl;
-    cout << ss.capacity() << endl;
-    cout << ss.contains(53) << endl;
-    cout << ss.contains(106) << endl;
-    cout << ss.contains(4) << endl;
-    cout << ss.contains(9999) << endl;
-}
+    cout << ss.isEmpty() << endl
+    cout << ss.size() << endl
+    cout << ss.capacity() << endl
+    cout << ss.contains(53) << endl
+    cout << ss.contains(106) << endl
+    cout << ss.contains(4) << endl
+    cout << ss.contains(9999) << endl
 /*<<<Range constructor(3)
 false
 11
@@ -129,18 +116,16 @@ false
 >>>*/
 
 fun test4()
-{
-    let ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all());
-    let ss2 = SortedSet(Int, Less(Int), Equal(Int))(ss);
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
+    let ss2 = SortedSet(Int, Less(Int), Equal(Int))(ss)
 
-    cout << ss2.isEmpty() << endl;
-    cout << ss2.size() << endl;
-    cout << ss2.capacity() << endl;
-    cout << ss2.contains(53) << endl;
-    cout << ss2.contains(106) << endl;
-    cout << ss2.contains(4) << endl;
-    cout << ss2.contains(9999) << endl;
-}
+    cout << ss2.isEmpty() << endl
+    cout << ss2.size() << endl
+    cout << ss2.capacity() << endl
+    cout << ss2.contains(53) << endl
+    cout << ss2.contains(106) << endl
+    cout << ss2.contains(4) << endl
+    cout << ss2.contains(9999) << endl
 /*<<<Copy constructor(4)
 false
 11
@@ -152,23 +137,21 @@ false
 >>>*/
 
 fun test5()
-{
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all());
-    var ss2 = SortedSet(Int, Less(Int), Equal(Int))(60);
+    var ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
+    var ss2 = SortedSet(Int, Less(Int), Equal(Int))(60)
 
-    ss.swap(ss2);
-    cout << ss2.isEmpty() << endl;
-    cout << ss2.size() << endl;
-    cout << ss2.capacity() << endl;
-    cout << ss2.contains(53) << endl;
-    cout << ss2.contains(106) << endl;
-    cout << ss2.contains(4) << endl;
-    cout << ss2.contains(9999) << endl;
-    cout << ss.isEmpty() << endl;
-    cout << ss.size() << endl;
-    cout << ss.capacity() << endl;
-    cout << ss.contains(10) << endl;
-}
+    ss.swap(ss2)
+    cout << ss2.isEmpty() << endl
+    cout << ss2.size() << endl
+    cout << ss2.capacity() << endl
+    cout << ss2.contains(53) << endl
+    cout << ss2.contains(106) << endl
+    cout << ss2.contains(4) << endl
+    cout << ss2.contains(9999) << endl
+    cout << ss.isEmpty() << endl
+    cout << ss.size() << endl
+    cout << ss.capacity() << endl
+    cout << ss.contains(10) << endl
 /*<<<Swapping(5)
 false
 11
@@ -184,18 +167,16 @@ false
 >>>*/
 
 fun test6()
-{
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all());
+    var ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
 
-    ss.reserve(1000);
-    cout << ss.isEmpty() << endl;
-    cout << ss.size() << endl;
-    cout << ss.capacity() << endl;
-    cout << ss.contains(53) << endl;
-    cout << ss.contains(106) << endl;
-    cout << ss.contains(4) << endl;
-    cout << ss.contains(9999) << endl;
-}
+    ss.reserve(1000)
+    cout << ss.isEmpty() << endl
+    cout << ss.size() << endl
+    cout << ss.capacity() << endl
+    cout << ss.contains(53) << endl
+    cout << ss.contains(106) << endl
+    cout << ss.contains(4) << endl
+    cout << ss.contains(9999) << endl
 /*<<<Reserving(6)
 false
 11
@@ -207,79 +188,69 @@ false
 >>>*/
 
 fun test7()
-{
-    let ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all());
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
 
-    printRange(ss.all());
-}
+    printRange(ss.all())
 /*<<<Range access(7)
 3 4 5 8 53 62 73 101 106 145 834
 >>>*/
 
 fun test8()
-{
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10);
+    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
 
-    ss.insert(5);
-    cout << ss.contains(5) << endl;
-}
+    ss.insert(5)
+    cout << ss.contains(5) << endl
 /*<<<Element insertion(8)
 true
 >>>*/
 
 fun test9()
-{
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10);
+    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
 
-    ss.insert(5 .. 15);
-    printRange(ss.all());
-}
+    ss.insert(5 .. 15)
+    printRange(ss.all())
 /*<<<Range insertion(9)
 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
 >>>*/
 
 fun test10()
-{
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10);
+    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
 
-    ss.remove(5);
-    printRange(ss.all());
-    ss.remove(20);
-    printRange(ss.all());
-}
+    ss.remove(5)
+    printRange(ss.all())
+    ss.remove(20)
+    printRange(ss.all())
 /*<<<Element removal(10)
 0 1 2 3 4 6 7 8 9
 0 1 2 3 4 6 7 8 9
 >>>*/
 
 fun test11()
-{
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all());
+    var ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
 
-    ss.remove(ss.equalRange(8));
-    printRange(ss.all());
-    cout << ss.size() << endl;
-    ss.remove(ss.equalRange(106));
-    printRange(ss.all());
-    cout << ss.size() << endl;
-    ss.remove(ss.equalRange(101));
-    printRange(ss.all());
-    cout << ss.size() << endl;
-    ss.remove(ss.equalRange(1000));
-    printRange(ss.all());
-    cout << ss.size() << endl;
-    ss.remove(ss.all());
-    printRange(ss.all());
-    cout << ss.size() << endl;
-    ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all());
+    ss.remove(ss.equalRange(8))
+    printRange(ss.all())
+    cout << ss.size() << endl
+    ss.remove(ss.equalRange(106))
+    printRange(ss.all())
+    cout << ss.size() << endl
+    ss.remove(ss.equalRange(101))
+    printRange(ss.all())
+    cout << ss.size() << endl
+    ss.remove(ss.equalRange(1000))
+    printRange(ss.all())
+    cout << ss.size() << endl
+    ss.remove(ss.all())
+    printRange(ss.all())
+    cout << ss.size() << endl
+    ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
 
-    var r = ss.all();
+    var r = ss.all()
 
-    r.popFront();
-    ss.remove(r);
-    printRange(ss.all());
-    cout << ss.size() << endl;
-}
+    r.popFront()
+    ss.remove(r)
+    printRange(ss.all())
+    cout << ss.size() << endl
 /*<<<Range removal(11)
 3 4 5 53 62 73 101 106 145 834
 10
@@ -295,13 +266,11 @@ fun test11()
 >>>*/
 
 fun test12()
-{
-    let ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10);
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
 
-    cout << ss.contains(7) << endl;
-    cout << ss.contains(53) << endl;
-    cout << ss.contains(12) << endl;
-}
+    cout << ss.contains(7) << endl
+    cout << ss.contains(53) << endl
+    cout << ss.contains(12) << endl
 /*<<<Containment checking(12)
 true
 false
@@ -309,14 +278,12 @@ false
 >>>*/
 
 fun test13()
-{
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10);
+    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
 
-    ss.insert(5);
-    cout << ss.count(5) << endl;
-    cout << ss.count(1) << endl;
-    cout << ss.count(53) << endl;
-}
+    ss.insert(5)
+    cout << ss.count(5) << endl
+    cout << ss.count(1) << endl
+    cout << ss.count(53) << endl
 /*<<<Counting(13)
 1
 1
@@ -324,19 +291,17 @@ fun test13()
 >>>*/
 
 fun test14()
-{
-    var ss: SortedSet(Int, Less(Int), Equal(Int));
+    var ss: SortedSet(Int, Less(Int), Equal(Int))
 
-    ss.insert(0 .. 10);
-    printRange(ss.equalRange(5));
-    ss.insert(5);
-    printRange(ss.equalRange(5));
-    ss.insert(58);
-    printRange(ss.equalRange(5));
-    printRange(ss.equalRange(58));
-    printRange(ss.equalRange(111));
-    printRange(ss.equalRange(100));
-}
+    ss.insert(0 .. 10)
+    printRange(ss.equalRange(5))
+    ss.insert(5)
+    printRange(ss.equalRange(5))
+    ss.insert(58)
+    printRange(ss.equalRange(5))
+    printRange(ss.equalRange(58))
+    printRange(ss.equalRange(111))
+    printRange(ss.equalRange(100))
 /*<<<Equal range(14)
 5
 5
@@ -345,68 +310,60 @@ fun test14()
 >>>*/
 
 fun test15()
-{
-    let ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10);
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
 
-    printRange(ss.find(5));
-    printRange(ss.find(10));
-    printRange(ss.find(53));
-}
+    printRange(ss.find(5))
+    printRange(ss.find(10))
+    printRange(ss.find(53))
 /*<<<Finding(15)
 5 6 7 8 9
 >>>*/
 
 fun test16()
-{
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10);
+    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
 
-    ss.clear();
-    cout << ss.isEmpty() << endl;
-    printRange(ss.all());
-    cout << ss.contains(4) << endl;
-}
+    ss.clear()
+    cout << ss.isEmpty() << endl
+    printRange(ss.all())
+    cout << ss.contains(4) << endl
 /*<<<Clearing(16)
 true
 false
 >>>*/
 
 fun test17()
-{
-    var ss1 = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10);
-    var ss2: SortedSet(Int, Less(Int), Equal(Int));
+    var ss1 = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
+    var ss2: SortedSet(Int, Less(Int), Equal(Int))
 
-    ss2 = ss1;
-    printRange(ss2.all());
-    ss1 = ss1;
-    printRange(ss1.all());
-}
+    ss2 = ss1
+    printRange(ss2.all())
+    ss1 = ss1
+    printRange(ss1.all())
 /*<<<Assignment operator(17)
 0 1 2 3 4 5 6 7 8 9
 0 1 2 3 4 5 6 7 8 9
 >>>*/
 
 fun test18()
-{
-    let ss1 = SortedSet(Int, Less(Int), Equal(Int))(makeList().all());
-    var ss2 = ss1;
-    let ss3: SortedSet(Int, Less(Int), Equal(Int));
-    var ss4 = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10);
+    let ss1 = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
+    var ss2 = ss1
+    let ss3: SortedSet(Int, Less(Int), Equal(Int))
+    var ss4 = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
 
-    cout << ss1 == ss2 << endl;
-    cout << ss1 != ss2 << endl;
-    cout << ss1 == ss3 << endl;
-    cout << ss1 != ss3 << endl;
-    cout << ss1 == ss4 << endl;
-    cout << ss1 != ss4 << endl;
-    cout << ss3 == ss3 << endl;
-    cout << ss3 != ss3 << endl;
-    ss4.clear();
-    cout << ss3 == ss4 << endl;
-    cout << ss3 != ss4 << endl;
-    ss2.remove(53);
-    cout << ss1 == ss2 << endl;
-    cout << ss1 != ss2 << endl;
-}
+    cout << ss1 == ss2 << endl
+    cout << ss1 != ss2 << endl
+    cout << ss1 == ss3 << endl
+    cout << ss1 != ss3 << endl
+    cout << ss1 == ss4 << endl
+    cout << ss1 != ss4 << endl
+    cout << ss3 == ss3 << endl
+    cout << ss3 != ss3 << endl
+    ss4.clear()
+    cout << ss3 == ss4 << endl
+    cout << ss3 != ss4 << endl
+    ss2.remove(53)
+    cout << ss1 == ss2 << endl
+    cout << ss1 != ss2 << endl
 /*<<<Equality and inequality operators(18)
 true
 false
@@ -423,14 +380,11 @@ true
 >>>*/
 
 fun test19()
-{
-    let ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 1000);
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 1000)
 
     for i = numericRange(0, 1000)
-    {
         if ( !ss.contains(i) )
             cout << "Test failed" << endl;
-    }
-}
+    ;
 /*<<<Large set(19)
 >>>*/

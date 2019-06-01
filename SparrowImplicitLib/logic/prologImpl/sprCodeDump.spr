@@ -1,9 +1,8 @@
-import ir;
+import ir
 import std.string
 
 //[ct] fun dumpProlog(os: @OutStream, sps: @SparrowPrologSystem)
 [ct] fun dumpProlog(os: @StringOutputStream, sps: @SparrowPrologSystem)
-{
     //Impl.dumpPrologSystem(os, sps);
     //testStringOutputStream
     var sos: OutStream = StringOutputStream()
@@ -11,22 +10,17 @@ import std.string
     cout << sos.result << endl
     testStream(os)
     //os << flush;
-}
 
 [ct]
 fun testStream(os: @OutStream)
     os << 1
 
 package Impl
-{
     [ct] fun dumpPrologSystem(os: @OutStream, sps: @SparrowPrologSystem)
-    {
         for p: @SparrowPredicate = sps.predicates.all()
             dumpSprPredicate(os, p);
-    }
 
     [ct] fun dumpSprPredicate(os: @OutStream, pred: @SparrowPredicate)
-    {
         // Dump the type sets
         //for typeSet: @LTypeSet = pred.typeSets.all()
         //{
@@ -34,115 +28,94 @@ package Impl
         //}
         //os << flush;
 
-        let genNative = allowNativeCodeGen && pred.canBeNative;
+        let genNative = allowNativeCodeGen && pred.canBeNative
 
         // Header line
-        os << "fun " << pred.name;
+        os << "fun " << pred.name
         if ( genNative )
             os << "_native";
-        dumpParameters(os, pred, genNative);
+        dumpParameters(os, pred, genNative)
         if ( genNative )
             os << ": Bool";
         else
             os << ": Predicate";
-        os << endl;
+        os << endl
 
         // If we have local variables, create a scope and put the variables in it
-        let withScope = !pred.localVars.isEmpty();
-        var tab: StringRef = "    ";
+        let withScope = !pred.localVars.isEmpty()
+        var tab: StringRef = "    "
         if ( withScope )
-        {
-            os << "{" << endl;
+            os << "{" << endl
             for lv: @ExpressionPtr = pred.localVars.all()
-            {
-                os << "    var " << lv.get().data << ": ";
-                dumpType(os, pred, lv.get(), false, genNative);
+                os << "    var " << lv.get().data << ": "
+                dumpType(os, pred, lv.get(), false, genNative)
                 if ( genNative )
-                {
                     // Don't initialize native integers
-                    let typeSet: @LTypeSet = pred.typeSets(lv.get().typeSetIdx);
+                    let typeSet: @LTypeSet = pred.typeSets(lv.get().typeSetIdx)
                     if ( typeSet.type.isNumberOnly() )
                         os << " = Uninitialized()";
-                }
-                os << ';' << endl;
-            }
-            os << "    return ";
-            tab = StringRef("        ");
-        }
+                os << ';' << endl
+            os << "    return "
+            tab = StringRef("        ")
         else
-        {
             os << "    =  ";
-        }
 
         // Conditions for all the clauses
-        var first = true;
+        var first = true
         for i = 0..pred.clauses.size()
-        {
             if ( first )
                 first = false;
             else
                 os << tab << "|| ";
 
-            dumpClause(os, pred, pred.clauses(i).get());
-            os << endl;
-        }
-        os << tab << ";" << endl;
+            dumpClause(os, pred, pred.clauses(i).get())
+            os << endl
+        os << tab << ";" << endl
 
         if ( withScope )
             os << "}" << endl;
 
         if ( genNative )
             dumpNativeWrapper(os, pred);
-    }
     [ct] fun dumpParameters(os: @OutStream, pred: @SparrowPredicate, genNative: Bool)
-    {
         if ( pred.arity > 0 )
-        {
-            os << "(";
+            os << "("
             for i = 0..pred.paramVars.size()
-            {
-                let param: @Parameter = pred.paramVars(i);
+                let param: @Parameter = pred.paramVars(i)
                 if ( i>0 )
                     os << ", ";
-                os << "_" << (i+1) << ": ";
-                let isRef = !genNative || param.isOutput;
-                dumpType(os, pred, param.expr.get(), isRef, genNative);
+                os << "_" << (i+1) << ": "
+                let isRef = !genNative || param.isOutput
+                dumpType(os, pred, param.expr.get(), isRef, genNative)
                 //if ( param.isInput )
                 //    os << "<in>";
                 //if ( param.isOutput )
                 //    os << "<out>";
-            }
-            os << ")";
-        }
-    }
+            os << ")"
+        ;
 
     [ct] fun dumpClause(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause)
-    {
-        var condWritten = false;
-        dumpBoundArgs(os, pred, clause, condWritten);
-        dumpClauseConditions(os, pred, clause, condWritten);
+        var condWritten = false
+        dumpBoundArgs(os, pred, clause, condWritten)
+        dumpClauseConditions(os, pred, clause, condWritten)
         if ( !condWritten )
             os << " true";
-    }
     [ct] fun dumpBoundArgs(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, condWritten: @Bool)
-    {
-        let genNative = allowNativeCodeGen && pred.canBeNative;
+        let genNative = allowNativeCodeGen && pred.canBeNative
 
         for i = 0..clause.args.size()
-        {
-            let arg: @ExpressionPtr = clause.args(i);
+            let arg: @ExpressionPtr = clause.args(i)
             if ( arg.isSet() && arg.get().kind != ekVar )
-            {
                 if ( !condWritten )
                     condWritten = true;
                 else
                     os << " && ";
 
-                os << "_" << (i+1);
+                os << "_" << (i+1)
 
-                let idx = arg.get().paramIdx;
-                assert(idx >= 0);
-                let param: @Parameter = pred.paramVars(idx);
+                let idx = arg.get().paramIdx
+                assert(idx >= 0)
+                let param: @Parameter = pred.paramVars(idx)
                 if ( genNative && param.isInput )
                     os << " == ";
                 else if ( genNative && param.isOutput )
@@ -151,14 +124,11 @@ package Impl
                     os << " /=/ ";
 
                 dumpExpr(os, pred, arg.get());
-            }
-        }
-    }
+            ;
+        ;
 
     [ct] fun dumpClauseConditions(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, condWritten: @Bool)
-    {
         for cond: @ConditionPtr = clause.conditions.all()
-        {
             if ( !condWritten )
                 condWritten = true;
             else
@@ -168,45 +138,35 @@ package Impl
                 dumpPredCall(os, pred, clause, cond.get());
             else
                 dumpIsExpr(os, pred, clause, cond.get());
-        }
-    }
+        ;
 
     [ct] fun dumpPredCall(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, predCall: @Condition)
-    {
-        let genNative = allowNativeCodeGen && pred.canBeNative;
-        let isRecursive = predCall.predName == clause.name;
+        let genNative = allowNativeCodeGen && pred.canBeNative
+        let isRecursive = predCall.predName == clause.name
         if ( isRecursive )
-        {
             if ( genNative )
                 os << predCall.predName << "_native(";
             else
                 os << "rec(\\" << predCall.predName << ", ";
-        }
         else
             os << predCall.predName << '(';
         for i = 0..predCall.args.size()
-        {
             if ( i>0 )
                 os << ", ";
             dumpExpr(os, pred, predCall.args(i).get());
-        }
-        os << ')';
-    }
+        os << ')'
 
     [ct] fun dumpIsExpr(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, isExpr: @Condition)
-    {
-        let left: @Expression = isExpr.args(0).get();
-        let right: @Expression = isExpr.args(1).get();
-        let genNative = allowNativeCodeGen && pred.canBeNative;
+        let left: @Expression = isExpr.args(0).get()
+        let right: @Expression = isExpr.args(1).get()
+        let genNative = allowNativeCodeGen && pred.canBeNative
 
-        dumpExpr(os, pred, left);
-        os << ife(genNative, " =/ ", " /=/ ");
-        dumpExpr(os, pred, right);
-    }
+        dumpExpr(os, pred, left)
+        os << ife(genNative, " =/ ", " /=/ ")
+        dumpExpr(os, pred, right)
 
     [ct] fun dumpExpr(os: @OutStream, pred: @SparrowPredicate, expr: @Expression)
-    {
-        let genNative = allowNativeCodeGen && pred.canBeNative;
+        let genNative = allowNativeCodeGen && pred.canBeNative
 
         if ( expr.kind == ekAtom )
             os << '"' << expr.data << '"';
@@ -228,30 +188,24 @@ package Impl
             os << "<invalid expression kind:" << expr.kind << ">";
         //os << ':';
         //dumpType(os, pred, expr, false, false);
-    }
 
     [ct] fun dumpBinExpr(os: @OutStream, pred: @SparrowPredicate, left, right: @Expression, op: StringRef)
-    {
-        os << '(';
-        dumpExpr(os, pred, left);
-        os << op;
-        dumpExpr(os, pred, right);
-        os << ')';
-    }
+        os << '('
+        dumpExpr(os, pred, left)
+        os << op
+        dumpExpr(os, pred, right)
+        os << ')'
 
     [ct] fun dumpType(os: @OutStream, pred: @SparrowPredicate, expr: @Expression, isRef, genNative: Bool)
-    {
         if ( isRef )
             os << "@";
 
         if ( expr === null )
-        {
-            dumpAtomType(os, genNative);
-            return;
-        }
+            dumpAtomType(os, genNative)
+            return
 
-        assert(expr.typeSetIdx >= 0);
-        let typeSet: @LTypeSet = pred.typeSets(expr.typeSetIdx);
+        assert(expr.typeSetIdx >= 0)
+        let typeSet: @LTypeSet = pred.typeSets(expr.typeSetIdx)
         if ( typeSet.type.isNumberOnly() )
             dumpIntegerType(os, genNative);
         else if ( typeSet.type.isAtomOnly() )
@@ -259,118 +213,91 @@ package Impl
         else
             dumpAtomType(os, genNative);     // Defaults to atom type
         //os << '{' << expr.typeSetIdx << '}';
-    }
 
     [ct] fun dumpIntegerType(os: @OutStream, genNative: Bool)
-    {
         if ( genNative )
             os << "Int";
         else
             os << "LInt";
-    }
 
     [ct] fun dumpAtomType(os: @OutStream, genNative: Bool)
-    {
         if ( genNative )
             os << "String";
         else
             os << "LStr";
-    }
 
     [ct] fun dumpNativeWrapper(os: @OutStream, pred: @SparrowPredicate)
-    {
-        dumpWrapperClass(os, pred);
+        dumpWrapperClass(os, pred)
 
         // Express the logic predicate in terms of the wrapper class
-        os << "fun " << pred.name;
-        dumpParameters(os, pred, false);
-        os << ": Predicate = " << pred.name << "_pred_wrapper(";
+        os << "fun " << pred.name
+        dumpParameters(os, pred, false)
+        os << ": Predicate = " << pred.name << "_pred_wrapper("
         for i = 0..pred.paramVars.size()
-        {
             if ( i > 0 )
                 os << ", ";
             os << "_" << (i+1);
-        }
-        os << ");" << endl;
-    }
+        os << ");" << endl
 
     [ct] fun dumpWrapperClass(os: @OutStream, pred: @SparrowPredicate)
-    {
-        let tab: StringRef = "    ";
-        let tab2: StringRef = "        ";
-        let tab3: StringRef = "            ";
+        let tab: StringRef = "    "
+        let tab2: StringRef = "        "
+        let tab3: StringRef = "            "
 
-        os << "class " << pred.name << "_pred_wrapper" << endl;
-        os << "{" << endl;
+        os << "class " << pred.name << "_pred_wrapper" << endl
+        os << "{" << endl
 
         // Ctor
         if ( pred.arity > 0 )
-        {
-            os << tab << "fun ctor";
-            dumpParameters(os, pred, false);
-            os << endl;
-            os << tab << '{' << endl;
+            os << tab << "fun ctor"
+            dumpParameters(os, pred, false)
+            os << endl
+            os << tab << '{' << endl
             for i = 0..pred.paramVars.size()
-            {
                 os << tab2 << "this._" << (i+1) << " ctor " << "_" << (i+1) << ";" << endl;
-            }
-            os << tab << '}' << endl;
-        }
+            os << tab << '}' << endl
 
         // Call operator
 
-        os << tab << "fun (): Bool" << endl;
-        os << tab << '{' << endl;
+        os << tab << "fun (): Bool" << endl
+        os << tab << '{' << endl
         // Checks for the input parameters
         for i = 0..pred.paramVars.size()
-        {
-            let p: @Parameter = pred.paramVars(i);
+            let p: @Parameter = pred.paramVars(i)
             if ( p.isInput )
-            {
                 if ( i==0 )
                     os << tab2 << "if ( ";
                 else
                     os << " || ";
                 os << "_" << (i+1) << ".isNull()";
-            }
-        }
+            ;
         if ( !pred.paramVars.isEmpty() )
-        {
-            os << " )" << endl;
-            os << tab3 << "return false;" << endl;
-        }
+            os << " )" << endl
+            os << tab3 << "return false;" << endl
         // Create some values for the output parameters
         for i = 0..pred.paramVars.size()
-        {
-            let p: @Parameter = pred.paramVars(i);
+            let p: @Parameter = pred.paramVars(i)
             if ( p.isOutput )
-            {
-                os << tab2 << "_" << (i+1) << " = ";
-                dumpType(os, pred, p.expr.get(), false, true);
-                os << "();" << endl;
-            }
-        }
+                os << tab2 << "_" << (i+1) << " = "
+                dumpType(os, pred, p.expr.get(), false, true)
+                os << "();" << endl
+            ;
         // The call to the native function
-        os << tab2 << "return " << pred.name << "_native(";
+        os << tab2 << "return " << pred.name << "_native("
         for i = 0..pred.paramVars.size()
-        {
             if ( i > 0 )
                 os << ", ";
             os << "_" << (i+1) << ".get()";
-        }
-        os << ");" << endl;
-        os << tab << '}' << endl;
+        os << ");" << endl
+        os << tab << '}' << endl
 
         // The variables corresponding to the parameters
         for i = 0..pred.paramVars.size()
-        {
-            let p: @Parameter = pred.paramVars(i);
-            os << tab << "var _" << (i+1) << ": ";
-            dumpType(os, pred, p.expr.get(), false, false);
-            os << ';' << endl;
-        }
+            let p: @Parameter = pred.paramVars(i)
+            os << tab << "var _" << (i+1) << ": "
+            dumpType(os, pred, p.expr.get(), false, false)
+            os << ';' << endl
 
-        os << "}" << endl;
-    }
-}
+        os << "}" << endl
+    ;
 

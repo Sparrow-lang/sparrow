@@ -12,8 +12,8 @@ fun print(this: MyVal)
     writeLn(x);
 
 fun increment(this: @MyVal): MyVal@
-    x += 1;
-    return this;
+    x += 1
+    return this
 
 fun next(this: MyVal): MyVal
     return MyVal(x+1);
@@ -22,30 +22,28 @@ fun getValue(x: Int): MyVal
     return MyVal(x);
 
 [native("test")] fun test(n: Int)
-{
-    let v: MyVal;
-    v.print();
-    writeLn(v.value());
-    v.increment().print();
-    v.print();
-    v.next();
-    v.print();
-    v.next().print();
-    v.print();
+    let v: MyVal
+    v.print()
+    writeLn(v.value())
+    v.increment().print()
+    v.print()
+    v.next()
+    v.print()
+    v.next().print()
+    v.print()
 
-    writeLn("---");
+    writeLn("---")
 
-    getValue(100).print();
-    getValue(110).increment().print();
-    getValue(120).next().print();
+    getValue(100).print()
+    getValue(110).increment().print()
+    getValue(120).next().print()
 
-    writeLn("---");
+    writeLn("---")
 
-    write("abc".getChar(intToSizeType(0)));
-    write("abc".getChar(intToSizeType(1)));
-    write("abc".getChar(intToSizeType(2)));
-    writeLn("abc".size());
-}
+    write("abc".getChar(intToSizeType(0)))
+    write("abc".getChar(intToSizeType(1)))
+    write("abc".getChar(intToSizeType(2)))
+    writeLn("abc".size())
 
 /*<<<Running()
 0

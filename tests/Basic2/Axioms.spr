@@ -9,21 +9,19 @@ concept Ordered(x) if (
     && axiom("greater")
     && axiom("lessEqual")
     && axiom("greaterEqual")
-    );
-[ct] fun axiom(name: StringRef) = true;     // No checks performed
-fun => (premise, conclusion: Bool) = !(premise) || conclusion;
+    )
+[ct] fun axiom(name: StringRef) = true     // No checks performed
+fun => (premise, conclusion: Bool) = !(premise) || conclusion
 fun lessIsOrdered(x, y, z: Ordered) = (
            !(x < x)
         && ( (x<y) => !(y<x) )
         && ( (x<y) => !(y<x) )
         && ( (x<y && y<z) => (x<z) )
         && ( x<y || y<x || x==y )
-        );
-fun greater(x,y: Ordered)      = (x>y) == (y<x);
-fun lessEqual(x,y: Ordered)    = (x<=y) == !(y<x);
-fun greaterEqual(x,y: Ordered) = (x>=y) == !(x<y);
-
-
+        )
+fun greater(x,y: Ordered)      = (x>y) == (y<x)
+fun lessEqual(x,y: Ordered)    = (x<=y) == !(y<x)
+fun greaterEqual(x,y: Ordered) = (x>=y) == !(x<y)
 
 fun testOrdered(x: Ordered)
     cout << TypeOp.description(typeOf(x)) << " is Ordered\n";
@@ -33,7 +31,7 @@ fun testOrdered(x: AnyType) if !Ordered(x)
 
 datatype MyType
     ;
-fun < (this, other: MyType) = false;
+fun < (this, other: MyType) = false
 // Other operators are implicitly defined
 
 [noDefault]
@@ -42,12 +40,12 @@ datatype EmptyType
 fun ctor(this: @EmptyType) {}
 
 fun sprMain
-    testOrdered(1);
-    testOrdered(1.0);
-    let o1: MyType;
-    let o2: EmptyType;
-    testOrdered(o1);
-    testOrdered(o2);
+    testOrdered(1)
+    testOrdered(1.0)
+    let o1: MyType
+    let o2: EmptyType
+    testOrdered(o1)
+    testOrdered(o2)
 /*<<<Running()
 Int is Ordered
 Double is Ordered

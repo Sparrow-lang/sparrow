@@ -7,30 +7,27 @@ fun ()(this: Test)
     writeLn("call operator");
 
 fun ()(this: Test, x: Int)
-    write("call operator(");
-    write(x);
-    writeLn(")");
+    write("call operator(")
+    write(x)
+    writeLn(")")
 
 fun ()(this: Test, x,y: Int)
-    write("call operator(");
-    write(x);
-    write(", ");
-    write(y);
-    writeLn(")");
+    write("call operator(")
+    write(x)
+    write(", ")
+    write(y)
+    writeLn(")")
 
 fun selfCall(this: Test)
     this(100);
 
 [native("test")] fun test(n: Int)
-{
-    let t: Test;
-    t();
-    t(10);
-    t(10, 20);
-    writeLn("---");
-    t.selfCall();
-}
-
+    let t: Test
+    t()
+    t(10)
+    t(10, 20)
+    writeLn("---")
+    t.selfCall()
 
 /*<<<Running()
 call operator

@@ -1,60 +1,53 @@
-module logic.prolog;
+module logic.prolog
 
-import lRef;
-import predicates;
-import recurse;
+import lRef
+import predicates
+import recurse
 
-import prologImpl.nodes;
-import prologImpl.lexer;
-import prologImpl.parser;
-import prologImpl.ir;
-import prologImpl.sprCodeDump;
-import prologImpl.codeGen;
+import prologImpl.nodes
+import prologImpl.lexer
+import prologImpl.parser
+import prologImpl.ir
+import prologImpl.sprCodeDump
+import prologImpl.codeGen
 
-import meta = meta.nodeKinds;
+import meta = meta.nodeKinds
 
-import assert;
-import time = time;
+import assert
+import time = time
 
 [macro] fun compileProlog(sourceString: CompilerAstNode): CompilerAstNode
-{
-    let sourceStr: meta.AstNode = sourceString;
+    let sourceStr: meta.AstNode = sourceString
     [ct] if ( (sourceString nodeKind) != meta.nkSparrowExpLiteral )
         meta.report("compileProlog should take a string literal as argument", (sourceStr location));
     else
-    {
-        sourceStr semanticCheck;
-        let loc = sourceStr location;
-        let ctx = sourceStr context;
-        let str: String = astEval(sourceString clone);
-        return handlePrologCode(str, loc, ctx);
-    }
-}
+        sourceStr semanticCheck
+        let loc = sourceStr location
+        let ctx = sourceStr context
+        let str: String = astEval(sourceString clone)
+        return handlePrologCode(str, loc, ctx)
+    ;
 
 [ct] fun handlePrologCode(code: @String, location: meta.Location, context: meta.CompilationContext): meta.AstNode
-{
     //cout << "(" << location.startLineNo << ":" << location.startColNo << " - " << location.endLineNo << ":" << location.endColNo << ')' << endl << flush;
-    let t: time.Timer;
-    var errorReporter: CompilerErrorReporter;
-    var lexer = mkLexer(code.all(), errorReporter, location);
-    var parser = mkParser(lexer, errorReporter);
-    var sps: SparrowPrologSystem = parser.parse();
-    sps.semanticCheck();
+    let t: time.Timer
+    var errorReporter: CompilerErrorReporter
+    var lexer = mkLexer(code.all(), errorReporter, location)
+    var parser = mkParser(lexer, errorReporter)
+    var sps: SparrowPrologSystem = parser.parse()
+    sps.semanticCheck()
     //dumpProlog(cout, sps);
-    var res = genProlog(sps);
-    res setContext context;
-    cout << "Elapsed: " << t.elapsed() << endl << flush;
-    return res;
-}
+    var res = genProlog(sps)
+    res setContext context
+    cout << "Elapsed: " << t.elapsed() << endl << flush
+    return res
 
 [ct] fun prologToString(source: @String): String
-{
-    var errorReporter = mkConsoleErrorReporter(source.all());
-    var lexer = mkLexer(source.all(), errorReporter);
-    var parser = mkParser(lexer, errorReporter);
-    var sps: SparrowPrologSystem = parser.parse();
-    sps.semanticCheck();
-    var ss: StringOutputStream;
-    dumpProlog(ss, sps);
-    return ss.result;
-}
+    var errorReporter = mkConsoleErrorReporter(source.all())
+    var lexer = mkLexer(source.all(), errorReporter)
+    var parser = mkParser(lexer, errorReporter)
+    var sps: SparrowPrologSystem = parser.parse()
+    sps.semanticCheck()
+    var ss: StringOutputStream
+    dumpProlog(ss, sps)
+    return ss.result

@@ -19,7 +19,6 @@ fun access
     assign(b.x, 5)
     assign(c.x, 7)
 
-
 [native("test")]
 fun test(n: Int)
     access

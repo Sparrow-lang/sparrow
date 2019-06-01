@@ -1,15 +1,14 @@
 //!!
-import std.ranges;
-import std.algorithms;
-import std.contiguousMemoryRange(ContiguousMemoryRange);
-import std.rawPtr(RawPtr, allocRawPtr);
-import std.list(List);
+import std.ranges
+import std.algorithms
+import std.contiguousMemoryRange(ContiguousMemoryRange)
+import std.rawPtr(RawPtr, allocRawPtr)
+import std.list(List)
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
         return;
-    let n = programArgs(1) asInt;
+    let n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -34,7 +33,6 @@ fun sprMain
     else if n == 21 ; test21
     else if n == 22 ; test22
     else if n == 23 ; test23
-}
 
 [initCtor]
 datatype MyObj
@@ -53,70 +51,58 @@ fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 datatype Minus
     ;
 
-fun ()(this: Minus, x: Int, y: Int) = x - y;
+fun ()(this: Minus, x: Int, y: Int) = x - y
 
 fun printRange(nr: AnyType)
-{
     while !nr.isEmpty()
-    {
-        cout << nr.front();
-        nr.popFront();
+        cout << nr.front()
+        nr.popFront()
         if (nr.isEmpty() )
             cout << endl;
         else
             cout << ' ';
-    }
-}
+    ;
 
 fun printEmpty(nr: AnyType)
-{
     cout << ife(nr.isEmpty(), "empty", "not empty") << endl;
-}
 
 fun makeList(): List(Int)
-{
-    var li: List(Int);
+    var li: List(Int)
 
-    li.pushBack(3);
-    li.pushBack(1);
-    li.pushBack(-4);
-    li.pushBack(-8);
-    li.pushBack(-8);
-    li.pushBack(7);
-    li.pushBack(-4);
-    li.pushBack(-8);
-    li.pushBack(3);
-    li.pushBack(-5);
-    li.pushBack(-10);
-    li.pushBack(-6);
-    li.pushBack(-10);
-    li.pushBack(7);
-    li.pushBack(-8);
+    li.pushBack(3)
+    li.pushBack(1)
+    li.pushBack(-4)
+    li.pushBack(-8)
+    li.pushBack(-8)
+    li.pushBack(7)
+    li.pushBack(-4)
+    li.pushBack(-8)
+    li.pushBack(3)
+    li.pushBack(-5)
+    li.pushBack(-10)
+    li.pushBack(-6)
+    li.pushBack(-10)
+    li.pushBack(7)
+    li.pushBack(-8)
 
-    return li;
-}
+    return li
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
-{
-    var ptr = allocRawPtr(Int, size);
-    let ptrEnd = ptr.advance(DiffType(size));
-    var i = 0;
+    var ptr = allocRawPtr(Int, size)
+    let ptrEnd = ptr.advance(DiffType(size))
+    var i = 0
 
-    while i < size ; i = i + 1;
+    while i < size ; i = i + 1
         ptr.advance(i).value() = i;
 
     return ContiguousMemoryRange(Int)(ptr, ptrEnd);
-}
-
 
 fun test1()
-{
     let nr = 0..10
 
-    printRange(find(nr, 0));
-    printRange(find(nr, 5));
-    printEmpty(find(nr, 10));
-}
+    printRange(find(nr, 0))
+    printRange(find(nr, 5))
+    printEmpty(find(nr, 10))
 /*<<<Finding(1)
 0 1 2 3 4 5 6 7 8 9
 5 6 7 8 9
@@ -124,28 +110,24 @@ empty
 >>>*/
 
 fun test2()
-{
     let nr1 = 11..99../2
     let nr2 = 5..10
 
-    printRange(findIf(nr2, Even()));
-    printEmpty(findIf(nr1, Even()));
-}
+    printRange(findIf(nr2, Even()))
+    printEmpty(findIf(nr1, Even()))
 /*<<<Predicate finding(2)
 6 7 8 9
 empty
 >>>*/
 
 fun test3()
-{
     let nr1 = 0..10
     let nr2 = -10..40../3
     let nr3 = 20..20../100
 
-    printRange(findFirstOf(nr1, nr2));
-    printEmpty(findFirstOf(nr3, nr2));
-    printEmpty(findFirstOf(nr2, nr3));
-}
+    printRange(findFirstOf(nr1, nr2))
+    printEmpty(findFirstOf(nr3, nr2))
+    printEmpty(findFirstOf(nr2, nr3))
 /*<<<Finding first of(3)
 2 3 4 5 6 7 8 9
 empty
@@ -153,17 +135,15 @@ empty
 >>>*/
 
 fun test4()
-{
     let nr1 = 0..10../2
     let nr2 = 5..40../3
     let nr3 = 20..20../100
     let nr4 = 10..20
 
-    printRange(findFirstOfIf(nr1, nr2, Greater()));
-    printEmpty(findFirstOfIf(nr3, nr2, Greater()));
-    printEmpty(findFirstOfIf(nr2, nr3, Greater()));
-    printEmpty(findFirstOfIf(nr1, nr4, Greater()));
-}
+    printRange(findFirstOfIf(nr1, nr2, Greater()))
+    printEmpty(findFirstOfIf(nr3, nr2, Greater()))
+    printEmpty(findFirstOfIf(nr2, nr3, Greater()))
+    printEmpty(findFirstOfIf(nr1, nr4, Greater()))
 /*<<<Predicate finding first of(4)
 6 8
 empty
@@ -172,32 +152,27 @@ empty
 >>>*/
 
 fun test5()
-{
-    var li = makeList();
+    var li = makeList()
 
-    cout << count(li.all(), -8) << endl;
-    cout << count(li.all(), 100) << endl;
-}
+    cout << count(li.all(), -8) << endl
+    cout << count(li.all(), 100) << endl
 /*<<<Counting(5)
 4
 0
 >>>*/
 
 fun test6()
-{
     let nr = 1..9../2
-    var li = makeList();
+    var li = makeList()
 
-    cout << countIf(li.all(), Even()) << endl;
-    cout << countIf(nr, Even()) << endl;
-}
+    cout << countIf(li.all(), Even()) << endl
+    cout << countIf(nr, Even()) << endl
 /*<<<Predicate counting(6)
 9
 0
 >>>*/
 
 fun test7()
-{
     let nr1 = 0..10
     let nr2 = 0..10
     let nr3 = 10..10../2
@@ -206,14 +181,13 @@ fun test7()
     let nr6 = 0..11
     let nr7 = 0..9
 
-    cout << equal(nr1, nr2) << endl;
-    cout << equal(nr1, nr3) << endl;
-    cout << equal(nr3, nr4) << endl;
-    cout << equal(nr1, nr5) << endl;
-    cout << equal(nr1, nr6) << endl;
-    cout << equal(nr1, nr7) << endl;
-    cout << equal(nr4, nr7) << endl;
-}
+    cout << equal(nr1, nr2) << endl
+    cout << equal(nr1, nr3) << endl
+    cout << equal(nr3, nr4) << endl
+    cout << equal(nr1, nr5) << endl
+    cout << equal(nr1, nr6) << endl
+    cout << equal(nr1, nr7) << endl
+    cout << equal(nr4, nr7) << endl
 /*<<<Equality(7)
 true
 false
@@ -225,7 +199,6 @@ false
 >>>*/
 
 fun test8()
-{
     let nr1 = 0..10
     let nr2 = 0..10
     let nr3 = 10..10../2
@@ -236,16 +209,15 @@ fun test8()
     let nr8 = -1..9
     let nr9 = -3..50
 
-    cout << equalIf(nr1, nr2, Greater()) << endl;
-    cout << equalIf(nr1, nr3, Greater()) << endl;
-    cout << equalIf(nr3, nr4, Greater()) << endl;
-    cout << equalIf(nr1, nr5, Greater()) << endl;
-    cout << equalIf(nr1, nr6, Greater()) << endl;
-    cout << equalIf(nr1, nr7, Greater()) << endl;
-    cout << equalIf(nr4, nr7, Greater()) << endl;
-    cout << equalIf(nr1, nr8, Greater()) << endl;
-    cout << equalIf(nr1, nr9, Greater()) << endl;
-}
+    cout << equalIf(nr1, nr2, Greater()) << endl
+    cout << equalIf(nr1, nr3, Greater()) << endl
+    cout << equalIf(nr3, nr4, Greater()) << endl
+    cout << equalIf(nr1, nr5, Greater()) << endl
+    cout << equalIf(nr1, nr6, Greater()) << endl
+    cout << equalIf(nr1, nr7, Greater()) << endl
+    cout << equalIf(nr4, nr7, Greater()) << endl
+    cout << equalIf(nr1, nr8, Greater()) << endl
+    cout << equalIf(nr1, nr9, Greater()) << endl
 /*<<<Predicate equality(8)
 false
 false
@@ -259,20 +231,18 @@ false
 >>>*/
 
 fun test9()
-{
     let nr1 = 0..10
     let nr2 = 0..10
     let nr3 = 3..7
     let nr4 = 20..20../20
     let nr5 = 0..20
 
-    printRange(findRange(nr1, nr2));
-    printRange(findRange(nr1, nr3));
-    printRange(findRange(nr1, nr1));
-    printEmpty(findRange(nr1, nr5));
-    printRange(findRange(nr1, nr4));
-    printEmpty(findRange(nr4, nr1));
-}
+    printRange(findRange(nr1, nr2))
+    printRange(findRange(nr1, nr3))
+    printRange(findRange(nr1, nr1))
+    printEmpty(findRange(nr1, nr5))
+    printRange(findRange(nr1, nr4))
+    printEmpty(findRange(nr4, nr1))
 /*<<<Range finding(9)
 0 1 2 3 4 5 6 7 8 9
 3 4 5 6 7 8 9
@@ -283,17 +253,15 @@ empty
 >>>*/
 
 fun test10()
-{
     let nr1 = 0..10
     let nr2 = 3..5
     let nr3 = 10..10
     let nr4 = 4..11
 
-    printRange(findRangeIf(nr1, nr2, Greater()));
-    printRange(findRangeIf(nr1, nr3, Greater()));
-    printEmpty(findRangeIf(nr1, nr4, Greater()));
-    printEmpty(findRangeIf(nr1, nr1, Greater()));
-}
+    printRange(findRangeIf(nr1, nr2, Greater()))
+    printRange(findRangeIf(nr1, nr3, Greater()))
+    printEmpty(findRangeIf(nr1, nr4, Greater()))
+    printEmpty(findRangeIf(nr1, nr1, Greater()))
 /*<<<Predicate range finding(10)
 4 5 6 7 8 9
 0 1 2 3 4 5 6 7 8 9
@@ -302,79 +270,69 @@ empty
 >>>*/
 
 fun test11()
-{
-    var li = makeList();
+    var li = makeList()
 
-    printRange(minElement(li.all()));
+    printRange(minElement(li.all()))
 
     let nr = 10..10
 
-    printEmpty(minElement(nr));
-}
+    printEmpty(minElement(nr))
 /*<<<Minimum element(11)
 -10 -6 -10 7 -8
 empty
 >>>*/
 
 fun test12()
-{
-    var li = makeList();
+    var li = makeList()
 
-    printRange(minElementIf(li.all(), Greater()));
+    printRange(minElementIf(li.all(), Greater()))
 
     let nr = 10..10
 
-    printEmpty(minElementIf(nr, Greater()));
-}
+    printEmpty(minElementIf(nr, Greater()))
 /*<<<Predicate minimum element(12)
 7 -4 -8 3 -5 -10 -6 -10 7 -8
 empty
 >>>*/
 
 fun test13()
-{
-    var li = makeList();
+    var li = makeList()
 
-    printRange(maxElement(li.all()));
+    printRange(maxElement(li.all()))
 
     let nr = 10..10
 
-    printEmpty(maxElement(nr));
-}
+    printEmpty(maxElement(nr))
 /*<<<Maximum element(13)
 7 -4 -8 3 -5 -10 -6 -10 7 -8
 empty
 >>>*/
 
 fun test14()
-{
-    var li = makeList();
+    var li = makeList()
 
-    printRange(maxElementIf(li.all(), Greater()));
+    printRange(maxElementIf(li.all(), Greater()))
 
     let nr = 10..10
 
-    printEmpty(maxElementIf(nr, Greater()));
-}
+    printEmpty(maxElementIf(nr, Greater()))
 /*<<<Predicate maximum element(14)
 -10 -6 -10 7 -8
 empty
 >>>*/
 
 fun test15()
-{
-    var li = makeList();
-    let pair = minMaxElement(li.all());
+    var li = makeList()
+    let pair = minMaxElement(li.all())
 
-    printRange(pair.v1);
-    printRange(pair.v2);
+    printRange(pair.v1)
+    printRange(pair.v2)
 
     var nr = 10..10
-    let pair2 = minMaxElement(nr);
+    let pair2 = minMaxElement(nr)
 
-    printEmpty(pair2.v1);
-    printEmpty(pair2.v2);
-}
+    printEmpty(pair2.v1)
+    printEmpty(pair2.v2)
 /*<<<Minimum and maximum elements(15)
 7 -4 -8 3 -5 -10 -6 -10 7 -8
 -10 -6 -10 7 -8
@@ -383,19 +341,17 @@ empty
 >>>*/
 
 fun test16()
-{
-    var li = makeList();
-    let pair = minMaxElementIf(li.all(), Greater());
+    var li = makeList()
+    let pair = minMaxElementIf(li.all(), Greater())
 
-    printRange(pair.v1);
-    printRange(pair.v2);
+    printRange(pair.v1)
+    printRange(pair.v2)
 
     let nr = 10..10
 
-    let pair2 = minMaxElementIf(nr, Greater());
-    printEmpty(pair2.v1);
-    printEmpty(pair2.v2);
-}
+    let pair2 = minMaxElementIf(nr, Greater())
+    printEmpty(pair2.v1)
+    printEmpty(pair2.v2)
 /*<<<Predicate minimum and maximum elements(16)
 -10 -6 -10 7 -8
 7 -4 -8 3 -5 -10 -6 -10 7 -8
@@ -404,17 +360,15 @@ empty
 >>>*/
 
 fun test17()
-{
     let nr1 = 0..10
     let nr2 = 2..5
     let nr3 = -1..20
     let nr4 = 1..15
 
-    cout << compare(nr1, nr2) << endl;
-    cout << compare(nr1, nr3) << endl;
-    cout << compare(nr1, nr1) << endl;
-    cout << compare(nr1, nr4) << endl;
-}
+    cout << compare(nr1, nr2) << endl
+    cout << compare(nr1, nr3) << endl
+    cout << compare(nr1, nr1) << endl
+    cout << compare(nr1, nr4) << endl
 /*<<<Comparison(17)
 false
 false
@@ -423,17 +377,15 @@ true
 >>>*/
 
 fun test18()
-{
     let nr1 = 0..10
     let nr2 = 2..5
     let nr3 = -1..20
     let nr4 = 1..15
 
-    cout << compare(nr1, nr2, Greater()) << endl;
-    cout << compare(nr1, nr3, Greater()) << endl;
-    cout << compare(nr1, nr1, Greater()) << endl;
-    cout << compare(nr1, nr4, Greater()) << endl;
-}
+    cout << compare(nr1, nr2, Greater()) << endl
+    cout << compare(nr1, nr3, Greater()) << endl
+    cout << compare(nr1, nr1, Greater()) << endl
+    cout << compare(nr1, nr4, Greater()) << endl
 /*<<<Predicate comparison(18)
 false
 true
@@ -442,68 +394,58 @@ false
 >>>*/
 
 fun test19()
-{
     let nr1 = 0..10
     let nr2 = 20..10 ../ -1
 
-    cout << isSorted(nr1) << endl;
-    cout << isSorted(nr2) << endl;
-}
+    cout << isSorted(nr1) << endl
+    cout << isSorted(nr2) << endl
 /*<<<Checking for sorted(19)
 true
 false
 >>>*/
 
 fun test20()
-{
     let nr1 = 0..10
     let nr2 = 10..5 ../ -1
 
-    cout << isSorted(nr1, Greater()) << endl;
-    cout << isSorted(nr2, Greater()) << endl;
-}
+    cout << isSorted(nr1, Greater()) << endl
+    cout << isSorted(nr2, Greater()) << endl
 /*<<<Predicate checking for sorted(20)
 false
 true
 >>>*/
 
 fun test21()
-{
-    var li = makeList();
+    var li = makeList()
 
-    cout << indexOf(li.all(), -10) << endl;
-    cout << indexOf(li.all(), -50) << endl;
-}
+    cout << indexOf(li.all(), -10) << endl
+    cout << indexOf(li.all(), -50) << endl
 /*<<<Index of(21)
 10
 18446744073709551615
 >>>*/
 
 fun test22()
-{
-    var li = makeList();
+    var li = makeList()
     let nr = 5..19../2
 
-    cout << indexOfIf(li.all(), Even()) << endl;
-    cout << indexOfIf(nr, Even()) << endl;
-}
+    cout << indexOfIf(li.all(), Even()) << endl
+    cout << indexOfIf(nr, Even()) << endl
 /*<<<Predicate index of(22)
 2
 18446744073709551615
 >>>*/
 
 fun test23()
-{
-    var li = makeList();
-    let lr = li.all();
+    var li = makeList()
+    let lr = li.all()
 
-    cout << foldLeft(lr, Minus(), 0) << endl;
-    cout << foldRight(lr, Minus(), 0) << endl;
+    cout << foldLeft(lr, Minus(), 0) << endl
+    cout << foldRight(lr, Minus(), 0) << endl
 
-    let nr = NumericRangeWithStep(Int)();
+    let nr = NumericRangeWithStep(Int)()
 
-    cout << foldLeft(nr, Minus(), 100) << endl;
-}
+    cout << foldLeft(nr, Minus(), 100) << endl
 /*<<<Folding(23)
 50
 50

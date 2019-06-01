@@ -60,7 +60,6 @@ fun _getNextToken(this: @Lexer): Token
         this._consumeLineComment   // Just drop all characters until the end of line
         return this._getNextToken  // Get the next token
 
-
     if isAlnum(ch)
         // Check for numbers, variables and string atoms
         if isDigit(ch)
@@ -102,7 +101,6 @@ fun _getNextToken(this: @Lexer): Token
         else if ch == ':'.char && chNext == '-'.char
             this._advanceSource
             return Token(_curLocation, tkClause)
-
 
     let errMsg: String = "Invalid character found while parsing Prolog code: "
     errMsg.append(ch)

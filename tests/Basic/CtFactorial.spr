@@ -1,24 +1,18 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 [autoCt] fun fact(n: Int): Int
-{
     if ( n == 0 )
         return 1;
     else
         return n* fact(n-1);
-}
 
 fun testFact()
-{
-    let n = 5;
-    writeLn(fact(n));
-    writeLn(fact(5));
-}
+    let n = 5
+    writeLn(fact(n))
+    writeLn(fact(5))
 
 [native("test")] fun test(n: Int)
-{
     testFact();
-}
 
 /*<<<Running()
 120

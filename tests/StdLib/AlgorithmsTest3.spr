@@ -1,17 +1,16 @@
 //!!
 //-keep-intermediate-files -dump-assembly -dump-ct-assembly
-import std.ranges;
-import std.algorithms;
-import std.contiguousMemoryRange(ContiguousMemoryRange);
-import std.rawPtr(RawPtr, allocRawPtr);
-import std.list(List);
-import std.vector(Vector);
+import std.ranges
+import std.algorithms
+import std.contiguousMemoryRange(ContiguousMemoryRange)
+import std.rawPtr(RawPtr, allocRawPtr)
+import std.list(List)
+import std.vector(Vector)
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
         return;
-    let n = programArgs(1) asInt;
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
@@ -19,7 +18,6 @@ fun sprMain
     else if n == 4; test4
     else if n == 5; test5
     else if n == 6; test6
-}
 
 [initCtor]
 datatype MyObj
@@ -36,64 +34,55 @@ datatype Even
 fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
 fun printRange(nr: AnyType)
-{
     while !nr.isEmpty()
-    {
-        cout << nr.front();
-        nr.popFront();
+        cout << nr.front()
+        nr.popFront()
         if (nr.isEmpty() )
             cout << endl;
         else
             cout << " ";
-    }
-}
+    ;
 
 fun printEmpty(nr: AnyType)
-{
     cout << ife(nr.isEmpty(), "empty", "not empty") << endl;
-}
 
 fun makeList(): List(Int)
-{
-    var li: List(Int);
+    var li: List(Int)
 
-    li.pushBack(3);
-    li.pushBack(1);
-    li.pushBack(-4);
-    li.pushBack(-8);
-    li.pushBack(-8);
-    li.pushBack(7);
-    li.pushBack(-4);
-    li.pushBack(-8);
-    li.pushBack(3);
-    li.pushBack(-5);
-    li.pushBack(-10);
-    li.pushBack(-6);
-    li.pushBack(-10);
-    li.pushBack(7);
-    li.pushBack(-8);
+    li.pushBack(3)
+    li.pushBack(1)
+    li.pushBack(-4)
+    li.pushBack(-8)
+    li.pushBack(-8)
+    li.pushBack(7)
+    li.pushBack(-4)
+    li.pushBack(-8)
+    li.pushBack(3)
+    li.pushBack(-5)
+    li.pushBack(-10)
+    li.pushBack(-6)
+    li.pushBack(-10)
+    li.pushBack(7)
+    li.pushBack(-8)
 
-    return li;
-}
+    return li
 
 fun makeList(li: @List(Int))
-{
-    li.pushBack(3);
-    li.pushBack(1);
-    li.pushBack(-4);
-    li.pushBack(-8);
-    li.pushBack(-8);
-    li.pushBack(7);
-    li.pushBack(-4);
-    li.pushBack(-8);
-    li.pushBack(3);
-    li.pushBack(-5);
-    li.pushBack(-10);
-    li.pushBack(-6);
-    li.pushBack(-10);
-    li.pushBack(7);
-    li.pushBack(-8);
-}
+    li.pushBack(3)
+    li.pushBack(1)
+    li.pushBack(-4)
+    li.pushBack(-8)
+    li.pushBack(-8)
+    li.pushBack(7)
+    li.pushBack(-4)
+    li.pushBack(-8)
+    li.pushBack(3)
+    li.pushBack(-5)
+    li.pushBack(-10)
+    li.pushBack(-6)
+    li.pushBack(-10)
+    li.pushBack(7)
+    li.pushBack(-8)
 
 // fun printRange(nr: List(Int).RangeType)
 // {
@@ -109,122 +98,107 @@ fun makeList(li: @List(Int))
 // }
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
-{
-    var ptr = allocRawPtr(Int, size);
-    let ptrEnd = ptr.advance(DiffType(size));
-    var i = 0;
+    var ptr = allocRawPtr(Int, size)
+    let ptrEnd = ptr.advance(DiffType(size))
+    var i = 0
 
-    while i < size ; i = i + 1;
+    while i < size ; i = i + 1
         ptr.advance(i).value() = i;
 
     return ContiguousMemoryRange(Int)(ptr, ptrEnd);
-}
 
 fun test1()
-{
-    let nr = NumericRangeWithStep(Int)(0, 10, 1);
-    var li: List(Int);
-    makeList(li);
-    var lr = li.all();
+    let nr = NumericRangeWithStep(Int)(0, 10, 1)
+    var li: List(Int)
+    makeList(li)
+    var lr = li.all()
 
-
-    printRange(copy(nr, lr));
-    printRange(lr);
-}
+    printRange(copy(nr, lr))
+    printRange(lr)
 /*<<<Copying(1)
 -10 -6 -10 7 -8
 0 1 2 3 4 5 6 7 8 9 -10 -6 -10 7 -8
 >>>*/
 
 fun test2()
-{
-    var li: List(Int);
-    makeList(li);
-    var lr = li.all();
+    var li: List(Int)
+    makeList(li)
+    var lr = li.all()
 
-    replace(lr, -8, 42);
-    printRange(lr);
-    replace(lr, 100, 43);
-    printRange(lr);
-}
+    replace(lr, -8, 42)
+    printRange(lr)
+    replace(lr, 100, 43)
+    printRange(lr)
 /*<<<Replacing(2)
 3 1 -4 42 42 7 -4 42 3 -5 -10 -6 -10 7 42
 3 1 -4 42 42 7 -4 42 3 -5 -10 -6 -10 7 42
 >>>*/
 
 fun test3()
-{
-    var li: List(Int);
-    makeList(li);
-    var lr = li.all();
+    var li: List(Int)
+    makeList(li)
+    var lr = li.all()
 
-    replaceIf(lr, Even(), -1);
-    printRange(lr);
-    replaceIf(lr, Even(), 42);
-    printRange(lr);
-}
+    replaceIf(lr, Even(), -1)
+    printRange(lr)
+    replaceIf(lr, Even(), 42)
+    printRange(lr)
 /*<<<Predicate replacing(3)
 3 1 -1 -1 -1 7 -1 -1 3 -5 -1 -1 -1 7 -1
 3 1 -1 -1 -1 7 -1 -1 3 -5 -1 -1 -1 7 -1
 >>>*/
 
 fun test4()
-{
-    var li: List(Int);
-    makeList(li);
-    var lr = li.all();
+    var li: List(Int)
+    makeList(li)
+    var lr = li.all()
 
-    reverse(lr);
-    printRange(lr);
-}
+    reverse(lr)
+    printRange(lr)
 /*<<<Reversing(4)
 -8 7 -10 -6 -10 -5 3 -8 -4 7 -8 -8 -4 1 3
 >>>*/
 
 fun test5()
-{
-    var v = Vector(Int)(makeList().all());
-    var vr = v.all();
+    var v = Vector(Int)(makeList().all())
+    var vr = v.all()
 
-    sort(vr);
-    printRange(vr);
+    sort(vr)
+    printRange(vr)
 
-    var ev = Vector(Int)();
-    var er = ev.all();
+    var ev = Vector(Int)()
+    var er = ev.all()
 
-    sort(er);
-    printRange(er);
+    sort(er)
+    printRange(er)
 
-    var vec = Vector(Int)(NumericRangeWithStep(Int)(10000, 0, -1));
+    var vec = Vector(Int)(NumericRangeWithStep(Int)(10000, 0, -1))
 
-    sort(vec.all());
+    sort(vec.all())
     if ( !isSorted(vec.all()) )
         cout << "Test failed" << endl;
-}
 /*<<<Sorting(5)
 -10 -10 -8 -8 -8 -8 -6 -5 -4 -4 1 3 3 7 7
 >>>*/
 
 fun test6()
-{
-    var v = Vector(Int)(makeList().all());
-    var vr = v.all();
+    var v = Vector(Int)(makeList().all())
+    var vr = v.all()
 
-    sort(vr, Greater());
-    printRange(vr);
+    sort(vr, Greater())
+    printRange(vr)
 
-    var ve = Vector(Int)();
-    var er = ve.all();
+    var ve = Vector(Int)()
+    var er = ve.all()
 
-    sort(er, Greater());
-    printRange(er);
+    sort(er, Greater())
+    printRange(er)
 
-    var vec = Vector(Int)(NumericRangeWithStep(Int)(0, 10000, 1));
+    var vec = Vector(Int)(NumericRangeWithStep(Int)(0, 10000, 1))
 
-    sort(vec.all(), Greater());
+    sort(vec.all(), Greater())
     if ( !isSorted(vec.all(), Greater()) )
         cout << "Test failed" << endl;
-}
 /*<<<Predicate sorting(6)
 7 7 3 3 1 -4 -4 -5 -6 -8 -8 -8 -8 -10 -10
 >>>*/

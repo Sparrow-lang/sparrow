@@ -4,40 +4,36 @@ datatype MyType
     x: Int;
 
 fun ctor(this: @MyType)
-    x = 0;
-    write('c'); write('t'); write('o'); write('r'); write('('); writeLn(')');
+    x = 0
+    write('c'); write('t'); write('o'); write('r'); write('('); writeLn(')')
 fun ctor(this: @MyType, i: Int)
-    x = i;
-    write('c'); write('t'); write('o'); write('r'); write('('); write(i); writeLn(')');
+    x = i
+    write('c'); write('t'); write('o'); write('r'); write('('); write(i); writeLn(')')
 fun ctor(this, other: @MyType)
-    x = other.x;
-    write('c'); write('t'); write('o'); write('r'); write('('); write('C'); write(' '); write(x); writeLn(')');
+    x = other.x
+    write('c'); write('t'); write('o'); write('r'); write('('); write('C'); write(' '); write(x); writeLn(')')
 
 fun dtor(this: @MyType)
     write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x);
 
-let g: MyType = 999;
+let g: MyType = 999
 
 package TestPkg
     let g2: MyType = 777;
 
 fun doTest()
-{
-    let o1: MyType;
-    let o2: MyType = 1;
-    MyType(10);
-    MyType(o2);
-    let o3 = o1;
-    let o4 = MyType(100);
-    write('o'); writeLn('k');
-}
+    let o1: MyType
+    let o2: MyType = 1
+    MyType(10)
+    MyType(o2)
+    let o3 = o1
+    let o4 = MyType(100)
+    write('o'); writeLn('k')
 
 [native("test")] fun test(n: Int)
-{
-    write('<'); writeLn('-');
-    doTest();
-    write('-'); writeLn('>');
-}
+    write('<'); writeLn('-')
+    doTest()
+    write('-'); writeLn('>')
 
 /*<<<Running KNOWN-PROBLEM()
 ctor(999)

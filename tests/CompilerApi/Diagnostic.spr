@@ -1,31 +1,28 @@
 //!!
 
-import meta.compilerCore;
-
+import meta.compilerCore
 
 fun sprMain // ERROR - introduced by the last meta.report
-{
-    [ct] let loc = mkLocation(currentSourceCode, mkLineCol(6, 5), mkLineCol(6, 12));
+    [ct] let loc = mkLocation(currentSourceCode, mkLineCol(5, 5), mkLineCol(5, 12))
 
-    [ct] let diag1 = mkDiagnostic(diagInfo, loc, "Some information");
-    report(diag1);
+    [ct] let diag1 = mkDiagnostic(diagInfo, loc, "Some information")
+    report(diag1)
 
-    [ct] let diag2 = mkDiagnostic(diagWarning, loc, "Some warning");
-    report(diag2);
+    [ct] let diag2 = mkDiagnostic(diagWarning, loc, "Some warning")
+    report(diag2)
 
-    report(diagError, loc, "Error at the beginning of the function");
+    report(diagError, loc, "Error at the beginning of the function")
 
-    [ct] let sc = currentSourceCode;
-    [ct] let sc2 = sourceCodeFromFilename("/Users/lucteo/work/sparrow/dev/tests/CompilerApi/Diagnostic.spr");
+    [ct] let sc = currentSourceCode
+    [ct] let sc2 = sourceCodeFromFilename("/Users/lucteo/work/sparrow/dev/tests/CompilerApi/Diagnostic.spr")
 
-    cout << (sc filename) << endl;
+    cout << (sc filename) << endl
     // cout << (sc2 filename) << endl;
 
     if ( sc == sc2 )
         cout << "equal\n";
     else
         cout << "not equal\n";
-}
 /*--<<<Running()
 /Users/lucteo/work/sparrow/dev/AutoTests/CompilerApi/Diagnostic.spr
 /Users/lucteo/work/sparrow/dev/AutoTests/CompilerApi/Diagnostic.spr

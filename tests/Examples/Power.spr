@@ -1,46 +1,37 @@
 //!!
 
-import math = math;
+import math = math
 
 fun pow(x: Double, n: Int ct): Double
-{
     if ( n == 0 )
         return 1.0;
     else if ( n == 1 )
         return x;
     else
         return pow(x*x, n/2) * pow(x, n%2);
-}
 
 fun pow(x: Double, n: Int): Double
-{
     if ( n == 0 )
         return 1.0;
     else if ( n == 1 )
         return x;
     else
         return pow(x*x, n/2) * pow(x, n%2);
-}
 
 fun pow(x: Double, n: Double): Double
-{
     return math.pow(x, n);
-}
 
 fun sprMain
-{
-    let x = 10.0;
-    let yd = 2.0;
-    let yn = 2;
-    let r1 = pow(x, yd);
-    let r2 = pow(x, yn);
-    let r3 = pow(x, 2);
+    let x = 10.0
+    let yd = 2.0
+    let yn = 2
+    let r1 = pow(x, yd)
+    let r2 = pow(x, yn)
+    let r3 = pow(x, 2)
 
-    cout << r1 << endl;
-    cout << r2 << endl;
-    cout << r3 << endl;
-}
-
+    cout << r1 << endl
+    cout << r2 << endl
+    cout << r3 << endl
 
 /*<<<Running KNOWN-PROBLEM()
 100

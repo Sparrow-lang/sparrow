@@ -1,53 +1,37 @@
 
 fun f(x: Int)
-{
     cout << "RT: f(" << x << ")\n";
-}
 
 fun f(x: Int ct)
-{
     cout << "CT: f(" << x << ")\n";
-}
 
 fun g(x: Int, y: Int)
-{
     cout << "RT: g(" << x << ", " << y << ")\n";
-}
 
 fun g(x: Int ct, y: Int)
-{
     cout << "CT: g(" << x << ", " << y << ")\n";
-}
 
 fun regexMatch(re, str: StringRef): Bool
-{
-    cout << "RT: regexMatch(" << re << ", " << str << ")\n";
-    return false;
-}
+    cout << "RT: regexMatch(" << re << ", " << str << ")\n"
+    return false
 
 fun regexMatch(re: StringRef ct, str: StringRef): Bool
-{
-    cout << "CT: regexMatch(" << re << ", " << str << ")\n";
-    return false;
-}
-
-
+    cout << "CT: regexMatch(" << re << ", " << str << ")\n"
+    return false
 
 fun sprMain
-{
-    let n = 5;
+    let n = 5
 
-    f(n);
-    f(6);
+    f(n)
+    f(6)
 
-    g(n, n);
-    g(6, n);
+    g(n, n)
+    g(6, n)
 
-    let str = "mumu";
-    [ct] let strCt = "bubu";
-    regexMatch(str, "testStr");
-    regexMatch(strCt, "testStr");
-}
+    let str = "mumu"
+    [ct] let strCt = "bubu"
+    regexMatch(str, "testStr")
+    regexMatch(strCt, "testStr")
 /*<<<Running()
 RT: f(5)
 CT: f(6)

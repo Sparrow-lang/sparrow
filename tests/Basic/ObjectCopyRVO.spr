@@ -6,28 +6,24 @@ datatype MyType
 fun ctor(this: @MyType)
     writeLn("ctor()");
 fun ctor(this: @MyType, i: Int)
-    x = i;
-    write("ctor("); write(x); writeLn(")");
+    x = i
+    write("ctor("); write(x); writeLn(")")
 fun ctor(this, other: @MyType)
-    x = other.x;
-    write("copy ctor("); write(x); writeLn(")");
+    x = other.x
+    write("copy ctor("); write(x); writeLn(")")
 fun dtor(this: @MyType)
     write("dtor-"); writeLn(x);
 
 fun =(this, other: @MyType)
-    write("assign("); write(other.x); writeLn(")");
-    x = other.x;
-
+    write("assign("); write(other.x); writeLn(")")
+    x = other.x
 
 fun f1(): MyType
     return MyType(101);
-fun f2 = MyType(102);
+fun f2 = MyType(102)
 fun f3: MyType
-    let x = MyType(103);
-    return x;
-
-
-
+    let x = MyType(103)
+    return x
 
 [native("test")]
 fun test(n: Int)
@@ -38,13 +34,13 @@ fun test(n: Int)
     else if n == 5; test5
 
 fun test1
-    let o1: MyType;
-    let o2: MyType = 1;
-    MyType(10);
-    MyType(o2);
-    let o3 = o1;
-    let o4 = MyType(100);
-    writeLn("done");
+    let o1: MyType
+    let o2: MyType = 1
+    MyType(10)
+    MyType(o2)
+    let o3 = o1
+    let o4 = MyType(100)
+    writeLn("done")
 
 /*<<<Basic test(1)
 ctor()
@@ -70,13 +66,13 @@ dtor-10
 >>>*/
 
 fun test3
-    f1();
-    writeLn("---");
-    f2();
-    writeLn("---");
+    f1()
+    writeLn("---")
+    f2()
+    writeLn("---")
 
-    var x: MyType;
-    x = f1();
+    var x: MyType
+    x = f1()
 /*<<<Function call(3)
 ctor(101)
 dtor-101

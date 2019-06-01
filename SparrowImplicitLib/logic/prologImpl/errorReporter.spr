@@ -1,29 +1,26 @@
-import charRange;
-import token;
-import std.algorithms;
-import meta = meta.compilerCore;
-import os = os;
+import charRange
+import token
+import std.algorithms
+import meta = meta.compilerCore
+import os = os
 
 [initCtor]
 datatype ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
     _source: sourceType;
 
 fun raiseError(this: @ConsoleErrorReporter, loc: Location, message: StringRef)
-{
-    cout << message << flush;
-    this._printLocation(cout, loc);
-    cout << flush;
-    os.exit(-1);
-}
+    cout << message << flush
+    this._printLocation(cout, loc)
+    cout << flush
+    os.exit(-1)
 
 fun _printLocation(this: @ConsoleErrorReporter, os: @OutStream, loc: Location)
-{
-    let line = this._getLineAtLocation(loc);
+    let line = this._getLineAtLocation(loc)
     //os << "(" << loc.start.line << ":" << loc.start.col << " - " << loc.end.line << ":" << loc.end.col << ")\n";
-    os << '>' << line << '\n';
+    os << '>' << line << '\n'
 
-    os << '>';
-    var endCol = loc.end.col;
+    os << '>'
+    var endCol = loc.end.col
     if ( loc.start.line != loc.end.line )
         endCol = UInt(line.size()+1);
     if ( loc.start.col == endCol )
@@ -33,29 +30,26 @@ fun _printLocation(this: @ConsoleErrorReporter, os: @OutStream, loc: Location)
     for i = loc.start.col..endCol
         os << '~';
     os << '\n';
-}
 
 fun _getLineAtLocation(this: @ConsoleErrorReporter, loc: Location): String
-{
-    var sourceCopy = _source;
+    var sourceCopy = _source
 
     // Skip until our line
-    var curLine = 1;
+    var curLine = 1
     while curLine < loc.start.line
-        sourceCopy = find(sourceCopy, '\n'.char);
-        sourceCopy.popFront();
-        ++curLine;
+        sourceCopy = find(sourceCopy, '\n'.char)
+        sourceCopy.popFront()
+        ++curLine
 
-    let len = indexOf(sourceCopy, '\n'.char);
-    return String(take(sourceCopy, len));
-}
+    let len = indexOf(sourceCopy, '\n'.char)
+    return String(take(sourceCopy, len))
 
-fun mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
+fun mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source)
 
 [ct]
     datatype CompilerErrorReporter
         ;
 
     fun raiseError(this: CompilerErrorReporter, loc: Location, message: StringRef)
-        meta.report(meta.diagError, loc, message);
-        meta.raise;
+        meta.report(meta.diagError, loc, message)
+        meta.raise

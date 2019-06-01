@@ -1,44 +1,29 @@
 //!!
 
-import std.ranges;
+import std.ranges
 
 fun sprMain
-{
-    let r = 0..10;
+    let r = 0..10
     for val = r
-    {
         cout << ' ' << val;
-    }
-    cout << endl;
+    cout << endl
     for val = r
-    {
         cout << ' ' << val;
-    }
-    cout << endl;
+    cout << endl
     for val = r
-    {
         cout << ' ' << val;
-    }
-    cout << endl;
+    cout << endl
 
-    let r2 = 125..130;
+    let r2 = 125..130
     for val = r2
-    {
         cout << ' ' << val;
-    }
-    cout << endl;
+    cout << endl
     for val: Int = r2
-    {
         cout << ' ' << val;
-    }
-    cout << endl;
+    cout << endl
     for val: Byte = r2
-    {
         cout << ' ' << Int(val);
-    }
-    cout << endl;
-}
-
+    cout << endl
 
 /*<<<Running()
  0 1 2 3 4 5 6 7 8 9

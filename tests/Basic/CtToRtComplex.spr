@@ -1,6 +1,6 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x); // Always true
+concept AnyType(x) // Always true
 
 datatype Pair
     x, y: Int;
@@ -21,42 +21,35 @@ fun ctorFromCt(this: @Pair2, src: Pair2 ct)
     x ctor src.x
     y ctor src.y
 
-fun identity(obj: AnyType) = obj;
+fun identity(obj: AnyType) = obj
 
 fun print(p: Pair)
-{
     write("Pair{"); write(p.x); write(", "); write(p.y); writeLn("}");
-}
 fun print(p: Pair2)
-{
     write("Pair2{"); write(p.x); write(", "); write(p.y); writeLn("}");
-}
 
 [native("test")] fun test(n: Int)
-{
-    let a = 101;
-    let b = 103;
-    [ct] let ca = 121;
-    [ct] let cb = 123;
+    let a = 101
+    let b = 103
+    [ct] let ca = 121
+    [ct] let cb = 123
 
-    let p1 = Pair(11,13);
-    [ct] let p2 = Pair(21, 23);
-    print(p1);
-    print(p2);
-    writeLn("---");
+    let p1 = Pair(11,13)
+    [ct] let p2 = Pair(21, 23)
+    print(p1)
+    print(p2)
+    writeLn("---")
 
-    let pp1 = Pair2(a,b);
-    [ct] let pp2 = Pair2(ca, cb);
-    print(pp1);
-    print(pp2);
-    writeLn("---");
+    let pp1 = Pair2(a,b)
+    [ct] let pp2 = Pair2(ca, cb)
+    print(pp1)
+    print(pp2)
+    writeLn("---")
 
-    let pp3 = pp2;
-    print(pp3);
-    let pp4 = identity(pp2);
-    print(pp4);
-}
-
+    let pp3 = pp2
+    print(pp3)
+    let pp4 = identity(pp2)
+    print(pp4)
 
 /*<<<Running()
 Pair{11, 13}

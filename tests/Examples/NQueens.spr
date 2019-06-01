@@ -1,256 +1,189 @@
 //!!
 
-import std.array;
-import std.vector;
-import std.string;
-import std.ranges;
-import math = math;
-import os = os;
+import std.array
+import std.vector
+import std.string
+import std.ranges
+import math = math
+import os = os
 
 /*settings-here*/
 //using runAtCt = false;
 //using printRt = 0;
 
-using numQueens = 4;
-using autoTestMode = true;
+using numQueens = 4
+using autoTestMode = true
 
-
-using PlacementType = Array(Int);
-using SolutionsType = Vector(PlacementType);
+using PlacementType = Array(Int)
+using SolutionsType = Vector(PlacementType)
 
 fun testQueens(placements: @PlacementType, k, y: Int): Bool
-{
     for i = 0..k
-    {
         if ( y == placements(i) || k-i == math.abs(y-placements(i)) )
             return false;
-    }
-    return true;
-}
+    return true
 
 fun backtracking(curSol: @PlacementType, k, n: Int, res: @SolutionsType)
-{
     for y = 0..n
-    {
         if ( testQueens(curSol, k, y) )
-        {
-            curSol(k) = y;
+            curSol(k) = y
             if ( k == n-1 )
                 res.pushBack(curSol);
             else
                 backtracking(curSol, k+1, n, res);
-        }
-    }
-}
+        ;
+    ;
 
 fun nQueens(n: Int): SolutionsType
-{
-    var res: SolutionsType;
-    let curSol: PlacementType = n;
-    backtracking(curSol, 0, n, res);
-    return res;
-}
+    var res: SolutionsType
+    let curSol: PlacementType = n
+    backtracking(curSol, 0, n, res)
+    return res
 
 [autoCt] fun writeSolutions(solutions: @SolutionsType)
-{
-    cout << "We have " << solutions.size() << " solutions\n";
+    cout << "We have " << solutions.size() << " solutions\n"
     for sol = solutions.all()
         writeSolution(sol);
-}
 
 fun writeSolution(x: @PlacementType)
-{
     for v = x.all()
-    {
         for i = 0..v
             cout << "| ";
-        cout << "|Q";
+        cout << "|Q"
         for i = (v+1)..(x.size())
             cout << "| ";
         cout << "|\n";
-    }
-    cout << "\n";
-}
+    cout << "\n"
 
 fun writeSolutionBasic(x: @PlacementType)
-{
     for v = x.all()
         cout << v;
     cout << "\n";
-}
 
 [autoCt] fun writeAsciiArt(solutions: @SolutionsType)
-{
     // line 0           N = number of lines per board square
     // lines 1..N       the characters to be displayed for a "white" board square
     // lines N+1..2N    the characters to be displayed for a "black" board square
     // lines 2N+1..3N   the characters to be displayed for a queen on white square
     // lines 3N+1..4N   the characters to be displayed for a queen on black square
-    let lines = readFileLines("queen-art.txt");
+    let lines = readFileLines("queen-art.txt")
     if lines.isEmpty()
         os.exit(-1);
-    let n = asInt(lines(0).asStringRef());
+    let n = asInt(lines(0).asStringRef())
     if lines.size() < 1+4*n
         os.exit(-1);
 
-    cout << "We have " << solutions.size() << " solutions\n";
+    cout << "We have " << solutions.size() << " solutions\n"
 
     for sol = solutions.all()
-    {
         for line = 0..sol.size()
-        {
-            let v = sol(line);
+            let v = sol(line)
             for l = 0..n
-            {
                 for col = 0..sol.size()
-                {
-                    let isQueen = col==v;
-                    let isWhite = (line+col)%2==0;
-                    let idx = ife(isWhite, 1+l, 1+l+n) + ife(isQueen, 2*n, 0);
-                    cout << lines(idx);
-                }
-                cout << endl;
-            }
-        }
-        cout << "\n\n";
-    }
-}
+                    let isQueen = col==v
+                    let isWhite = (line+col)%2==0
+                    let idx = ife(isWhite, 1+l, 1+l+n) + ife(isQueen, 2*n, 0)
+                    cout << lines(idx)
+                cout << endl
+            ;
+        cout << "\n\n"
+    ;
 
 fun readFileLines(filename: StringRef): Vector(String)
-{
-    var lines: Vector(String);
+    var lines: Vector(String)
 
-    var f = os.openFile(filename, "r");
+    var f = os.openFile(filename, "r")
     if ( !f.isOpen() )
-    {
-        cout << "Cannot open file: " << filename << "\n";
-        return lines;
-    }
+        cout << "Cannot open file: " << filename << "\n"
+        return lines
     while !f.isEof()
-    {
-        let s = f.readLine();
+        let s = f.readLine()
         if ( !s.isEmpty() )
-        {
-            s.resize(s.size()-1);   // Cut the end of line
-            lines.pushBack(s);
-        }
-    }
-    return lines;
-}
-
+            s.resize(s.size()-1)   // Cut the end of line
+            lines.pushBack(s)
+        ;
+    return lines
 
 [rt] fun toRt(sols: SolutionsType ct): SolutionsType
-{
-    let solsRt = sols;
-    return solsRt;
-}
+    let solsRt = sols
+    return solsRt
 
 [rt] fun toRt1(sols: SolutionsType ct): SolutionsType
-{
-    var res: SolutionsType;
-    res.reserve(ctEval(sols.size()));
+    var res: SolutionsType
+    res.reserve(ctEval(sols.size()))
     [ct] for sol = sols.all()
-    {
-        [ct] let size = sol size;
-        var arr = PlacementType(ctEval(size));
+        [ct] let size = sol size
+        var arr = PlacementType(ctEval(size))
         [ct] for i = 0..size
             arr(i) = sol(i);
 
         res.pushBack(arr);
-    }
-    return res;
-}
+    return res
 
 [rt] fun toRt2(sols: SolutionsType ct): SolutionsType
-{
-    var res: SolutionsType;
-    res.reserve(ctEval(sols.size()));
+    var res: SolutionsType
+    res.reserve(ctEval(sols.size()))
     [ct] for sol = sols.all()
-    {
-        [ct] let size = sol size;
-        var arr = PlacementType(ctEval(size));
+        [ct] let size = sol size
+        var arr = PlacementType(ctEval(size))
         [ct] for i = 0..size
             arr(i) = ctEval(sol(ctEval(i)));
 
         res.pushBack(arr);
-    }
-    return res;
-}
+    return res
 
 [rt] fun toRt3(sols: SolutionsType ct): SolutionsType
-{
-    var res: SolutionsType;
-    res.reserve(ctEval(sols.size()));
+    var res: SolutionsType
+    res.reserve(ctEval(sols.size()))
     [ct] for sol = sols.all()
-    {
-        [ct] let size = sol size;
-        var arr = PlacementType(ctEval(size));
+        [ct] let size = sol size
+        var arr = PlacementType(ctEval(size))
         [ct] for i = 0..size
-        {
-            arr(i) = sol(i);
-            cout << res.size() << endl;
-            cout << arr.size() << endl;
-        }
+            arr(i) = sol(i)
+            cout << res.size() << endl
+            cout << arr.size() << endl
 
-        res.pushBack(arr);
-    }
-    return res;
-}
+        res.pushBack(arr)
+    return res
 
 [ct] fun toStringBuffer(sols: SolutionsType): String
-{
-    let numSols = sols.size();
-    let n = ife(numSols == 0, 1, sols(0).size());
+    let numSols = sols.size()
+    let n = ife(numSols == 0, 1, sols(0).size())
 
-    var res: String = 1 + numSols*n;
-    res(0) = Char(n);
+    var res: String = 1 + numSols*n
+    res(0) = Char(n)
     for i = 0..numSols*n
-    {
-        let solNum = i / n;
-        let qNum = i % n;
-        res(1+i) = Char(sols(solNum)(qNum));
-    }
+        let solNum = i / n
+        let qNum = i % n
+        res(1+i) = Char(sols(solNum)(qNum))
 
-    return res;
-}
+    return res
 
 [rt] fun fromStringBuffer(sols: String): SolutionsType
-{
-    let n: Int = sols(0);
-    let numSols = (sols.size()-1) / n;
+    let n: Int = sols(0)
+    let numSols = (sols.size()-1) / n
 
-    var res: SolutionsType = repeat(PlacementType(n), numSols);
+    var res: SolutionsType = repeat(PlacementType(n), numSols)
 
     for i = 0..numSols*n
-    {
-        let solNum = i / n;
-        let qNum = i % n;
-        res(solNum)(qNum) = Int( sols(1+i) );
-    }
+        let solNum = i / n
+        let qNum = i % n
+        res(solNum)(qNum) = Int( sols(1+i) )
 
-    return res;
-}
+    return res
 
 [rt] fun toRt4(sols: SolutionsType ct): SolutionsType
-{
     return fromStringBuffer(toStringBuffer(sols));
-}
-
 
 fun sprMain
-{
     [ct] if ( autoTestMode )
-    {
-        [ct] let solutionsCt = nQueens(numQueens);
-        let solutions = solutionsCt;
-        writeSolutions(solutionsCt);
-        writeSolutions(solutions);
-    }
+        [ct] let solutionsCt = nQueens(numQueens)
+        let solutions = solutionsCt
+        writeSolutions(solutionsCt)
+        writeSolutions(solutions)
     else [ct] if ( isValid(runAtCt) )
-    {
-        [ct] let solutionsCt = nQueens(numQueens);
+        [ct] let solutionsCt = nQueens(numQueens)
         [ct] if ( isValid(printRt) )
-        {
             [ct] if ( printRt == 0 )
                 writeAsciiArt(toRt(solutionsCt));
 
@@ -265,18 +198,13 @@ fun sprMain
 
             [ct] if ( printRt == 4 )
                 writeAsciiArt(toRt4(solutionsCt));
-        }
         else
-        {
             writeAsciiArt(solutionsCt);
-        }
-    }
+        ;
     else
-    {
-        let n = numQueens;
-        writeAsciiArt(nQueens(n));
-    }
-}
+        let n = numQueens
+        writeAsciiArt(nQueens(n))
+    ;
 
 /*<<<Running()
 We have 2 solutions

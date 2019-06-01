@@ -1,9 +1,9 @@
-import std.map;
-import std.ranges;
-import std.tuple;
-import std.list;
-import std.vector;
-import std.algorithms;
+import std.map
+import std.ranges
+import std.tuple
+import std.list
+import std.vector
+import std.algorithms
 
 [convert]
 datatype IntWrapper
@@ -12,10 +12,9 @@ datatype IntWrapper
 [convert]
 fun ctor(this: @IntWrapper, x: Int) { this.x ctor x; }
 
-
 fun hash(this: IntWrapper): SizeType
-    cout << "IntWrapper.hash called for value " << x << endl;
-    return x;
+    cout << "IntWrapper.hash called for value " << x << endl
+    return x
 
 [convert]
 datatype IntWithNoHash
@@ -27,18 +26,16 @@ fun ctor(this: @IntWithNoHash, x: Int) { this.x ctor x; }
 datatype MyTypeTraits
     ;
 
-fun equal(this: MyTypeTraits, l, r: IntWithNoHash) = l == r;
-fun less(this: MyTypeTraits, l, r: IntWithNoHash) = l.x < r.x;
+fun equal(this: MyTypeTraits, l, r: IntWithNoHash) = l == r
+fun less(this: MyTypeTraits, l, r: IntWithNoHash) = l.x < r.x
 fun hash(this: MyTypeTraits, val: IntWithNoHash): SizeType
-    cout << "MyTypeTraits.hash called for value " << val.x << endl;
-    return val.x;
-
+    cout << "MyTypeTraits.hash called for value " << val.x << endl
+    return val.x
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
         return;
-    let n = programArgs(1) asInt;
+    let n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -62,64 +59,54 @@ fun sprMain
     else if n == 20 ; test20
     else if n == 21 ; test21
     else if n == 22 ; test22
-}
 
 fun makeList(): List(Int*Int)
-{
-    var li = List(Int*Int)();
+    var li = List(Int*Int)()
 
-    li.pushBack(3 ~ 10);
-    li.pushBack(145 ~ 42);
-    li.pushBack(834 ~ 32);
-    li.pushBack(8 ~ 43);
-    li.pushBack(73 ~ 4);
-    li.pushBack(73 ~ 3);
-    li.pushBack(101 ~ 5);
-    li.pushBack(4 ~ 312);
-    li.pushBack(43 ~ 128);
-    li.pushBack(4 ~ 1);
-    li.pushBack(106 ~ 32);
-    li.pushBack(3 ~ 3);
-    li.pushBack(5 ~ 34);
-    li.pushBack(53 ~ 54);
-    li.pushBack(62 ~ 3);
+    li.pushBack(3 ~ 10)
+    li.pushBack(145 ~ 42)
+    li.pushBack(834 ~ 32)
+    li.pushBack(8 ~ 43)
+    li.pushBack(73 ~ 4)
+    li.pushBack(73 ~ 3)
+    li.pushBack(101 ~ 5)
+    li.pushBack(4 ~ 312)
+    li.pushBack(43 ~ 128)
+    li.pushBack(4 ~ 1)
+    li.pushBack(106 ~ 32)
+    li.pushBack(3 ~ 3)
+    li.pushBack(5 ~ 34)
+    li.pushBack(53 ~ 54)
+    li.pushBack(62 ~ 3)
 
-    return li;
-}
+    return li
 
 fun printPair(p: Int*Int)
-{
-    cout << p.v1;
-    cout << "-";
-    cout << p.v2;
-}
+    cout << p.v1
+    cout << "-"
+    cout << p.v2
 
 fun printRange(nr: AnyType)
-{
-    var v: Vector(Int*Int) = nr;
+    var v: Vector(Int*Int) = nr
 
-    var r = v.all();
-    sort(r, (fun (l,r: AnyType) = l.v1 < r.v1));
+    var r = v.all()
+    sort(r, (fun (l,r: AnyType) = l.v1 < r.v1))
     while !r.isEmpty()
-    {
-        printPair(r.front());
-        r.popFront();
+        printPair(r.front())
+        r.popFront()
         if ( r.isEmpty() )
             cout << endl;
         else
             cout << ' ';
-    }
-}
+    ;
 
 fun test1()
-{
-    let hs: Map(Int, Int);
+    let hs: Map(Int, Int)
 
-    cout << hs.isEmpty() << endl;
-    cout << hs.size() << endl;
-    cout << hs.bucketCount() << endl;
-    cout << hs.contains(10) << endl;
-}
+    cout << hs.isEmpty() << endl
+    cout << hs.size() << endl
+    cout << hs.bucketCount() << endl
+    cout << hs.contains(10) << endl
 /*<<<Default constructor(1)
 true
 0
@@ -128,14 +115,12 @@ false
 >>>*/
 
 fun test2()
-{
-    let hs = Map(Int, Int)(60);
+    let hs = Map(Int, Int)(60)
 
-    cout << hs.isEmpty() << endl;
-    cout << hs.size() << endl;
-    cout << hs.bucketCount() << endl;
-    cout << hs.contains(10) << endl;
-}
+    cout << hs.isEmpty() << endl
+    cout << hs.size() << endl
+    cout << hs.bucketCount() << endl
+    cout << hs.contains(10) << endl
 /*<<<Bucket count constructor(2)
 true
 0
@@ -144,17 +129,15 @@ false
 >>>*/
 
 fun test3()
-{
-    let hs = Map(Int, Int)(makeList().all());
+    let hs = Map(Int, Int)(makeList().all())
 
-    cout << hs.isEmpty() << endl;
-    cout << hs.size() << endl;
-    cout << hs.bucketCount() << endl;
-    cout << hs.contains(53) << endl;
-    cout << hs.contains(106) << endl;
-    cout << hs.contains(4) << endl;
-    cout << hs.contains(9999) << endl;
-}
+    cout << hs.isEmpty() << endl
+    cout << hs.size() << endl
+    cout << hs.bucketCount() << endl
+    cout << hs.contains(53) << endl
+    cout << hs.contains(106) << endl
+    cout << hs.contains(4) << endl
+    cout << hs.contains(9999) << endl
 /*<<<Range constructor(3)
 false
 12
@@ -166,18 +149,16 @@ false
 >>>*/
 
 fun test4()
-{
-    let hs = Map(Int, Int)(makeList().all());
-    let hs2 = Map(Int, Int)(hs);
+    let hs = Map(Int, Int)(makeList().all())
+    let hs2 = Map(Int, Int)(hs)
 
-    cout << hs2.isEmpty() << endl;
-    cout << hs2.size() << endl;
-    cout << hs2.bucketCount() << endl;
-    cout << hs2.contains(53) << endl;
-    cout << hs2.contains(106) << endl;
-    cout << hs2.contains(4) << endl;
-    cout << hs2.contains(9999) << endl;
-}
+    cout << hs2.isEmpty() << endl
+    cout << hs2.size() << endl
+    cout << hs2.bucketCount() << endl
+    cout << hs2.contains(53) << endl
+    cout << hs2.contains(106) << endl
+    cout << hs2.contains(4) << endl
+    cout << hs2.contains(9999) << endl
 /*<<<Copy constructor(4)
 false
 12
@@ -189,23 +170,21 @@ false
 >>>*/
 
 fun test5()
-{
-    var hs = Map(Int, Int)(makeList().all());
-    var hs2 = Map(Int, Int)(60);
+    var hs = Map(Int, Int)(makeList().all())
+    var hs2 = Map(Int, Int)(60)
 
-    hs.swap(hs2);
-    cout << hs2.isEmpty() << endl;
-    cout << hs2.size() << endl;
-    cout << hs2.bucketCount() << endl;
-    cout << hs2.contains(53) << endl;
-    cout << hs2.contains(106) << endl;
-    cout << hs2.contains(4) << endl;
-    cout << hs2.contains(9999) << endl;
-    cout << hs.isEmpty() << endl;
-    cout << hs.size() << endl;
-    cout << hs.bucketCount() << endl;
-    cout << hs.contains(10) << endl;
-}
+    hs.swap(hs2)
+    cout << hs2.isEmpty() << endl
+    cout << hs2.size() << endl
+    cout << hs2.bucketCount() << endl
+    cout << hs2.contains(53) << endl
+    cout << hs2.contains(106) << endl
+    cout << hs2.contains(4) << endl
+    cout << hs2.contains(9999) << endl
+    cout << hs.isEmpty() << endl
+    cout << hs.size() << endl
+    cout << hs.bucketCount() << endl
+    cout << hs.contains(10) << endl
 /*<<<Swapping(5)
 false
 12
@@ -221,18 +200,16 @@ false
 >>>*/
 
 fun test6()
-{
-    var hs = Map(Int, Int)(makeList().all());
+    var hs = Map(Int, Int)(makeList().all())
 
-    hs.reserve(1000);
-    cout << hs.isEmpty() << endl;
-    cout << hs.size() << endl;
-    cout << hs.bucketCount() << endl;
-    cout << hs.contains(53) << endl;
-    cout << hs.contains(106) << endl;
-    cout << hs.contains(4) << endl;
-    cout << hs.contains(9999) << endl;
-}
+    hs.reserve(1000)
+    cout << hs.isEmpty() << endl
+    cout << hs.size() << endl
+    cout << hs.bucketCount() << endl
+    cout << hs.contains(53) << endl
+    cout << hs.contains(106) << endl
+    cout << hs.contains(4) << endl
+    cout << hs.contains(9999) << endl
 /*<<<Reserving(6)
 false
 12
@@ -244,11 +221,9 @@ false
 >>>*/
 
 fun test7()
-{
-    let hs = Map(Int, Int)(makeList().all());
+    let hs = Map(Int, Int)(makeList().all())
 
-    printRange(hs.all());
-}
+    printRange(hs.all())
 /*<<<Range access(7)
 3-10 4-312 5-34 8-43 43-128 53-54 62-3 73-4 101-5 106-32 145-42 834-32
 >>>*/
@@ -277,33 +252,27 @@ fun test8()
 >>>*/
 
 fun test9()
-{
-    var hs = Map(Int, Int)();
-    var i = 0;
+    var hs = Map(Int, Int)()
+    var i = 0
 
     while i < 5
-    {
-        hs.insert(i, i * i);
-        i = i + 1;
-    }
-    hs.insert(makeList().all());
-    printRange(hs.all());
-}
+        hs.insert(i, i * i)
+        i = i + 1
+    hs.insert(makeList().all())
+    printRange(hs.all())
 /*<<<Range insertion(9)
 0-0 1-1 2-4 3-9 4-16 5-34 8-43 43-128 53-54 62-3 73-4 101-5 106-32 145-42 834-32
 >>>*/
 
 fun test10()
-{
-    var hs = Map(Int, Int)(makeList().all());
+    var hs = Map(Int, Int)(makeList().all())
 
-    hs.remove(5);
-    cout << hs.contains(5) << endl;
-    cout << hs.size() << endl;
-    hs.remove(20);
-    cout << hs.contains(5) << endl;
-    cout << hs.size() << endl;
-}
+    hs.remove(5)
+    cout << hs.contains(5) << endl
+    cout << hs.size() << endl
+    hs.remove(20)
+    cout << hs.contains(5) << endl
+    cout << hs.size() << endl
 /*<<<Element removal(10)
 false
 11
@@ -312,33 +281,31 @@ false
 >>>*/
 
 fun test11()
-{
-    var hs = Map(Int, Int)(makeList().all());
+    var hs = Map(Int, Int)(makeList().all())
 
-    hs.remove(hs.equalRange(8));
-    printRange(hs.all());
-    cout << hs.size() << endl;
-    hs.remove(hs.equalRange(106));
-    printRange(hs.all());
-    cout << hs.size() << endl;
-    hs.remove(hs.equalRange(101));
-    printRange(hs.all());
-    cout << hs.size() << endl;
-    hs.remove(hs.equalRange(1000));
-    printRange(hs.all());
-    cout << hs.size() << endl;
-    hs.remove(hs.all());
-    printRange(hs.all());
-    cout << hs.size() << endl;
-    hs = Map(Int, Int)(makeList().all());
+    hs.remove(hs.equalRange(8))
+    printRange(hs.all())
+    cout << hs.size() << endl
+    hs.remove(hs.equalRange(106))
+    printRange(hs.all())
+    cout << hs.size() << endl
+    hs.remove(hs.equalRange(101))
+    printRange(hs.all())
+    cout << hs.size() << endl
+    hs.remove(hs.equalRange(1000))
+    printRange(hs.all())
+    cout << hs.size() << endl
+    hs.remove(hs.all())
+    printRange(hs.all())
+    cout << hs.size() << endl
+    hs = Map(Int, Int)(makeList().all())
 
-    var r = hs.all();
+    var r = hs.all()
 
-    r.popFront();
-    hs.remove(r);
-    printRange(hs.all());
-    cout << hs.size() << endl;
-}
+    r.popFront()
+    hs.remove(r)
+    printRange(hs.all())
+    cout << hs.size() << endl
 /*<<<Range removal(11)
 3-10 4-312 5-34 43-128 53-54 62-3 73-4 101-5 106-32 145-42 834-32
 11
@@ -354,14 +321,12 @@ fun test11()
 >>>*/
 
 fun test12()
-{
-    let hs = Map(Int, Int)(makeList().all());
+    let hs = Map(Int, Int)(makeList().all())
 
-    cout << hs.contains(106) << endl;
-    cout << hs.contains(53) << endl;
-    cout << hs.contains(52) << endl;
-    cout << hs.contains(12) << endl;
-}
+    cout << hs.contains(106) << endl
+    cout << hs.contains(53) << endl
+    cout << hs.contains(52) << endl
+    cout << hs.contains(12) << endl
 /*<<<Containment checking(12)
 true
 true
@@ -370,14 +335,12 @@ false
 >>>*/
 
 fun test13()
-{
-    let hs = Map(Int, Int)(makeList().all());
+    let hs = Map(Int, Int)(makeList().all())
 
-    hs.insert(5, 10);
-    cout << hs.count(5) << endl;
-    cout << hs.count(1) << endl;
-    cout << hs.count(53) << endl;
-}
+    hs.insert(5, 10)
+    cout << hs.count(5) << endl
+    cout << hs.count(1) << endl
+    cout << hs.count(53) << endl
 /*<<<Counting(13)
 1
 0
@@ -385,18 +348,16 @@ fun test13()
 >>>*/
 
 fun test14()
-{
-    var hs = Map(Int, Int)(makeList().all());
+    var hs = Map(Int, Int)(makeList().all())
 
-    printRange(hs.equalRange(5));
-    hs.insert(5, 432);
-    printRange(hs.equalRange(5));
-    hs.insert(58, 32);
-    printRange(hs.equalRange(5));
-    printRange(hs.equalRange(106));
-    printRange(hs.equalRange(111));
-    printRange(hs.equalRange(100));
-}
+    printRange(hs.equalRange(5))
+    hs.insert(5, 432)
+    printRange(hs.equalRange(5))
+    hs.insert(58, 32)
+    printRange(hs.equalRange(5))
+    printRange(hs.equalRange(106))
+    printRange(hs.equalRange(111))
+    printRange(hs.equalRange(100))
 /*<<<Equal range(14)
 5-34
 5-34
@@ -405,61 +366,53 @@ fun test14()
 >>>*/
 
 fun test15()
-{
-    let hs = Map(Int, Int)(makeList().all());
+    let hs = Map(Int, Int)(makeList().all())
 
-    printRange(hs.find(5));
-    printRange(hs.find(10));
-    printRange(hs.find(53));
-}
+    printRange(hs.find(5))
+    printRange(hs.find(10))
+    printRange(hs.find(53))
 /*<<<Finding(15)
 3-10 4-312 5-34 8-43 43-128 53-54 73-4 101-5 106-32 145-42 834-32
 3-10 53-54 145-42
 >>>*/
 
 fun test16()
-{
-    var hs = Map(Int, Int)(makeList().all());
+    var hs = Map(Int, Int)(makeList().all())
 
-    hs.clear();
-    cout << hs.isEmpty() << endl;
-    printRange(hs.all());
-    cout << hs.contains(8) << endl;
-}
+    hs.clear()
+    cout << hs.isEmpty() << endl
+    printRange(hs.all())
+    cout << hs.contains(8) << endl
 /*<<<Clearing(16)
 true
 false
 >>>*/
 
 fun test17()
-{
-    var hs1 = Map(Int, Int)(makeList().all());
-    var hs2: Map(Int, Int);
+    var hs1 = Map(Int, Int)(makeList().all())
+    var hs2: Map(Int, Int)
 
-    hs2 = hs1;
-    printRange(hs2.all());
-    hs1 = hs1;
-    printRange(hs1.all());
-}
+    hs2 = hs1
+    printRange(hs2.all())
+    hs1 = hs1
+    printRange(hs1.all())
 /*<<<Assignment operator(17)
 3-10 4-312 5-34 8-43 43-128 53-54 62-3 73-4 101-5 106-32 145-42 834-32
 3-10 4-312 5-34 8-43 43-128 53-54 62-3 73-4 101-5 106-32 145-42 834-32
 >>>*/
 
 fun test18()
-{
-    var hs = Map(Int, Int)(makeList().all());
+    var hs = Map(Int, Int)(makeList().all())
 
-    cout << hs.at(145) << endl;
-    cout << hs.at(101) << endl;
-    cout << hs.at(4) << endl;
-    hs.at(1000);
-    cout << hs.contains(1000) << endl;
-    hs.at(4) = 999;
-    cout << hs.at(4) << endl;
-    hs.at(1200) = 555;
-    cout << hs.at(1200) << endl;
-}
+    cout << hs.at(145) << endl
+    cout << hs.at(101) << endl
+    cout << hs.at(4) << endl
+    hs.at(1000)
+    cout << hs.contains(1000) << endl
+    hs.at(4) = 999
+    cout << hs.at(4) << endl
+    hs.at(1200) = 555
+    cout << hs.at(1200) << endl
 /*<<<Element access(18)
 42
 5
@@ -470,60 +423,46 @@ true
 >>>*/
 
 fun test19()
-{
-    let hs = Map(Int, Int)(makeList().all());
-    var keys = hs.keys();
-    var values = hs.values();
+    let hs = Map(Int, Int)(makeList().all())
+    var keys = hs.keys()
+    var values = hs.values()
 
     while !keys.isEmpty()
-    {
-        cout << keys.front();
-        cout << ' ';
-        keys.popFront();
-    }
-    cout << "." << endl;
+        cout << keys.front()
+        cout << ' '
+        keys.popFront()
+    cout << "." << endl
     while !values.isEmpty()
-    {
-        cout << values.front();
-        cout << ' ';
-        values.popFront();
-    }
-    cout << "." << endl;
-}
+        cout << values.front()
+        cout << ' '
+        values.popFront()
+    cout << "." << endl
 /*<<<Keys and values(19)
 62 5 106 43 101 4 73 8 834 53 145 3 .
 3 34 32 128 5 312 4 43 32 54 42 10 .
 >>>*/
 
 fun test20()
-{
-    var hs: Map(Int, Int);
-    var i = 0;
+    var hs: Map(Int, Int)
+    var i = 0
 
     while i < 1000
-    {
-        hs.insert(i, i * i);
-        i = i + 1;
-    }
+        hs.insert(i, i * i)
+        i = i + 1
     while i < 1000
-    {
         if ( !hs.contains(i) )
             cout << "Test failed" << endl;
         i = i + 1;
-    }
-}
+    ;
 /*<<<Large hashmap(20)
 >>>*/
 
 fun test21()
-{
-    var hs: Map(IntWrapper, Int);
+    var hs: Map(IntWrapper, Int)
 
     for i = 1..5
-    {
         hs.insert(i, i*10);
-    }
-}
+    ;
 /*<<<Hashmap with different type(21)
 IntWrapper.hash called for value 1
 IntWrapper.hash called for value 2
@@ -532,14 +471,11 @@ IntWrapper.hash called for value 4
 >>>*/
 
 fun test22()
-{
-    var hs: Map(IntWithNoHash, Int, MyTypeTraits);
+    var hs: Map(IntWithNoHash, Int, MyTypeTraits)
 
     for i = 1..5
-    {
         hs.insert(i, i*10);
-    }
-}
+    ;
 /*<<<External type traits (22)
 MyTypeTraits.hash called for value 1
 MyTypeTraits.hash called for value 2

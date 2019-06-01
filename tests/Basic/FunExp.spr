@@ -1,44 +1,42 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x); // Always true
+concept AnyType(x) // Always true
 
-fun myadd(x,y: Int) = x+y;
-fun next(x: AnyType) = x+1;
+fun myadd(x,y: Int) = x+y
+fun next(x: AnyType) = x+1
 
 fun one: Int { return 1; }
 fun two: Int { return 2; }
-fun three = 3;
+fun three = 3
 
-fun sum(x,y: AnyType) = x+y if typeOf(x) == typeOf(y);
+fun sum(x,y: AnyType) = x+y if typeOf(x) == typeOf(y)
 
-fun nextAsDouble(x: AnyType): Double = x+1.0;
+fun nextAsDouble(x: AnyType): Double = x+1.0
 
 datatype Test1
-    aa: Int;
-    bb: Int;
+    aa: Int
+    bb: Int
 
 fun ctor(this: @Test1, a,b: Int) { aa = a; bb = b; }
 fun ctor(this, other: @Test1) { aa = other.aa; bb = other.bb; }
 
-fun a(this: Test1) = this.aa;
-fun b(this: Test1) = this.bb;
+fun a(this: Test1) = this.aa
+fun b(this: Test1) = this.bb
 
 [native("test")] fun test(n: Int)
-{
-    writeLn(myadd(1,2));
-    writeLn(next(5));
-    writeLn(one());
-    writeLn(two());
-    writeLn(three());
-    writeLn(sum(5, 6));
-    writeLn(sum(3.14, 3.14));
-    writeLn(nextAsDouble(3.14));
-    writeLn("---");
+    writeLn(myadd(1,2))
+    writeLn(next(5))
+    writeLn(one())
+    writeLn(two())
+    writeLn(three())
+    writeLn(sum(5, 6))
+    writeLn(sum(3.14, 3.14))
+    writeLn(nextAsDouble(3.14))
+    writeLn("---")
 
-    let t = Test1(3,5);
-    writeLn(t.a());
-    writeLn(t.b());
-}
+    let t = Test1(3,5)
+    writeLn(t.a())
+    writeLn(t.b())
 
 /*<<<Running()
 3

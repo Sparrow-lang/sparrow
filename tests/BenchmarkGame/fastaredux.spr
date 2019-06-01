@@ -1,57 +1,51 @@
 //!! -O2
 
-import std.array;
-import std.algorithms;
-import std.string;
-import std.tuple;
+import std.array
+import std.algorithms
+import std.string
+import std.tuple
 
 fun write(r: Range, length: Int) if isValid(Char(r.front))
-{
-    using lineLength = 60;
-    var line: String = lineLength;
+    using lineLength = 60
+    var line: String = lineLength
     for n = length..0 ../ (-lineLength)
-    {
-        let len = min(n, lineLength);
+        let len = min(n, lineLength)
         for i = 0..len
             line(i) = (r++);
         if ( len < lineLength )
             line.resize(len);
         cout << line << "\n";
-    }
-}
+    ;
 
-var seed: Int = 42;
+var seed: Int = 42
 fun nextRandom: Double
-{
-    using IM = 139968;
-    seed = (seed * 3877 + 29573) % IM;
-    return seed * 1.0/IM;
-}
+    using IM = 139968
+    seed = (seed * 3877 + 29573) % IM
+    return seed * 1.0/IM
 
 datatype RandTableRange
-    using RetType   = Char;
-    using numEntries = 4095;
-    lookup: Array((Float rt)*(Char rt));
+    using RetType   = Char
+    using numEntries = 4095
+    lookup: Array((Float rt)*(Char rt))
 
 fun ctor(this: @RandTableRange, data: Range)
-    lookup.ctor(numEntries+1);
+    lookup.ctor(numEntries+1)
     for i = 0...numEntries
         while i > data.front().v1*numEntries
             data.popFront();
         lookup(i) = data.front;
 
-fun isEmpty(this: @RandTableRange)     = false;
+fun isEmpty(this: @RandTableRange)     = false
 fun popFront(this: @RandTableRange)    {}
 fun front(this: @RandTableRange): Char
-    let r = nextRandom;
-    var idx: SizeType = r*numEntries;
+    let r = nextRandom
+    var idx: SizeType = r*numEntries
     while lookup(idx).v1 < r
         ++idx;
     return lookup(idx).v2;
 
 fun sprMain
-{
-    let n = (programArgs(1) asInt);
+    let n = (programArgs(1) asInt)
 
     let alu: String = (
         "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGG" +
@@ -60,25 +54,24 @@ fun sprMain
         "ACAAAAATTAGCCGGGCGTGGTGGCGCGCGCCTGTAATCCCA" +
         "GCTACTCGGGAGGCTGAGGCAGGAGAATCGCTTGAACCCGGG" +
         "AGGCGGAGGTTGCAGTGAGCCGAGATCGCGCCACTGCACTCC" +
-        "AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA");
+        "AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA")
 
-    let iubStr: String = "acgtBDHKMNRSVWY";
-    let iubDist = values(0.27f, 0.12f, 0.12f, 0.27f) ++ repeat(0.02f, 11);
-    let iubCum = scanLeft(0.0f, iubDist, (fun acc,v = acc+v));
+    let iubStr: String = "acgtBDHKMNRSVWY"
+    let iubDist = values(0.27f, 0.12f, 0.12f, 0.27f) ++ repeat(0.02f, 11)
+    let iubCum = scanLeft(0.0f, iubDist, (fun acc,v = acc+v))
 
-    let homoSapiensStr: String = "acgt";
-    let hsDist = values(0.3029549426680f, 0.1979883004921f, 0.1975473066391f, 0.3015094502008f);
-    let hsCum = scanLeft(0.0f, hsDist, (fun acc,v = acc+v));
+    let homoSapiensStr: String = "acgt"
+    let hsDist = values(0.3029549426680f, 0.1979883004921f, 0.1975473066391f, 0.3015094502008f)
+    let hsCum = scanLeft(0.0f, hsDist, (fun acc,v = acc+v))
 
-    cout << ">ONE Homo sapiens alu\n";
-    write(alu.all cycle, n*2);
+    cout << ">ONE Homo sapiens alu\n"
+    write(alu.all cycle, n*2)
 
-    cout << ">TWO IUB ambiguity codes\n";
-    write(RandTableRange(zip(iubCum, iubStr.all)), n*3);
+    cout << ">TWO IUB ambiguity codes\n"
+    write(RandTableRange(zip(iubCum, iubStr.all)), n*3)
 
-    cout << ">THREE Homo sapiens frequency\n";
-    write(RandTableRange(zip(hsCum, homoSapiensStr.all)), n*5);
-}
+    cout << ">THREE Homo sapiens frequency\n"
+    write(RandTableRange(zip(hsCum, homoSapiensStr.all)), n*5)
 
 /*<<<fasta-redux (10)
 >ONE Homo sapiens alu

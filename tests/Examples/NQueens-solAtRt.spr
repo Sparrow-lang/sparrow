@@ -1,75 +1,57 @@
 //!!
 
-import std.array;
-import std.vector;
-import math = math;
+import std.array
+import std.vector
+import math = math
 
-using PlacementType = Array(Int);
-using SolutionsType = Vector(PlacementType);
+using PlacementType = Array(Int)
+using SolutionsType = Vector(PlacementType)
 
 fun testQueens(placements: @PlacementType, k, y: Int): Bool
-{
     for i = 0..k
-    {
         if ( y == placements(i) || math.abs(k-i) == math.abs(y-placements(i)) )
             return false;
-    }
-    return true;
-}
+    return true
 
 fun backtracking(x: @PlacementType, k, n: Int, res: @SolutionsType)
-{
     for y = 0..n
-    {
         if ( testQueens(x, k, y) )
-        {
-            x(k) = y;
+            x(k) = y
             if ( k == n-1 )
                 res.pushBack(x);
             else
                 backtracking(x, k+1, n, res);
-        }
-    }
-}
+        ;
+    ;
 
 fun writeSolution(x: @PlacementType)
-{
     for v = x.all()
-    {
         for i = 0..v
             cout << "| ";
-        cout << "|Q";
+        cout << "|Q"
         for i = (v+1)..(x.size())
             cout << "| ";
         cout << "|\n";
-    }
-    cout << "\n";
-}
+    cout << "\n"
 
 fun writeSolutionBasic(x: @PlacementType)
-{
     for v = x.all()
         cout << v;
     cout << "\n";
-}
 
 [autoCt] fun nQueens(n: Int): SolutionsType
-{
-    let x: PlacementType = n;
-    var res: SolutionsType;
-    backtracking(x, 0, n, res);
+    let x: PlacementType = n
+    var res: SolutionsType
+    backtracking(x, 0, n, res)
     for sol = res.all()
         writeSolution(sol);
     return res;
-}
 
 fun sprMain
-{
-    [ct] let solutionsCt = nQueens(4);
-    let solutions = solutionsCt;
+    [ct] let solutionsCt = nQueens(4)
+    let solutions = solutionsCt
     for sol = solutions.all()
         writeSolution(sol);
-}
 
 /*<<<Running()
 | |Q| | |

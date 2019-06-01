@@ -1,25 +1,21 @@
 //!! -O2
 
 fun testAccumulate(n: UInt): ULong
-{
-    var res: ULong = 0;
-    var i = 0;
+    var res: ULong = 0
+    var i = 0
     while i<n; ++i
-        var j = 0;
+        var j = 0
         while j<n; ++j
             res += i*j;
     return res;
-}
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
         return;
-    let n = programArgs(1) asInt;
+    let n = programArgs(1) asInt
 
-    let res = testAccumulate(n);
-    cout << res << endl;
-}
+    let res = testAccumulate(n)
+    cout << res << endl
 
 /*-<<<Basic test (50000)
 >>>*/

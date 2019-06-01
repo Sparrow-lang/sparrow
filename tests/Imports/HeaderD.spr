@@ -1,4 +1,4 @@
-import HeaderA;
-import HeaderC;
+import HeaderA
+import HeaderC
 
-let d = Int(4);
+let d = Int(4)

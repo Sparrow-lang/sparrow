@@ -2,26 +2,25 @@
 
 // Test purpose: Test anyType
 
-concept AnyType(x); // Always true
+concept AnyType(x) // Always true
 
 // Takes a non-reference as a parameter
 fun f1(x: AnyType) if typeOf(x) == Int
     writeLn('non-ref')
-    x = 10;
+    x = 10
 
 // Takes a reference as a parameter
 fun f2(x: @AnyType) if typeOf(x) == (Int@)
     writeLn('ref')
-    x = 20;
+    x = 20
 
 [native("test")] fun test(n: Int)
-    let a: Int = 5;
+    let a: Int = 5
 
-    f1(a);
-    writeLn(a);
-    f2(a);
-    writeLn(a);
-
+    f1(a)
+    writeLn(a)
+    f2(a)
+    writeLn(a)
 
 /*<<<Running()
 non-ref

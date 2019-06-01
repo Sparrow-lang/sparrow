@@ -1,44 +1,36 @@
 //!!
 
 fun fact(n: Int): Int
-{
-    if n < 2 return 1;
-    else return n*fact(n-1);
-}
+    if n < 2 return 1
+    else return n*fact(n-1)
 
 datatype FactFun
     ;
-fun ()(this: FactFun, n: Int) = fact(n);
+fun ()(this: FactFun, n: Int) = fact(n)
 
 fun doCall(f: AnyType, val: Int): Int
-{
     return f(val);
-}
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
         return;
-    let n = programArgs(1) asInt;
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
     else if n == 3; test3
     else if n == 4; test4
     else if n == 5; test5
-}
 
 fun test1
-{
-    cout << doCall(FactFun(), 4) << endl;
-    cout << "---" << endl;
-    cout << doCall((fun (n: Int) = fact(n)), 5) << endl;
-    cout << doCall((fun (n: Int): Int { return fact(n);}), 5) << endl;
-    cout << doCall((fun (n: AnyType) = fact(n)), 5) << endl;
-    cout << doCall((fun n = fact(n)), 5) << endl;
-    cout << "---" << endl;
-    cout << doCall((fun n = n*n), 5) << endl;
-}
+    cout << doCall(FactFun(), 4) << endl
+    cout << "---" << endl
+    cout << doCall((fun (n: Int) = fact(n)), 5) << endl
+    cout << doCall((fun (n: Int): Int { return fact(n);}), 5) << endl
+    cout << doCall((fun (n: AnyType) = fact(n)), 5) << endl
+    cout << doCall((fun n = fact(n)), 5) << endl
+    cout << "---" << endl
+    cout << doCall((fun n = n*n), 5) << endl
 
 /*<<<Simple anonymous function(1)
 24
@@ -51,16 +43,13 @@ fun test1
 25
 >>>*/
 
-
 fun test2
-{
-    let x = 10;
-    let y = 11;
-    let z = 12;
-    cout << doCall((fun.{x} n = n*n + x), 5) << endl;
-    cout << doCall((fun.{x, y, z} n = n*n + x+y+z), 5) << endl;
-    cout << doCall((fun.{x,y,z} n = n*n), 5) << endl;
-}
+    let x = 10
+    let y = 11
+    let z = 12
+    cout << doCall((fun.{x} n = n*n + x), 5) << endl
+    cout << doCall((fun.{x, y, z} n = n*n + x+y+z), 5) << endl
+    cout << doCall((fun.{x,y,z} n = n*n), 5) << endl
 
 /*<<<Closures(2)
 35
@@ -72,20 +61,14 @@ datatype Test
     x: Int = 10;
 
 fun doTest1(this: Test)
-{
     cout << doCall((fun n = n*n), 5) << endl;
-}
 fun doTest2(this: Test)
-{
     cout << doCall((fun.{x} n = n*n + x), 5) << endl;
-}
 
 fun test3
-{
-    let t: Test;
-    t doTest1;
-    t doTest2;
-}
+    let t: Test
+    t doTest1
+    t doTest2
 
 /*<<<Lambda inside methods(3)
 25
@@ -93,9 +76,7 @@ fun test3
 >>>*/
 
 fun test4
-{
     cout << doCall(\fact, 5) << endl;
-}
 
 /*<<<Functions as first-order values(4)
 120
@@ -104,24 +85,18 @@ fun test4
 [initCtor]
 datatype Foo
     x: Int;
-fun ()(this: Foo) = this;
+fun ()(this: Foo) = this
 
 fun getVector(): Foo
-{
-    let v = Foo(10);
+    let v = Foo(10)
     return v
-}
 
 fun testVector(f: AnyType)
-{
-    let v = f();
-    cout << v.x << endl;
-}
+    let v = f()
+    cout << v.x << endl
 
 fun test5
-{
     testVector(getVector);
-}
 
 /*<<<Functions as first-order values, with returning complex types(5)
 10

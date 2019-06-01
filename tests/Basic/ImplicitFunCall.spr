@@ -1,8 +1,8 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 datatype Foo
-    a: Int;
-    b: Int;
+    a: Int
+    b: Int
 
 fun f(this: Foo): @Foo         { writeLn("inside Foo.f()"); return this; }
 
@@ -11,30 +11,28 @@ fun g(this: Foo, i: Int): @Foo { writeLn("inside Foo.g(i)"); return this; }
 
 fun h(this: Foo, i: Int): @Foo { writeLn("inside Foo.h(i)"); return this; }
 
-fun aa(this: Foo) = a;
+fun aa(this: Foo) = a
 
 fun f1          { writeLn("inside f1()"); }
 fun f2(i: Int)  { writeLn("inside f2()"); }
 
 [native("test")] fun test(n: Int)
-{
-    f1;         // inside f1()
+    f1         // inside f1()
     //f2;
 
-    writeLn("---");
+    writeLn("---")
 
-    let foo: Foo;
+    let foo: Foo
 
-    foo.a;
-    foo.b;
-    foo.f;      // inside Foo.f()
+    foo.a
+    foo.b
+    foo.f      // inside Foo.f()
     //foo.g;
     //foo.h;
-    writeLn("---");
-    foo.f g;    // inside Foo.f() + inside Foo.g()
-    writeLn(foo.aa + 13);       // 13
-    writeLn((foo.f aa) + 13);   // inside Foo.f() + 13
-}
+    writeLn("---")
+    foo.f g    // inside Foo.f() + inside Foo.g()
+    writeLn(foo.aa + 13)       // 13
+    writeLn((foo.f aa) + 13)   // inside Foo.f() + 13
 
 /*<<<Running()
 inside f1()

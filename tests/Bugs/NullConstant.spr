@@ -1,11 +1,9 @@
 
 fun sprMain
-{
-    let p: @Int = null;
+    let p: @Int = null
 
-    cout << (p === null) << endl;
-    cout << (p !== null) << endl;
-}
+    cout << (p === null) << endl
+    cout << (p !== null) << endl
 /*<<<Running()
 true
 false

@@ -1,49 +1,42 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 datatype MyObj
-    a: Int;
-    using st = 103;
+    a: Int
+    using st = 103
 
 fun ctor(this: @MyObj, i: Int) { a = i; }
 fun ctor(this: @MyObj, other: MyObj) { a = other.a; }
 
 fun print(this: MyObj) { write("MyObj: "); writeLn(a); }
 
-let go = MyObj(10);
+let go = MyObj(10)
 
 fun f1(): MyObj
-{
     return MyObj(13);
-}
 
 fun f2(): @MyObj
-{
     return go;
-}
 
 [native("test")] fun test(n: Int)
-{
-    writeLn(go.a);
-    go.print();
-    writeLn(go.st);
-    writeLn("---");
+    writeLn(go.a)
+    go.print()
+    writeLn(go.st)
+    writeLn("---")
 
-    let o = MyObj(1);
-    writeLn(o.a);
-    o.print();
-    writeLn(o.st);
-    writeLn("---");
+    let o = MyObj(1)
+    writeLn(o.a)
+    o.print()
+    writeLn(o.st)
+    writeLn("---")
 
-    writeLn(f1().a);
-    f1().print();
-    writeLn(f1().st);
-    writeLn("---");
+    writeLn(f1().a)
+    f1().print()
+    writeLn(f1().st)
+    writeLn("---")
 
-    writeLn(f2().a);
-    f2().print();
-    writeLn(f2().st);
-}
-
+    writeLn(f2().a)
+    f2().print()
+    writeLn(f2().st)
 
 /*<<<Running()
 10

@@ -1,22 +1,20 @@
 //!!
-import std.algorithms;
-import std.contiguousMemoryRange(ContiguousMemoryRange);
-import std.rawPtr(RawPtr, allocRawPtr);
-import std.list(List);
-import std.vector(Vector);
-import std.array(Array);
+import std.algorithms
+import std.contiguousMemoryRange(ContiguousMemoryRange)
+import std.rawPtr(RawPtr, allocRawPtr)
+import std.list(List)
+import std.vector(Vector)
+import std.array(Array)
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
         return;
-    let n = programArgs(1) asInt;
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
     else if n == 3; test3
     else if n == 4; test4
-}
 
 [initCtor]
 datatype MyObj
@@ -35,100 +33,86 @@ fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 datatype Minus
     ;
 
-fun ()(this: Minus, x: Int, y: Int) = x - y;
-
+fun ()(this: Minus, x: Int, y: Int) = x - y
 
 fun printRange(nr: AnyType)
-{
     while !nr.isEmpty()
-    {
-        cout << nr.front();
-        nr.popFront();
+        cout << nr.front()
+        nr.popFront()
         if (nr.isEmpty() )
             cout << endl;
         else
             cout << ' ';
-    }
-}
+    ;
 
 fun makeList(): List(Int)
-{
-    var li: List(Int);
+    var li: List(Int)
 
-    li.pushBack(3);
-    li.pushBack(1);
-    li.pushBack(-4);
-    li.pushBack(-8);
-    li.pushBack(-8);
-    li.pushBack(7);
-    li.pushBack(-4);
-    li.pushBack(-8);
-    li.pushBack(3);
-    li.pushBack(-5);
-    li.pushBack(-10);
-    li.pushBack(-6);
-    li.pushBack(-10);
-    li.pushBack(7);
-    li.pushBack(-8);
+    li.pushBack(3)
+    li.pushBack(1)
+    li.pushBack(-4)
+    li.pushBack(-8)
+    li.pushBack(-8)
+    li.pushBack(7)
+    li.pushBack(-4)
+    li.pushBack(-8)
+    li.pushBack(3)
+    li.pushBack(-5)
+    li.pushBack(-10)
+    li.pushBack(-6)
+    li.pushBack(-10)
+    li.pushBack(7)
+    li.pushBack(-8)
 
-    return li;
-}
+    return li
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
-{
-    var ptr = allocRawPtr(Int, size);
-    let ptrEnd = ptr.advance(DiffType(size));
-    var i = 0;
+    var ptr = allocRawPtr(Int, size)
+    let ptrEnd = ptr.advance(DiffType(size))
+    var i = 0
 
-    while i < size ; i = i + 1;
+    while i < size ; i = i + 1
         ptr.advance(i).value() = i;
 
     return ContiguousMemoryRange(Int)(ptr, ptrEnd);
-}
 
 fun test1()
-{
-    var arr = Array(Int)(20, 0);
-    let nr1 = NumericRangeWithStep(Int)(0, 10, 1);
-    let nr2 = NumericRangeWithStep(Int)(0, 11, 2);
+    var arr = Array(Int)(20, 0)
+    let nr1 = NumericRangeWithStep(Int)(0, 10, 1)
+    let nr2 = NumericRangeWithStep(Int)(0, 11, 2)
 
-    printRange(merge(nr1, nr2, arr.all()));
-    printRange(arr.all());
-}
+    printRange(merge(nr1, nr2, arr.all()))
+    printRange(arr.all())
 /*<<<Merging(1)
 0 0 0 0
 0 0 1 2 2 3 4 4 5 6 6 7 8 8 9 10 0 0 0 0
 >>>*/
 
 fun test2()
-{
-    var arr = Array(Int)(20, 0);
-    let nr1 = NumericRangeWithStep(Int)(10, 0, -1);
-    let nr2 = NumericRangeWithStep(Int)(11, 0, -2);
+    var arr = Array(Int)(20, 0)
+    let nr1 = NumericRangeWithStep(Int)(10, 0, -1)
+    let nr2 = NumericRangeWithStep(Int)(11, 0, -2)
 
-    printRange(merge(nr1, nr2, arr.all(), Greater()));
-    printRange(arr.all());
-}
+    printRange(merge(nr1, nr2, arr.all(), Greater()))
+    printRange(arr.all())
 /*<<<Predicate merging(2)
 0 0 0 0
 11 10 9 9 8 7 7 6 5 5 4 3 3 2 1 1 0 0 0 0
 >>>*/
 
 fun test3()
-{
-    var v = Vector(Int)(makeList().all());
+    var v = Vector(Int)(makeList().all())
 
-    sort(v.all());
-    cout << binarySearch(v.all(), 7) << endl;
-    cout << binarySearch(v.all(), -5) << endl;
-    cout << binarySearch(v.all(), 9) << endl;
-    cout << binarySearch(v.all(), -100) << endl;
-    cout << binarySearch(v.all(), 200) << endl;
-    cout << binarySearch(v.all(), -10) << endl;
-    v.assign(NumericRangeWithStep(Int)(0, 100000, 2));
-    cout << binarySearch(v.all(), 56872) << endl;
-    cout << binarySearch(v.all(), 56871) << endl;
-}
+    sort(v.all())
+    cout << binarySearch(v.all(), 7) << endl
+    cout << binarySearch(v.all(), -5) << endl
+    cout << binarySearch(v.all(), 9) << endl
+    cout << binarySearch(v.all(), -100) << endl
+    cout << binarySearch(v.all(), 200) << endl
+    cout << binarySearch(v.all(), -10) << endl
+    v.assign(NumericRangeWithStep(Int)(0, 100000, 2))
+    cout << binarySearch(v.all(), 56872) << endl
+    cout << binarySearch(v.all(), 56871) << endl
 /*<<<Binary search(3)
 true
 true
@@ -141,20 +125,18 @@ false
 >>>*/
 
 fun test4()
-{
-    let v = Vector(Int)(makeList().all());
+    let v = Vector(Int)(makeList().all())
 
-    sort(v.all(), Greater());
-    cout << binarySearch(v.all(), 7, Greater()) << endl;
-    cout << binarySearch(v.all(), -5, Greater()) << endl;
-    cout << binarySearch(v.all(), 9, Greater()) << endl;
-    cout << binarySearch(v.all(), -100, Greater()) << endl;
-    cout << binarySearch(v.all(), 200, Greater()) << endl;
-    cout << binarySearch(v.all(), -10, Greater()) << endl;
-    v.assign(NumericRangeWithStep(Int)(100000, 0, -2));
-    cout << binarySearch(v.all(), 56872, Greater()) << endl;
-    cout << binarySearch(v.all(), 56871, Greater()) << endl;
-}
+    sort(v.all(), Greater())
+    cout << binarySearch(v.all(), 7, Greater()) << endl
+    cout << binarySearch(v.all(), -5, Greater()) << endl
+    cout << binarySearch(v.all(), 9, Greater()) << endl
+    cout << binarySearch(v.all(), -100, Greater()) << endl
+    cout << binarySearch(v.all(), 200, Greater()) << endl
+    cout << binarySearch(v.all(), -10, Greater()) << endl
+    v.assign(NumericRangeWithStep(Int)(100000, 0, -2))
+    cout << binarySearch(v.all(), 56872, Greater()) << endl
+    cout << binarySearch(v.all(), 56871, Greater()) << endl
 /*<<<Predicate binary search(4)
 true
 true

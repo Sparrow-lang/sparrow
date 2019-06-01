@@ -1,53 +1,42 @@
 //!!
-import std.vector;
-import std.contiguousMemoryRange;
-import std.rawPtr;
+import std.vector
+import std.contiguousMemoryRange
+import std.rawPtr
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
         return;
-    let n = programArgs(1) asInt;
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
-}
 
 [initCtor]
 datatype MyObj
     x: Int
 
 [ct] fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
-{
-    var ptr = allocRawPtr(MyObj, size);
-    let ptrEnd = ptr.advance(DiffType(size));
-    var i = 0;
+    var ptr = allocRawPtr(MyObj, size)
+    let ptrEnd = ptr.advance(DiffType(size))
+    var i = 0
 
-    while i < size ; i = i + 1;
-    {
-        var o: @MyObj = ptr.advance(i).value();
+    while i < size ; i = i + 1
+        var o: @MyObj = ptr.advance(i).value()
 
-        o.x = i;
-    }
+        o.x = i
 
-    return ContiguousMemoryRange(MyObj)(ptr, ptrEnd);
-}
+    return ContiguousMemoryRange(MyObj)(ptr, ptrEnd)
 
 [ct] fun createVector(size: SizeType): Vector(MyObj)
-{
-    let v = Vector(MyObj)(createRangeAscending(size));
-    return v;
-}
+    let v = Vector(MyObj)(createRangeAscending(size))
+    return v
 
 fun test1()
-{
-    [ct] let v = createVector(10);
-    cout << v.size() << endl;
+    [ct] let v = createVector(10)
+    cout << v.size() << endl
     [ct] for el = v.all()
-    {
         cout << ctEval(el.x) << endl;
-    }
-}
+    ;
 /*<<<Creation of a CT vector(1)
 10
 0
@@ -63,15 +52,12 @@ fun test1()
 >>>*/
 
 fun test2()
-{
-    [ct] let v = createVector(10);
-    let v2: Vector(MyObj) = v;
-    cout << v2.size() << endl;
+    [ct] let v = createVector(10)
+    let v2: Vector(MyObj) = v
+    cout << v2.size() << endl
     for el = v2.all()
-    {
         cout << el.x << endl;
-    }
-}
+    ;
 /*<<<Creation of a RT vector from a CT vector(2)
 10
 0

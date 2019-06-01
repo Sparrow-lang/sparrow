@@ -5,8 +5,7 @@ concept Regular(x) if (
     && isValid(x.ctor(x))       // Copy construction
     && isValid(x.dtor())        // Destruction
     && typeOf(x == x) == Bool   // Equality is defined
-    );
-
+    )
 
 [noDefault, convert]
 datatype NullType
@@ -16,9 +15,8 @@ fun ctor(this: @NullType) {}
 [convert] fun ctor(this: @NullType, other: AnyType) {}
 fun dtor(this: NullType) {}
 
-fun ==(this, other: NullType) = true;
-fun ==(this, other: AnyType) = false;
-
+fun ==(this, other: NullType) = true
+fun ==(this, other: AnyType) = false
 
 fun testRegular(x: Regular)
     cout << TypeOp.description(typeOf(x)) << " is Regular\n";
@@ -36,14 +34,14 @@ package Isolated
         ;
 
 fun sprMain
-    testRegular(1);
-    testRegular(1.0);
-    let o: NullType;
-    let o1: MyType;
-    let o2: Isolated.EmptyType;
-    testRegular(o);
-    testRegular(o1);
-    testRegular(o2);
+    testRegular(1)
+    testRegular(1.0)
+    let o: NullType
+    let o1: MyType
+    let o2: Isolated.EmptyType
+    testRegular(o)
+    testRegular(o1)
+    testRegular(o2)
 /*<<<Running()
 Int is Regular
 Double is Regular

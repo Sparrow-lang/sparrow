@@ -1,13 +1,12 @@
 //!!
-import std.array(Array);
-import std.contiguousMemoryRange(ContiguousMemoryRange);
-import std.rawPtr;
+import std.array(Array)
+import std.contiguousMemoryRange(ContiguousMemoryRange)
+import std.rawPtr
 
 fun sprMain
-{
     if ( programArgs.size() < 2 )
         return;
-    let n = programArgs(1) asInt;
+    let n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -22,66 +21,52 @@ fun sprMain
     else if n == 11 ; test11
     else if n == 12 ; test12
     else if n == 13 ; test13
-}
 
 [initCtor]
 datatype MyObj
     x: Int;
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
-{
-    var ptr: RawPtr(MyObj) = allocRawPtr(MyObj, size);
+    var ptr: RawPtr(MyObj) = allocRawPtr(MyObj, size)
     let ptrEnd = ptr.advance(size)
-    var i = 0;
+    var i = 0
 
-    while i < size ; i = i + 1;
-    {
-        var o: @AnyType = ptr.advance(i).value();
+    while i < size ; i = i + 1
+        var o: @AnyType = ptr.advance(i).value()
 
-        o.x = i;
-    }
+        o.x = i
 
-    return ContiguousMemoryRange(MyObj)(ptr, ptrEnd);
-}
+    return ContiguousMemoryRange(MyObj)(ptr, ptrEnd)
 
 fun printArray(a: @Array(MyObj))
-{
-    var i = 0;
+    var i = 0
 
-    while i < a.size() ; i = i + 1;
-    {
-        cout << a.at(i).x;
+    while i < a.size() ; i = i + 1
+        cout << a.at(i).x
         if ( i < a.size() - 1 )
             cout << ' ';
         else
             cout << endl;
-    }
-}
+    ;
 
 fun printSizeInfo(a: @Array(MyObj))
-{
-    cout << a.isEmpty() << endl;
-    cout << a.size() << endl;
-}
+    cout << a.isEmpty() << endl
+    cout << a.size() << endl
 
 fun test1()
-{
-    let a: Array(MyObj);
+    let a: Array(MyObj)
 
-    printSizeInfo(a);
-}
+    printSizeInfo(a)
 /*<<<Default constructor(1)
 true
 0
 >>>*/
 
 fun test2()
-{
-    let a = Array(MyObj)(createRangeAscending(4));
+    let a = Array(MyObj)(createRangeAscending(4))
 
-    printSizeInfo(a);
-    printArray(a);
-}
+    printSizeInfo(a)
+    printArray(a)
 /*<<<Range constructor(2)
 false
 4
@@ -89,16 +74,14 @@ false
 >>>*/
 
 fun test3()
-{
-    let a1: Array(MyObj);
-    let a2 = Array(MyObj)(createRangeAscending(4));
-    let a3: Array(MyObj) = a1;
-    let a4 = a2;
+    let a1: Array(MyObj)
+    let a2 = Array(MyObj)(createRangeAscending(4))
+    let a3: Array(MyObj) = a1
+    let a4 = a2
 
-    printSizeInfo(a3);
-    printSizeInfo(a4);
-    printArray(a4);
-}
+    printSizeInfo(a3)
+    printSizeInfo(a4)
+    printArray(a4)
 /*<<<Copy constructor(3)
 true
 0
@@ -108,12 +91,10 @@ false
 >>>*/
 
 fun test4()
-{
-    let a = Array(MyObj)(6);
+    let a = Array(MyObj)(6)
 
-    printSizeInfo(a);
-    printArray(a);
-}
+    printSizeInfo(a)
+    printArray(a)
 /*<<<Size constructor(4)
 false
 6
@@ -121,12 +102,10 @@ false
 >>>*/
 
 fun test5()
-{
-    let a = Array(MyObj)(6, MyObj(42));
+    let a = Array(MyObj)(6, MyObj(42))
 
-    printSizeInfo(a);
-    printArray(a);
-}
+    printSizeInfo(a)
+    printArray(a)
 /*<<<Fill constructor(5)
 false
 6
@@ -141,30 +120,26 @@ fun test6()
 >>>*/
 
 fun test7()
-{
-    var a = Array(MyObj)(createRangeAscending(8));
+    var a = Array(MyObj)(createRangeAscending(8))
 
-    a.at(1).x = 111;
-    a.at(5).x = 555;
-    printArray(a);
-}
+    a.at(1).x = 111
+    a.at(5).x = 555
+    printArray(a)
 /*<<<Element access(7)
 0 111 2 3 4 555 6 7
 >>>*/
 
 fun test8()
-{
-    var a = Array(MyObj)(createRangeAscending(4));
-    var r = a.all();
+    var a = Array(MyObj)(createRangeAscending(4))
+    var r = a.all()
 
-    while !r.isEmpty() ; r.popFront();
+    while !r.isEmpty() ; r.popFront()
         cout << r.front().x << endl;
-    r = ContiguousMemoryRange(MyObj)(a.all());
-    while !r.isEmpty() ; r.popFront();
+    r = ContiguousMemoryRange(MyObj)(a.all())
+    while !r.isEmpty() ; r.popFront()
         r.front().x = r.front().x + 1;
-    printSizeInfo(a);
-    printArray(a);
-}
+    printSizeInfo(a)
+    printArray(a)
 /*<<<Range access(8)
 0
 1
@@ -176,24 +151,22 @@ false
 >>>*/
 
 fun test9()
-{
-    var a1: Array(MyObj);
-    var a2 = Array(MyObj)(createRangeAscending(8));
-    var a3 = Array(MyObj)(createRangeAscending(4));
+    var a1: Array(MyObj)
+    var a2 = Array(MyObj)(createRangeAscending(8))
+    var a3 = Array(MyObj)(createRangeAscending(4))
 
-    a1.assign(createRangeAscending(5));
-    printSizeInfo(a1);
-    a2.assign(createRangeAscending(4));
-    printSizeInfo(a2);
-    printArray(a2);
-    a3.at(0) = MyObj(3);
-    a3.at(1) = MyObj(2);
-    a3.at(2) = MyObj(1);
-    a3.at(3) = MyObj(0);
-    a3.assign(createRangeAscending(4));
-    printSizeInfo(a3);
-    printArray(a3);
-}
+    a1.assign(createRangeAscending(5))
+    printSizeInfo(a1)
+    a2.assign(createRangeAscending(4))
+    printSizeInfo(a2)
+    printArray(a2)
+    a3.at(0) = MyObj(3)
+    a3.at(1) = MyObj(2)
+    a3.at(2) = MyObj(1)
+    a3.at(3) = MyObj(0)
+    a3.assign(createRangeAscending(4))
+    printSizeInfo(a3)
+    printArray(a3)
 /*<<<Range assignment(9)
 true
 0
@@ -206,16 +179,14 @@ false
 >>>*/
 
 fun test10()
-{
-    var a1 = Array(MyObj)(createRangeAscending(4));
-    var a2 = Array(MyObj)(createRangeAscending(6));
+    var a1 = Array(MyObj)(createRangeAscending(4))
+    var a2 = Array(MyObj)(createRangeAscending(6))
 
-    a2 = a1;
-    printSizeInfo(a2);
-    printArray(a2);
-    printSizeInfo(a1 = a2);
-    printArray(a1);
-}
+    a2 = a1
+    printSizeInfo(a2)
+    printArray(a2)
+    printSizeInfo(a1 = a2)
+    printArray(a1)
 /*<<<Assignment operator(10)
 false
 4
@@ -226,52 +197,43 @@ false
 >>>*/
 
 fun test11()
-{
-    let a1 = Array(MyObj)(createRangeAscending(4));
-    let a2 = Array(MyObj)(createRangeAscending(4));
-    let a3 = Array(MyObj)(createRangeAscending(6));
+    let a1 = Array(MyObj)(createRangeAscending(4))
+    let a2 = Array(MyObj)(createRangeAscending(4))
+    let a3 = Array(MyObj)(createRangeAscending(6))
 
-    cout << a1 == a2 << endl;
-    cout << a1 == a3 << endl;
-}
+    cout << a1 == a2 << endl
+    cout << a1 == a3 << endl
 /*<<<Equality operator(11)
 true
 false
 >>>*/
 
 fun test12()
-{
-    let a = Array(MyObj)(createRangeAscending(1000));
-    var i = 0;
+    let a = Array(MyObj)(createRangeAscending(1000))
+    var i = 0
 
-    printSizeInfo(a);
-    while i < a.size() ; i = i + 1;
-    {
+    printSizeInfo(a)
+    while i < a.size() ; i = i + 1
         if ( a.at(i).x != i )
             cout << "test failed" << endl;
-    }
 
-    let aa = a;
+    let aa = a
 
-    i = 0;
-    printSizeInfo(aa);
-    while i < aa.size() ; i = i + 1;
-    {
+    i = 0
+    printSizeInfo(aa)
+    while i < aa.size() ; i = i + 1
         if ( aa.at(i).x != i )
             cout << "test failed" << endl;
-    }
 
-    var aaa = Array(MyObj)(1000);
+    var aaa = Array(MyObj)(1000)
 
-    aaa.assign(createRangeAscending(1000));
-    i = 0;
-    printSizeInfo(aaa);
-    while i < aaa.size() ; i = i + 1;
-    {
+    aaa.assign(createRangeAscending(1000))
+    i = 0
+    printSizeInfo(aaa)
+    while i < aaa.size() ; i = i + 1
         if ( aaa.at(i).x != i )
             cout << "test failed" << endl;
-    }
-}
+    ;
 /*<<<Large arrays(12)
 false
 1000
@@ -282,22 +244,20 @@ false
 >>>*/
 
 fun test13()
-{
-    let v = Array(MyObj)(createRangeAscending(8));
-    var r = v.subrange(0, 0);
+    let v = Array(MyObj)(createRangeAscending(8))
+    var r = v.subrange(0, 0)
 
-    while !r.isEmpty() ; r.popFront();
+    while !r.isEmpty() ; r.popFront()
         cout << r.front().x << endl;
-    r = v.subrange(0, 1);
-    while !r.isEmpty() ; r.popFront();
+    r = v.subrange(0, 1)
+    while !r.isEmpty() ; r.popFront()
         cout << r.front().x << endl;
-    r = v.subrange(2, 3);
-    while !r.isEmpty() ; r.popFront();
+    r = v.subrange(2, 3)
+    while !r.isEmpty() ; r.popFront()
         cout << r.front().x << endl;
-    r = v.subrange(0, v.size());
-    while !r.isEmpty() ; r.popFront();
+    r = v.subrange(0, v.size())
+    while !r.isEmpty() ; r.popFront()
         cout << r.front().x << endl;
-}
 /*<<<Subrange(13)
 0
 2

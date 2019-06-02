@@ -5,16 +5,16 @@
 datatype MyObj
     v: Int;
 
-fun ctor(this: @MyObj)
+fun ctor(this: @MyObj) // TODO (mut): Check why this can't be converted to mutable
     writeLn("MyObj.ctor()");
-fun ctor(this: @MyObj, i: Int)
+fun ctor(this: @MyObj, i: Int) // TODO (mut): Check why this can't be converted to mutable
     write("MyObj.ctor("); write(i); writeLn(")");
-fun ctor(this: @MyObj, i,j: Int)
+fun ctor(this: !MyObj, i,j: Int)
     write("MyObj.ctor("); write(i); write(", "); write(j); writeLn(")");
-fun ctor(this: @MyObj, src: @MyObj)
+fun ctor(this: @MyObj, src: @MyObj) // TODO (mut): Check why this can't be converted to mutable
     writeLn("MyObj.ctor(copy)");
 
-fun dtor(this: @MyObj)
+fun dtor(this: @MyObj) // TODO (mut): Check why this can't be converted to mutable
     writeLn("MyObj.dtor");
 
 fun reconstruct(this: @MyObj)
@@ -24,19 +24,19 @@ fun reconstruct(this: @MyObj)
 datatype Pair
     first, second: MyObj;
 
-fun ctor(this: @Pair)
+fun ctor(this: !Pair)
     first.ctor()
     second.ctor()
     writeLn("Pair.ctor()")
-fun ctor(this: @Pair, i,j: Int)
+fun ctor(this: !Pair, i,j: Int)
     first.ctor(i)
     second.ctor(j)
     write("Pair.ctor("); write(i); write(", "); write(j); writeLn(")")
-fun ctor(this: @Pair, src: Pair@)
+fun ctor(this: !Pair, src: Pair@)
     first.ctor(src.first)
     second.ctor(src.second)
     writeLn("Pair.ctor(copy)")
-fun dtor(this: @Pair)
+fun dtor(this: !Pair)
     writeLn("Pair.dtor");
 
 [native("test")] fun test(n: Int)

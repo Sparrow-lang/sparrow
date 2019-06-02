@@ -7,21 +7,21 @@ fun f1(x: Double)      { writeLn("f1(Double)"); }
 fun f1(x: Int@)        { writeLn("f1(Int@)"); }
 fun f1(x: Double@)     { writeLn("f1(Double@)"); }
 fun f1(x: AnyType)        { writeLn("f1(AnyType)"); }
-fun f1(x: @AnyType)       { writeLn("f1(@AnyType)"); }
+fun f1(x: @AnyType)       { writeLn("f1(@AnyType)"); } // TODO (mut): Check why this can't be converted to mutable
 
 fun f2(x: Int, y: Int)            { writeLn("f2(Int, Int)"); }
 fun f2(x: Double, y: Double)      { writeLn("f2(Double, Double)"); }
 fun f2(x: AnyType, y: AnyType)          { writeLn("f2(AnyType, AnyType)"); }
 fun f2(x: Int@, y: Int@)          { writeLn("f2(Int@, Int@)"); }
 fun f2(x: Double@, y: Double@)    { writeLn("f2(Double@, Double@)"); }
-fun f2(x: @AnyType, y: @AnyType)        { writeLn("f2(@AnyType, @AnyType)"); }
+fun f2(x: @AnyType, y: @AnyType)        { writeLn("f2(@AnyType, @AnyType)"); } // TODO (mut): Check why this can't be converted to mutable
 
 fun f3(x: Int, y: Int)                            { writeLn("f3(Int, Int)"); }
 fun f3(x: Double, y: Double)                      { writeLn("f3(Double, Double)"); }
 fun f3(x: AnyType, y: AnyType) if typeOf(x)==typeOf(y)  { writeLn("f3(AnyType, AnyType)"); }
 fun f3(x: Int@, y: Int@)                          { writeLn("f3(Int@, Int@)"); }
 fun f3(x: Double@, y: Double@)                    { writeLn("f3(Double@, Double@)"); }
-fun f3(x: @AnyType, y: @AnyType) if typeOf(x)==typeOf(y){ writeLn("f3(@AnyType, @AnyType)"); }
+fun f3(x: @AnyType, y: @AnyType) if typeOf(x)==typeOf(y){ writeLn("f3(@AnyType, @AnyType)"); } // TODO (mut): Check why this can't be converted to mutable
 
 let a = Short(1)
 let b = 10

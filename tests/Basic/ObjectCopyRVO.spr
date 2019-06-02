@@ -3,18 +3,18 @@
 datatype MyType
     x: Int;
 
-fun ctor(this: @MyType)
+fun ctor(this: !MyType)
     writeLn("ctor()");
-fun ctor(this: @MyType, i: Int)
+fun ctor(this: !MyType, i: Int)
     x = i
     write("ctor("); write(x); writeLn(")")
-fun ctor(this, other: @MyType)
+fun ctor(this, other: @MyType) // TODO (mut): Check why this can't be converted to mutable
     x = other.x
     write("copy ctor("); write(x); writeLn(")")
-fun dtor(this: @MyType)
+fun dtor(this: @MyType) // TODO (mut): Check why this can't be converted to mutable
     write("dtor-"); writeLn(x);
 
-fun =(this, other: @MyType)
+fun =(this, other: !MyType)
     write("assign("); write(other.x); writeLn(")")
     x = other.x
 

@@ -3,7 +3,7 @@
 datatype TestClass
     a: Int
 
-fun method(this: @TestClass)     // not quite, but close enough
+fun method(this: !TestClass)     // not quite, but close enough
     a = 1
 
 datatype MyType { data: Int }
@@ -34,15 +34,15 @@ datatype MyRange
     using RetType = Int
     curVal, stop: Int
 
-fun isEmpty(this: @MyRange): Bool = curVal >= stop
-fun front(this: @MyRange): Int
+fun isEmpty(this: !MyRange): Bool = curVal >= stop
+fun front(this: !MyRange): Int
     return curVal
-fun popFront(this: @MyRange)
+fun popFront(this: !MyRange)
     curVal = curVal+1
 
 [native("test")]
 fun test(n: Int)
-    let obj: TestClass
+    var obj: TestClass
     obj.method
     writeLnInt(obj.a)
     writeLn("---")

@@ -3,7 +3,7 @@
 datatype myName
     x: Int;
 
-fun ctor(this: @myName, x: Int) // ERROR ERROR
+fun ctor(this: !myName, x: Int) // ERROR ERROR
     this.x = x;
 
 fun myName = 10

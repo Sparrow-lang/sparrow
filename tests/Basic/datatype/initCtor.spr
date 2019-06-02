@@ -6,24 +6,24 @@
 datatype Tracer
     _val: Int
 
-fun ctor(this: @Tracer)
+fun ctor(this: !Tracer)
     _val ctor
     writeLn('Tracer.ctor()')
 
 [convert]
-fun ctor(this: @Tracer, val: Int)
+fun ctor(this: !Tracer, val: Int)
     _val ctor val
     write('Tracer.ctor(')
     write(val)
     writeLn(')')
 
-fun ctor(this, other: @Tracer)
+fun ctor(this, other: !Tracer)
     _val ctor other._val
     write('Tracer.copy_ctor(')
     write(_val)
     writeLn(')')
 
-fun dtor(this: @Tracer)
+fun dtor(this: !Tracer)
     write('Tracer.dtor ')
     writeLn(_val)
 

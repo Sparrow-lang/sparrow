@@ -10,7 +10,7 @@ fun f1(x: AnyType) if typeOf(x) == Int
     x = 10
 
 // Takes a reference as a parameter
-fun f2(x: @AnyType) if typeOf(x) == (Int@)
+fun f2(x: @AnyType) if typeOf(x) == (Int@) // TODO (mut): Check why this can't be converted to mutable
     writeLn('ref')
     x = 20
 

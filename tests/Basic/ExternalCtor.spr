@@ -9,31 +9,31 @@ datatype Pair(t: Type) { first, second: t }
 
 concept AnyType(x)
 
-fun ctor(this: @Book)
+fun ctor(this: !Book)
     this.author ctor
     this.name ctor
     this.isbn ctor
 
-fun ctor(this: @Book, author, name, isbn: StringRef)
+fun ctor(this: !Book, author, name, isbn: StringRef)
     this.author ctor author
     this.name ctor name
     this.isbn ctor isbn
 
-fun ctor(this: @Book3, author, name, isbn: StringRef)
+fun ctor(this: !Book3, author, name, isbn: StringRef)
     this.author ctor author
     this.name ctor name
     this.isbn ctor isbn
 
-fun ctor(this: @Book4, author, name, isbn: StringRef)
+fun ctor(this: !Book4, author, name, isbn: StringRef)
     this.data.author ctor author
     this.data.name ctor name
     this.data.isbn ctor isbn
 
-fun ctor(this: @Pair, f,s: AnyType)
+fun ctor(this: !Pair, f,s: AnyType)
     this.first ctor f
     this.second ctor s
 
-fun ctor(this: @Pair(Int), f,s: Int)
+fun ctor(this: !Pair(Int), f,s: Int)
     this.first ctor f
     this.second ctor s
 

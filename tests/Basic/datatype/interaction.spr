@@ -3,7 +3,7 @@
 // Test purpose: various interaction patterns with datatypes (and their ctors)
 
 concept AnyType(x)
-fun ctor(this: @AnyType, nothing: Uninitialized) {}
+fun ctor(this: @AnyType, nothing: Uninitialized) {} // TODO (mut): Check why this can't be converted to mutable
 
 datatype Book { author, name, isbn: StringRef }
 datatype CollectionBook { book: Book, col: StringRef }

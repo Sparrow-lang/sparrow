@@ -4,8 +4,8 @@ datatype MyObj
     a: Int
     using st = 103
 
-fun ctor(this: @MyObj, i: Int) { a = i; }
-fun ctor(this: @MyObj, other: MyObj) { a = other.a; }
+fun ctor(this: !MyObj, i: Int) { a = i; }
+fun ctor(this: !MyObj, other: MyObj) { a = other.a; }
 
 fun print(this: MyObj) { write("MyObj: "); writeLn(a); }
 

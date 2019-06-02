@@ -2,10 +2,10 @@
 
 datatype MyType = Int
 
-fun ()(this: @MyType)
+fun ()(this: MyType)
     writeLn(this.data)
 
-fun ()(this: @MyType, offset: Int)
+fun ()(this: MyType, offset: Int)
     writeLn(this.data + offset)
 
 [native("test")] fun test(n: Int)

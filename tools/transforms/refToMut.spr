@@ -3,12 +3,17 @@ module formatTool.transforms.refToMut
 import formatDetails.sourceData
 
 fun refToMut(src: @SourceData)
-    for i = 2..src.tokens.size
-        var prev2 = src.tokens(i-2)
-        var prev1 = src.tokens(i-1)
-        var cur: @TokenData = src.tokens(i)
+    if src.tokens.size < 3
+        return
+    var prev2: @TokenData = src.tokens(0)
+    var prev1: @TokenData = src.tokens(0)
+    var cur: @TokenData = src.tokens(0)
+    for i = 3..src.tokens.size
+        if cur.type != tkWHITESPACE
+            prev2 := prev1
+            prev1 := cur
+        cur := src.tokens(i)
         if !cur.canFormat
             continue
-        if prev2.type == tkCOLON && prev1.type == tkWHITESPACE && cur.content == '@'
+        if cur.type == tkOPERATOR && cur.content == '@' && prev1.type == tkCOLON && (prev2.parentAst kind) == nkParameter
             cur.content = '!'
-

@@ -31,11 +31,11 @@ package Inner3
     datatype Gen(t: Type)
         using MyType = t
 
-    fun print(this: @Gen) if this.MyType == Int
+    fun print(this: @Gen) if this.MyType == Int // TODO (mut): Check why this can't be converted to mutable
         writeLn('Gen(Int)')
-    fun print(this: @Gen) if this.MyType == Double
+    fun print(this: @Gen) if this.MyType == Double // TODO (mut): Check why this can't be converted to mutable
         writeLn('Gen(Double)')
-    fun print(this: @Gen) if this.MyType != Int && this.MyType != Double
+    fun print(this: @Gen) if this.MyType != Int && this.MyType != Double // TODO (mut): Check why this can't be converted to mutable
         writeLn('Gen(?)')
 
 using MyGen = Inner3.Gen
@@ -44,7 +44,7 @@ package Inner4
     datatype Gen(t: Type)
         using MyType1 = t
 
-    fun print(this: @Gen)
+    fun print(this: @Gen) // TODO (mut): Check why this can't be converted to mutable
         writeLn('Gen1')
         f1(MyType1())
 
@@ -53,7 +53,7 @@ package Inner5
         using MyType1 = t
         using MyType2 = u
 
-    fun print(this: @Gen)
+    fun print(this: @Gen) // TODO (mut): Check why this can't be converted to mutable
         writeLn('Gen2')
         f1(MyType1())
         f1(MyType2())

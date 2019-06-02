@@ -7,10 +7,10 @@ fun myadd(x: Int, y: Int = 1) = x+y
 datatype Foo
     x: Int;
 
-fun ctor(this: @Foo, x: Int = 10) { this.x = x; }
-fun ctor(this: @Foo, dummy1, dummy2: Int, x: Int = 10) { this.x = x; }
+fun ctor(this: !Foo, x: Int = 10) { this.x = x; }
+fun ctor(this: !Foo, dummy1, dummy2: Int, x: Int = 10) { this.x = x; }
 
-fun ctor(this: @Foo, dummy1, dummy2, dummy3: AnyType, x: AnyType = 10) { this.x ctor x; }
+fun ctor(this: !Foo, dummy1, dummy2, dummy3: AnyType, x: AnyType = 10) { this.x ctor x; }
 
 fun incWith(this: Foo, n: Int = 1) = x+n
 

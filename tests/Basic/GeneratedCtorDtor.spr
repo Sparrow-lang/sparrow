@@ -2,33 +2,33 @@
 
 datatype A
 
-fun ctor(this: @A)
+fun ctor(this: !A)
     writeLn("A.ctor")
 
-fun ctor(this: @A, n: Int)
+fun ctor(this: @A, n: Int) // TODO (mut): Check why this can't be converted to mutable
     write("A.ctor("); write(n); writeLn(")")
 
-fun ctor(this: @A, a: A)
+fun ctor(this: !A, a: A)
     writeLn("A.ctor(copy)")
 
-fun dtor(this: @A)
+fun dtor(this: !A)
     writeLn("A.dtor")
 
-fun =(this, other: @A)
+fun =(this, other: !A)
     writeLn("A.=")
 
 datatype B
 
-fun ctor(this: @B)
+fun ctor(this: !B)
     writeLn("B.ctor")
 
-fun ctor(this: @B, n: Int)
+fun ctor(this: @B, n: Int) // TODO (mut): Check why this can't be converted to mutable
     write("B.ctor("); write(n); writeLn(")")
 
-fun ctor(this: @B, b: B)
+fun ctor(this: !B, b: B)
     writeLn("B.ctor(copy)")
 
-fun dtor(this: @B)
+fun dtor(this: !B)
     writeLn("B.dtor")
 
 fun =(this, other: B)
@@ -38,27 +38,27 @@ datatype MyType
     a: A
     b: B
 
-fun ctor(this: @MyType)
+fun ctor(this: !MyType)
     writeLn("MyType.ctor")
 
-fun ctor(this, other: @MyType)
+fun ctor(this, other: !MyType)
     ;
 
-fun ctor(this: @MyType, i: Int)
+fun ctor(this: @MyType, i: Int) // TODO (mut): Check why this can't be converted to mutable
     a.ctor(i)
     writeLn("MyType.ctor(Int)")
 
-fun ctor(this: @MyType, i,j: Int)
+fun ctor(this: @MyType, i,j: Int) // TODO (mut): Check why this can't be converted to mutable
     a.ctor(i)
     b.ctor(j)
     writeLn("MyType.ctor(Int, Int)")
 
-fun ctor(this: @MyType, x,y: Double)
+fun ctor(this: @MyType, x,y: Double) // TODO (mut): Check why this can't be converted to mutable
     this.ctor(Int(x), Int(y))
     //ctor(this, Int(x), Int(y))
     writeLn("MyType.ctor(Double, Double)")
 
-fun dtor(this: @MyType)
+fun dtor(this: !MyType)
     writeLn("MyType.dtor")
 
 datatype Empty

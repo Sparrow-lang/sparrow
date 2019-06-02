@@ -9,11 +9,11 @@ fun ctor(this: !MyType)
 fun ctor(this: !MyType, i: Int)
     x = i
     write('c'); write('t'); write('o'); write('r'); write('('); write(i); writeLn(')')
-fun ctor(this, other: !MyType)
+fun ctor(this, other: @MyType) // TODO (mut): Check why this can't be converted to mutable
     x = other.x
     write('c'); write('t'); write('o'); write('r'); write('('); write('C'); write(' '); write(x); writeLn(')')
 
-fun dtor(this: !MyType)
+fun dtor(this: @MyType) // TODO (mut): Check why this can't be converted to mutable
     write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x);
 
 let g: MyType = 999

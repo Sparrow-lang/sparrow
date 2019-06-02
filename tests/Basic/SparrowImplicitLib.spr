@@ -1284,8 +1284,8 @@ fun + (x,y: StringRef): StringRef
 [ct, native('$tmp')] fun tmp(t: Type): Type
 [ct, native('$mut')] fun pre_!(t: Type): Type
 
-[autoCt, native("implOpRefEQ")] fun implOpRefEQ(x,y: !Byte): Bool
-[autoCt, native("implOpRefNE")] fun implOpRefNE(x,y: !Byte): Bool
+[autoCt, native("implOpRefEQ")] fun implOpRefEQ(x,y: @Byte): Bool
+[autoCt, native("implOpRefNE")] fun implOpRefNE(x,y: @Byte): Bool
 
 [ct, native("$typeEQ")] fun == (x, y: Type): Bool
 [ct, native("$typeAddRef")] fun @ (t: Type): Type
@@ -1318,11 +1318,11 @@ fun + (x,y: StringRef): StringRef
 
 fun writeLn(x: StringRef) { writeLnStringImpl(reinterpretCast(@Char, x.begin)); }
 fun write(x: StringRef) { writeStringImpl(reinterpretCast(@Char, x.begin)); }
-[native("writeLnStringImpl")] fun writeLnStringImpl(x: !Char)
-[native("writeStringImpl")] fun writeStringImpl(x: !Char)
+[native("writeLnStringImpl")] fun writeLnStringImpl(x: @Char)
+[native("writeStringImpl")] fun writeStringImpl(x: @Char)
 
-[native("writeLnPointer")] fun writeLnRef(x: !Byte)
-[native("writePointer")] fun writeRef(x: !Byte)
+[native("writeLnPointer")] fun writeLnRef(x: @Byte)
+[native("writePointer")] fun writeRef(x: @Byte)
 
 [native("writeLnInt"), rt] fun writeLnInt(x: Int)
 [native("writeLnDouble"), rt] fun writeLnDouble(x: Double)
@@ -1341,18 +1341,18 @@ fun write(x: StringRef) { writeStringImpl(reinterpretCast(@Char, x.begin)); }
 [native("equalInt"), autoCt] fun equal(x,y: Int): Bool
 [native("leInt"), autoCt] fun le(x,y: Int): Bool
 [native("assignInt"), autoCt] fun assignInt(x: !Int, y: Int)
-[native("assignRefByte"), autoCt] fun assignRef(x: !(@Byte), y: !Byte)
+[native("assignRefByte"), autoCt] fun assignRef(x: !(@Byte), y: @Byte)
 
 [native("llvm.pow.f64"), rt] fun mathPow(x,y: Double): Double
 
 [native("malloc")] fun malloc(size: SizeType): @Byte
 [native("malloc")] fun mallocRt(size: SizeType): @Byte
-[native("realloc")] fun realloc(p: !Byte, size: SizeType): @Byte
-[native("free")] fun free(p: !Byte)
-[native("ptrAdd"), autoCt] fun ptrAdd(p: !Byte, n: SizeType): @Byte
-[native("ptrSub"), autoCt] fun ptrSub(p: !Byte, n: SizeType): @Byte
-[native("ptrDiff"), autoCt] fun ptrDiff(p1, p2: !Byte): SizeType
-[native("memcpyimpl"), autoCt] fun memcpy(dest, src: !Byte, size: SizeType)
+[native("realloc")] fun realloc(p: @Byte, size: SizeType): @Byte
+[native("free")] fun free(p: @Byte)
+[native("ptrAdd"), autoCt] fun ptrAdd(p: @Byte, n: SizeType): @Byte
+[native("ptrSub"), autoCt] fun ptrSub(p: @Byte, n: SizeType): @Byte
+[native("ptrDiff"), autoCt] fun ptrDiff(p1, p2: @Byte): SizeType
+[native("memcpyimpl"), autoCt] fun memcpy(dest, src: @Byte, size: SizeType)
 [native("flushOutput")] fun flushOutput()
 
 [ct, native("$typeNumRef")] fun typeNumRef(t: Type): Int
@@ -1409,13 +1409,13 @@ using oper_assoc_=          = -1
 using oper_assoc_:=         = -1
 
 [native("atoi")]
-fun _atoi(str: !Char): Int
+fun _atoi(str: @Char): Int
 
 [bitcopiable]
 datatype _CStr { cstr: @Char; }
 [initCtor] datatype _CStrPtr { ptr: @_CStr; }
 
-fun _fromBytePtr(p: !Byte): _CStrPtr = _CStrPtr(reinterpretCast(@_CStr, p))
+fun _fromBytePtr(p: @Byte): _CStrPtr = _CStrPtr(reinterpretCast(@_CStr, p))
 fun _toBytePtr(p: _CStrPtr): @Byte = reinterpretCast(@Byte, p.ptr)
 fun _offset(p: _CStrPtr, n: Int): _CStrPtr = _fromBytePtr( ptrAdd(_toBytePtr(p), n*(sizeOf(_CStrPtr))) )
 

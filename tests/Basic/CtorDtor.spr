@@ -9,7 +9,7 @@ fun ctor(this: !MyType)
 fun ctor(this: !MyType, i: Int)
     x = i
     write('c'); write('t'); write('o'); write('r'); write('('); write(i); writeLn(')')
-fun ctor(this, other: @MyType) // TODO (mut): Check why this can't be converted to mutable
+fun ctor(this: !MyType, other: MyType)
     x = other.x
     write('c'); write('t'); write('o'); write('r'); write('('); write('C'); write(' '); write(x); writeLn(')')
 

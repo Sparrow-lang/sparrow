@@ -5,7 +5,7 @@ datatype A
 fun ctor(this: !A)
     writeLn("A.ctor")
 
-fun ctor(this: @A, n: Int) // TODO (mut): Check why this can't be converted to mutable
+fun ctor(this: !A, n: Int)
     write("A.ctor("); write(n); writeLn(")")
 
 fun ctor(this: !A, a: A)
@@ -22,7 +22,7 @@ datatype B
 fun ctor(this: !B)
     writeLn("B.ctor")
 
-fun ctor(this: @B, n: Int) // TODO (mut): Check why this can't be converted to mutable
+fun ctor(this: !B, n: Int)
     write("B.ctor("); write(n); writeLn(")")
 
 fun ctor(this: !B, b: B)
@@ -44,16 +44,16 @@ fun ctor(this: !MyType)
 fun ctor(this, other: !MyType)
     ;
 
-fun ctor(this: @MyType, i: Int) // TODO (mut): Check why this can't be converted to mutable
+fun ctor(this: !MyType, i: Int)
     a.ctor(i)
     writeLn("MyType.ctor(Int)")
 
-fun ctor(this: @MyType, i,j: Int) // TODO (mut): Check why this can't be converted to mutable
+fun ctor(this: !MyType, i,j: Int)
     a.ctor(i)
     b.ctor(j)
     writeLn("MyType.ctor(Int, Int)")
 
-fun ctor(this: @MyType, x,y: Double) // TODO (mut): Check why this can't be converted to mutable
+fun ctor(this: !MyType, x,y: Double)
     this.ctor(Int(x), Int(y))
     //ctor(this, Int(x), Int(y))
     writeLn("MyType.ctor(Double, Double)")

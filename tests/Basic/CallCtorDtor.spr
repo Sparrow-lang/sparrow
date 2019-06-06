@@ -5,13 +5,13 @@
 datatype MyObj
     v: Int;
 
-fun ctor(this: @MyObj) // TODO (mut): Check why this can't be converted to mutable
+fun ctor(this: !MyObj)
     writeLn("MyObj.ctor()");
-fun ctor(this: @MyObj, i: Int) // TODO (mut): Check why this can't be converted to mutable
+fun ctor(this: !MyObj, i: Int)
     write("MyObj.ctor("); write(i); writeLn(")");
 fun ctor(this: !MyObj, i,j: Int)
     write("MyObj.ctor("); write(i); write(", "); write(j); writeLn(")");
-fun ctor(this: @MyObj, src: @MyObj) // TODO (mut): Check why this can't be converted to mutable
+fun ctor(this: !MyObj, src: MyObj)
     writeLn("MyObj.ctor(copy)");
 
 fun dtor(this: !MyObj)
@@ -32,7 +32,7 @@ fun ctor(this: !Pair, i,j: Int)
     first.ctor(i)
     second.ctor(j)
     write("Pair.ctor("); write(i); write(", "); write(j); writeLn(")")
-fun ctor(this: !Pair, src: Pair@)
+fun ctor(this: !Pair, src: Pair)
     first.ctor(src.first)
     second.ctor(src.second)
     writeLn("Pair.ctor(copy)")

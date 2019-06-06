@@ -259,6 +259,11 @@ bool hasCtorCall(Node* inSpace, bool checkThis, Node* forField) {
         if (Nest_nodeArraySize(n->children) == 0)
             continue;
         Node* thisArg = at(n->children, 0);
+        if (!Nest_semanticCheck(thisArg))
+            continue;
+        thisArg = Nest_explanation(thisArg);
+        if (!thisArg)
+            continue;
 
         // Check for this to be passed as argument
         if (checkThis) {

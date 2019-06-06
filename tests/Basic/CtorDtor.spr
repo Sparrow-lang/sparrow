@@ -13,7 +13,7 @@ fun ctor(this, other: @MyType) // TODO (mut): Check why this can't be converted 
     x = other.x
     write('c'); write('t'); write('o'); write('r'); write('('); write('C'); write(' '); write(x); writeLn(')')
 
-fun dtor(this: @MyType) // TODO (mut): Check why this can't be converted to mutable
+fun dtor(this: !MyType)
     write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x);
 
 let g: MyType = 999

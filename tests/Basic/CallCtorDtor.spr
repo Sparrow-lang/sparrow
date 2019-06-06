@@ -14,7 +14,7 @@ fun ctor(this: !MyObj, i,j: Int)
 fun ctor(this: @MyObj, src: @MyObj) // TODO (mut): Check why this can't be converted to mutable
     writeLn("MyObj.ctor(copy)");
 
-fun dtor(this: @MyObj) // TODO (mut): Check why this can't be converted to mutable
+fun dtor(this: !MyObj)
     writeLn("MyObj.dtor");
 
 fun reconstruct(this: @MyObj)

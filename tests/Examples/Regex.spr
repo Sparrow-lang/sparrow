@@ -377,7 +377,7 @@ fun ctorFromCt(this: !Automaton, src: Automaton ct)
             //cout << "State " << ctEval(st) << " is matching" << endl;
 
 [ct]
-fun getTransitions(this: @Automaton): Vector(Transition) // TODO (mut)
+fun getTransitions(this: Automaton const): Vector(Transition)
     var res: Vector(Transition)
     for st = 0..(dfaStates.size()-1)
         for ch = 0..255

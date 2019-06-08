@@ -1,7 +1,7 @@
 import basicDecls(Number, Char, Bool, StringRef, Byte, UByte, Short, UShort, Int, UInt, Long, ULong, SizeType, DiffType, Double, Range)
 import streamBasic(FlushHelperClass)
 
-let cout: ConsoleOutputStream
+var cout: ConsoleOutputStream
 
 datatype ConsoleOutputStream
     ;

@@ -10,7 +10,7 @@ concept OutStream(x) if (
     )
 
 // If we define an ">>" operator in the type itself, make sure we can support the standard "<<" notation
-fun << (s: @OutStream, x: @AnyType): typeOf(s) if isValid(x >> s)
+fun << (s: !OutStream, x: @AnyType): typeOf(s) if isValid(x >> s)
     x >> s
     return s
 

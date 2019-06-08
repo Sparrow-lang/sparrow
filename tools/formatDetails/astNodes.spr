@@ -40,7 +40,11 @@ fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, name: StringRef)
     this.name ctor name
     // cout << "Parsed: " << kind << endl
 
-fun _toImpl(n: Node): @AstNodeImpl = ife(n.data.data !== null, reinterpretCast(@AstNodeImpl, n.data.data), _nullAstNodeImpl)
+fun _toImpl(n: Node): @AstNodeImpl
+    if n.data.data !== null
+        return reinterpretCast(@AstNodeImpl, n.data.data)
+    else
+        return _nullAstNodeImpl
 fun _toNode(impl: @AstNodeImpl)    = Node(UntypedPtr(reinterpretCast(@Byte, impl)))
 
 fun isSet(this: Node)                   = this.data.data !== null

@@ -16,7 +16,7 @@ package A
 [initCtor]
 datatype MyObj
     x: Int
-fun print(this: @MyObj) // TODO (mut): Check why this can't be converted to mutable
+fun print(this: !MyObj)
     write("MyObj.print: ")
     writeLn(x)
 fun print(this: !MyObj, x: Int)

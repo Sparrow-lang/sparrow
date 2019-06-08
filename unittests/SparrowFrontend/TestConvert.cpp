@@ -204,6 +204,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         CHECK(getConvType(t0mut, t1) == convImplicit);
         CHECK(getConvType(t1mut, t1) == convDirect);
         CHECK(getConvType(t1mut, t2) == convImplicit);
+        CHECK(getConvType(t1, t0mut) == convImplicit);
+        CHECK(getConvType(t2, t1mut) == convImplicit);
         CHECK(getConvType(t1, t2) == convNone);
         CHECK(getConvType(t0, t2) == convNone);
     }
@@ -236,6 +238,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         auto dest = *TypeFactory::arbType();
         auto srcRef = addRef(DataType(src));
         RC_PRE(srcRef != dest);
+        RC_PRE(dest.kind() != typeKindMutable);
         RC_LOG() << src << " -> " << dest << endl;
 
         auto c1 = getConvType(srcRef, dest);

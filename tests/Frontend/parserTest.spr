@@ -33,7 +33,11 @@ fun ctor(this: @NodeImpl, l: Location, kind: StringRef, r: Range, name: StringRe
     children ctor r
     // cout << "Parsed: " << kind << endl
 
-fun toImpl(n: Node): @NodeImpl = ife(n.data.data !== null, reinterpretCast(@NodeImpl, n.data.data), _nullNodeImpl)
+fun toImpl(n: Node): @NodeImpl
+    if n.data.data !== null
+        return reinterpretCast(@NodeImpl, n.data.data)
+    else
+        return _nullNodeImpl
 fun toNode(impl: @NodeImpl)    = Node(UntypedPtr(reinterpretCast(@Byte, impl)))
 
 fun >> (n: @NodeImpl, os: @OutStream)

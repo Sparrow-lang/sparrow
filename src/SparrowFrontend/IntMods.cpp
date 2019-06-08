@@ -93,7 +93,7 @@ Node* generateAssociatedFun(
     Node* body = Feather_mkLocalSpace(loc, {});
     for (Node* field : cls->children) {
         // Left-hand side: field-ref to the current field
-        Node* lhs = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, thisRef), field);
+        Node* lhs = Feather_mkFieldRef(loc, thisRef, field);
 
         // Right-hand side
         Node* rhs =
@@ -116,7 +116,7 @@ Node* generateAssociatedFun(
 
     vector<pair<Type, string>> params;
     params.reserve(2);
-    params.emplace_back(Feather::addRef(Feather::DataType(cls->type)), string("this"));
+    params.emplace_back(Feather::MutableType::get(Feather::DataType(cls->type)), string("this"));
     if (otherParam)
         params.emplace_back(otherParam, string("other"));
 

@@ -77,6 +77,16 @@ NodeHandle impl_typeChangeRefCount(
     return createTypeNode(context, loc, res);
 }
 
+NodeHandle impl_typeRemoveCat(
+        CompilationContext* context, const Location& loc, NodeRange args) {
+    CHECK(loc, args.size() == 1);
+    Type t = getType(args[0]);
+
+    Type res = removeCategoryIfPresent(t);
+
+    return createTypeNode(context, loc, res);
+}
+
 NodeHandle impl_typeIsBitcopiable(
         CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
@@ -243,6 +253,8 @@ NodeHandle SprFrontend::handleIntrinsic(Feather::FunctionDecl fun, CompilationCo
             return impl_typeChangeMode(context, loc, args);
         if (nativeName == "$typeChangeRefCount")
             return impl_typeChangeRefCount(context, loc, args);
+        if (nativeName == "$typeRemoveCat")
+            return impl_typeRemoveCat(context, loc, args);
         if (nativeName == "$typeIsBitcopiable")
             return impl_typeIsBitcopiable(context, loc, args);
         if (nativeName == "$typeEQ")

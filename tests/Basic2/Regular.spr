@@ -1,10 +1,10 @@
 //!!
 
 concept Regular(x) if (
-       isValid(x.ctor())        // Default construction
-    && isValid(x.ctor(x))       // Copy construction
-    && isValid(x.dtor())        // Destruction
-    && typeOf(x == x) == Bool   // Equality is defined
+       isValid(TypeOp.removeCat(typeOf(x))())  // Default construction
+    && isValid(TypeOp.removeCat(typeOf(x))(x)) // Copy construction
+    && isValid(TypeOp.removeCat(typeOf(x))().dtor())  // Destruction
+    && typeOf(x == x) == Bool               // Equality is defined
     )
 
 [noDefault, convert]

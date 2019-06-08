@@ -43,7 +43,7 @@ using WorkerPtr = Worker Ptr
 var _tlsWorker: Tls(@Worker)
 
 fun localWorker: Worker Ptr
-    let worker: Worker Ptr = _tlsWorker get
+    var worker: Worker Ptr = _tlsWorker get
     if worker isNull
         worker = (getInitTaskSystem createWorker)
         _tlsWorker = worker.get()

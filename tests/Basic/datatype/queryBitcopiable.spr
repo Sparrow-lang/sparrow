@@ -25,7 +25,7 @@ datatype Vec3(t: Type)
     using ValueType = t
     x, y, z: t
 
-fun ctor(this: @Vec3, other: typeOf(this)) // TODO (mut): Check why this can't be converted to mutable
+fun ctor(this: !Vec3, other: typeOf(this))
     [ct]
     if isBitcopiable(this.ValueType)
         memcpy(reinterpretCast(@Byte, this), reinterpretCast(@Byte, other), sizeOf(this))

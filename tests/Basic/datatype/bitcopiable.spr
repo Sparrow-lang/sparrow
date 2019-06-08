@@ -84,8 +84,8 @@ package _Impl0
         using ResT = resT
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: @FunctionPtr0): ResT // TODO (mut): Check why this can't be converted to mutable
-    fun ()(this: @FunctionPtr0): ResT = this._doCall() // TODO (mut): Check why this can't be converted to mutable
+    [native("$funptr")] fun _doCall(this: !FunctionPtr0): ResT
+    fun ()(this: !FunctionPtr0): ResT = this._doCall()
 
 using FunctionPtr = _Impl0.FunctionPtr0
 

@@ -159,7 +159,8 @@ Type computeVarType(
     // Should we get the type from the initialization expression?
     bool getTypeFromInit = !t;
     int numRefs = 0;
-    if (t && isConceptType(Feather::removeCategoryIfPresent(t), numRefs))
+    int kind = typeKindData;
+    if (t && isConceptType(t, numRefs, kind))
         getTypeFromInit = true;
     if (getTypeFromInit) {
         if (!init)
@@ -179,7 +180,7 @@ Type computeVarType(
                         init.type();
             }
 
-            t = getAutoType(init, numRefs);
+            t = getAutoType(init, numRefs, kind);
         } else
             return {};
     }

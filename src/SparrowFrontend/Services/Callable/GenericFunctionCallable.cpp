@@ -98,6 +98,7 @@ NodeHandle getBoundVal(NodeHandle arg, ParameterDecl param, Type paramType, Eval
     Type boundValType;
     bool isCtConcept = false;
     int numRefs = 0;
+    int kind = typeKindData;
     if (!param.type()) {
         // If we are here this is a dependent param
         //
@@ -108,9 +109,9 @@ NodeHandle getBoundVal(NodeHandle arg, ParameterDecl param, Type paramType, Eval
         // A concept param will ensure the creation of a final param.
         if (paramType.mode() != modeCt || (origEvalMode == modeRt && finalEvalMode == modeCt))
             boundValType = paramType;
-    } else if (isConceptType(paramType, numRefs)) {
+    } else if (isConceptType(paramType, numRefs, kind)) {
         // Deduce the type for boundVal for regular concept types
-        boundValType = getAutoType(arg, numRefs, paramType.mode());
+        boundValType = getAutoType(arg, numRefs, kind, paramType.mode());
         isCtConcept = paramType.mode() == modeCt;
     }
 

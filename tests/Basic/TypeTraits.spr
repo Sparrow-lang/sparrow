@@ -11,19 +11,19 @@ fun typeTest(x: AnyType) if typeOf(x) == Int
 fun typeTest(x: AnyType) if typeOf(x) == Double
     writeLn("Double passed");
 
-fun typeTest(x: @AnyType) if typeOf(x) == (@Char) // TODO (mut): Check why this can't be converted to mutable
+fun typeTest(x: @AnyType) if typeOf(x) == @Char
     writeLn("@Char passed");
 
-fun typeTest(x: @AnyType) if typeOf(x) == (Int@) // TODO (mut): Check why this can't be converted to mutable
+fun typeTest(x: @AnyType) if typeOf(x) == @Int
     writeLn("Int@ passed");
 
-fun typeTest(x: @AnyType) if typeOf(x) == (Double@) // TODO (mut): Check why this can't be converted to mutable
+fun typeTest(x: @AnyType) if typeOf(x) == @Double
     writeLn("Double@ passed");
 
 fun testRef(x: AnyType) //if 0==typeNumRef(typeOf(x))
     writeLn("non-ref");
 
-fun testRef(x: @AnyType) //if 0!=typeNumRef(typeOf(x)) // TODO (mut): Check why this can't be converted to mutable
+fun testRef(x: @AnyType) //if 0!=typeNumRef(typeOf(x))
     writeLn("ref");
 
 [native("test")] fun test(n: Int)

@@ -24,7 +24,7 @@ datatype MyVector(t: Type)
 package _MyVectorHelper(t: Type)
     var glob: t;
 
-fun print(this: @MyVector) // TODO (mut): Check why this can't be converted to mutable
+fun print(this: !MyVector)
     write(start)
     write(' ')
     write('-')

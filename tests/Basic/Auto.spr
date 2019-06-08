@@ -10,12 +10,12 @@ fun f1(x: AnyType) if typeOf(x) == Int
     x = 10
 
 // Takes a reference as a parameter
-fun f2(x: @AnyType) if typeOf(x) == (Int@) // TODO (mut): Check why this can't be converted to mutable
+fun f2(x: !AnyType) if typeOf(x) == !Int
     writeLn('ref')
     x = 20
 
 [native("test")] fun test(n: Int)
-    let a: Int = 5
+    var a: Int = 5
 
     f1(a)
     writeLn(a)

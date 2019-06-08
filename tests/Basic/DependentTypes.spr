@@ -31,10 +31,10 @@ datatype Vec(t: Type)
     using ValueType = t
     data: t
 
-fun pushBack(this: @Vec, val: this.ValueType) // TODO (mut): Check why this can't be converted to mutable
+fun pushBack(this: !Vec, val: this.ValueType)
     data = val
 
-fun pushBack2(this: @Vec, val: @this.ValueType) // TODO (mut): Check why this can't be converted to mutable
+fun pushBack2(this: !Vec, val: @this.ValueType)
     data = val
 
 [native("test")] fun test(n: Int)

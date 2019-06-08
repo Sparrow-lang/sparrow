@@ -34,11 +34,12 @@ Node* createTypeNode(CompilationContext* context, const Location& loc, Type t);
 
 /// Gets the type to be used when auto is found for a node; removes category type, but tries to
 /// preserve references
-Type getAutoType(Node* typeNode, int numRefs = 0, EvalMode evalMode = modeRt);
+Type getAutoType(Node* typeNode, int numRefs = 0, int kind = 0, EvalMode evalMode = modeRt);
 
-/// Tests if this an concept or concept-ref type
+/// Tests if this an concept type.
+/// This includes mutable or const concepts, or refenrece concepts
 bool isConceptType(Type t);
-bool isConceptType(Type t, int& numRefs);
+bool isConceptType(Type t, int& numRefs, int& kind);
 
 /// Creates a new type from the original type, with the specified reference count
 Type changeRefCount(Type type, int numRef, const Location& loc = Location());

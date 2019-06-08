@@ -274,7 +274,7 @@ Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& l
     return res;
 }
 
-Type SprFrontend::getAutoType(Node* typeNode, int numRefs, EvalMode evalMode) {
+Type SprFrontend::getAutoType(Node* typeNode, int numRefs, int kind, EvalMode evalMode) {
     Type t1 = typeNode->type;
 
     // Nothing to do for non-data-like storage types
@@ -287,12 +287,23 @@ Type SprFrontend::getAutoType(Node* typeNode, int numRefs, EvalMode evalMode) {
     // it
 
     // This is a data-like type, so we can directly reduce it to the right datatype
-    return DataType::get(t.referredNode(), numRefs, evalMode);
+    t = DataType::get(t.referredNode(), numRefs, evalMode);
+    if (kind == typeKindMutable)
+        return MutableType::get(t);
+    else if (kind == typeKindConst)
+        return ConstType::get(t);
+    else if (kind == typeKindTemp)
+        return TempType::get(t);
+    return t;
 }
 
-bool SprFrontend::isConceptType(Type t) { return t.kind() == typeKindConcept; }
+bool SprFrontend::isConceptType(Type t) {
+    return Feather::removeCategoryIfPresent(t).kind() == typeKindConcept;
+}
 
-bool SprFrontend::isConceptType(Type t, int& numRefs) {
+bool SprFrontend::isConceptType(Type t, int& numRefs, int& kind) {
+    kind = t.kind();
+    t = Feather::removeCategoryIfPresent(t);
     if (t.kind() == typeKindConcept) {
         numRefs = int(t.numReferences());
         return true;

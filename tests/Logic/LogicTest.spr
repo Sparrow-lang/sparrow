@@ -3,11 +3,11 @@ import logic.predicates
 //import assert;
 import os = os
 
-fun male(x: @LStr) = x /=/ "castor" || x /=/ "zeus"
+fun male(x: !LStr) = x /=/ "castor" || x /=/ "zeus"
 
-fun female(x: @LStr) = x /=/ "leda" || x /=/ "clytaemnestra"
+fun female(x: !LStr) = x /=/ "leda" || x /=/ "clytaemnestra"
 
-fun person(x: @LStr) = male(x) || female(x)
+fun person(x: !LStr) = male(x) || female(x)
 
 fun parents(father, mother, child: LRef(String)) \
      = father /=/ "zeus" && mother /=/ "leda" && child /=/ "castor" \

@@ -34,7 +34,7 @@ datatype Vec(t: Type)
 fun pushBack(this: !Vec, val: this.ValueType)
     data = val
 
-fun pushBack2(this: !Vec, val: @this.ValueType)
+fun pushBack2(this: !Vec, val: this.ValueType const)
     data = val
 
 [native("test")] fun test(n: Int)

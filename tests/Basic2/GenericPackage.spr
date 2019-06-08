@@ -5,7 +5,7 @@ import std.ranges
 datatype TypePrint(t: Type)
     using T = t
 
-fun ctor(this: @TypePrint)
+fun ctor(this: !TypePrint)
     cout << 'TypePrint.ctor ' << TypeOp.description(T) << endl
 
 package GenPackage(t: Type)

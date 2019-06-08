@@ -20,7 +20,7 @@ fun sprMain
 datatype MyObj
     x: Int;
 
-fun ctor(this: @MyObj, xx: Int)
+fun ctor(this: !MyObj, xx: Int)
     x ctor xx
 
 fun createRange(size: SizeType): ContiguousMemoryRange(MyObj)

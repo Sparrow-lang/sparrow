@@ -15,7 +15,7 @@ datatype Obj
     value: UInt
     payload: StaticArray(Byte, payloadSize)
 
-fun >> (this: @Obj, os: @OutStream) { os << "Obj(" << value << ")"; }
+fun >> (this: !Obj, os: !OutStream) { os << "Obj(" << value << ")"; }
 
 // TODO: Move this to Std ???
 datatype Equal(type: Type)
@@ -30,7 +30,7 @@ var objects: Array(Obj)
 var insertKeys: Array(UInt)
 var searchKeys: Array(UInt)
 
-fun testInsert(bag: @AnyType, n: Int)
+fun testInsert(bag: !AnyType, n: Int)
     for i = 0..n
         // The element to insert
         let key = insertKeys(i)
@@ -41,7 +41,7 @@ fun testInsert(bag: @AnyType, n: Int)
         bag(key) = obj
     ;
 
-fun testChange(bag: @AnyType, n: Int)
+fun testChange(bag: !AnyType, n: Int)
     for i = 0..n
         // Search the element
         let key = searchKeys(i)
@@ -61,7 +61,7 @@ fun testChange(bag: @AnyType, n: Int)
         bag(key) = obj
     ;
 
-[noInline] fun testHit(bag: @AnyType, n: Int)
+[noInline] fun testHit(bag: !AnyType, n: Int)
     for i = 0..n
         // Search the element
         let key = searchKeys(i) + 1
@@ -78,7 +78,7 @@ fun testChange(bag: @AnyType, n: Int)
         ;
     ;
 
-fun testMiss(bag: @AnyType, n: Int)
+fun testMiss(bag: !AnyType, n: Int)
     for i = 0..n
         // Search the element
         // As all elements are shifted by one, we will find nothing
@@ -90,7 +90,7 @@ fun testMiss(bag: @AnyType, n: Int)
         ;
     ;
 
-fun testRemove(bag: @AnyType, n: Int)
+fun testRemove(bag: !AnyType, n: Int)
     for i = 0..n
         // Search the element
         let key = searchKeys(i) + 1
@@ -117,12 +117,12 @@ datatype TestTimer
     n: UInt
     timerImpl: time.Timer
 
-fun ctor(this: @TestTimer, desc: StringRef, n: UInt)
+fun ctor(this: !TestTimer, desc: StringRef, n: UInt)
     this.desc ctor desc
     this.n ctor n
     timerImpl ctor
 
-fun dtor(this: @TestTimer)
+fun dtor(this: !TestTimer)
     let t = timerImpl.elapsed()
     let t_ns = t * 1000000.0 / Double(n)
     cout << desc << ":\t" << t << ", " << t_ns << " ns" << endl

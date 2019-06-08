@@ -30,9 +30,9 @@ datatype RandomCharRange(distribValsRangeType: Type)
     distribStr: StringRef
     distribVals: distribValsRangeType
 
-fun isEmpty(this: @RandomCharRange) = false
-fun popFront(this: @RandomCharRange) {}
-fun front(this: @RandomCharRange): Char
+fun isEmpty(this: !RandomCharRange) = false
+fun popFront(this: !RandomCharRange) {}
+fun front(this: !RandomCharRange): Char
     let randVal: Float = (randomRange++)
     var i = 0
     var r = distribVals

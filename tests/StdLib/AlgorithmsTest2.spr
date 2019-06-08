@@ -38,7 +38,7 @@ fun sprMain
 datatype MyObj
     x: Int;
 
-fun <(this, other: @MyObj): Bool { return x < other.x; }
+fun <(this, other: !MyObj): Bool { return x < other.x; }
 
 datatype Greater
     ;

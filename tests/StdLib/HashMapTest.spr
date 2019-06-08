@@ -10,7 +10,7 @@ datatype IntWrapper
     x: Int;
 
 [convert]
-fun ctor(this: @IntWrapper, x: Int) { this.x ctor x; }
+fun ctor(this: !IntWrapper, x: Int) { this.x ctor x; }
 
 fun hash(this: IntWrapper): SizeType
     cout << "IntWrapper.hash called for value " << x << endl
@@ -21,7 +21,7 @@ datatype IntWithNoHash
     x: Int;
 
 [convert]
-fun ctor(this: @IntWithNoHash, x: Int) { this.x ctor x; }
+fun ctor(this: !IntWithNoHash, x: Int) { this.x ctor x; }
 
 datatype MyTypeTraits
     ;

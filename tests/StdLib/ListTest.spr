@@ -39,9 +39,9 @@ fun sprMain
 datatype MyObj
     x: Int;
 
-fun <(this, other: @MyObj): Bool { return x < other.x; }
+fun <(this, other: !MyObj): Bool { return x < other.x; }
 
-fun >>(this: MyObj, os: @OutStream)      { os << x; }
+fun >>(this: MyObj, os: !OutStream)      { os << x; }
 
 datatype Greater
     ;
@@ -63,7 +63,7 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 
     return ContiguousMemoryRange(MyObj)(ptr, ptrEnd)
 
-fun printList(li: @List(MyObj))
+fun printList(li: !List(MyObj))
     var i = 0
     var r = li.all()
 
@@ -77,7 +77,7 @@ fun printList(li: @List(MyObj))
         r.popFront()
     ;
 
-fun printSizeInfo(li: @List(MyObj))
+fun printSizeInfo(li: !List(MyObj))
     cout << li.isEmpty() << endl
     cout << li.size() << endl
 

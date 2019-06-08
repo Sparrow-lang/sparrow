@@ -25,8 +25,8 @@ datatype Body
     mass: Double
 
 fun speedSq(this: Body)                         = v*v
-fun move(this: @Body, dt: Double)               { p += v*dt; }
-fun advance(this: @Body, d: Vec, delta: Double) { v += d*delta; }
+fun move(this: !Body, dt: Double)               { p += v*dt; }
+fun advance(this: !Body, d: Vec, delta: Double) { v += d*delta; }
 
 fun sqr x = x*x
 
@@ -34,7 +34,7 @@ datatype NBodySystem
     using numBodies = 5
     bodies: StaticArray(Body, numBodies)
 
-fun ctor(this: @NBodySystem)
+fun ctor(this: !NBodySystem)
     using solarMass = 4 * PI * PI
     //using daysPerYear = 365.24;
     using daysPerYear = 1.0
@@ -84,7 +84,7 @@ fun ctor(this: @NBodySystem)
         p += b.v * b.mass;
     sun.v = -p / solarMass;
 
-fun energy(this: @NBodySystem): Double
+fun energy(this: !NBodySystem): Double
     var e = 0.0
     for i = 0..numBodies
         e += 0.5 * bodies(i).mass * bodies(i).speedSq
@@ -95,7 +95,7 @@ fun energy(this: @NBodySystem): Double
 
     return e;
 
-fun advance(this: @NBodySystem, dt: Double)
+fun advance(this: !NBodySystem, dt: Double)
     for i = 0..numBodies
         for j = (i+1)..numBodies
             let pDelta = bodies(i).p - bodies(j).p
@@ -108,10 +108,10 @@ fun advance(this: @NBodySystem, dt: Double)
     for body = bodies.all
         body.move(dt);
 
-[native("printf")] fun printf(fmt: @Char, x: Double)
-[native("printf")] fun printf(fmt: @Char, x,y: Double)
-[native("printf")] fun printf(fmt: @Char, x,y,z: Double)
-[native("printf")] fun printf(fmt: @Char, x,y,z,xx,yy,zz,a: Double)
+[native("printf")] fun printf(fmt: !Char, x: Double)
+[native("printf")] fun printf(fmt: !Char, x,y: Double)
+[native("printf")] fun printf(fmt: !Char, x,y,z: Double)
+[native("printf")] fun printf(fmt: !Char, x,y,z,xx,yy,zz,a: Double)
 
 fun cstr(s: StringRef): @Char = s.cStr()
 

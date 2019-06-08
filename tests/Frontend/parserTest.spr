@@ -15,18 +15,18 @@ datatype NodeImpl
     name: String
     children: Vector(Node)
 
-fun ctor(this: @NodeImpl)
+fun ctor(this: !NodeImpl)
     this.kind ctor "<null>"
-fun ctor(this: @NodeImpl, l: Location, kind: StringRef)
+fun ctor(this: !NodeImpl, l: Location, kind: StringRef)
     this.kind ctor kind
     this.loc ctor l
     // cout << "Parsed: " << kind << endl
-fun ctor(this: @NodeImpl, l: Location, kind: StringRef, r: Range)
+fun ctor(this: !NodeImpl, l: Location, kind: StringRef, r: Range)
     this.kind ctor kind
     this.loc ctor l
     children ctor r
     // cout << "Parsed: " << kind << endl
-fun ctor(this: @NodeImpl, l: Location, kind: StringRef, r: Range, name: StringRef)
+fun ctor(this: !NodeImpl, l: Location, kind: StringRef, r: Range, name: StringRef)
     this.kind ctor kind
     this.loc ctor l
     this.name ctor name
@@ -38,9 +38,9 @@ fun toImpl(n: Node): @NodeImpl
         return reinterpretCast(@NodeImpl, n.data.data)
     else
         return _nullNodeImpl
-fun toNode(impl: @NodeImpl)    = Node(UntypedPtr(reinterpretCast(@Byte, impl)))
+fun toNode(impl: !NodeImpl)    = Node(UntypedPtr(reinterpretCast(@Byte, impl)))
 
-fun >> (n: @NodeImpl, os: @OutStream)
+fun >> (n: !NodeImpl, os: !OutStream)
     os << n.kind
     if !(n.children isEmpty)
         os << "("
@@ -58,7 +58,7 @@ fun createNode(l: Location, kind: StringRef, children: Range, name: StringRef): 
 
 datatype MyAstBuilder
 
-fun addToNodeList(this: @MyAstBuilder, nl, newNode: Node): Node
+fun addToNodeList(this: !MyAstBuilder, nl, newNode: Node): Node
     if nl isSet
         if newNode isSet
             (nl toImpl).children += newNode
@@ -66,85 +66,85 @@ fun addToNodeList(this: @MyAstBuilder, nl, newNode: Node): Node
         nl = createNode((newNode toImpl).loc, "nodeList", repeat(newNode, 1))
     return nl
 
-fun mkModifiers(this: @MyAstBuilder, loc: @Location, main, mods: Node) \
+fun mkModifiers(this: !MyAstBuilder, loc: !Location, main, mods: Node) \
     = ife(mods isSet, createNode(loc, "modifiers", values(main, mods)), main)
-fun mkModule(this: @MyAstBuilder, loc: @Location, moduleName, decls: Node) \
+fun mkModule(this: !MyAstBuilder, loc: !Location, moduleName, decls: Node) \
     = createNode(loc, "module", values(moduleName, decls))
-fun mkImportName(this: @MyAstBuilder, loc: @Location, alias: StringRef, toImport, decls: Node) \
+fun mkImportName(this: !MyAstBuilder, loc: !Location, alias: StringRef, toImport, decls: Node) \
     = createNode(loc, "importName", values(toImport, decls), alias)
-fun mkUsing(this: @MyAstBuilder, loc: @Location, alias: StringRef, usingNode: Node) \
+fun mkUsing(this: !MyAstBuilder, loc: !Location, alias: StringRef, usingNode: Node) \
     = createNode(loc, "using", repeat(usingNode, 1), alias)
-fun mkPackage(this: @MyAstBuilder, loc: @Location, name: StringRef, children, params, ifClause: Node) \
+fun mkPackage(this: !MyAstBuilder, loc: !Location, name: StringRef, children, params, ifClause: Node) \
     = createNode(loc, "package", repeat(children, 1), name)
-fun mkDatatype(this: @MyAstBuilder, loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node) \
+fun mkDatatype(this: !MyAstBuilder, loc: !Location, name: StringRef, params, underlyingData, ifClause, children: Node) \
     = createNode(loc, "datatype", values(params, underlyingData, ifClause, children), name)
-fun mkField(this: @MyAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node): Node \
+fun mkField(this: !MyAstBuilder, loc: !Location, name: StringRef, typeNode, init: Node): Node \
     = createNode(loc, "field", values(typeNode, init), name)
-fun mkConcept(this: @MyAstBuilder, loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node) \
+fun mkConcept(this: !MyAstBuilder, loc: !Location, name, paramName: StringRef, baseConcept, ifClause: Node) \
     = createNode(loc, "concept", values(baseConcept, ifClause), name)
-fun mkLet(this: @MyAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \
+fun mkLet(this: !MyAstBuilder, loc: !Location, name: StringRef, typeNode, init: Node) \
     = createNode(loc, "let", values(typeNode, init), name)
-fun mkVar(this: @MyAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \
+fun mkVar(this: !MyAstBuilder, loc: !Location, name: StringRef, typeNode, init: Node) \
     = createNode(loc, "var", values(typeNode, init), name)
-fun mkParameter(this: @MyAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \
+fun mkParameter(this: !MyAstBuilder, loc: !Location, name: StringRef, typeNode, init: Node) \
     = createNode(loc, "param", values(typeNode, init), name)
-fun mkFun(this: @MyAstBuilder, loc: @Location, name: StringRef, formals, retType, body, bodyExp, ifClause: Node) \
+fun mkFun(this: !MyAstBuilder, loc: !Location, name: StringRef, formals, retType, body, bodyExp, ifClause: Node) \
     = createNode(loc, "fun", values(formals, retType, body, bodyExp, ifClause), name)
 
-fun mkParenthesisExpr(this: @MyAstBuilder, expr: Node) \
+fun mkParenthesisExpr(this: !MyAstBuilder, expr: Node) \
     = createNode((expr toImpl).loc, "paren", repeat(expr, 1))
-fun mkPostfixOp(this: @MyAstBuilder, loc: @Location, base: Node, op: StringRef) \
+fun mkPostfixOp(this: !MyAstBuilder, loc: !Location, base: Node, op: StringRef) \
     = createNode(loc, "postfix", values(base, createNode(loc, op)))
-fun mkInfixOp(this: @MyAstBuilder, loc: @Location, lhs: Node, op: StringRef, rhs: Node) \
+fun mkInfixOp(this: !MyAstBuilder, loc: !Location, lhs: Node, op: StringRef, rhs: Node) \
     = createNode(loc, "infix", values(lhs, createNode(loc, op), rhs))
-fun mkPrefixOp(this: @MyAstBuilder, loc: @Location, op: StringRef, base: Node) \
+fun mkPrefixOp(this: !MyAstBuilder, loc: !Location, op: StringRef, base: Node) \
     = createNode(loc, "prefix", values(createNode(loc, op), base))
-fun mkIdentifier(this: @MyAstBuilder, loc: @Location, id: StringRef) \
+fun mkIdentifier(this: !MyAstBuilder, loc: !Location, id: StringRef) \
     = createNode(loc, id)
-fun mkCompoundExpr(this: @MyAstBuilder, loc: @Location, base: Node, id: StringRef) \
+fun mkCompoundExpr(this: !MyAstBuilder, loc: !Location, base: Node, id: StringRef) \
     = createNode(loc, "compoundExpr", values(base, createNode(loc, id)))
-fun mkStarExpr(this: @MyAstBuilder, loc: @Location, base: Node, id: StringRef) \
+fun mkStarExpr(this: !MyAstBuilder, loc: !Location, base: Node, id: StringRef) \
     = createNode(loc, "starExpr", values(base, createNode(loc, id)))
-fun mkDotExpr(this: @MyAstBuilder, loc: @Location, base: Node, id: StringRef) \
+fun mkDotExpr(this: !MyAstBuilder, loc: !Location, base: Node, id: StringRef) \
     = createNode(loc, "dotExpr", values(base, createNode(loc, id)))
-fun mkFunAppExpr(this: @MyAstBuilder, loc: @Location, base, args: Node) \
+fun mkFunAppExpr(this: !MyAstBuilder, loc: !Location, base, args: Node) \
     = createNode(loc, "funApp", values(base, args))
-fun mkLambdaExpr(this: @MyAstBuilder, loc: @Location, closureParams, formals, retType, body, bodyExpr: Node) \
+fun mkLambdaExpr(this: !MyAstBuilder, loc: !Location, closureParams, formals, retType, body, bodyExpr: Node) \
     = createNode(loc, "lambda", values(closureParams, formals, retType, body, bodyExpr))
-fun mkNullLiteral(this: @MyAstBuilder, loc: @Location) \
+fun mkNullLiteral(this: !MyAstBuilder, loc: !Location) \
     = createNode(loc, "null")
-fun mkBoolLiteral(this: @MyAstBuilder, loc: @Location, val: Bool) \
+fun mkBoolLiteral(this: !MyAstBuilder, loc: !Location, val: Bool) \
     = createNode(loc, "boolLit")
-fun mkIntLiteral(this: @MyAstBuilder, loc: @Location, val: Int) \
+fun mkIntLiteral(this: !MyAstBuilder, loc: !Location, val: Int) \
     = createNode(loc, "intLit")
-fun mkUIntLiteral(this: @MyAstBuilder, loc: @Location, val: UInt) \
+fun mkUIntLiteral(this: !MyAstBuilder, loc: !Location, val: UInt) \
     = createNode(loc, "uintLit")
-fun mkLongLiteral(this: @MyAstBuilder, loc: @Location, val: Long) \
+fun mkLongLiteral(this: !MyAstBuilder, loc: !Location, val: Long) \
     = createNode(loc, "longLit")
-fun mkULongLiteral(this: @MyAstBuilder, loc: @Location, val: ULong) \
+fun mkULongLiteral(this: !MyAstBuilder, loc: !Location, val: ULong) \
     = createNode(loc, "ulongLit")
-fun mkFloatLiteral(this: @MyAstBuilder, loc: @Location, val: Float) \
+fun mkFloatLiteral(this: !MyAstBuilder, loc: !Location, val: Float) \
     = createNode(loc, "floatLit")
-fun mkDoubleLiteral(this: @MyAstBuilder, loc: @Location, val: Double) \
+fun mkDoubleLiteral(this: !MyAstBuilder, loc: !Location, val: Double) \
     = createNode(loc, "doubleLit")
-fun mkCharLiteral(this: @MyAstBuilder, loc: @Location, val: Char) \
+fun mkCharLiteral(this: !MyAstBuilder, loc: !Location, val: Char) \
     = createNode(loc, "charLit")
-fun mkStringLiteral(this: @MyAstBuilder, loc: @Location, data: StringRef) \
+fun mkStringLiteral(this: !MyAstBuilder, loc: !Location, data: StringRef) \
     = createNode(loc, "stringLit")
 
-fun mkBlockStmt(this: @MyAstBuilder, loc: @Location, stmts: Node) \
+fun mkBlockStmt(this: !MyAstBuilder, loc: !Location, stmts: Node) \
     = createNode(loc, "block", repeat(stmts, 1))
-fun mkIfStmt(this: @MyAstBuilder, loc: @Location, expr, thenClause, elseClause: Node) \
+fun mkIfStmt(this: !MyAstBuilder, loc: !Location, expr, thenClause, elseClause: Node) \
     = createNode(loc, "if", values(expr, thenClause, elseClause))
-fun mkForStmt(this: @MyAstBuilder, loc: @Location, id: StringRef, typeNode, range, action: Node) \
+fun mkForStmt(this: !MyAstBuilder, loc: !Location, id: StringRef, typeNode, range, action: Node) \
     = createNode(loc, "for", values(createNode(loc, id), typeNode, range, action))
-fun mkWhileStmt(this: @MyAstBuilder, loc: @Location, expr, stepAction, body: Node) \
+fun mkWhileStmt(this: !MyAstBuilder, loc: !Location, expr, stepAction, body: Node) \
     = createNode(loc, "while", values(expr, stepAction, body))
-fun mkBreakStmt(this: @MyAstBuilder, loc: @Location) \
+fun mkBreakStmt(this: !MyAstBuilder, loc: !Location) \
     = createNode(loc, "break")
-fun mkContinueStmt(this: @MyAstBuilder, loc: @Location) \
+fun mkContinueStmt(this: !MyAstBuilder, loc: !Location) \
     = createNode(loc, "continue")
-fun mkReturnStmt(this: @MyAstBuilder, loc: @Location, expr: Node) \
+fun mkReturnStmt(this: !MyAstBuilder, loc: !Location, expr: Node) \
     = createNode(loc, "return", repeat(expr, 1))
 
 fun sprMain

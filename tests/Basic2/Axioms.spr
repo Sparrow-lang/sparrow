@@ -37,7 +37,7 @@ fun < (this, other: MyType) = false
 [noDefault]
 datatype EmptyType
     ;
-fun ctor(this: @EmptyType) {}
+fun ctor(this: !EmptyType) {}
 
 fun sprMain
     testOrdered(1)

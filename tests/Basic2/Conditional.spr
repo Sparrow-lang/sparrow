@@ -3,8 +3,8 @@
 datatype MyObj
     a: Int;
 
-fun ctor(this: @MyObj, i: Int) { a = i; cout << "ctor(" << a << ")" << endl; }
-fun ctor(this: @MyObj, other: MyObj) { a = other.a; cout << "copy ctor(" << a << ")" << endl; }
+fun ctor(this: !MyObj, i: Int) { a = i; cout << "ctor(" << a << ")" << endl; }
+fun ctor(this: !MyObj, other: MyObj) { a = other.a; cout << "copy ctor(" << a << ")" << endl; }
 fun dtor(this: MyObj) { cout << "dtor" << endl; }
 
 fun print(this: MyObj) { cout << "print(" << a << ")" << endl; }

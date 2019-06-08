@@ -23,7 +23,7 @@ fun sprMain
 datatype MyObj
     x: Int;
 
-fun <(this, other: @MyObj): Bool { return x < other.x; }
+fun <(this, other: !MyObj): Bool { return x < other.x; }
 
 datatype Greater
     ;
@@ -67,7 +67,7 @@ fun makeList(): List(Int)
 
     return li
 
-fun makeList(li: @List(Int))
+fun makeList(li: !List(Int))
     li.pushBack(3)
     li.pushBack(1)
     li.pushBack(-4)

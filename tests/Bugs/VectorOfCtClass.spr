@@ -6,7 +6,7 @@ import std.vector
 {
 }
 
-fun test(x: @Vector(TestCt))
+fun test(x: !Vector(TestCt))
 
 fun sprMain
 {

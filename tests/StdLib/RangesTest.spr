@@ -34,9 +34,9 @@ fun sprMain
 datatype MyObj
     x: Int;
 
-fun =(this, other: @MyObj): @MyObj { x = other.x; return this; }
-fun ==(this, other: @MyObj): Bool = x == other.x
-fun <(this, other: @MyObj): Bool = x < other.x
+fun =(this, other: !MyObj): @MyObj { x = other.x; return this; }
+fun ==(this, other: !MyObj): Bool = x == other.x
+fun <(this, other: !MyObj): Bool = x < other.x
 
 datatype Greater
     ;
@@ -62,7 +62,7 @@ datatype Fact
     _res: Int = 1
     _k: Int = 0
 
-fun ()(this: @Fact): Int
+fun ()(this: !Fact): Int
     ++_k
     _res *= _k
 

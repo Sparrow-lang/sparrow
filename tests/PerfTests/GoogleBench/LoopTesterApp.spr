@@ -8,7 +8,7 @@ import std.ptr, std.newDelete
 datatype BasicBlockEdge
     from, to: BasicBlock Ptr
 
-fun ctor(this: @BasicBlockEdge, cfg: @MaoCFG, fromName, toName: Int)
+fun ctor(this: !BasicBlockEdge, cfg: !MaoCFG, fromName, toName: Int)
     from ctor cfg.createNode(fromName)
     to   ctor cfg.createNode(toName)
 
@@ -23,19 +23,19 @@ datatype BasicBlock
     _inEdges, _outEdges: Vector(BasicBlock Ptr)
     _name: Int
 
-fun ctor(this: @BasicBlock, name: Int)
+fun ctor(this: !BasicBlock, name: Int)
     this._name ctor name
 
-fun numPred(this: @BasicBlock) = _inEdges.size
-fun numSucc(this: @BasicBlock) = _outEdges.size
+fun numPred(this: !BasicBlock) = _inEdges.size
+fun numSucc(this: !BasicBlock) = _outEdges.size
 
-fun addOutEdge(this: @BasicBlock, to: BasicBlock Ptr)  = _outEdges += to
-fun addInEdge(this: @BasicBlock, from: BasicBlock Ptr) = _inEdges += from
+fun addOutEdge(this: !BasicBlock, to: BasicBlock Ptr)  = _outEdges += to
+fun addInEdge(this: !BasicBlock, from: BasicBlock Ptr) = _inEdges += from
 
-fun inEdgesRange(this: @BasicBlock)  = _inEdges all
-fun outEdgesRange(this: @BasicBlock) = _outEdges all
+fun inEdgesRange(this: !BasicBlock)  = _inEdges all
+fun outEdgesRange(this: !BasicBlock) = _outEdges all
 
-fun hash(this: @BasicBlock) = _name
+fun hash(this: !BasicBlock) = _name
 
 // MaoCFG maintains a list of nodes.
 datatype MaoCFG
@@ -43,11 +43,11 @@ datatype MaoCFG
     _basicBlockMap: Map(Int, BasicBlock Ptr)
     _edges: List(BasicBlockEdge Ptr)
 
-fun dtor(this: @MaoCFG)
+fun dtor(this: !MaoCFG)
     _basicBlockMap.values delete
     _edges.all delete
 
-fun createNode(this: @MaoCFG, name: Int): BasicBlock Ptr
+fun createNode(this: !MaoCFG, name: Int): BasicBlock Ptr
     var node: @Ptr(BasicBlock) = _basicBlockMap(name)
     if !node
         node = new(BasicBlock, name)
@@ -55,10 +55,10 @@ fun createNode(this: @MaoCFG, name: Int): BasicBlock Ptr
         startNode = node
     return node
 
-fun addEdge(this: @MaoCFG, edge: BasicBlockEdge Ptr)   = _edges += edge
-fun getNumNodes(this: @MaoCFG)                         = _basicBlockMap.size
+fun addEdge(this: !MaoCFG, edge: BasicBlockEdge Ptr)   = _edges += edge
+fun getNumNodes(this: !MaoCFG)                         = _basicBlockMap.size
 
-fun basicBlocksRange(this: @MaoCFG) = _basicBlockMap.values()
+fun basicBlocksRange(this: !MaoCFG) = _basicBlockMap.values()
 
 //
 // SimpleLoop
@@ -82,19 +82,19 @@ datatype SimpleLoop
     _parent: SimpleLoop Ptr
     _basicBlocks: Set(BasicBlock Ptr)
 
-fun addNode(this: @SimpleLoop, bb: BasicBlock Ptr)         = _basicBlocks += bb
-fun addChildLoop(this: @SimpleLoop, loop: SimpleLoop Ptr)  = this.children += loop
+fun addNode(this: !SimpleLoop, bb: BasicBlock Ptr)         = _basicBlocks += bb
+fun addChildLoop(this: !SimpleLoop, loop: SimpleLoop Ptr)  = this.children += loop
 
-fun setParent(this: @SimpleLoop, parent: SimpleLoop Ptr)
+fun setParent(this: !SimpleLoop, parent: SimpleLoop Ptr)
     this._parent = parent
     this._parent.addChildLoop(this mkPtr)
-fun setNestingLevel(this: @SimpleLoop, level: Int)
+fun setNestingLevel(this: !SimpleLoop, level: Int)
     nestingLevel = level
     isRoot = (level == 0)
 
-fun hash(this: @SimpleLoop) = counter
+fun hash(this: !SimpleLoop) = counter
 
-fun >>(this: @SimpleLoop, os: @OutStream)
+fun >>(this: !SimpleLoop, os: !OutStream)
     os << "loop-" << counter << ", nest: " << nestingLevel << ", depth: " << depthLevel << endl
 
 //
@@ -117,28 +117,28 @@ datatype LoopStructureGraph
     _loops: List(SimpleLoop Ptr)
     _loopCounter: Int
 
-fun ctor(this: @LoopStructureGraph)
+fun ctor(this: !LoopStructureGraph)
     _loopCounter ctor 1
     _root ctor new(SimpleLoop)
     _root.counter = 0
     _root.setNestingLevel(0)
     _loops += _root
 
-fun dtor(this: @LoopStructureGraph) = this.killAll
+fun dtor(this: !LoopStructureGraph) = this.killAll
 
-fun killAll(this: @LoopStructureGraph)
+fun killAll(this: !LoopStructureGraph)
     for loop = _loops.all
         loop.release
     _loops.clear
 
-fun createNewLoop(this: @LoopStructureGraph): SimpleLoop Ptr
+fun createNewLoop(this: !LoopStructureGraph): SimpleLoop Ptr
     var loop: SimpleLoop Ptr = new(SimpleLoop)
     loop.counter = (_loopCounter++)
     return loop
 
-fun addLoop(this: @LoopStructureGraph, loop: SimpleLoop Ptr)   = _loops += loop
+fun addLoop(this: !LoopStructureGraph, loop: SimpleLoop Ptr)   = _loops += loop
 
-fun calculateNestingLevel(this: @LoopStructureGraph)
+fun calculateNestingLevel(this: !LoopStructureGraph)
     // link up all 1st level _loops to artificial root node.
     for loop = _loops.all
         if !loop.isRoot && !loop._parent
@@ -153,11 +153,11 @@ fun _calculateNestingLevelRec(loop: SimpleLoop Ptr, depth: Int)
         _calculateNestingLevelRec(c, depth+1)
         loop.setNestingLevel(max(loop.nestingLevel, 1+c.nestingLevel))
 
-fun numLoops(this: @LoopStructureGraph) = _loops.size
+fun numLoops(this: !LoopStructureGraph) = _loops.size
 
-fun >>(this: @LoopStructureGraph, os: @OutStream) = _dumpRec(os, _root, 0)
+fun >>(this: !LoopStructureGraph, os: !OutStream) = _dumpRec(os, _root, 0)
 
-fun _dumpRec(os: @OutStream, loop: SimpleLoop Ptr, indent: Int)
+fun _dumpRec(os: !OutStream, loop: SimpleLoop Ptr, indent: Int)
     os << loop.get
     for c = loop.children.all
         _dumpRec(os, c, indent+1)
@@ -174,7 +174,7 @@ datatype UnionFindNode
 
 // Initialize this node.
 //
-fun init(this: @UnionFindNode, bb: BasicBlock Ptr, dfsNumber: Int)
+fun init(this: !UnionFindNode, bb: BasicBlock Ptr, dfsNumber: Int)
     this._parent     ctor this
     this.bb         ctor bb
     this.dfsNumber  ctor dfsNumber
@@ -185,7 +185,7 @@ fun init(this: @UnionFindNode, bb: BasicBlock Ptr, dfsNumber: Int)
 // visited and collapsed once, however, deep nests would still
 // result in significant traversals).
 //
-fun findSet(this: @UnionFindNode): UnionFindNode Ptr
+fun findSet(this: UnionFindNode const): UnionFindNode Ptr
     var nodeList: List(UnionFindNode Ptr)
 
     var node: UnionFindNode Ptr = this
@@ -202,7 +202,7 @@ fun findSet(this: @UnionFindNode): UnionFindNode Ptr
 //
 // We rely on path compression.
 //
-fun union(this: @UnionFindNode, b: UnionFindNode Ptr)
+fun union(this: !UnionFindNode, b: UnionFindNode Ptr)
     _parent = b
 
 //------------------------------------------------------------------
@@ -248,7 +248,7 @@ datatype HavlakLoopFinder
     _cfg: @MaoCFG
     _lsg: @LoopStructureGraph
 
-fun ctor(this: @HavlakLoopFinder, cfg: @MaoCFG, lsg: @LoopStructureGraph)
+fun ctor(this: !HavlakLoopFinder, cfg: !MaoCFG, lsg: !LoopStructureGraph)
     this._cfg := cfg
     this._lsg := lsg
 
@@ -262,7 +262,7 @@ fun ctor(this: @HavlakLoopFinder, cfg: @MaoCFG, lsg: @LoopStructureGraph)
 // for depth-first spanning trees. This is why DFS is the first
 // thing we run below.
 //
-fun isAncestor(w, v: SizeType, last: @IntVector) = (w <= v) && (v <= last(w))
+fun isAncestor(w, v: SizeType, last: !IntVector) = (w <= v) && (v <= last(w))
 
 //
 // DFS - Depth-First-Search
@@ -270,7 +270,7 @@ fun isAncestor(w, v: SizeType, last: @IntVector) = (w <= v) && (v <= last(w))
 // DESCRIPTION:
 // Simple depth first traversal along out edges with node numbering.
 //
-fun doDFS(currentNode: BasicBlock Ptr, nodes: @NodeVector, number: @BasicBlockMap, last: @IntVector, current: Int): Int
+fun doDFS(currentNode: BasicBlock Ptr, nodes: !NodeVector, number: !BasicBlockMap, last: !IntVector, current: Int): Int
     nodes(current).init(currentNode, current)
     number(currentNode) = current
 
@@ -289,7 +289,7 @@ fun doDFS(currentNode: BasicBlock Ptr, nodes: @NodeVector, number: @BasicBlockMa
 // been chosen to be identical to the nomenclature in Havlak's
 // paper (which is similar to the one used by Tarjan).
 //
-fun findLoops(this: @HavlakLoopFinder)
+fun findLoops(this: !HavlakLoopFinder)
     if !_cfg.startNode
         return
 
@@ -446,29 +446,29 @@ fun findLoops(this: @HavlakLoopFinder)
             _lsg.addLoop(loop)
 
 // External entry point.
-fun findHavlakLoops(cfg: @MaoCFG, lsg: @LoopStructureGraph): SizeType
+fun findHavlakLoops(cfg: !MaoCFG, lsg: !LoopStructureGraph): SizeType
     var finder = HavlakLoopFinder(cfg, lsg)
     finder.findLoops
     return lsg.numLoops
 
 //--- TESTING CODE -------------------
 
-fun buildDiamond(cfg: @MaoCFG, start: Int): Int
+fun buildDiamond(cfg: !MaoCFG, start: Int): Int
     new(BasicBlockEdge, cfg, start  , start+1)
     new(BasicBlockEdge, cfg, start  , start+2)
     new(BasicBlockEdge, cfg, start+1, start+3)
     new(BasicBlockEdge, cfg, start+2, start+3)
     return start+3
 
-fun buildConnect(cfg: @MaoCFG, start, end: Int)
+fun buildConnect(cfg: !MaoCFG, start, end: Int)
     new(BasicBlockEdge, cfg, start, end)
 
-fun buildStraight(cfg: @MaoCFG, start, n: Int): Int
+fun buildStraight(cfg: !MaoCFG, start, n: Int): Int
     for i = 0..n
         buildConnect(cfg, start + i, start + i + 1)
     return start + n
 
-fun buildBaseLoop(cfg: @MaoCFG, from: Int): Int
+fun buildBaseLoop(cfg: !MaoCFG, from: Int): Int
     var header   = buildStraight(cfg, from, 1)
     var diamond1 = buildDiamond(cfg, header)
     var d11      = buildStraight(cfg, diamond1, 1)

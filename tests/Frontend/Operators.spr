@@ -18,12 +18,12 @@ fun +++:(l,r: Int): Int
     cout << l << " +++: " << r << " = " << (l+r) << endl
     return l+r
 
-fun +++(x: @Int): Int
+fun +++(x: !Int): Int
     var r = x
     x += 1
     return r
 
-fun inc(x: @Int): Int
+fun inc(x: !Int): Int
     var r = x
     x += 1
     return r
@@ -190,11 +190,16 @@ fun test10
     var x = 3
     var y = 4
     cout << ( x + y ) << endl
-    cout << (+++3 + +++4) << endl
-    cout << ((3+++) + (4+++)) << endl
-    cout << ((3+++) + (+++4)) << endl
-
-    cout << (3+++ + +++4) << endl // similar to 3 +++ (+ (+++4))
+    cout << (+++x + +++y) << endl
+    x = 3
+    y = 4
+    cout << ((x+++) + (y+++)) << endl
+    x = 3
+    y = 4
+    cout << ((x+++) + (+++y)) << endl
+    x = 3
+    y = 4
+    cout << (x+++ + +++y) << endl // similar to x +++ (+ (+++y))
 
     // Both +, and +++ are unary and binary
 /*<<<Postfix, prefix, infix operator call(10)

@@ -22,19 +22,19 @@ import std.compilerInfo
             n: Long
             result: @Long
 
-        fun ctor(this: @FibTask, n: Long, result: @Long)
+        fun ctor(this: !FibTask, n: Long, result: !Long)
             this.n ctor n
             this.result := result
             [ct] if isValidAndTrue(useDescriptions)
                 this.prefix.desc = this.description
 
         [ct] if isValidAndTrue(useDescriptions)
-        fun description(task: @FibTask): String
+        fun description(task: !FibTask): String
             var res: String = "Fib "
             res += intToString(Int(task.n))
             return res
 
-        fun execute(task: @FibTask)
+        fun execute(task: !FibTask)
             if task.n < cutoff
                 task.result = serialFib(task.n)
             else
@@ -59,17 +59,17 @@ import std.compilerInfo
             n: Long
             result: @Long
 
-        fun ctor(this: @FibTask, n: Long, result: @Long)
+        fun ctor(this: !FibTask, n: Long, result: !Long)
             this.n ctor n
             this.result := result
 
         [ct] if isValidAndTrue(useDescriptions)
-        fun description(task: @FibTask): String
+        fun description(task: !FibTask): String
             var res: String = "Fib "
             res += intToString(Int(task.n))
             return res
 
-        fun execute(task: @FibTask)
+        fun execute(task: !FibTask)
             if task.n < cutoff
                 task.result = serialFib(task.n)
             else
@@ -97,17 +97,17 @@ import std.compilerInfo
             n: Long
             result: @Long
 
-        fun ctor(this: @FibTask, n: Long, result: @Long)
+        fun ctor(this: !FibTask, n: Long, result: !Long)
             this.n ctor n
             this.result := result
 
         [ct] if isValidAndTrue(useDescriptions)
-        fun description(task: @FibTask): String
+        fun description(task: !FibTask): String
             var res: String = "Fib "
             res += intToString(Int(task.n))
             return res
 
-        fun execute(task: @FibTask)
+        fun execute(task: !FibTask)
             if task.n < cutoff
                 task.result = serialFib(task.n)
             else
@@ -124,17 +124,17 @@ import std.compilerInfo
             s1, s2: Long
             result: @Long
 
-        fun ctor(this: @FibContTask, n, result: @Long)
+        fun ctor(this: !FibContTask, n, result: !Long)
             this.n ctor n
             this.result := result
 
         [ct] if isValidAndTrue(useDescriptions)
-        fun description(task: @FibContTask): String
+        fun description(task: !FibContTask): String
             var res: String = "Cont "
             res += intToString(Int(task.n))
             return res
 
-        fun execute(task: @FibContTask)
+        fun execute(task: !FibContTask)
             task.result = task.s1 + task.s2
 
         fun parFib(n: Long): Long

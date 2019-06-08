@@ -9,9 +9,9 @@ import check
 [initCtor] datatype MyObj2
     x, y: Int
 
-fun >>(o: MyObj1, os: @OutStream)
+fun >>(o: MyObj1, os: !OutStream)
     os << o.x;
-fun >>(o: MyObj2, os: @OutStream)
+fun >>(o: MyObj2, os: !OutStream)
     os << o.x << '#' << o.y;
 
 using T2 = Tuple(MyObj1, MyObj2)

@@ -105,22 +105,22 @@ datatype NfaStatesFactory
     _matchState: NfaState              ///< The match state
     _pages: Vector(RawPtr(NfaState))   ///< Pointers to the memory pages containing the actual NFA states
 
-fun ctor(this: @NfaStatesFactory)
+fun ctor(this: !NfaStatesFactory)
     _numStates ctor 0
     let nullObj: Ptr(NfaState)
     _matchState.ctor(NfaState.match, nullObj, nullObj)
 
-fun dtor(this: @NfaStatesFactory)
+fun dtor(this: !NfaStatesFactory)
     // Release the memory occupied by the states
     for page = _pages.all()
         page freePtr;
 
-fun getCharState(this: @NfaStatesFactory, c: Char)                   = this._alloc(Int(c), Ptr(NfaState)(), Ptr(NfaState)())
-fun getSplitState(this: @NfaStatesFactory, s1, s2: Ptr(NfaState))    = this._alloc(NfaState.split, s1, s2)
-fun getSplitState(this: @NfaStatesFactory, s1: Ptr(NfaState))        = this._alloc(NfaState.split, s1, Ptr(NfaState)())
-fun getMatchState(this: @NfaStatesFactory)                           = Ptr(NfaState)(_matchState)
+fun getCharState(this: !NfaStatesFactory, c: Char)                   = this._alloc(Int(c), Ptr(NfaState)(), Ptr(NfaState)())
+fun getSplitState(this: !NfaStatesFactory, s1, s2: Ptr(NfaState))    = this._alloc(NfaState.split, s1, s2)
+fun getSplitState(this: !NfaStatesFactory, s1: Ptr(NfaState))        = this._alloc(NfaState.split, s1, Ptr(NfaState)())
+fun getMatchState(this: !NfaStatesFactory)                           = Ptr(NfaState)(_matchState)
 
-fun _alloc(this: @NfaStatesFactory, c: Int, out1, out2: Ptr(NfaState)): Ptr(NfaState)
+fun _alloc(this: !NfaStatesFactory, c: Int, out1, out2: Ptr(NfaState)): Ptr(NfaState)
     using _statesPerPage = 100
 
     if ( _numStates >= _statesPerPage*_pages.size() )
@@ -155,11 +155,11 @@ datatype OutPtrList
     _next: Ptr(OutPtrList);
 
 /// Construct the out-ptr list from a single out-ptr reference
-fun ctor(this: @OutPtrList, outPtr: @Ptr(NfaState))
+fun ctor(this: !OutPtrList, outPtr: !Ptr(NfaState))
     _next ctor reinterpretPtr(OutPtrList, Ptr(Ptr(NfaState))(outPtr));
 
 /// Append to this list another list of out-pointers
-fun append(this: @OutPtrList, other: OutPtrList)
+fun append(this: !OutPtrList, other: OutPtrList)
     var p = _next
     while p.get()._next isSet
         p = p.get()._next;
@@ -167,7 +167,7 @@ fun append(this: @OutPtrList, other: OutPtrList)
 
 /// Set the final value to all the out-pointers from this list
 /// After calling this method, the list will be actually destroyed (as we right the exact pointers that are used to chain the nodes)
-fun setFinalValue(this: @OutPtrList, finalPtr: Ptr(NfaState))
+fun setFinalValue(this: !OutPtrList, finalPtr: Ptr(NfaState))
     var p = _next
     while p isSet
         let _next = p.get()._next
@@ -181,43 +181,43 @@ datatype NfaFragment
     start: Ptr(NfaState)                   ///< Start state of the NFA frament
     outPtrChain: OutPtrList  ///< Chain of out-pointers for this fragment that need to be set to the next state
 
-fun ctor(this: @NfaFragment, start: Ptr(NfaState), outPtrChain: @OutPtrList)
+fun ctor(this: !NfaFragment, start: Ptr(NfaState), outPtrChain: !OutPtrList)
     this.start ctor start
     this.outPtrChain ctor outPtrChain
 
-fun getChar(nfaStatesFactory: @NfaStatesFactory, c: Char): NfaFragment
+fun getChar(nfaStatesFactory: !NfaStatesFactory, c: Char): NfaFragment
     let s = nfaStatesFactory.getCharState(c)
     return NfaFragment(s, OutPtrList(s.get().out1))
 
-fun getConcatenation(nfaStatesFactory: @NfaStatesFactory, e1, e2: @NfaFragment): NfaFragment
+fun getConcatenation(nfaStatesFactory: !NfaStatesFactory, e1, e2: !NfaFragment): NfaFragment
     e1.outPtrChain.setFinalValue(e2.start)        // e1 fragment is finalized by e2 fragment
     return NfaFragment(e1.start, e2.outPtrChain)
 
-fun getAlternation(nfaStatesFactory: @NfaStatesFactory, e1, e2: @NfaFragment): NfaFragment
+fun getAlternation(nfaStatesFactory: !NfaStatesFactory, e1, e2: !NfaFragment): NfaFragment
     let splitState = nfaStatesFactory.getSplitState(e1.start, e2.start)
     e1.outPtrChain.append(e2.outPtrChain)         // Consider both chains
     return NfaFragment(splitState, e1.outPtrChain)
 
-fun getOptional(nfaStatesFactory: @NfaStatesFactory, e: @NfaFragment): NfaFragment
+fun getOptional(nfaStatesFactory: !NfaStatesFactory, e: !NfaFragment): NfaFragment
     let splitState = nfaStatesFactory.getSplitState(e.start)
     e.outPtrChain.append(OutPtrList(splitState.get().out2))   // Add second output of the split state to the out-ptr chain
     return NfaFragment(splitState, e.outPtrChain)
 
-fun getZeroOrMore(nfaStatesFactory: @NfaStatesFactory, e: @NfaFragment): NfaFragment
+fun getZeroOrMore(nfaStatesFactory: !NfaStatesFactory, e: !NfaFragment): NfaFragment
     let splitState = nfaStatesFactory.getSplitState(e.start)
     e.outPtrChain.setFinalValue(splitState)         // Out pointers of the fragment are connected back to the split state
     return NfaFragment(splitState, OutPtrList(splitState.get().out2))
 
-fun getOneOrMore(nfaStatesFactory: @NfaStatesFactory, e: @NfaFragment): NfaFragment
+fun getOneOrMore(nfaStatesFactory: !NfaStatesFactory, e: !NfaFragment): NfaFragment
     let splitState = nfaStatesFactory.getSplitState(e.start)
     e.outPtrChain.setFinalValue(splitState)         // Out pointers of the fragment are connected back to the split state
     return NfaFragment(e.start, OutPtrList(splitState.get().out2))
 
 /// Finalize the current NFA fragment by ending it with a match Nfa state
-fun finalize(this: @NfaFragment, nfaStatesFactory: @NfaStatesFactory)
+fun finalize(this: !NfaFragment, nfaStatesFactory: !NfaStatesFactory)
     outPtrChain.setFinalValue(nfaStatesFactory.getMatchState());
 
-fun nfaFromPostfix(nfaStatesFactory: @NfaStatesFactory, postfix: @StringRef): Ptr(NfaState)
+fun nfaFromPostfix(nfaStatesFactory: !NfaStatesFactory, postfix: StringRef): Ptr(NfaState)
     if ( postfix.size() == 0 )
         return Ptr(NfaState)();
 
@@ -260,10 +260,10 @@ datatype NfaNodeList
     id: Int
     isMatch: Bool
 
-fun ctor(this: @NfaNodeList, noNfaNodes: Int)
+fun ctor(this: !NfaNodeList, noNfaNodes: Int)
     nodes.reserve(noNfaNodes);
 
-fun ctor(this, other: @NfaNodeList)   // move ctor
+fun ctor(this, other: !NfaNodeList)   // move ctor
     this.id ctor other.id
     this.isMatch ctor other.isMatch
     this.nodes ctor
@@ -271,11 +271,11 @@ fun ctor(this, other: @NfaNodeList)   // move ctor
     //this.nodes ctor other.nodes;
 
 [protected]
-    fun ==(this, other: @NfaNodeList): Bool
+    fun ==(this, other: !NfaNodeList): Bool
         return this.isMatch == other.isMatch && this.nodes == other.nodes;
 
 /// Initialize the list to be the epsilon-closure of the given node
-fun initFromState(this: @NfaNodeList, id: Int, start: Ptr(NfaState))
+fun initFromState(this: !NfaNodeList, id: Int, start: Ptr(NfaState))
     this.id = id
     this.isMatch = false
     nodes.clear()
@@ -283,7 +283,7 @@ fun initFromState(this: @NfaNodeList, id: Int, start: Ptr(NfaState))
     sort(nodes.all())
 
 /// Initialize the list as to be the result of moving from the previous list with the given char
-fun initAsNextList(this: @NfaNodeList, id: Int, prev: @NfaNodeList, c: Int)
+fun initAsNextList(this: !NfaNodeList, id: Int, prev: !NfaNodeList, c: Int)
     this.id = id
     this.isMatch = false
     nodes.clear()
@@ -292,7 +292,7 @@ fun initAsNextList(this: @NfaNodeList, id: Int, prev: @NfaNodeList, c: Int)
             this._addState(node.get().out1);
     sort(nodes.all());
 
-fun print(this: @NfaNodeList)
+fun print(this: !NfaNodeList)
     cout << "NFA node list " << id
     if ( this.isMatch )
         cout << " (match)";
@@ -301,7 +301,7 @@ fun print(this: @NfaNodeList)
         cout << " " << n.get().c << " " << mkStreamRefWrapper(n.get());
     cout << "\n";
 
-fun _addState(this: @NfaNodeList, state: Ptr(NfaState))
+fun _addState(this: !NfaNodeList, state: Ptr(NfaState))
     if ( (state isNull) || state.get().listId == id )
         return;
 
@@ -319,7 +319,7 @@ fun _addState(this: @NfaNodeList, state: Ptr(NfaState))
 datatype Transition
     start, end, ch: Int;
 
-fun ctor(this: @Transition, start, end, ch: Int)
+fun ctor(this: !Transition, start, end, ch: Int)
     this.start ctor start
     this.end ctor end
     this.ch ctor ch
@@ -331,7 +331,7 @@ datatype DfaState
     nfaNodes: NfaNodeList
     isMatch: Bool
 
-fun ctor(this: @DfaState, nfaNodes: @NfaNodeList) // moves the nodes list
+fun ctor(this: !DfaState, nfaNodes: !NfaNodeList) // moves the nodes list
     next ctor -1
     this.nfaNodes ctor nfaNodes
     this.isMatch ctor nfaNodes.isMatch
@@ -340,7 +340,7 @@ datatype Automaton
     nfaStatesFactory: NfaStatesFactory
     dfaStates: Vector(DfaState)
 
-fun ctor(this: @Automaton, re: StringRef)
+fun ctor(this: !Automaton, re: StringRef)
     // Convert the regex from infix to postfix notation
     let post = re2post(re)
     if ( post.size() == 0 )
@@ -362,7 +362,7 @@ fun ctor(this: @Automaton, re: StringRef)
     //for i=0..dfaStates.size()
     //    cout << "DFA state " << i << " has " << dfaStates(i).nfaNodes.nodes.size() << " NFA states\n";
 
-fun ctorFromCt(this: @Automaton, src: Automaton ct)
+fun ctorFromCt(this: !Automaton, src: Automaton ct)
     nfaStatesFactory ctor
     dfaStates ctor
     dfaStates resize src.dfaStates.size()
@@ -377,7 +377,7 @@ fun ctorFromCt(this: @Automaton, src: Automaton ct)
             //cout << "State " << ctEval(st) << " is matching" << endl;
 
 [ct]
-fun getTransitions(this: @Automaton): Vector(Transition)
+fun getTransitions(this: @Automaton): Vector(Transition) // TODO (mut)
     var res: Vector(Transition)
     for st = 0..(dfaStates.size()-1)
         for ch = 0..255
@@ -386,7 +386,7 @@ fun getTransitions(this: @Automaton): Vector(Transition)
                 res.pushBack(Transition(Int(st), nextState, ch));
     return res;
 
-fun match(this: @Automaton, str: StringRef): Bool
+fun match(this: !Automaton, str: StringRef): Bool
     if ( dfaStates isEmpty )
         return false;
 
@@ -400,7 +400,7 @@ fun match(this: @Automaton, str: StringRef): Bool
         curStateIdx = nextStateIdx;
     return dfaStates(curStateIdx).isMatch;
 
-fun createDfaStates(this: @Automaton, start: Ptr(NfaState))
+fun createDfaStates(this: !Automaton, start: Ptr(NfaState))
     let noNfaNodes = nfaStatesFactory._numStates
     var tmpList = NfaNodeList(noNfaNodes)
 

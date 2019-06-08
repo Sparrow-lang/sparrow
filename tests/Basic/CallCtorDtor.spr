@@ -17,7 +17,7 @@ fun ctor(this: !MyObj, src: MyObj)
 fun dtor(this: !MyObj)
     writeLn("MyObj.dtor");
 
-fun reconstruct(this: @MyObj)
+fun reconstruct(this: !MyObj)
     this.dtor()
     this.ctor(100)
 

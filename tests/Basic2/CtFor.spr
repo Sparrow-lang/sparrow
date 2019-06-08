@@ -10,7 +10,7 @@ import std.vector
         _min, _max: Int
 
     fun front(this: MyRange) = _min
-    fun popFront(this: @MyRange) { _min += 1; }
+    fun popFront(this: !MyRange) { _min += 1; }
     fun isEmpty(this: MyRange) = _min > _max
 
 fun test1()

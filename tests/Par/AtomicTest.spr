@@ -12,12 +12,12 @@ import std.compilerInfo
 
     [native("rand")] fun rand(): Int
     [native("srand")] fun srand(seed: UInt)
-    [native("time")] fun time(timer: @Int): Int
+    [native("time")] fun time(timer: !Int): Int
 
     datatype UserDefined
         lo, hi: Short
 
-    fun ctor(this: @UserDefined, val: Int)
+    fun ctor(this: !UserDefined, val: Int)
         lo = Short(val % 0xffff)
         hi = Short(val / 0xffff)
     fun >> (os: OutStream)

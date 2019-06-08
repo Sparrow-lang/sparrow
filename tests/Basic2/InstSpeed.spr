@@ -15,11 +15,11 @@ datatype Generic(t: Type, idx: Int ct)
     //fun dtor(this: @Generic)
     //    cout << "dtor " << idx << endl
 
-fun ctor(this: @Generic, n: Int)
+fun ctor(this: !Generic, n: Int)
     x ctor (n + _idx)
     cout << "ctor " << _idx << endl
 
-fun dtor(this: @Generic)
+fun dtor(this: !Generic)
     cout << "dtor " << _idx << endl
 
 fun sprMain

@@ -2,7 +2,7 @@
 import logic.predicates
 //import assert;
 
-fun orbits(a, b: @LStr) = (
+fun orbits(a, b: !LStr) = (
        a /=/ "Mercury"  && b /=/ "Sun"
     || a /=/ "Venus"    && b /=/ "Sun"
     || a /=/ "Earth"    && b /=/ "Sun"
@@ -12,9 +12,9 @@ fun orbits(a, b: @LStr) = (
     || a /=/ "Deimos"   && b /=/ "Mars"
     )
 
-fun planet(p: @LStr) = orbits(p, "Sun")
+fun planet(p: !LStr) = orbits(p, "Sun")
 
-fun satellite(s: @LStr): Predicate
+fun satellite(s: !LStr): Predicate
     var p: LStr
     return orbits(s, p) && planet(p)
 

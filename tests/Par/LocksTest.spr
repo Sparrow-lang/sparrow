@@ -21,7 +21,7 @@ import std.compilerInfo
         sleep(waitTime)
         --numUsers
 
-    fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false)
+    fun doProtectedJob(mutex: !Lockable, useTryLock: Bool = false)
         if !useTryLock
             let lock: ScopedLock(typeOf(mutex)) = mutex
             doCoreJob(1)
@@ -34,7 +34,7 @@ import std.compilerInfo
         amountOfWork: Int
         useTryLock: Bool
 
-    fun ()(this: @Worker)
+    fun ()(this: !Worker)
         for i = 0..amountOfWork
             doProtectedJob(normalMutex, useTryLock)
         //if !useTryLock
@@ -44,7 +44,7 @@ import std.compilerInfo
         amountOfWork, numWorkers, numTryWorkers: Int
         threads: (Thread Ptr) Vector
 
-    fun ctor(this: @WorkManager, amountOfWork, numWorkers, numTryWorkers: Int)
+    fun ctor(this: !WorkManager, amountOfWork, numWorkers, numTryWorkers: Int)
         this.amountOfWork ctor amountOfWork
         this.numWorkers ctor numWorkers
         this.numTryWorkers ctor numTryWorkers
@@ -55,7 +55,7 @@ import std.compilerInfo
             let p: Thread Ptr = new(Thread, Worker(amountOfWork, true))
             threads.pushBack(p)
 
-    fun dtor(this: @WorkManager)
+    fun dtor(this: !WorkManager)
         for t = threads.all
             t.get join
             t.release

@@ -13,7 +13,7 @@ fun getF: Bool
 datatype BoolValue
     b: Bool;
 
-fun ctor(this: @BoolValue, b: Bool)
+fun ctor(this: !BoolValue, b: Bool)
     this.b ctor b
     cout << "C"
     if ( b )

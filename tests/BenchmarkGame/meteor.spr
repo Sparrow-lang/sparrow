@@ -147,12 +147,12 @@ datatype Direction
     using ENE   = Direction(11)
     using numValues = 12
 
-fun ctor(this: @Direction, id: Int)
+fun ctor(this: !Direction, id: Int)
     this.id ctor id;
 
 var pieceDef: StaticArray2d(Direction, 10, 4)
 
-fun setPiece(p: @StaticArray(Direction, 4), a, b, c, d: Direction)
+fun setPiece(p: !StaticArray(Direction, 4), a, b, c, d: Direction)
     { p(0) = a; p(1) = b; p(2) = c; p(3) = d; }
 
 fun ctor
@@ -257,7 +257,7 @@ fun flipPiece(piece: Int)
         p = flip(p);
 
 /* Convenience function to quickly calculate all of the indices for a piece */
-fun calcCellIndices(cell: @StaticArray(Byte, 5), piece: Int, index: Byte)
+fun calcCellIndices(cell: !StaticArray(Byte, 5), piece: Int, index: Byte)
     var hasOddDir = false
     //for i = 0..4
     //{
@@ -277,7 +277,7 @@ fun calcCellIndices(cell: @StaticArray(Byte, 5), piece: Int, index: Byte)
     cell(4) = shift(cell(3), pieceDef(piece)(3))
 
 /* Convenience function to quickly calculate if a piece fits on the board */
-fun cellsFitOnBoard(cell: @StaticArray(Byte, 5), piece: Int): Bool
+fun cellsFitOnBoard(cell: !StaticArray(Byte, 5), piece: Int): Bool
     return(!outOfBounds(cell(0), pieceDef(piece)(0))
         && !outOfBounds(cell(1), pieceDef(piece)(1))
         && !outOfBounds(cell(2), pieceDef(piece)(2))
@@ -288,7 +288,7 @@ fun cellsFitOnBoard(cell: @StaticArray(Byte, 5), piece: Int): Bool
  * I use the lowest index that a piece occupies as the index for looking up
  * the piece in the solve function.
  */
-fun minimumOfCells(cell: @StaticArray(Byte, 5)): Byte
+fun minimumOfCells(cell: !StaticArray(Byte, 5)): Byte
     // TODO: Use algo here
     var minimum = cell(0)
     minimum = Byte(ife(cell(1) < minimum, cell(1), minimum))
@@ -301,7 +301,7 @@ fun minimumOfCells(cell: @StaticArray(Byte, 5)): Byte
  * Used to later reduce the amount of time searching for open cells in the
  * solve function.
  */
-fun firstEmptyCell(cell: @StaticArray(Byte, 5), min: Byte): Byte
+fun firstEmptyCell(cell: !StaticArray(Byte, 5), min: Byte): Byte
     while ( min == cell(0) || min == cell(1) || min == cell(2)
          || min == cell(3) || min == cell(4) )
         ++min;
@@ -310,7 +310,7 @@ fun firstEmptyCell(cell: @StaticArray(Byte, 5), min: Byte): Byte
 /* Generate the unsigned long long int that will later be anded with the
  * board to determine if it fits.
  */
-fun bitmaskFromCells(cell: @StaticArray(Byte, 5)): ULong
+fun bitmaskFromCells(cell: !StaticArray(Byte, 5)): ULong
    var pieceMask: ULong
    for c = cell.all
       pieceMask !|!= (ULong(1L) !<<! c);
@@ -327,7 +327,7 @@ fun recordPiece(piece, min: Int, firstEmpty: Byte, pieceMask: ULong)
 /* Fill the entire board going cell by cell.  If any cells are "trapped"
  * they will be left alone.
  */
-fun fillContiguousSpace(board: @StaticArray(Byte, nPositions), index: Byte)
+fun fillContiguousSpace(board: !StaticArray(Byte, nPositions), index: Byte)
     if ( board(index) == 1 )
         return;
     board(index) = Byte(1)
@@ -345,7 +345,7 @@ fun fillContiguousSpace(board: @StaticArray(Byte, nPositions), index: Byte)
  * trap 5 cells in the corner, but piece 3 can fit in those cells, or piece 0
  * can split the board in half where both halves are viable.
  */
-fun hasIsland(cell: @StaticArray(Byte, 5), piece: Int): Bool
+fun hasIsland(cell: !StaticArray(Byte, 5), piece: Int): Bool
     var tempBoard: StaticArray(Byte, nPositions)
 
     for c = cell.all
@@ -553,14 +553,14 @@ fun solve(depth, cell: Int)
     ;
 
 /* qsort comparator - used to find first and last solutions */
-fun solutionSort(l,r: @StaticArray(Byte, nPositions)): Bool
+fun solutionSort(l,r: !StaticArray(Byte, nPositions)): Bool
     for i = 0..nPositions
         if ( l(i) != r(i) )
             return l(i) < r(i);
     return false;
 
 /* pretty print a board in the specified hexagonal format */
-fun pretty(s: @StaticArray(Byte, nPositions))
+fun pretty(s: !StaticArray(Byte, nPositions))
     for i = 0..nPositions ../ nPieces
         cout<<s(i+0)<<' '<<s(i+1)<<' '<<s(i+2)<<' '<<s(i+3)<<' '<<s(i+4)
         cout<<endl<<' '

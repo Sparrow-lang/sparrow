@@ -1,7 +1,7 @@
 //!!
 import logic.prologFrontend
 
-fun fib(p_1: @LInt, p_2: @LInt): Predicate
+fun fib(p_1: !LInt, p_2: !LInt): Predicate
     var l2_X2: LInt
     var l2_Y2: LInt
     var l2_X1: LInt

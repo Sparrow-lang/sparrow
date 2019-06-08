@@ -28,16 +28,16 @@ datatype RandTableRange
     using numEntries = 4095
     lookup: Array((Float rt)*(Char rt))
 
-fun ctor(this: @RandTableRange, data: Range)
+fun ctor(this: !RandTableRange, data: Range)
     lookup.ctor(numEntries+1)
     for i = 0...numEntries
         while i > data.front().v1*numEntries
             data.popFront();
         lookup(i) = data.front;
 
-fun isEmpty(this: @RandTableRange)     = false
-fun popFront(this: @RandTableRange)    {}
-fun front(this: @RandTableRange): Char
+fun isEmpty(this: !RandTableRange)     = false
+fun popFront(this: !RandTableRange)    {}
+fun front(this: !RandTableRange): Char
     let r = nextRandom
     var idx: SizeType = r*numEntries
     while lookup(idx).v1 < r

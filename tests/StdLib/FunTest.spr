@@ -20,7 +20,7 @@ fun stdFun(s: String): String
 datatype FunctorInt
     storedNum: Int
 
-fun ()(this: @FunctorInt, n: Int): Int
+fun ()(this: !FunctorInt, n: Int): Int
     cout << "Functor(" << storedNum << ")(" << n << ") called" << flush
     return n*storedNum
 
@@ -28,19 +28,19 @@ fun ()(this: @FunctorInt, n: Int): Int
 datatype Functor
     storedString: String
 
-fun ()(this: @Functor, s: String): String
+fun ()(this: !Functor, s: String): String
     cout << "Functor(" << storedString << ")(" << s << ") called" << flush
     return "Functor"
 
 datatype BigFunctor
 
-fun () (this: @BigFunctor, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10: Int): Int
+fun () (this: !BigFunctor, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10: Int): Int
     return p1+p2+p3+p4+p5+p6+p7+p8+p9+p10
 
 [initCtor] datatype Counter
     count: Int
 
-fun ()(this: @Counter): Int = ++count
+fun ()(this: !Counter): Int = ++count
 
 fun sprMain
     if programArgs.size() < 2

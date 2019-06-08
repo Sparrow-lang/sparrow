@@ -8,14 +8,14 @@ concept MyConcept(x)
 fun getCtData(val: Int): TestData
     return TestData(val)
 
-fun testConcept(x: @MyConcept)
+fun testConcept(x: MyConcept)
     ;
 
-fun copyFromtCt(dest: @MyConcept, src: MyConcept ct)
+fun copyFromtCt(dest: !MyConcept, src: MyConcept ct)
     dest.data = src.data
 
 fun sprMain
-    let x: TestData
+    var x: TestData
 
     testConcept(x)
     testConcept(getCtData(3))

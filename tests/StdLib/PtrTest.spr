@@ -10,21 +10,21 @@ fun dtor(this: MyObj)
     cout << x
     cout << " destroyed" << endl
 
-fun >>(this: @MyObj, os: @OutStream)
+fun >>(this: !MyObj, os: !OutStream)
     os << "MyObj(" << x << ")";
 
-fun print(this: @MyObj)
+fun print(this: !MyObj)
     cout << "MyObj.print" << endl;
-fun print(this: @MyObj, arg: StringRef)
+fun print(this: !MyObj, arg: StringRef)
     cout << "MyObj.print(" << arg << ")" << endl;
 
 datatype Foo
     obj: MyObj;
 
-fun ctor(this: @Foo, x: Int)
+fun ctor(this: !Foo, x: Int)
     obj ctor x;
 
-fun get(this: @Foo) = obj
+fun get(this: !Foo) = obj
 
 fun sprMain
     if ( programArgs.size() < 2 )
@@ -41,7 +41,7 @@ fun sprMain
     else if n == 8; test8
 
 [native("malloc")] fun mallocRt(size: SizeType): @Byte
-[native("free")] fun freeRt(p: @Byte)
+[native("free")] fun freeRt(p: !Byte)
 
 fun newObj(x: Int): @MyObj
     var ptr: @Byte
@@ -56,7 +56,7 @@ fun newObj(x: Int): @MyObj
 
     return oPtr
 
-fun delObj(oPtr: @MyObj)
+fun delObj(oPtr: !MyObj)
     oPtr.dtor()
 
     var ptr: @Byte

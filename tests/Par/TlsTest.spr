@@ -37,7 +37,7 @@ import std.compilerInfo
         numThreads: Int
         threads: (Thread Ptr) Vector
 
-    fun ctor(this: @WorkManager, numThreads: Int)
+    fun ctor(this: !WorkManager, numThreads: Int)
         this.numThreads ctor numThreads
 
         let i1 = 10
@@ -53,7 +53,7 @@ import std.compilerInfo
             let p: Thread Ptr = new(Thread, PtrWorker(pi1, pi2))
             threads.pushBack(p)
 
-    fun dtor(this: @WorkManager)
+    fun dtor(this: !WorkManager)
         for t = threads.all
             t.get join
             t.release

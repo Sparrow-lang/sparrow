@@ -8,21 +8,21 @@ datatype Tls(T: Type) if sizeOf(T) <= sizeOf(@Byte)
 
     using ValueType = T
 
-fun ctor(this: @Tls)
+fun ctor(this: !Tls)
     [ct] if TypeOp.isRef(ValueType)
         _tls ctor \_destructPtr(ValueType, null)
     else
         _tls ctor
 
-fun =(this: @Tls, other: typeOf(this))
+fun =(this: !Tls, other: typeOf(this))
     _tls setValue (other._tls getValue)
-fun =(this: @Tls, val: this.ValueType)
+fun =(this: !Tls, val: this.ValueType)
     [ct] if TypeOp.isRef(ValueType)
         _tls setValue reinterpretCast(@ @Byte, val)
     else
         _tls setValue reinterpretCast(@Byte, val)
 
-fun get(this: @Tls): ValueType
+fun get(this: Tls): ValueType
     [ct] if TypeOp.isRef(ValueType)
         return reinterpretCast(ValueType, _tls getValue)
     else
@@ -38,20 +38,20 @@ package _Impl
     datatype TlsCommon
         key: KeyT
 
-    fun ctor(this: @TlsCommon)
+    fun ctor(this: !TlsCommon)
         pthread_key_create(key, DtorFun())
-    fun ctor(this: @TlsCommon, dtorFun: DtorFun)
+    fun ctor(this: !TlsCommon, dtorFun: DtorFun)
         pthread_key_create(key, dtorFun)
 
-    fun dtor(this: @TlsCommon)
+    fun dtor(this: !TlsCommon)
         pthread_key_delete(key)
 
-    fun setValue(tls: @TlsCommon, val: @Byte) = pthread_setspecific(tls.key, val)
-    fun getValue(tls: @TlsCommon): @Byte = pthread_getspecific(tls.key)
+    fun setValue(tls: TlsCommon, val: @Byte) = pthread_setspecific(tls.key, val)
+    fun getValue(tls: TlsCommon): @Byte = pthread_getspecific(tls.key)
 
     using KeyT = ULong
 
-    [native("pthread_key_create")] fun pthread_key_create(k: @KeyT, dtorFun: DtorFun): Int
+    [native("pthread_key_create")] fun pthread_key_create(k: !KeyT, dtorFun: DtorFun): Int
     [native("pthread_key_delete")] fun pthread_key_delete(k: KeyT): Int
     [native("pthread_setspecific")] fun pthread_setspecific(k: KeyT, val: @Byte): Int
     [native("pthread_getspecific")] fun pthread_getspecific(k: KeyT): @Byte

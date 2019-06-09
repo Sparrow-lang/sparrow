@@ -7,9 +7,9 @@ import std.string
 datatype EmptyTask
     prefix: TaskPrefix
 
-fun execute(task: @EmptyTask) {}
+fun execute(task: !EmptyTask) {}
 
-fun >>(t: EmptyTask, os: @OutStream)
+fun >>(t: EmptyTask, os: !OutStream)
     os << "EmptyTask"
 
-fun description(task: @EmptyTask): String  = "EmptyTask"
+fun description(task: !EmptyTask): String  = "EmptyTask"

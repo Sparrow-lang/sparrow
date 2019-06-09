@@ -28,7 +28,7 @@ import time = time
         return handlePrologCode(str, loc, ctx)
     ;
 
-[ct] fun handlePrologCode(code: @String, location: meta.Location, context: meta.CompilationContext): meta.AstNode
+[ct] fun handlePrologCode(code: !String, location: meta.Location, context: meta.CompilationContext): meta.AstNode
     //cout << "(" << location.startLineNo << ":" << location.startColNo << " - " << location.endLineNo << ":" << location.endColNo << ')' << endl << flush;
     let t: time.Timer
     var errorReporter: CompilerErrorReporter
@@ -42,7 +42,7 @@ import time = time
     cout << "Elapsed: " << t.elapsed() << endl << flush
     return res
 
-[ct] fun prologToString(source: @String): String
+[ct] fun prologToString(source: !String): String
     var errorReporter = mkConsoleErrorReporter(source.all())
     var lexer = mkLexer(source.all(), errorReporter)
     var parser = mkParser(lexer, errorReporter)

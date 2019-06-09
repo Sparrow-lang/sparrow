@@ -20,9 +20,9 @@ datatype TaskSystem
     idleCounter: IdleCounter
 
 [protected]
-    fun ctor(this: @TaskSystem) {}
+    fun ctor(this: !TaskSystem) {}
 
-    fun dtor(this: @TaskSystem) {}
+    fun dtor(this: !TaskSystem) {}
 
 var globalTaskSystem: TaskSystem Ptr
 
@@ -56,12 +56,12 @@ fun createWorker(ts: TaskSystem Ptr): Worker Ptr
 // TODO: make it random
 var cnt: Int = 0
 
-fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue
+fun getRandomTaskQueue(ts: !TaskSystem): @TaskQueue
     // TODO: make the selection truly random
     let worker: Worker Ptr = ts.workers(++cnt % (ts.workers size))
     return worker.get().work
 
-fun onTaskAvailable(ts: @TaskSystem)
+fun onTaskAvailable(ts: !TaskSystem)
     // Do something only if we have at least one idle worker
     if ts.idleCounter hasIdle
         for w: Worker Ptr = ts.workers.all
@@ -70,4 +70,4 @@ fun onTaskAvailable(ts: @TaskSystem)
                 return
 
 //! Get the number of currently available workers
-fun numAvailableWorkers(ts: @TaskSystem): SizeType = (ts.workers size) - (ts.idleCounter numIdleWorkers)
+fun numAvailableWorkers(ts: !TaskSystem): SizeType = (ts.workers size) - (ts.idleCounter numIdleWorkers)

@@ -36,13 +36,13 @@ using ckIsExpr = 9
         args: Vector(SharedPtr(Expression))
         predName: String
 
-    fun ctor(this: @Condition, loc: @Location, predName: @String, args: @Vector(SharedPtr(Expression)))
+    fun ctor(this: !Condition, loc: !Location, predName: !String, args: !Vector(SharedPtr(Expression)))
         this.kind ctor ckPredCall
         this.loc ctor loc
         this.predName ctor predName
         this.args ctor args
 
-    fun ctor(this: @Condition, loc: @Location, isLeft, isRight: @SharedPtr(Expression))
+    fun ctor(this: !Condition, loc: !Location, isLeft, isRight: !SharedPtr(Expression))
         this.kind ctor ckIsExpr
         this.loc ctor loc
         this.predName ctor
@@ -59,7 +59,7 @@ using ckIsExpr = 9
         typeSetIdx: Int
         paramIdx: Int
 
-    fun ctor(this: @Expression, kind: Int, loc: @Location)
+    fun ctor(this: !Expression, kind: Int, loc: !Location)
         this.kind ctor kind
         this.loc ctor loc
         this.data ctor
@@ -68,7 +68,7 @@ using ckIsExpr = 9
         this.typeSetIdx ctor -1
         this.paramIdx ctor -1
 
-    fun ctor(this: @Expression, kind: Int, loc: @Location, data: @String)
+    fun ctor(this: !Expression, kind: Int, loc: !Location, data: !String)
         this.kind ctor kind
         this.loc ctor loc
         this.data ctor data
@@ -77,7 +77,7 @@ using ckIsExpr = 9
         this.typeSetIdx ctor -1
         this.paramIdx ctor -1
 
-    fun ctor(this: @Expression, kind: Int, loc: @Location, left, right: @SharedPtr(Expression))
+    fun ctor(this: !Expression, kind: Int, loc: !Location, left, right: !SharedPtr(Expression))
         this.kind ctor kind
         this.loc ctor loc
         this.data ctor
@@ -86,24 +86,24 @@ using ckIsExpr = 9
         this.typeSetIdx ctor -1
         this.paramIdx ctor -1
 
-    fun mkAtom(loc: @Location, atom: @String): ExpressionPtr = mkShared(Expression, ekAtom, loc, atom)
-    fun mkNumber(loc: @Location, data: @String): ExpressionPtr = mkShared(Expression, ekNumber, loc, data)
-    fun mkVar(loc: @Location, varName: @String): ExpressionPtr = mkShared(Expression, ekVar, loc, varName)
-    fun mkAntiQuote(loc: @Location, aq: @String): ExpressionPtr = mkShared(Expression, ekAntiQuote, loc, aq)
+    fun mkAtom(loc: !Location, atom: !String): ExpressionPtr = mkShared(Expression, ekAtom, loc, atom)
+    fun mkNumber(loc: !Location, data: !String): ExpressionPtr = mkShared(Expression, ekNumber, loc, data)
+    fun mkVar(loc: !Location, varName: !String): ExpressionPtr = mkShared(Expression, ekVar, loc, varName)
+    fun mkAntiQuote(loc: !Location, aq: !String): ExpressionPtr = mkShared(Expression, ekAntiQuote, loc, aq)
 
-    fun mkOpPlus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpPlus, loc, l, r)
-    fun mkOpMinus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpMinus, loc, l, r)
-    fun mkOpMul(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpMul, loc, l, r)
-    fun mkOpDiv(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpDiv, loc, l, r)
+    fun mkOpPlus(loc: !Location, l, r: !ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpPlus, loc, l, r)
+    fun mkOpMinus(loc: !Location, l, r: !ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpMinus, loc, l, r)
+    fun mkOpMul(loc: !Location, l, r: !ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpMul, loc, l, r)
+    fun mkOpDiv(loc: !Location, l, r: !ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpDiv, loc, l, r)
 
-    fun mkPredCall(loc: @Location, predName: @String, args: @Vector(ExpressionPtr)): ConditionPtr = mkShared(Condition, loc, predName, args)
-    fun mkIsExpr(loc: @Location, l, r: @ExpressionPtr): ConditionPtr = mkShared(Condition, loc, l, r)
+    fun mkPredCall(loc: !Location, predName: !String, args: !Vector(ExpressionPtr)): ConditionPtr = mkShared(Condition, loc, predName, args)
+    fun mkIsExpr(loc: !Location, l, r: !ExpressionPtr): ConditionPtr = mkShared(Condition, loc, l, r)
 
-    fun >>(this: @PrologProgram, os: @OutStream)
+    fun >>(this: !PrologProgram, os: !OutStream)
         for p = predicates.all()
             os << p << endl
 
-    fun >>(this: @PredicateClause, os: @OutStream)
+    fun >>(this: !PredicateClause, os: !OutStream)
         os << name << "("
         for i = 0..args.size()
             if i>0
@@ -116,7 +116,7 @@ using ckIsExpr = 9
             os << conditions(i).get()
         os << "."
 
-    fun >>(this: @Condition, os: @OutStream)
+    fun >>(this: !Condition, os: !OutStream)
         if kind == ckPredCall
             os << predName << '('
             for i = 0..args.size()
@@ -127,7 +127,7 @@ using ckIsExpr = 9
         else
             os << args(0).get() << " is " << args(1).get()
 
-    fun >>(this: @Expression, os: @OutStream)
+    fun >>(this: !Expression, os: !OutStream)
         if kind == ekAtom
             os << data
         else if kind == ekNumber

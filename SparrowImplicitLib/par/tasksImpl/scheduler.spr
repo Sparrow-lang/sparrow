@@ -89,7 +89,7 @@ fun schedEnqueue(task: TaskPtr)
 // Task execution logic
 
 [native('par.tasksImpl.scheduler.schedDoWait')]
-fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr)
+fun schedDoWait(worker: !Worker, toExecute, waitingTask: TaskPtr)
 
     using maxRetriesBeforeGoingIdle = 1
     var numRetries = maxRetriesBeforeGoingIdle
@@ -133,7 +133,7 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr)
             let numStealAttempts = 2*(worker.taskSystem numAvailableWorkers)
             for i = 1..numStealAttempts
                 // Get a queue from another worker; chose it randomly
-                let otherQueue: @TaskQueue = (worker.taskSystem getRandomTaskQueue)
+                var otherQueue: @TaskQueue = (worker.taskSystem getRandomTaskQueue)
                 // Get item from the back: try to take as much work as possible
                 toExecute = (otherQueue popBack)
                 if toExecute isSet
@@ -181,7 +181,7 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr)
     [ct] if isValidAndTrue(traceCalls)
         tracer(worker) << "task " << waitingTask.get() << " can continue; remaining work: " << TasksPrinter(TaskPtr(), worker.work) << endl
 
-fun executeTask(task: @TaskPrefix): TaskPtr
+fun executeTask(task: !TaskPrefix): TaskPtr
     var taskWorker: @Worker = task worker
 
     // TODO: check cancellation

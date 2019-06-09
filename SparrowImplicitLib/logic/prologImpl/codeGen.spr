@@ -4,7 +4,7 @@ import ir
 package meta
     import meta.sparrowNodes, meta.featherNodes, meta.compiler;
 
-[ct] fun genProlog(sps: @SparrowPrologSystem): meta.AstNode = Impl.genPrologSystem(sps)
+[ct] fun genProlog(sps: !SparrowPrologSystem): meta.AstNode = Impl.genPrologSystem(sps)
 
 package Impl
     using meta.AstNode
@@ -12,7 +12,7 @@ package Impl
 
     [ct] let nullNode: AstNode
 
-    [ct] fun genPrologSystem(sps: @SparrowPrologSystem): AstNode
+    [ct] fun genPrologSystem(sps: !SparrowPrologSystem): AstNode
         let l = sps.loc
         var resNodes: Vector(AstNode)
         resNodes.reserve(3 * sps.predicates.size() + 3)
@@ -30,7 +30,7 @@ package Impl
 
         return mkNodeList(l, resNodes.all);
 
-    [ct] fun genPredicate(pred: @SparrowPredicate, resNodes: @Vector(AstNode))
+    [ct] fun genPredicate(pred: !SparrowPredicate, resNodes: !Vector(AstNode))
         let genNative = allowNativeCodeGen && pred.canBeNative
 
         let locPred = pred.firstClause.get().loc
@@ -83,7 +83,7 @@ package Impl
             resNodes.pushBack(genWrapperPredicate(pred))
         ;
 
-    [ct] fun genParameters(pred: @SparrowPredicate, genNative: Bool): AstNode
+    [ct] fun genParameters(pred: !SparrowPredicate, genNative: Bool): AstNode
         let locPred = pred.firstClause.get().loc
         let params = mkNodeList(locPred, AstNodeRange(), true)
         for i = 0..pred.paramVars.size()
@@ -96,7 +96,7 @@ package Impl
             addToNodeList(params, mkSprParameter(locParam, paramName.asStringRef(), typeName, nullNode))
         return params
 
-    [ct] fun genClause(pred: @SparrowPredicate, clause: @PredicateClause): AstNode
+    [ct] fun genClause(pred: !SparrowPredicate, clause: !PredicateClause): AstNode
         var res = nullNode
         res = genBoundArgs(pred, clause)
         res = genConditions(pred, clause, res)
@@ -105,7 +105,7 @@ package Impl
             res = mkFunApplication(loc, mkIdentifier(loc, "mkTrue"), nullNode)
         return res
 
-    [ct] fun genBoundArgs(pred: @SparrowPredicate, clause: @PredicateClause): AstNode
+    [ct] fun genBoundArgs(pred: !SparrowPredicate, clause: !PredicateClause): AstNode
         let genNative = allowNativeCodeGen && pred.canBeNative
 
         var res = nullNode
@@ -133,7 +133,7 @@ package Impl
             ;
         return res
 
-    [ct] fun genConditions(pred: @SparrowPredicate, clause: @PredicateClause, prevCond: AstNode): AstNode
+    [ct] fun genConditions(pred: !SparrowPredicate, clause: !PredicateClause, prevCond: AstNode): AstNode
         for cond: @ConditionPtr = clause.conditions.all()
             let thisCond = nullNode
             if ( cond.get().kind == ckPredCall )
@@ -144,7 +144,7 @@ package Impl
             prevCond = chainConditions(cond.get().loc, prevCond, thisCond);
         return prevCond
 
-    [ct] fun chainConditions(loc: @Location, prev, cur: AstNode): AstNode
+    [ct] fun chainConditions(loc: !Location, prev, cur: AstNode): AstNode
         if ( cur isSet )
             if ( prev isNull )
                 prev = cur;
@@ -152,7 +152,7 @@ package Impl
                 prev = mkInfixOp(loc, "&&", prev, cur);
         return prev
 
-    [ct] fun genPredCall(pred: @SparrowPredicate, clause: @PredicateClause, predCall: @Condition): AstNode
+    [ct] fun genPredCall(pred: !SparrowPredicate, clause: !PredicateClause, predCall: !Condition): AstNode
         let loc = predCall.loc
 
         let genNative = allowNativeCodeGen && pred.canBeNative
@@ -177,14 +177,14 @@ package Impl
             funName = mkIdentifier(loc, predCall.predName.asStringRef());
         return mkFunApplication(loc, funName, argsAst);
 
-    [ct] fun genIsExpr(pred: @SparrowPredicate, clause: @PredicateClause, isExpr: @Condition): AstNode
+    [ct] fun genIsExpr(pred: !SparrowPredicate, clause: !PredicateClause, isExpr: !Condition): AstNode
         let genNative = allowNativeCodeGen && pred.canBeNative
         let op = ife(genNative, "=/", "/=/")
         return mkInfixOp(isExpr.loc, op,
             genExpr(pred, isExpr.args(0).get()),
             genExpr(pred, isExpr.args(1).get()))
 
-    [ct] fun genExpr(pred: @SparrowPredicate, expr: @Expression): AstNode
+    [ct] fun genExpr(pred: !SparrowPredicate, expr: !Expression): AstNode
         let genNative = allowNativeCodeGen && pred.canBeNative
         let loc = expr.loc
         if ( expr.kind == ekAtom )
@@ -206,7 +206,7 @@ package Impl
         assert("Invalid expression kind while generating code" != "")
         return nullNode
 
-    [ct] fun generateNodeForSparrowExp(loc: meta.Location, exp: @String): AstNode
+    [ct] fun generateNodeForSparrowExp(loc: meta.Location, exp: !String): AstNode
         return meta.parseSprExpression(loc, exp.asStringRef());
         //let sz = exp.size();
         //if ( sz == 0 )
@@ -218,7 +218,7 @@ package Impl
 
         //return mkIdentifier(loc, exp.asStringRef());
 
-    [ct] fun getTypeName(pred: @SparrowPredicate, expr: @Expression, addRef: Bool, genNative: Bool): AstNode
+    [ct] fun getTypeName(pred: !SparrowPredicate, expr: !Expression, addRef: Bool, genNative: Bool): AstNode
         assert(expr.typeSetIdx >= 0)
         let typeSet: @LTypeSet = pred.typeSets(expr.typeSetIdx)
         var str: StringRef
@@ -233,7 +233,7 @@ package Impl
             res = mkPrefixOp(loc, "@", res);
         return res;
 
-    [ct] fun genWrapperClass(pred: @SparrowPredicate): AstNode
+    [ct] fun genWrapperClass(pred: !SparrowPredicate): AstNode
         let loc = pred.firstClause.get().loc
 
         var children = mkNodeList(loc, AstNodeRange(), true)
@@ -245,7 +245,7 @@ package Impl
         let clsName = pred.name + "_pred_wrapper"
         return mkSprDatatype(loc, clsName.asStringRef(), nullNode, nullNode, nullNode, children)
 
-    [ct] fun genWrapperClassVars(pred: @SparrowPredicate, classChildren: @AstNode)
+    [ct] fun genWrapperClassVars(pred: !SparrowPredicate, classChildren: !AstNode)
         for i = 0..pred.paramVars.size()
             let pe: @Expression = pred.paramVars(i).expr.get()
             let paramName = String("p_") + intToString(Int(i+1))
@@ -253,7 +253,7 @@ package Impl
             let typeName = getTypeName(pred,pe, false, false)
             addToNodeList(classChildren, mkSprVariable(locVar, paramName.asStringRef(), typeName, nullNode))
         ;
-    [ct] fun genWrapperClassCtor(pred: @SparrowPredicate): AstNode
+    [ct] fun genWrapperClassCtor(pred: !SparrowPredicate): AstNode
         let loc = pred.firstClause.get().loc
 
         // Create the body
@@ -271,7 +271,7 @@ package Impl
         // Finally create the function node
         let paramsNode = genParameters(pred, false)
         return mkSprFunction(loc, "ctor", paramsNode, nullNode, body, nullNode)
-    [ct] fun genWrapperClassCallOper(pred: @SparrowPredicate): AstNode
+    [ct] fun genWrapperClassCallOper(pred: !SparrowPredicate): AstNode
         let loc = pred.firstClause.get().loc
         var bodyNodes: Vector(AstNode)
         bodyNodes.reserve(pred.arity + 1)
@@ -332,7 +332,7 @@ package Impl
         let body = mkLocalSpace(loc, bodyNodes.all)
         let returnType = mkIdentifier(loc, "Bool")
         return mkSprFunction(loc, "()", nullNode, returnType, body, nullNode)
-    [ct] fun genWrapperPredicate(pred: @SparrowPredicate): AstNode
+    [ct] fun genWrapperPredicate(pred: !SparrowPredicate): AstNode
         let loc = pred.firstClause.get().loc
 
         // Create the function application to call the predicate wrapper ctor

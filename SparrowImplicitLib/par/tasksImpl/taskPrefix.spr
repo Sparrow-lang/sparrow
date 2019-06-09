@@ -35,7 +35,7 @@ datatype TaskPrefix
     /*private*/ desc: String
     /*private*/ depth: Int
 
-fun >>(t: @TaskPrefix, os: @OutStream)
+fun >>(t: TaskPrefix const, os: !OutStream)
     if t === null
         os << "<null>"
     else
@@ -43,14 +43,14 @@ fun >>(t: @TaskPrefix, os: @OutStream)
             os << '"' << t.desc << '"'
         os << '<' << mkStreamRefWrapper(t) << ", " << (t.depth) << "," << (t.refCount load) << '>'
 
-fun refCount(task: @TaskPrefix): Int = task.refCount load
+fun refCount(task: !TaskPrefix): Int = task.refCount load
 
-fun setRefCount(task: @TaskPrefix, count: Int) { task.refCount = count; }
-fun addRefCount(task: @TaskPrefix, count: Int) { task.refCount += count; }
-fun incrementRefCount(task: @TaskPrefix) = ++task.refCount
-fun decrementRefCount(task: @TaskPrefix) = --task.refCount
+fun setRefCount(task: !TaskPrefix, count: Int) { task.refCount = count; }
+fun addRefCount(task: !TaskPrefix, count: Int) { task.refCount += count; }
+fun incrementRefCount(task: !TaskPrefix) = ++task.refCount
+fun decrementRefCount(task: !TaskPrefix) = --task.refCount
 
-fun assertValid(task: @TaskPrefix)
+fun assertValid(task: !TaskPrefix)
     [ct] if isValidAndTrue(DEBUG)
         using ExecuteFnType = FunctionPtr(Null rt, @TaskPrefix)
 

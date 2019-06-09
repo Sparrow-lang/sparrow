@@ -8,20 +8,20 @@ import config
 datatype Semaphore
     _handle: _Impl.SemaphoreT
 
-fun ctor(this: @Semaphore, startValue: UInt = 0)
+fun ctor(this: !Semaphore, startValue: UInt = 0)
     _handle ctor
     let res = _Impl.semaphore_create(_Impl.mach_task_self(), _handle, _Impl.SYNC_POLICY_FIFO, Int(startValue))
 
-fun dtor(this: @Semaphore)
+fun dtor(this: !Semaphore)
     _Impl.semaphore_destroy(_Impl.mach_task_self(), _handle)
 
 //! Increments the counter of the semaphore
-fun release(s: @Semaphore)
+fun release(s: !Semaphore)
     _Impl.semaphore_signal(s._handle)
 
 //! Decrements the semaphore counter
 //! If the counter reaches zero, the call blocks until somebody calls 'release'
-fun acquire(s: @Semaphore)
+fun acquire(s: !Semaphore)
     while 0 != _Impl.semaphore_wait(s._handle)
         /*keep trying*/;
 
@@ -31,14 +31,14 @@ package _Impl
     using SYNC_POLICY_FIFO = 0
 
     [native("mach_task_self")] fun mach_task_self(): TaskT
-    [native("semaphore_create")] fun semaphore_create(task: TaskT, s: @SemaphoreT, policy, value: Int): Int
+    [native("semaphore_create")] fun semaphore_create(task: TaskT, s: !SemaphoreT, policy, value: Int): Int
     [native("semaphore_destroy")] fun semaphore_destroy(task: TaskT, s: SemaphoreT): Int
     [native("semaphore_signal")] fun semaphore_signal(s: SemaphoreT): Int
     [native("semaphore_wait")] fun semaphore_wait(s: SemaphoreT): Int
 
     //using SemType = Int;
 
-    //[native("sem_init")] fun sem_init(s: @SemType, pshared: Int, value: UInt): Int;
-    //[native("sem_destroy")] fun sem_destroy(s: @SemType): Int;
-    //[native("sem_wait")] fun sem_wait(s: @SemType): Int;
-    //[native("sem_post")] fun sem_post(s: @SemType): Int;
+    //[native("sem_init")] fun sem_init(s: !SemType, pshared: Int, value: UInt): Int;
+    //[native("sem_destroy")] fun sem_destroy(s: !SemType): Int;
+    //[native("sem_wait")] fun sem_wait(s: !SemType): Int;
+    //[native("sem_post")] fun sem_post(s: !SemType): Int;

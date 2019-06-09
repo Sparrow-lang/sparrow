@@ -3,51 +3,51 @@ module logic.recurse
 import predicates
 import std.bind
 
-fun rec(pred: @AnyType) \
+fun rec(pred: !AnyType) \
     = _mkRecurse(mkBindAll(pred)) \
     if isValid(pred())
-fun rec(pred, a1: @AnyType) \
+fun rec(pred, a1: !AnyType) \
     = _mkRecurse(mkBindAll(pred, mkLRef(a1))) \
     if isValid(pred(a1))
-fun rec(pred, a1, a2: @AnyType) \
+fun rec(pred, a1, a2: !AnyType) \
     = _mkRecurse(mkBindAll(pred, a1, mkLRef(a2))) \
     if isValid(pred(a1, a2))
-fun rec(pred, a1, a2, a3: @AnyType) \
+fun rec(pred, a1, a2, a3: !AnyType) \
     = _mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2), mkLRef(a3))) \
     if isValid(pred(a1, a2, a3))
-fun rec(pred, a1, a2, a3, a4: @AnyType) \
+fun rec(pred, a1, a2, a3, a4: !AnyType) \
     = _mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2), mkLRef(a3), mkLRef(a4))) \
     if isValid(pred(a1, a2, a3, a4))
-fun rec(pred, a1, a2, a3, a4, a5: @AnyType) \
+fun rec(pred, a1, a2, a3, a4, a5: !AnyType) \
     = _mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2), mkLRef(a3), mkLRef(a4), mkLRef(a5))) \
     if isValid(pred(a1, a2, a3, a4, a5))
 
-fun _mkRecurse(predGenerator: @AnyType) = Recurse(-@typeOf(predGenerator))(predGenerator)
+fun _mkRecurse(predGenerator: !AnyType) = Recurse(-@typeOf(predGenerator))(predGenerator)
 
 datatype Recurse(predGeneratorType: Type)
     _relation: Predicate
     _predGenerator: predGeneratorType
     using _PredGen = predGeneratorType
 
-fun ctor(this: @Recurse, other: @Recurse)
+fun ctor(this: !Recurse, other: !Recurse)
     this._relation ctor other._relation
     this._predGenerator ctor other._predGenerator
     [ct] if isValid(logicDebug)
         cout << "Recurse.copy ctor: " << this << "\n"
-fun ctor(this: @Recurse, predGenerator: @this._PredGen)
+fun ctor(this: !Recurse, predGenerator: !this._PredGen)
     this._relation ctor
     this._predGenerator ctor predGenerator
     [ct] if isValid(logicDebug)
         cout << "Recurse.ctor: " << this << "\n"
 
-fun ()(this: @Recurse): Bool
+fun ()(this: !Recurse): Bool
     if _relation.isNull()
         _relation = _predGenerator()
     [ct] if isValid(logicDebug)
         cout << "Recurse.(): " << this << "\n"
     return _relation()
 
-fun >>(this: @Recurse, os: @OutStream)
+fun >>(this: !Recurse, os: !OutStream)
     os << "Recurse(this=" << mkStreamRefWrapper(this) \
        << ", fun=" << _relation
     [ct] if isValid( os << _predGenerator )

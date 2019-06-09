@@ -12,7 +12,7 @@ using allowNativeCodeGen = true
         predicates: Vector(SparrowPredicate)
         loc: LLocation
 
-    fun ctor(this: @SparrowPrologSystem, program: @PrologProgramPtr)
+    fun ctor(this: !SparrowPrologSystem, program: !PrologProgramPtr)
         this.predicates ctor
         this.loc ctor program.get().loc
 
@@ -32,7 +32,7 @@ using allowNativeCodeGen = true
             else
                 r.front().addClause(p)
 
-    fun semanticCheck(this: @SparrowPrologSystem)
+    fun semanticCheck(this: !SparrowPrologSystem)
         for pred: @SparrowPredicate = predicates.all
             pred.semanticCheck
 
@@ -53,7 +53,7 @@ using allowNativeCodeGen = true
         typeSets: Vector(LTypeSet)
         canBeNative: Bool
 
-    fun ctor(this: @SparrowPredicate, firstClause: @PredicateClausePtr)
+    fun ctor(this: !SparrowPredicate, firstClause: !PredicateClausePtr)
         this.name ctor firstClause.get().name
         this.arity ctor UInt(firstClause.get().args.size)
         this.firstClause ctor firstClause
@@ -66,11 +66,11 @@ using allowNativeCodeGen = true
         this.addClause(firstClause)
         paramVars.resize(arity)
 
-    fun addClause(this: @SparrowPredicate, clause: @PredicateClausePtr)
+    fun addClause(this: !SparrowPredicate, clause: !PredicateClausePtr)
         assert(clause.get().args.size == arity)
         clauses.pushBack(clause)
 
-    fun semanticCheck(this: @SparrowPredicate)
+    fun semanticCheck(this: !SparrowPredicate)
         // Update the variables from all the clauses
         // Compute the types of the expressions and variables
         for i = 0..clauses.size
@@ -80,7 +80,7 @@ using allowNativeCodeGen = true
         if ( allowNativeCodeGen )
             this._checkNative
 
-    fun _checkClause(this: @SparrowPredicate, clause: @PredicateClause, clauseIdx: Int)
+    fun _checkClause(this: !SparrowPredicate, clause: !PredicateClause, clauseIdx: Int)
         // Assign type sets for bound args
         for i = 0..clause.args.size
             var arg: @ExpressionPtr = clause.args(i)
@@ -96,7 +96,7 @@ using allowNativeCodeGen = true
         // Check conditions
         for c = clause.conditions.all
             this._checkCondition(clause, clauseIdx, c.get)
-    fun _checkCondition(this: @SparrowPredicate, clause: @PredicateClause, clauseIdx: Int, cond: @Condition)
+    fun _checkCondition(this: !SparrowPredicate, clause: !PredicateClause, clauseIdx: Int, cond: !Condition)
         if ( cond.kind == ckPredCall )
             for arg = cond.args.all
                 this._checkExpr(clause, clauseIdx, arg)
@@ -106,7 +106,7 @@ using allowNativeCodeGen = true
 
             // The two expressions must have the same type
             this._mergeTypeSets(cond.args(0), cond.args(1))
-    fun _checkExpr(this: @SparrowPredicate, clause: @PredicateClause, clauseIdx: Int, exprPtr: @ExpressionPtr)
+    fun _checkExpr(this: !SparrowPredicate, clause: !PredicateClause, clauseIdx: Int, exprPtr: !ExpressionPtr)
         var typeSet: @LTypeSet = this._getCreateTypeSet(exprPtr)
 
         let expr: @Expression = exprPtr.get
@@ -174,7 +174,7 @@ using allowNativeCodeGen = true
                 param.isRead = true
                 param.isInput = true
 
-    fun _checkNative(this: @SparrowPredicate)
+    fun _checkNative(this: !SparrowPredicate)
         // Rules:
         // - input parameters:
         //      - at least once present in a binary operations, where they require a value
@@ -236,11 +236,11 @@ using allowNativeCodeGen = true
                 canBeNative = false
                 return
 
-    fun _isValue(this: @SparrowPredicate, expr: @Expression): Bool
+    fun _isValue(this: !SparrowPredicate, expr: !Expression): Bool
         // Anything except a variable is a value
         return expr.kind != ekVar
 
-    fun _checkCreateTypeSet(this: @SparrowPredicate, exp: @ExpressionPtr)
+    fun _checkCreateTypeSet(this: !SparrowPredicate, exp: !ExpressionPtr)
         if ( exp.get().typeSetIdx < 0 )
             // Create a new type set
             let idx = Int(typeSets.size)
@@ -248,11 +248,11 @@ using allowNativeCodeGen = true
             var res: @LTypeSet = typeSets(idx)
             res.addExpression(exp)
 
-    fun _getCreateTypeSet(this: @SparrowPredicate, exp: @ExpressionPtr): @LTypeSet
+    fun _getCreateTypeSet(this: !SparrowPredicate, exp: !ExpressionPtr): @LTypeSet
         this._checkCreateTypeSet(exp)
         return typeSets(exp.get().typeSetIdx)
 
-    fun _mergeTypeSets(this: @SparrowPredicate, exp1, exp2: @ExpressionPtr)
+    fun _mergeTypeSets(this: !SparrowPredicate, exp1, exp2: !ExpressionPtr)
         this._checkCreateTypeSet(exp1)
         this._checkCreateTypeSet(exp2)
         typeSets(exp1.get().typeSetIdx).mergeWith(typeSets(exp2.get().typeSetIdx), exp2.get().loc)

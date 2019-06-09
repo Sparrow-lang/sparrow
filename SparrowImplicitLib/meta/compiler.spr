@@ -4,4 +4,4 @@
     [native("$meta.Compiler.registerFrontendFun")]
     fun registerFrontendFun(ext, funName: StringRef): Bool
     [native("$meta.Compiler.parseSprExpression")]
-    fun parseSprExpression(loc: @Location, exp: StringRef): AstNode
+    fun parseSprExpression(loc: Location const, exp: StringRef): AstNode

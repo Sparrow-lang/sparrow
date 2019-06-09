@@ -28,7 +28,7 @@ datatype Worker
     //! Semaphore used when sleeping
     _waitSem: Semaphore
 
-fun ctor(this: @Worker, taskSystem: @TaskSystem, workerId: Int, idleCounter: @IdleCounter)
+fun ctor(this: !Worker, taskSystem: !TaskSystem, workerId: Int, idleCounter: !IdleCounter)
     this.taskSystem := taskSystem
     this.workerId = workerId
     this.curDepth = 0
@@ -36,7 +36,7 @@ fun ctor(this: @Worker, taskSystem: @TaskSystem, workerId: Int, idleCounter: @Id
     this._isBusy store 0
     this._waitSem ctor 0
 
-fun dtor(this: @Worker) {}
+fun dtor(this: !Worker) {}
 
 using WorkerPtr = Worker Ptr
 
@@ -52,7 +52,7 @@ fun localWorker: Worker Ptr
 fun setLocalWorker(worker: Worker Ptr)
     _tlsWorker = worker.get()
 
-fun goIdle(w: @Worker)
+fun goIdle(w: !Worker)
     if compareAndSwap(w._isBusy, 0, 1)
         // Change the global counter
         w._idleCounter goIdle
@@ -66,7 +66,7 @@ fun goIdle(w: @Worker)
         [ct] if isValidAndTrue(traceCalls)
             tracer(w) << "woke up; we have " << (w._idleCounter.cnt load) << " idle workers" << endl
 
-fun tryWakeUp(w: @Worker): Bool
+fun tryWakeUp(w: !Worker): Bool
     //[ct] if isValidAndTrue(traceCalls)
     //    tracer(w) << "trying to wake up; _isBusy= " << (w._isBusy load) << endl
     // If the thread was now busy, and we can set it to busy,
@@ -82,14 +82,14 @@ fun tryWakeUp(w: @Worker): Bool
         return true
     return false
 
-fun tracer(this: @Worker) = Tracer(workerId, curDepth)
+fun tracer(this: !Worker) = Tracer(workerId, curDepth)
 
 ////////////////////////////////////////////////////////////////////////////////
 // TaskPrexix functions
 
-fun worker(task: @TaskPrefix): @Worker = reinterpretCast(@Worker, task.worker.get())
-fun waitingWorker(task: @TaskPrefix): @Worker = reinterpretCast(@Worker, task.waitingWorker.get())
-fun setWaitingWorker(task: @TaskPrefix, w: @Worker) { task.waitingWorker = reinterpretCast(@Byte, w); }
+fun worker(task: !TaskPrefix): @Worker = reinterpretCast(@Worker, task.worker.get())
+fun waitingWorker(task: !TaskPrefix): @Worker = reinterpretCast(@Worker, task.waitingWorker.get())
+fun setWaitingWorker(task: !TaskPrefix, w: !Worker) { task.waitingWorker = reinterpretCast(@Byte, w); }
 
 ////////////////////////////////////////////////////////////////////////////////
 // TaskSystem datatype
@@ -107,9 +107,9 @@ datatype TaskSystem
     idleCounter: IdleCounter
 
 [protected]
-    fun ctor(this: @TaskSystem) {}
+    fun ctor(this: !TaskSystem) {}
 
-    fun dtor(this: @TaskSystem) {}
+    fun dtor(this: !TaskSystem) {}
 
 var globalTaskSystem: TaskSystem Ptr
 
@@ -143,12 +143,12 @@ fun createWorker(ts: TaskSystem Ptr): Worker Ptr
 // TODO: make it random
 var cnt: Int = 0
 
-fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue
+fun getRandomTaskQueue(ts: !TaskSystem): @TaskQueue
     // TODO: make the selection truly random
     let worker: Worker Ptr = ts.workers(++cnt % (ts.workers size))
     return worker.get().work
 
-fun onTaskAvailable(ts: @TaskSystem)
+fun onTaskAvailable(ts: !TaskSystem)
     // Do something only if we have at least one idle worker
     if ts.idleCounter hasIdle
         for w: Worker Ptr = ts.workers.all
@@ -157,7 +157,7 @@ fun onTaskAvailable(ts: @TaskSystem)
                 return
 
 //! Get the number of currently available workers
-fun numAvailableWorkers(ts: @TaskSystem): SizeType = (ts.workers size) - (ts.idleCounter numIdleWorkers)
+fun numAvailableWorkers(ts: !TaskSystem): SizeType = (ts.workers size) - (ts.idleCounter numIdleWorkers)
 
 ////////////////////////////////////////////////////////////////////////////////
 // InternalWorkerThread datatype
@@ -169,11 +169,11 @@ fun numAvailableWorkers(ts: @TaskSystem): SizeType = (ts.workers size) - (ts.idl
     //! The worker associated with this thread
     _worker: Worker Ptr
 
-fun ()(this: @InternalWorkerThread)
+fun ()(this: !InternalWorkerThread)
     setLocalWorker(_worker)
     schedDoWait(_worker.get(), TaskPtr(), TaskPtr())
 
 // Defined in scheduler.spr
 [native('par.tasksImpl.scheduler.schedDoWait')]
-fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr)
+fun schedDoWait(worker: !Worker, toExecute, waitingTask: TaskPtr)
 

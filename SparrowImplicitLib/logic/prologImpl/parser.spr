@@ -10,7 +10,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
         _lexer: lexerType
         _errorReporter: errorReporterType
 
-    fun parse(this: @Parser): PrologProgramPtr
+    fun parse(this: !Parser): PrologProgramPtr
         var resptr = mkShared(PrologProgram)
         var res: @PrologProgram = resptr.get
 
@@ -23,7 +23,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
 
         return resptr
 
-    fun _parsePredicateClause(this: @Parser): PredicateClausePtr
+    fun _parsePredicateClause(this: !Parser): PredicateClausePtr
         var resptr = mkShared(PredicateClause)
         var res: @PredicateClause = resptr.get
 
@@ -60,7 +60,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
         res.loc copyEnd tok.loc
         return resptr
 
-    fun _parsePredicateClauseArgs(this: @Parser, predClause: @PredicateClause)
+    fun _parsePredicateClauseArgs(this: !Parser, predClause: !PredicateClause)
         while true
             // Expect a term appropriate for an argument
             let arg = this._parseTerm
@@ -79,7 +79,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
             ++this._lexer
         // The terminator (right parenthesis) is not consumed
 
-    fun _parsePredicateConditions(this: @Parser, predClause: @PredicateClause)
+    fun _parsePredicateConditions(this: !Parser, predClause: !PredicateClause)
         while true
             // Expect a condition expression
             predClause.conditions.pushBack(this._parseCondition)
@@ -94,7 +94,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
             ++this._lexer
         // The terminator (dot) is not consumed
 
-    fun _parseCondition(this: @Parser): ConditionPtr
+    fun _parseCondition(this: !Parser): ConditionPtr
         // A condition can be either a predicate call or an 'is' expression
         // We distinguish between them by the first token
 
@@ -108,7 +108,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
             this._invalidToken(tok, String("atom or variable"))
         return this._parseIsExpression
 
-    fun _parsePredicateCall(this: @Parser): ConditionPtr
+    fun _parsePredicateCall(this: !Parser): ConditionPtr
         // Read predicate name
         var tok = (this._lexer++)
         this._expectToken(tok, tkAtom)
@@ -131,7 +131,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
         loc copyEnd tok.loc
         return mkPredCall(loc, name, args)
 
-    fun _parsePredicateCallArgs(this: @Parser, args: @Vector(ExpressionPtr))
+    fun _parsePredicateCallArgs(this: !Parser, args: !Vector(ExpressionPtr))
         while true
             // Expect an expression
             args.pushBack(this._parseExpression)
@@ -146,7 +146,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
             ++this._lexer
         // The terminator (right parenthesis) is not consumed
 
-    fun _parseIsExpression(this: @Parser): ConditionPtr
+    fun _parseIsExpression(this: !Parser): ConditionPtr
         // Read variable name
         var tok = this._lexer()
         this._expectToken(tok, tkVar)
@@ -164,9 +164,9 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
         loc copyEnd tok.loc
         return mkIsExpr(loc, varName, exp)
 
-    fun _parseExpression(this: @Parser) = this._parseMulDivExpression
+    fun _parseExpression(this: !Parser) = this._parseMulDivExpression
 
-    fun _parseMulDivExpression(this: @Parser): ExpressionPtr
+    fun _parseMulDivExpression(this: !Parser): ExpressionPtr
         // Parse left part of the expression
         var left = this._parsePlusMinusExpression
         var loc = left.get().loc
@@ -190,7 +190,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
                 left = mkOpDiv(loc, left, right)
         return ExpressionPtr()
 
-    fun _parsePlusMinusExpression(this: @Parser): ExpressionPtr
+    fun _parsePlusMinusExpression(this: !Parser): ExpressionPtr
         // Parse left part of the expression
         var left = this._parseSimpleExpression
         var loc = left.get().loc
@@ -214,7 +214,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
                 left = mkOpMinus(loc, left, right)
         return ExpressionPtr()
 
-    fun _parseSimpleExpression(this: @Parser): ExpressionPtr
+    fun _parseSimpleExpression(this: !Parser): ExpressionPtr
         // Accept expression in parenthesis
         var tok = this._lexer()
         if tok.type == tkLParen
@@ -230,7 +230,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
         // Otherwise this must be a term
         return this._parseTerm
 
-    fun _parseTerm(this: @Parser): ExpressionPtr
+    fun _parseTerm(this: !Parser): ExpressionPtr
         let tok = (this._lexer++)
         if tok.type == tkAtom
             return mkAtom(tok.loc, tok.data)
@@ -244,12 +244,12 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
             this._invalidToken(tok, String("atom, variable, number or antiquote"))
         return ExpressionPtr()
 
-    fun _expectToken(this: @Parser, tok: @Token, expected: Int)
+    fun _expectToken(this: !Parser, tok: !Token, expected: Int)
         if tok.type != expected
             this._invalidToken(tok, tokenTypeToString(expected))
 
-    fun _invalidToken(this: @Parser, tok: @Token, expected: @String)
+    fun _invalidToken(this: !Parser, tok: !Token, expected: !String)
         let msg: String = String("Invalid token found: ") + tokenTypeToString(tok.type) + String("; expected: ") + expected
         this._errorReporter.raiseError(tok.loc, msg.asStringRef)
 
-    fun mkParser(lexer: @TokenRange, errorReporter: @AnyType) = Parser(-@typeOf(lexer), -@typeOf(errorReporter))(lexer, errorReporter)
+    fun mkParser(lexer: !TokenRange, errorReporter: !AnyType) = Parser(-@typeOf(lexer), -@typeOf(errorReporter))(lexer, errorReporter)

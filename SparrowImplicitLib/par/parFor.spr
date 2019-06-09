@@ -13,7 +13,7 @@ concept Partitioner(x) \
 fun parFor(r: Range, f: AnyType) if isValid(f(r.front()))
     Impl.parFor(r, f, DefaultPartitioner(typeOf(r))())
 
-fun parFor(r: Range, f: AnyType, part: @Partitioner) if isValid(f(r.front()))
+fun parFor(r: Range, f: AnyType, part: !Partitioner) if isValid(f(r.front()))
     Impl.parFor(r, f, part)
 
 datatype DefaultPartitioner(rangeType: Type)
@@ -21,7 +21,7 @@ datatype DefaultPartitioner(rangeType: Type)
 
     _maxDepth: Int
 
-fun partStart(this: @DefaultPartitioner)
+fun partStart(this: !DefaultPartitioner)
     let p: Int = getAvailableCoresNum
     var depth = 1
     while 2 !<<! depth < p
@@ -29,7 +29,7 @@ fun partStart(this: @DefaultPartitioner)
 
     _maxDepth = 1 + depth
 
-fun partition(this: @DefaultPartitioner, r: Range, depth: Int) : RangeType * RangeType
+fun partition(this: !DefaultPartitioner, r: Range, depth: Int) : RangeType * RangeType
     var splitIdx = 0
     let sz: Int = r rangeSize
     if depth <= _maxDepth
@@ -46,26 +46,26 @@ datatype BoundedRange(baseRangeType: Type)
     using RetType = baseRangeType.RetType
     using _RangeType = baseRangeType
 
-fun ctor(this: @BoundedRange, r: @this._RangeType)
+fun ctor(this: !BoundedRange, r: this._RangeType)
     _baseRange ctor r
     _count = (_baseRange rangeSize)
 
-fun ctor(this, r: @BoundedRange, nSkip, nTake: SizeType)
+fun ctor(this, r: !BoundedRange, nSkip, nTake: SizeType)
     _baseRange ctor r._baseRange
     _baseRange advance nSkip
     _count ctor nTake
 
-fun isEmpty(this: @BoundedRange)                     = _count == 0 || _baseRange.isEmpty()
-fun front(this: @BoundedRange): this.RetType         = _baseRange.front()
-fun popFront(this: @BoundedRange)                    { _baseRange.popFront(); --_count; }
+fun isEmpty(this: BoundedRange const)                = _count == 0 || _baseRange.isEmpty()
+fun front(this: BoundedRange const): this.RetType    = _baseRange.front()
+fun popFront(this: !BoundedRange)                    { _baseRange.popFront(); --_count; }
 
 package Impl
-    fun parFor(r: Range, f: AnyType, part: @Partitioner)
+    fun parFor(r: Range, f: AnyType, part: !Partitioner)
         // Tell the partitioner that we are starting work
         part partStart
 
         // Create a root task and wait until it's executed
-        let range: part.RangeType = r
+        var range: part.RangeType = r
         tasks.spawnRootAndWait(Impl.mkParForTask(range, f, part, 0))
 
     datatype ParForTask(rangeType, funcType, partType: Type)
@@ -79,13 +79,13 @@ package Impl
         using _FuncType = funcType
         using _PartType = partType
 
-    fun ctor(this: @ParForTask, r: this.RangeType, f: this._FuncType, part: @this._PartType, depth: Int)
+    fun ctor(this: !ParForTask, r: this.RangeType, f: this._FuncType, part: !this._PartType, depth: Int)
         this.range ctor r
         this.func ctor f
         this.part := part
         this.depth ctor depth
 
-    fun execute(this: @ParForTask)
+    fun execute(this: !ParForTask)
         // Check if we need to split the range
         let split = part.partition(range, depth)
 
@@ -94,7 +94,7 @@ package Impl
 
         if splitValid
             // Create two new tasks for the splits
-            let cont: @tasks.EmptyTask = new(tasks.EmptyTask)
+            var cont: @tasks.EmptyTask = new(tasks.EmptyTask)
             tasks.setContinuation(this, cont)
             var t1: @ParForTask = allocParForTask(split.v1, func, part, depth+1)
             var t2: @ParForTask = allocParForTask(split.v2, func, part, depth+1)
@@ -104,7 +104,7 @@ package Impl
             for val: RangeType.RetType = range
                 func(val)
 
-    fun mkParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int) \
+    fun mkParForTask(r: Range, f: AnyType, part: !Partitioner, depth: Int) \
         = ParForTask(typeOf(r), typeOf(f), -@typeOf(part))(r, f, part, depth)
-    fun allocParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int) \
+    fun allocParForTask(r: Range, f: AnyType, part: !Partitioner, depth: Int) \
         = new(ParForTask(typeOf(r), typeOf(f), -@typeOf(part)), r, f, part, depth)

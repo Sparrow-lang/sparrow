@@ -4,7 +4,7 @@ import std.ptr
 
 datatype NativeThreadHandle = Byte Ptr  // Opaque type
 
-fun >>(h: NativeThreadHandle, os: @OutStream)
+fun >>(h: NativeThreadHandle, os: !OutStream)
     if ( h.impl.isSet )
         os << mkStreamRefWrapper(h.impl.get)
     else

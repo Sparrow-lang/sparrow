@@ -14,6 +14,6 @@ concept TaskType(x) \
     && ( isValidAndTrue(typeOf(x prefix) == @TaskPrefix) \
         || isValidAndTrue(typeOf(x.prefix) == TaskPrefix) )
 
-fun getPrefix(t: @TaskType): @TaskPrefix = t prefix if isValid(t prefix)
-fun getPrefix(t: @TaskType): @TaskPrefix = t.prefix if isValid(t.prefix) && !isValid(t prefix)
+fun getPrefix(t: !TaskType): @TaskPrefix = t prefix if isValid(t prefix)
+fun getPrefix(t: !TaskType): @TaskPrefix = t.prefix if isValid(t.prefix) && !isValid(t prefix)
 

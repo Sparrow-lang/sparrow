@@ -15,7 +15,7 @@ fun doExecute(T: Type, prefix: @TaskPrefix): Null
 fun getExecuteFn(T: Type): FunctionPtr(Null rt, @TaskPrefix) = \doExecute(T, TaskPrefix())
 
 //! Initializes the fields required for a task
-fun initTaskBasic(obj: @TaskType)
+fun initTaskBasic(obj: !TaskType)
     // Init the execute function
     var prefix: @TaskPrefix = getPrefix(obj)
     prefix.taskOffset = ptrDiff(reinterpretCast(@Byte, obj), reinterpretCast(@Byte, prefix))
@@ -26,23 +26,23 @@ fun initTaskBasic(obj: @TaskType)
         prefix.desc = (obj description)
 
 //! Initializes a root task
-fun initAsRoot(task: @TaskType)
+fun initAsRoot(task: !TaskType)
     initTaskBasic(task)
     getPrefix(task).worker = schedulerIf.localWorker()
 
 //! Initializes a child task
-fun initAsChildOf(task, parent: @TaskType)
+fun initAsChildOf(task, parent: !TaskType)
     initTaskBasic(task)
     getPrefix(task).parent = getPrefix(parent)
     getPrefix(task).depth = 1+getPrefix(parent).depth
     getPrefix(task).worker = getPrefix(parent).worker
 
 //! Initialize a child task and spawn it
-fun doSpawn(curTask, childTask: @TaskType)
+fun doSpawn(curTask, childTask: !TaskType)
     initAsChildOf(childTask, curTask)
     schedulerIf.spawn(getPrefix(childTask))
 
 //! Initialize a child task, then spawn it and wait
-fun doSpawnAndWait(curTask, childTask: @TaskType)
+fun doSpawnAndWait(curTask, childTask: !TaskType)
     initAsChildOf(childTask, curTask)
     schedulerIf.spawnAndWaitForAll(getPrefix(curTask), getPrefix(childTask))

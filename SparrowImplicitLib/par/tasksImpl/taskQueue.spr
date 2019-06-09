@@ -22,15 +22,15 @@ datatype TaskQueue
     _mutex: Mutex
     // TODO: use a spin-mutex here
 
-fun empty(q: @TaskQueue): Bool
+fun empty(q: !TaskQueue): Bool
     let lock: ScopedLock(Mutex) = q._mutex
     return q._first isNull
 
-fun size(q: @TaskQueue): SizeType
+fun size(q: !TaskQueue): SizeType
     let lock: ScopedLock(Mutex) = q._mutex
     return q uncheckedSize
 
-fun uncheckedSize(q: @TaskQueue): SizeType
+fun uncheckedSize(q: !TaskQueue): SizeType
     var count: SizeType = 0
     var p: TaskPtr = q._first
     while p isSet
@@ -38,7 +38,7 @@ fun uncheckedSize(q: @TaskQueue): SizeType
         p = p.get().next
     return count
 
-fun pushFront(q: @TaskQueue, task: TaskPtr)
+fun pushFront(q: !TaskQueue, task: TaskPtr)
     let lock: ScopedLock(Mutex) = q._mutex
 
     // don't care what prev is
@@ -52,7 +52,7 @@ fun pushFront(q: @TaskQueue, task: TaskPtr)
     //assert(q._first isSet)
     //assert(q._last isSet)
     //assert(q._last.get().next isNull)
-fun popFront(q: @TaskQueue): TaskPtr
+fun popFront(q: !TaskQueue): TaskPtr
     let lock: ScopedLock(Mutex) = q._mutex
 
     if q._first isNull
@@ -67,7 +67,7 @@ fun popFront(q: @TaskQueue): TaskPtr
         //assert(q._last.get().next isNull)
 
     return res
-fun popBack(q: @TaskQueue): TaskPtr
+fun popBack(q: !TaskQueue): TaskPtr
     let lock: ScopedLock(Mutex) = q._mutex
 
     if q._last isNull
@@ -90,7 +90,7 @@ fun popBack(q: @TaskQueue): TaskPtr
     _first: TaskPtr
     list: @TaskQueue
 
-fun >> (tasks: @TasksPrinter, os: @OutStream)
+fun >> (tasks: TasksPrinter const, os: !OutStream)
     if tasks._first isSet
         os << 'task='
         os << tasks._first.get() << " + "

@@ -16,23 +16,23 @@ datatype Predicate
 
     predObj: Function(Bool)
 
-fun ctor(this, other: @Predicate)
+fun ctor(this, other: !Predicate)
     this.predObj ctor other.predObj
 [convert]
-fun ctor(this: @Predicate, pred: @PredicateType)
+fun ctor(this: !Predicate, pred: !PredicateType)
     predObj ctor pred
 
-fun isNull(this: @Predicate) = predObj.isNull()
-fun isSet(this: @Predicate) = predObj.isSet()
+fun isNull(this: !Predicate) = predObj.isNull()
+fun isSet(this: !Predicate) = predObj.isSet()
 
-fun ()(this: @Predicate): Bool = predObj()
+fun ()(this: !Predicate): Bool = predObj()
 
 /// Logic equality: equality test + inference
-fun eq(l, r: @AnyType) = _mkEq(mkValOrRef(l), mkValOrRef(r))
+fun eq(l, r: !AnyType) = _mkEq(mkValOrRef(l), mkValOrRef(r))
 fun /=/(l, r: @AnyType) = _mkEq(mkValOrRef(l), mkValOrRef(r))
 
 // Assignment: used for native functions instead of unification
-fun =/(out: @AnyType, in: AnyType): Bool if -@typeOf(out) == -@typeOf(in)
+fun =/(out: !AnyType, in: AnyType): Bool if -@typeOf(out) == -@typeOf(in)
     out = in
     return true
 
@@ -42,10 +42,10 @@ using oper_precedence_=/ = oper_precedence_== + 1
 //setOperPrecedence("=/", getOperPrecedence("==") + 1)
 
 /// Logic Disjunction
-fun ||(l, r: @PredicateType) = OrRelation(-@typeOf(l), -@typeOf(r))(l, r)
+fun ||(l, r: !PredicateType) = OrRelation(-@typeOf(l), -@typeOf(r))(l, r)
 
 /// Logic Conjunction
-fun &&(l, r: @PredicateType) = AndRelation(-@typeOf(l), -@typeOf(r))(l, r)
+fun &&(l, r: !PredicateType) = AndRelation(-@typeOf(l), -@typeOf(r))(l, r)
 
 /// Relation that always returns false
 fun mkFalse = LFalse()
@@ -62,14 +62,14 @@ datatype UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrap
     _leftVal: leftType
     _rightVal: rightType
 
-fun ctor(this: @UnifyLR, l: @this.LeftType, r: @this.RightType)
+fun ctor(this: !UnifyLR, l: !this.LeftType, r: !this.RightType)
     this._leftVal ctor l
     this._rightVal ctor r
     _coEntryPt ctor 0
     [ct] if isValid(logicDebug)
         cout << "UnifyLR.ctor: " << this << "\n"
 
-fun ctor(this, other: @UnifyLR)
+fun ctor(this, other: !UnifyLR)
     this._leftVal ctor other._leftVal
     this._rightVal ctor other._rightVal
     this._coEntryPt ctor other._coEntryPt
@@ -77,11 +77,11 @@ fun ctor(this, other: @UnifyLR)
         cout << "UnifyLR.copy ctor: " << this << "\n"
 
 [protected]
-    fun dtor(this: @UnifyLR)
+    fun dtor(this: !UnifyLR)
         [ct] if isValid(logicDebug)
             cout << "UnifyLR.dtor: " << this << "\n"
 
-fun ()(this: @UnifyLR): Bool
+fun ()(this: !UnifyLR): Bool
     //cout << "UnifyLR.(): ltype=" << TypeOp.description(LeftType) << ", rtype=" << TypeOp.description(RightType) << "\n" << flush
     [ct] if isValid(logicDebug)
         cout << "UnifyLR.(): " << this << "\n"
@@ -133,7 +133,7 @@ fun ()(this: @UnifyLR): Bool
             cout << "Unify, done\n"
         return false
 
-fun _mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r)
+fun _mkEq(l, r: !ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r)
 
 datatype OrRelation(leftPredicateType, rightPredicateType: Type)
     using ValueType = Bool
@@ -145,7 +145,7 @@ datatype OrRelation(leftPredicateType, rightPredicateType: Type)
     _left: leftPredicateType
     _right: rightPredicateType
 
-fun ctor(this: @OrRelation, l: @this._LType, r: @this._RType)
+fun ctor(this: !OrRelation, l: !this._LType, r: !this._RType)
     this._left ctor l
     this._right ctor r
     _coEntryPt ctor 0
@@ -153,11 +153,11 @@ fun ctor(this: @OrRelation, l: @this._LType, r: @this._RType)
         cout << "OrRelation.ctor: " << this << "\n"
 
 [protected]
-    fun dtor(this: @OrRelation)
+    fun dtor(this: !OrRelation)
         [ct] if isValid(logicDebug)
             cout << "OrRelation.dtor: " << this << "\n"
 
-fun ()(this: @OrRelation): Bool
+fun ()(this: !OrRelation): Bool
     [ct] if isValid(logicDebug)
         cout << "OrRelation.(): " << this << "\n"
     if _coEntryPt == 0   // Never called before, or left is returning true
@@ -191,7 +191,7 @@ datatype AndRelation(leftPredicateType, rightPredicateType: Type)
     _left: leftPredicateType
     _right, _rightBegin: rightPredicateType
 
-fun ctor(this: @AndRelation, l: this._LType, r: this._RType)
+fun ctor(this: !AndRelation, l: this._LType, r: this._RType)
     this._left ctor l
     this._right ctor r
     this._rightBegin ctor r
@@ -199,7 +199,7 @@ fun ctor(this: @AndRelation, l: this._LType, r: this._RType)
     [ct] if isValid(logicDebug)
         cout << "AndRelation.ctor: " << this << "\n"
 
-fun ()(this: @AndRelation): Bool
+fun ()(this: !AndRelation): Bool
     [ct] if isValid(logicDebug)
         cout << "AndRelation.(): " << this << "\n"
     if _coEntryPt == 0 || _coEntryPt == 1   // Never called before stay here until we have a positive result
@@ -228,21 +228,21 @@ datatype LTrue
     ;
 fun ()(this: LTrue) = true
 
-fun >>(this: @Predicate, os: @OutStream)
+fun >>(this: !Predicate, os: !OutStream)
     os << "Pred-" << predObj
 
-fun >>(this: @UnifyLR, os: @OutStream)
+fun >>(this: !UnifyLR, os: !OutStream)
     os << "UnifyLR(left=" << _leftVal << ", right=" << _rightVal << ", " << _coEntryPt << ")" << flush
 
-fun >>(this: @OrRelation, os: @OutStream)
+fun >>(this: !OrRelation, os: !OutStream)
     os << "OrRelation(left=" << _left << ", right=" << _right << ", " << _coEntryPt << ")" << flush
 
-fun >>(this: @AndRelation, os: @OutStream)
+fun >>(this: !AndRelation, os: !OutStream)
     os << "AndRelation(left=" << _left << ", right=" << _right << ", " << _coEntryPt << ")" << flush
 
-fun >>(this: LFalse, os: @OutStream)
+fun >>(this: LFalse, os: !OutStream)
     os << "LFalse" << flush
 
-fun >>(this: LTrue, os: @OutStream)
+fun >>(this: LTrue, os: !OutStream)
     os << "LTrue" << flush
 

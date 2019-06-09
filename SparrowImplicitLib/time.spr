@@ -5,7 +5,7 @@ module time
 datatype Timer
     _startTime: Int
 
-fun ctor(this: @Timer) { _startTime = clock }
+fun ctor(this: !Timer) { _startTime = clock }
 
 fun elapsed(this: Timer) = Double(clock - _startTime) / 1000.0
-fun restart(this: @Timer) { _startTime = clock }
+fun restart(this: !Timer) { _startTime = clock }

@@ -109,11 +109,11 @@ import std.vector, std.algorithms, std.string
         return res
 
     /// Adds a print statement node to the destination vector
-    fun _addPrint(loc: Location, dest: @Vector(AstNode), toPrint: AstNode)
+    fun _addPrint(loc: Location, dest: !Vector(AstNode), toPrint: AstNode)
         dest += mkInfixOp(loc, "<<", mkIdentifier(loc, "cout"), toPrint)
 
     /// Extract all the variables from the given node
-    fun _extractVars(node: AstNode, varsList: @Vector(AstNode))
+    fun _extractVars(node: AstNode, varsList: !Vector(AstNode))
         let nk = node nodeKind
         if nk == nkSparrowExpIdentifier
             let exp = node explanation

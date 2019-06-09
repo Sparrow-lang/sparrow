@@ -6,8 +6,8 @@ package _Impl0
         using ResT = resT
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr0): ResT
-    fun ()(this: !FunctionPtr0): ResT = this._doCall()
+    [native("$funptr")] fun _doCall(this: FunctionPtr0 const): ResT
+    fun ()(this: FunctionPtr0 const): ResT = this._doCall()
 
 package _Impl1
     datatype FunctionPtr1(resT, t1: Type)
@@ -16,8 +16,8 @@ package _Impl1
         using T1 = t1
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr1, p1: this.T1): ResT
-    fun ()(this: !FunctionPtr1, p1: this.T1): ResT = this._doCall(p1)
+    [native("$funptr")] fun _doCall(this: FunctionPtr1 const, p1: this.T1): ResT
+    fun ()(this: FunctionPtr1 const, p1: this.T1): ResT = this._doCall(p1)
 
 package _Impl2
     datatype FunctionPtr2(resT, t1, t2: Type)
@@ -27,8 +27,8 @@ package _Impl2
         using T2 = t2
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr2, p1: this.T1, p2: this.T2): ResT
-    fun ()(this: !FunctionPtr2, p1: this.T1, p2: this.T2): ResT = this._doCall(p1, p2)
+    [native("$funptr")] fun _doCall(this: FunctionPtr2 const, p1: this.T1, p2: this.T2): ResT
+    fun ()(this: FunctionPtr2 const, p1: this.T1, p2: this.T2): ResT = this._doCall(p1, p2)
 
 package _Impl3
     datatype FunctionPtr3(resT, t1, t2, t3: Type)
@@ -39,8 +39,8 @@ package _Impl3
         using T3 = t3
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr3, p1: this.T1, p2: this.T2, p3: this.T3): ResT
-    fun ()(this: !FunctionPtr3, p1: this.T1, p2: this.T2, p3: this.T3): ResT = this._doCall(p1, p2, p3)
+    [native("$funptr")] fun _doCall(this: FunctionPtr3 const, p1: this.T1, p2: this.T2, p3: this.T3): ResT
+    fun ()(this: FunctionPtr3 const, p1: this.T1, p2: this.T2, p3: this.T3): ResT = this._doCall(p1, p2, p3)
 
 package _Impl4
     datatype FunctionPtr4(resT, t1, t2, t3, t4: Type)
@@ -52,8 +52,8 @@ package _Impl4
         using T4 = t4
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr4, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): ResT
-    fun ()(this: !FunctionPtr4, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): ResT = this._doCall(p1, p2, p3, p4)
+    [native("$funptr")] fun _doCall(this: FunctionPtr4 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): ResT
+    fun ()(this: FunctionPtr4 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): ResT = this._doCall(p1, p2, p3, p4)
 
 package _Impl5
     datatype FunctionPtr5(resT, t1, t2, t3, t4, t5: Type)
@@ -66,8 +66,8 @@ package _Impl5
         using T5 = t5
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr5, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): ResT
-    fun ()(this: !FunctionPtr5, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): ResT = this._doCall(p1, p2, p3, p4, p5)
+    [native("$funptr")] fun _doCall(this: FunctionPtr5 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): ResT
+    fun ()(this: FunctionPtr5 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): ResT = this._doCall(p1, p2, p3, p4, p5)
 
 package _Impl6
     datatype FunctionPtr6(resT, t1, t2, t3, t4, t5, t6: Type)
@@ -81,8 +81,8 @@ package _Impl6
         using T6 = t6
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr6, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): ResT
-    fun ()(this: !FunctionPtr6, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): ResT = this._doCall(p1, p2, p3, p4, p5, p6)
+    [native("$funptr")] fun _doCall(this: FunctionPtr6 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): ResT
+    fun ()(this: FunctionPtr6 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): ResT = this._doCall(p1, p2, p3, p4, p5, p6)
 
 package _Impl7
     datatype FunctionPtr7(resT, t1, t2, t3, t4, t5, t6, t7: Type)
@@ -97,8 +97,8 @@ package _Impl7
         using T7 = t7
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr7, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): ResT
-    fun ()(this: !FunctionPtr7, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7)
+    [native("$funptr")] fun _doCall(this: FunctionPtr7 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): ResT
+    fun ()(this: FunctionPtr7 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7)
 
 package _Impl8
     datatype FunctionPtr8(resT, t1, t2, t3, t4, t5, t6, t7, t8: Type)
@@ -114,8 +114,8 @@ package _Impl8
         using T8 = t8
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr8, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): ResT
-    fun ()(this: !FunctionPtr8, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8)
+    [native("$funptr")] fun _doCall(this: FunctionPtr8 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): ResT
+    fun ()(this: FunctionPtr8 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8)
 
 package _Impl9
     datatype FunctionPtr9(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9: Type)
@@ -132,8 +132,8 @@ package _Impl9
         using T9 = t9
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr9, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): ResT
-    fun ()(this: !FunctionPtr9, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9)
+    [native("$funptr")] fun _doCall(this: FunctionPtr9 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): ResT
+    fun ()(this: FunctionPtr9 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9)
 
 package _Impl10
     datatype FunctionPtr10(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type)
@@ -151,8 +151,8 @@ package _Impl10
         using T10 = t10
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr10, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): ResT
-    fun ()(this: !FunctionPtr10, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
+    [native("$funptr")] fun _doCall(this: FunctionPtr10 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): ResT
+    fun ()(this: FunctionPtr10 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
 
 package _Impl11
     datatype FunctionPtr11(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11: Type)
@@ -171,8 +171,8 @@ package _Impl11
         using T11 = t11
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr11, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT
-    fun ()(this: !FunctionPtr11, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
+    [native("$funptr")] fun _doCall(this: FunctionPtr11 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT
+    fun ()(this: FunctionPtr11 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
 
 package _Impl12
     datatype FunctionPtr12(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12: Type)
@@ -192,8 +192,8 @@ package _Impl12
         using T12 = t12
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr12, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): ResT
-    fun ()(this: !FunctionPtr12, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12)
+    [native("$funptr")] fun _doCall(this: FunctionPtr12 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): ResT
+    fun ()(this: FunctionPtr12 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12)
 
 package _Impl13
     datatype FunctionPtr13(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13: Type)
@@ -214,8 +214,8 @@ package _Impl13
         using T13 = t13
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr13, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): ResT
-    fun ()(this: !FunctionPtr13, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13)
+    [native("$funptr")] fun _doCall(this: FunctionPtr13 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): ResT
+    fun ()(this: FunctionPtr13 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13)
 
 package _Impl14
     datatype FunctionPtr14(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14: Type)
@@ -237,8 +237,8 @@ package _Impl14
         using T14 = t14
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr14, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): ResT
-    fun ()(this: !FunctionPtr14, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14)
+    [native("$funptr")] fun _doCall(this: FunctionPtr14 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): ResT
+    fun ()(this: FunctionPtr14 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14)
 
 package _Impl15
     datatype FunctionPtr15(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15: Type)
@@ -261,8 +261,8 @@ package _Impl15
         using T15 = t15
         _funPtr: @Byte
 
-    [native("$funptr")] fun _doCall(this: !FunctionPtr15, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): ResT
-    fun ()(this: !FunctionPtr15, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15)
+    [native("$funptr")] fun _doCall(this: FunctionPtr15 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): ResT
+    fun ()(this: FunctionPtr15 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15)
 
 using FunctionPtr = _Impl0.FunctionPtr0
 using FunctionPtr = _Impl1.FunctionPtr1

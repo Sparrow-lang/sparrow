@@ -1,4 +1,4 @@
-//!! -I../src/SparrowFrontend/Grammar -dump-assembly
+//!! -I../src/SparrowFrontend/Grammar
 import formatDetails.sourceData
 import transforms.emptyTransform, transforms.defaultFormat, transforms.refToMut
 import transforms.useLayout, transforms.removeEolSemicolons, transforms.removeExtraSpaces

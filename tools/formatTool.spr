@@ -1,4 +1,4 @@
-//!! -I../src/SparrowFrontend/Grammar
+//!! -I../src/SparrowFrontend/Grammar -dump-assembly
 import formatDetails.sourceData
 import transforms.emptyTransform, transforms.defaultFormat, transforms.refToMut
 import transforms.useLayout, transforms.removeEolSemicolons, transforms.removeExtraSpaces
@@ -12,8 +12,9 @@ using TransformFun = FunctionPtr(VoidType, @SourceData)
 using Transforms = TransformFun Vector
 
 fun sprMain
-    if programArgs.size() < 2
+    if programArgs.size < 2
         _printArgsError('not enough arguments')
+
     var filename = ''
 
     var inPlace = false

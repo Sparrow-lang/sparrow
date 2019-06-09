@@ -245,7 +245,7 @@ datatype Vector(valueType: Type)
         for v = range
             this.pushBack(v)
 
-    fun >>(this: @Vector, os: @OutStream) if isValid(os << #$this.ValueType)
+    fun >>(this: Vector const, os: !OutStream) if isValid(os << #$this.ValueType)
         os << "Vec("
         for i = 0..this.size
             if i > 0

@@ -10,13 +10,13 @@ concept OutStream(x) if (
     )
 
 // If we define an ">>" operator in the type itself, make sure we can support the standard "<<" notation
-fun << (s: !OutStream, x: @AnyType): typeOf(s) if isValid(x >> s)
+fun << (s: !OutStream, x: AnyType const): typeOf(s) if isValid(x >> s)
     x >> s
     return s
 
 // If no ">>" operator is defined in the class, then try to place the input element in the stream
 // The stream class must define an "<<<" operator for this element
-fun << (s: @OutStream, x: @AnyType): typeOf(s) if !isValid(x.>>(s)) && isValid(s.<<<(x))
+fun << (s: !OutStream, x: AnyType const): typeOf(s) if !isValid(x.>>(s)) && isValid(s.<<<(x))
     s.<<<(x)
     return s
 
@@ -25,18 +25,18 @@ let flush: FlushHelperClass
 
 datatype EndLineHelperClass
     ;
-fun >>(this: EndLineHelperClass, os: @OutStream)
+fun >>(this: EndLineHelperClass, os: !OutStream)
     os << '\n'
 datatype FlushHelperClass
     ;
-fun >>(this: FlushHelperClass, os: @OutStream)
+fun >>(this: FlushHelperClass, os: !OutStream)
     [ct] if isValid(os.flush)
         os.flush
 
 // TODO: make this work for streams other than ConsoleOutputStream
 datatype StreamRefWrapperHelperClass
     ptr: @Byte
-fun >>(p: StreamRefWrapperHelperClass, os: @OutStream)
+fun >>(p: StreamRefWrapperHelperClass, os: !OutStream)
     _Impl.writeRef(p.ptr)
 
 fun mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass

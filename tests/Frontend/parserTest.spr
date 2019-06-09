@@ -40,7 +40,7 @@ fun toImpl(n: Node): @NodeImpl
         return _nullNodeImpl
 fun toNode(impl: !NodeImpl)    = Node(UntypedPtr(reinterpretCast(@Byte, impl)))
 
-fun >> (n: !NodeImpl, os: !OutStream)
+fun >> (n: NodeImpl, os: !OutStream)
     os << n.kind
     if !(n.children isEmpty)
         os << "("

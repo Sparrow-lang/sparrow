@@ -94,7 +94,7 @@ fun setNestingLevel(this: !SimpleLoop, level: Int)
 
 fun hash(this: !SimpleLoop) = counter
 
-fun >>(this: !SimpleLoop, os: !OutStream)
+fun >>(this: SimpleLoop const, os: !OutStream)
     os << "loop-" << counter << ", nest: " << nestingLevel << ", depth: " << depthLevel << endl
 
 //
@@ -155,7 +155,7 @@ fun _calculateNestingLevelRec(loop: SimpleLoop Ptr, depth: Int)
 
 fun numLoops(this: !LoopStructureGraph) = _loops.size
 
-fun >>(this: !LoopStructureGraph, os: !OutStream) = _dumpRec(os, _root, 0)
+fun >>(this: LoopStructureGraph const, os: !OutStream) = _dumpRec(os, _root, 0)
 
 fun _dumpRec(os: !OutStream, loop: SimpleLoop Ptr, indent: Int)
     os << loop.get

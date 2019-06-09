@@ -7,8 +7,8 @@
     datatype Type {}
 
 [ct, protected]
-    [native("_Type_ctor")] fun ctor(this: @Type)
-    [native("_Type_copy_ctor")] fun ctor(this: @Type, other: Type)
+    [native("_Type_ctor")] fun ctor(this: !Type)
+    [native("_Type_copy_ctor")] fun ctor(this: !Type, other: Type)
     //fun dtor(this: @Type) {}
 
 [noDefault, bitcopiable]
@@ -38,12 +38,14 @@
 
     // Everything can be initialized with 'Uninitialized', and does nothing
     [public]
-    fun ctor(this: @AnyType, nothing: Uninitialized) {}
+    fun ctor(this: !AnyType, nothing: Uninitialized) {}
 
 [protected]
     fun ctor(this: Null) {}
     fun ctor(this, other: Null) {}
     fun dtor(this: Null) {}
+
+    // TODO (mut): Remove references from below
 
     [native("_zero_init_1")] fun ctor(this: @Bool)
     [native("_ass_1_1")] fun ctor(this: @Bool, src: Bool)
@@ -569,49 +571,49 @@ using oper_assoc_:=         = -1
     [native("_Float_opMinus1")] fun - (x: Float): Float
     [native("_Double_opMinus1")] fun - (x: Double): Double
 
-    fun pre_++(n: @Byte): Byte { n+=Byte(1); return n; }
-    fun pre_++(n: @UByte): UByte { n+=UByte(1); return n; }
-    fun pre_++(n: @Short): Short { n+=Short(1); return n; }
-    fun pre_++(n: @UShort): UShort { n+=UShort(1); return n; }
-    fun pre_++(n: @Int): Int { n+=1; return n; }
-    fun pre_++(n: @UInt): UInt { n+=UInt(1); return n; }
-    fun pre_++(n: @Long): Long { n+=Long(1); return n; }
-    fun pre_++(n: @ULong): ULong { n+=ULong(1); return n; }
-    fun pre_++(n: @SizeType): SizeType { n+=SizeType(1); return n; }
-    fun pre_++(n: @DiffType): DiffType { n+=DiffType(1); return n; }
+    fun pre_++(n: !Byte): Byte { n+=Byte(1); return n; }
+    fun pre_++(n: !UByte): UByte { n+=UByte(1); return n; }
+    fun pre_++(n: !Short): Short { n+=Short(1); return n; }
+    fun pre_++(n: !UShort): UShort { n+=UShort(1); return n; }
+    fun pre_++(n: !Int): Int { n+=1; return n; }
+    fun pre_++(n: !UInt): UInt { n+=UInt(1); return n; }
+    fun pre_++(n: !Long): Long { n+=Long(1); return n; }
+    fun pre_++(n: !ULong): ULong { n+=ULong(1); return n; }
+    fun pre_++(n: !SizeType): SizeType { n+=SizeType(1); return n; }
+    fun pre_++(n: !DiffType): DiffType { n+=DiffType(1); return n; }
 
-    fun pre_--(n: @Byte): Byte { n-=Byte(1); return n; }
-    fun pre_--(n: @UByte): UByte { n-=UByte(1); return n; }
-    fun pre_--(n: @Short): Short { n-=Short(1); return n; }
-    fun pre_--(n: @UShort): UShort { n-=UShort(1); return n; }
-    fun pre_--(n: @Int): Int { n-=1; return n; }
-    fun pre_--(n: @UInt): UInt { n-=UInt(1); return n; }
-    fun pre_--(n: @Long): Long { n-=Long(1); return n; }
-    fun pre_--(n: @ULong): ULong { n-=ULong(1); return n; }
-    fun pre_--(n: @SizeType): SizeType { n-=SizeType(1); return n; }
-    fun pre_--(n: @DiffType): DiffType { n-=DiffType(1); return n; }
+    fun pre_--(n: !Byte): Byte { n-=Byte(1); return n; }
+    fun pre_--(n: !UByte): UByte { n-=UByte(1); return n; }
+    fun pre_--(n: !Short): Short { n-=Short(1); return n; }
+    fun pre_--(n: !UShort): UShort { n-=UShort(1); return n; }
+    fun pre_--(n: !Int): Int { n-=1; return n; }
+    fun pre_--(n: !UInt): UInt { n-=UInt(1); return n; }
+    fun pre_--(n: !Long): Long { n-=Long(1); return n; }
+    fun pre_--(n: !ULong): ULong { n-=ULong(1); return n; }
+    fun pre_--(n: !SizeType): SizeType { n-=SizeType(1); return n; }
+    fun pre_--(n: !DiffType): DiffType { n-=DiffType(1); return n; }
 
-    fun post_++(n: @Byte): Byte { let old = n; n+=Byte(1); return old; }
-    fun post_++(n: @UByte): UByte { let old = n; n+=UByte(1); return old; }
-    fun post_++(n: @Short): Short { let old = n; n+=Short(1); return old; }
-    fun post_++(n: @UShort): UShort { let old = n; n+=UShort(1); return old; }
-    fun post_++(n: @Int): Int { let old = n; n+=1; return old; }
-    fun post_++(n: @UInt): UInt { let old = n; n+=UInt(1); return old; }
-    fun post_++(n: @Long): Long { let old = n; n+=Long(1); return old; }
-    fun post_++(n: @ULong): ULong { let old = n; n+=ULong(1); return old; }
-    fun post_++(n: @SizeType): SizeType { let old = n; n+=SizeType(1); return old; }
-    fun post_++(n: @DiffType): DiffType { let old = n; n+=DiffType(1); return old; }
+    fun post_++(n: !Byte): Byte { let old = n; n+=Byte(1); return old; }
+    fun post_++(n: !UByte): UByte { let old = n; n+=UByte(1); return old; }
+    fun post_++(n: !Short): Short { let old = n; n+=Short(1); return old; }
+    fun post_++(n: !UShort): UShort { let old = n; n+=UShort(1); return old; }
+    fun post_++(n: !Int): Int { let old = n; n+=1; return old; }
+    fun post_++(n: !UInt): UInt { let old = n; n+=UInt(1); return old; }
+    fun post_++(n: !Long): Long { let old = n; n+=Long(1); return old; }
+    fun post_++(n: !ULong): ULong { let old = n; n+=ULong(1); return old; }
+    fun post_++(n: !SizeType): SizeType { let old = n; n+=SizeType(1); return old; }
+    fun post_++(n: !DiffType): DiffType { let old = n; n+=DiffType(1); return old; }
 
-    fun post_--(n: @Byte): Byte { let old = n; n-=Byte(1); return old; }
-    fun post_--(n: @UByte): UByte { let old = n; n-=UByte(1); return old; }
-    fun post_--(n: @Short): Short { let old = n; n-=Short(1); return old; }
-    fun post_--(n: @UShort): UShort { let old = n; n-=UShort(1); return old; }
-    fun post_--(n: @Int): Int { let old = n; n-=1; return old; }
-    fun post_--(n: @UInt): UInt { let old = n; n-=UInt(1); return old; }
-    fun post_--(n: @Long): Long { let old = n; n-=Long(1); return old; }
-    fun post_--(n: @ULong): ULong { let old = n; n-=ULong(1); return old; }
-    fun post_--(n: @SizeType): SizeType { let old = n; n-=SizeType(1); return old; }
-    fun post_--(n: @DiffType): DiffType { let old = n; n-=DiffType(1); return old; }
+    fun post_--(n: !Byte): Byte { let old = n; n-=Byte(1); return old; }
+    fun post_--(n: !UByte): UByte { let old = n; n-=UByte(1); return old; }
+    fun post_--(n: !Short): Short { let old = n; n-=Short(1); return old; }
+    fun post_--(n: !UShort): UShort { let old = n; n-=UShort(1); return old; }
+    fun post_--(n: !Int): Int { let old = n; n-=1; return old; }
+    fun post_--(n: !UInt): UInt { let old = n; n-=UInt(1); return old; }
+    fun post_--(n: !Long): Long { let old = n; n-=Long(1); return old; }
+    fun post_--(n: !ULong): ULong { let old = n; n-=ULong(1); return old; }
+    fun post_--(n: !SizeType): SizeType { let old = n; n-=SizeType(1); return old; }
+    fun post_--(n: !DiffType): DiffType { let old = n; n-=DiffType(1); return old; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// StringRef
@@ -626,42 +628,42 @@ datatype StringRef
     end: @Byte
 
 [protected]
-    fun ctor(this: @StringRef)
+    fun ctor(this: !StringRef)
         begin := null
         end := null
 
-    fun ctor(this: @StringRef, size: SizeType)
+    fun ctor(this: !StringRef, size: SizeType)
         begin := malloc(size + 1)
         end := ptrAdd(begin, size)
         end = Byte(0)
-    fun ctor(this: @StringRef, other: StringRef)
+    fun ctor(this: !StringRef, other: StringRef)
         begin := other.begin
         end := other.end
-    fun ctor(this: @StringRef, begin, end: @Byte)
+    fun ctor(this: !StringRef, begin, end: @Byte)
         this.begin := begin
         this.end := end
-    fun dtor(this: @StringRef) {}
+    fun dtor(this: !StringRef) {}
 
-    fun isEmpty(this: @StringRef)           = ptrDiff(end, begin) == 0
-    fun size(this: @StringRef): SizeType    = ptrDiff(end, begin)
+    fun isEmpty(this: StringRef)            = ptrDiff(end, begin) == 0
+    fun size(this: StringRef): SizeType     = ptrDiff(end, begin)
 
-    fun front(this: @StringRef): @Char                = reinterpretCast(@Char, begin)
-    fun back(this: @StringRef): @Char                 = reinterpretCast(@Char, ptrSub(end, 1))
-    fun ()(this: @StringRef) : @Char                  = reinterpretCast(@Char, begin)
-    fun ()(this: @StringRef, index: SizeType): @Char  = reinterpretCast(@Char, ptrAdd(begin, index))
-    fun at(this: @StringRef, index: SizeType): @Char  = reinterpretCast(@Char, ptrAdd(begin, index))
+    fun front(this: StringRef): @Char                 = reinterpretCast(@Char, begin)
+    fun back(this: StringRef): @Char                  = reinterpretCast(@Char, ptrSub(end, 1))
+    fun ()(this: StringRef) : @Char                   = reinterpretCast(@Char, begin)
+    fun ()(this: StringRef, index: SizeType): @Char   = reinterpretCast(@Char, ptrAdd(begin, index))
+    fun at(this: StringRef, index: SizeType): @Char   = reinterpretCast(@Char, ptrAdd(begin, index))
 
-    fun popFront(this: @StringRef)                { begin := ptrAdd(begin, 1); }
-    fun popBack(this: @StringRef)                 { end := ptrSub(end, 1); }
-    fun popFront(this: @StringRef, n: SizeType)   { begin := ptrAdd(begin, n); }
-    fun popBack(this: @StringRef, n: SizeType)    { end := ptrSub(end, n); }
+    fun popFront(this: !StringRef)                { begin := ptrAdd(begin, 1); }
+    fun popBack(this: !StringRef)                 { end := ptrSub(end, 1); }
+    fun popFront(this: !StringRef, n: SizeType)   { begin := ptrAdd(begin, n); }
+    fun popBack(this: !StringRef, n: SizeType)    { end := ptrSub(end, n); }
 
-    fun subrange(this: @StringRef, index: SizeType, num: SizeType): StringRef
+    fun subrange(this: StringRef, index: SizeType, num: SizeType): StringRef
         return StringRef(ptrAdd(begin, index), ptrAdd(begin, index+num))
 
-    fun cStr(this: @StringRef): @Char = reinterpretCast(@Char, begin)
+    fun cStr(this: StringRef): @Char = reinterpretCast(@Char, begin)
 
-fun = (this: @StringRef, src: StringRef): @StringRef
+fun = (this: !StringRef, src: StringRef): !StringRef
     begin := src.begin
     end := src.end
 
@@ -696,7 +698,7 @@ fun cStringLen(s: @Char): SizeType
     return len
 
 [autoCt]
-    fun char(this: @StringRef): Char
+    fun char(this: StringRef): Char
         if this.isEmpty return Char()
         else return this.at(0)
 

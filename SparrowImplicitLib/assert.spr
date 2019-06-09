@@ -116,6 +116,7 @@ import std.vector, std.algorithms, std.string
     fun _extractVars(node: AstNode, varsList: !Vector(AstNode))
         let nk = node nodeKind
         if nk == nkSparrowExpIdentifier
+            node semanticCheck
             let exp = node explanation
             if (exp isSet) && (exp nodeKind) == nkFeatherExpVarRef
                 varsList += node

@@ -10,8 +10,7 @@ datatype Gen(t: Type)
     using ValueType = t
     _generator: Function(t, UInt)
 
-// TODO (mut)
-fun mkGen(t: Type, generator: @AnyType): Gen(t) if isValid(generator(UInt(0)))
+fun mkGen(t: Type, generator: AnyType const): Gen(t) if isValid(TypeOp.copyVal(generator)(UInt(0)))
     using FunType = Function(t, UInt)
     return Gen(t)(FunType(generator))
 

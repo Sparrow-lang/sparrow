@@ -775,6 +775,10 @@ package TypeOp
         fun removeAllRef(t: Type) = changeRefCount(t, 0)
         fun atLeastOneRef(t: Type): Type = ife(isRef(t), t, addRef(t))
 
+    fun copyVal(val: AnyType const): typeOf(val)
+    fun copyVal(val: !AnyType): typeOf(val)
+    fun copyVal(val: @AnyType): removeRef(typeOf(val))
+
 /// Add reference operator
 [ct, native("$typeAddRef")] fun pre_@ (t: Type): Type
 //[ctGeneric] fun pre_@ (t: Type) = TypeOp.addRef(t)

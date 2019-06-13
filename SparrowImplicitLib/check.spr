@@ -10,7 +10,9 @@ datatype Gen(t: Type)
     using ValueType = t
     _generator: Function(t, UInt)
 
-fun mkGen(t: Type, generator: AnyType const): Gen(t) if isValid(TypeOp.copyVal(generator)(UInt(0)))
+concept _Generator(x) if isValid(x(UInt(0)))
+
+fun mkGen(t: Type, generator: _Generator const): Gen(t)
     using FunType = Function(t, UInt)
     return Gen(t)(FunType(generator))
 

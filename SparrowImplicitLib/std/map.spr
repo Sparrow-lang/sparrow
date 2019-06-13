@@ -16,44 +16,44 @@ datatype Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
     _hashTable: _ImplTable
 
 [protected]
-    fun ctor(this: @Map, n: SizeType)                                       { _hashTable.ctor(n, TraitsType()); }
-    fun ctor(this: @Map, n: SizeType, traits: this.TraitsType)              { _hashTable.ctor(n, traits); }
-    fun ctor(this: @Map, range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()); }
-    fun ctor(this: @Map, range: Range, n: SizeType)                         { _hashTable.ctor(range, n, HashType(), CompareType()); }
-    fun ctor(this: @Map, range: Range, n: SizeType, traits: this.TraitsType){ _hashTable.ctor(range, n, traits); }
+    fun ctor(this: !Map, n: SizeType)                                       { _hashTable.ctor(n, TraitsType()); }
+    fun ctor(this: !Map, n: SizeType, traits: this.TraitsType)              { _hashTable.ctor(n, traits); }
+    fun ctor(this: !Map, range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()); }
+    fun ctor(this: !Map, range: Range, n: SizeType)                         { _hashTable.ctor(range, n, HashType(), CompareType()); }
+    fun ctor(this: !Map, range: Range, n: SizeType, traits: this.TraitsType){ _hashTable.ctor(range, n, traits); }
 
-    fun traits(this: @Map)                                  = _hashTable.traits
+    fun traits(this: Map const)                             = _hashTable.traits
 
-    fun size(this: @Map)                                    = _hashTable.size
-    fun isEmpty(this: @Map)                                 = (_hashTable.size == 0)
-    fun bucketCount(this: @Map)                             = _hashTable.bucketCount
-    fun reserve(this: @Map, n: SizeType)                    { _hashTable.reserve(n); }
+    fun size(this: Map const)                               = _hashTable.size
+    fun isEmpty(this: Map const)                            = (_hashTable.size == 0)
+    fun bucketCount(this: Map const)                        = _hashTable.bucketCount
+    fun reserve(this: !Map, n: SizeType)                    { _hashTable.reserve(n); }
 
-    fun all(this: @Map)                                     = _hashTable.all
-    fun keys(this: @Map)                                    = transform(_hashTable.all, PairFirst(ValueType)())
-    fun values(this: @Map)                                  = transform(_hashTable.all, PairSecond(ValueType)())
+    fun all(this: Map const)                                = _hashTable.all
+    fun keys(this: Map const)                               = transform(_hashTable.all, PairFirst(ValueType)())
+    fun values(this: Map const)                             = transform(_hashTable.all, PairSecond(ValueType)())
 
-    fun insert(this: @Map, key: @this.KeyType, data: @this.DataType)  = _hashTable.insert(ValueType(key, data))
-    fun insert(this: @Map, value: @this.ValueType)          = _hashTable.insert(value)
-    fun insert(this: @Map, range: Range)                    { _hashTable.insert(range); }
-    fun remove(this: @Map, key: @this.KeyType)              { _hashTable.remove(key); }
-    fun remove(this: @Map, range: this.RangeType)           { _hashTable.remove(range); }
+    fun insert(this: !Map, key: this.KeyType const, data: this.DataType const)  = _hashTable.insert(ValueType(key, data))
+    fun insert(this: !Map, value: this.ValueType const)     = _hashTable.insert(value)
+    fun insert(this: !Map, range: Range)                    { _hashTable.insert(range); }
+    fun remove(this: !Map, key: this.KeyType const)         { _hashTable.remove(key); }
+    fun remove(this: !Map, range: this.RangeType)           { _hashTable.remove(range); }
 
-    fun contains(this: @Map, key: @this.KeyType)            = _hashTable.contains(key)
-    fun count(this: @Map, key: @this.KeyType)               = _hashTable.count(key)
-    fun equalRange(this: @Map, key: @this.KeyType)          = _hashTable.equalRange(key)
-    fun find(this: @Map, key: @this.KeyType)                = _hashTable.find(key)
+    fun contains(this: Map const, key: this.KeyType const)       = _hashTable.contains(key)
+    fun count(this: Map const, key: this.KeyType const)          = _hashTable.count(key)
+    fun equalRange(this: Map const, key: this.KeyType const)     = _hashTable.equalRange(key)
+    fun find(this: Map const, key: this.KeyType const)           = _hashTable.find(key)
 
-    fun ()(this: @Map, key: @this.KeyType): @DataType       = this.at(key)
-    fun at(this: @Map, key: @this.KeyType): @DataType
+    fun ()(this: !Map, key: this.KeyType const): @DataType  = this.at(key)
+    fun at(this: !Map, key: this.KeyType const): @DataType
         var r = this.find(key)
         if r.isEmpty
             let data: DataType
             r = _hashTable.insert(ValueType(key, data))
         return r.front().v2
 
-    fun clear(this: @Map)                                   { _hashTable.clear; }
+    fun clear(this: !Map)                                   { _hashTable.clear; }
 
-    fun swap(this: @Map, other: typeOf(this))               { this._hashTable swap other._hashTable; }
+    fun swap(this: !Map, other: !typeOf(this))              { this._hashTable swap other._hashTable; }
 
-    fun >> (this: @Map, os: @OutStream)                     { _hashTable.>>(os); }
+    fun >> (this: Map const, os: !OutStream)                { _hashTable.>>(os); }

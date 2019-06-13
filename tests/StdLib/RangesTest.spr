@@ -35,8 +35,8 @@ datatype MyObj
     x: Int;
 
 fun =(this, other: !MyObj): @MyObj { x = other.x; return this; }
-fun ==(this, other: !MyObj): Bool = x == other.x
-fun <(this, other: !MyObj): Bool = x < other.x
+fun ==(this, other: MyObj): Bool = x == other.x
+fun <(this, other: MyObj): Bool = x < other.x
 
 datatype Greater
     ;

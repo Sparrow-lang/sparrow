@@ -13,40 +13,40 @@ datatype SortedSet(keyType, lessType, compareType: Type)
     _sortedTable: _ImplTable
 
 [protected]
-    fun ctor(this: @SortedSet, n: SizeType)                                       { _sortedTable.ctor(n, LessType(), CompareType()) }
-    fun ctor(this: @SortedSet, n: SizeType, less: this.LessType)                       { _sortedTable.ctor(n, less, CompareType()) }
-    fun ctor(this: @SortedSet, n: SizeType, less: this.LessType, comp: this.CompareType)    { _sortedTable.ctor(n, less, comp) }
-    fun ctor(this: @SortedSet, range: Range)                                      { _sortedTable.ctor(range, 0, LessType(), CompareType()) }
-    fun ctor(this: @SortedSet, range: Range, n: SizeType)                         { _sortedTable.ctor(range, n, LessType(), CompareType()) }
-    fun ctor(this: @SortedSet, range: Range, n: SizeType, less: this.LessType)         { _sortedTable.ctor(range, n, less, CompareType()) }
-    fun ctor(this: @SortedSet, range: Range, n: SizeType, less: this.LessType, comp: this.CompareType)  { _sortedTable.ctor(range, n, less, comp) }
-    fun ctor(this, other: @SortedSet)                                 { this._sortedTable ctor other._sortedTable }
+    fun ctor(this: !SortedSet, n: SizeType)                                       { _sortedTable.ctor(n, LessType(), CompareType()) }
+    fun ctor(this: !SortedSet, n: SizeType, less: this.LessType)                  { _sortedTable.ctor(n, less, CompareType()) }
+    fun ctor(this: !SortedSet, n: SizeType, less: this.LessType, comp: this.CompareType)    { _sortedTable.ctor(n, less, comp) }
+    fun ctor(this: !SortedSet, range: Range)                                      { _sortedTable.ctor(range, 0, LessType(), CompareType()) }
+    fun ctor(this: !SortedSet, range: Range, n: SizeType)                         { _sortedTable.ctor(range, n, LessType(), CompareType()) }
+    fun ctor(this: !SortedSet, range: Range, n: SizeType, less: this.LessType)    { _sortedTable.ctor(range, n, less, CompareType()) }
+    fun ctor(this: !SortedSet, range: Range, n: SizeType, less: this.LessType, comp: this.CompareType)  { _sortedTable.ctor(range, n, less, comp) }
+    fun ctor(this: !SortedSet, other: SortedSet const)                            { this._sortedTable ctor other._sortedTable }
 
-    fun lessFunction(this: @SortedSet)              = _sortedTable.lessFunction
-    fun comparator(this: @SortedSet)                = _sortedTable.comparator
+    fun lessFunction(this: SortedSet const)         = _sortedTable.lessFunction
+    fun comparator(this: SortedSet const)           = _sortedTable.comparator
 
-    fun size(this: @SortedSet)                      = _sortedTable.size
-    fun isEmpty(this: @SortedSet)                   = _sortedTable.isEmpty
-    fun capacity(this: @SortedSet)                  = _sortedTable.capacity
-    fun reserve(this: @SortedSet, n: SizeType)      { _sortedTable.reserve(n) }
+    fun size(this: SortedSet const)                 = _sortedTable.size
+    fun isEmpty(this: SortedSet const)              = _sortedTable.isEmpty
+    fun capacity(this: SortedSet const)             = _sortedTable.capacity
+    fun reserve(this: !SortedSet, n: SizeType)      { _sortedTable.reserve(n) }
 
-    fun all(this: @SortedSet)                       = _sortedTable.all
+    fun all(this: SortedSet const)                  = _sortedTable.all
 
-    fun insert(this: @SortedSet, value: @this.ValueType) = _sortedTable.insert(value)
-    fun insert(this: @SortedSet, range: Range)      { _sortedTable.insert(range) }
-    fun remove(this: @SortedSet, key: @this.KeyType)     { _sortedTable.remove(key) }
-    fun remove(this: @SortedSet, range: this.RangeType)  { _sortedTable.remove(range) }
+    fun insert(this: !SortedSet, value: this.ValueType const) = _sortedTable.insert(value)
+    fun insert(this: !SortedSet, range: Range)                { _sortedTable.insert(range) }
+    fun remove(this: !SortedSet, key: this.KeyType const)     { _sortedTable.remove(key) }
+    fun remove(this: !SortedSet, range: this.RangeType)       { _sortedTable.remove(range) }
 
-    fun contains(this: @SortedSet, key: @this.KeyType)   = _sortedTable.contains(key)
-    fun count(this: @SortedSet, key: @this.KeyType)      = _sortedTable.count(key)
-    fun equalRange(this: @SortedSet, key: @this.KeyType) = _sortedTable.equalRange(key)
-    fun lowerBound(this: @SortedSet, key: @this.KeyType) = _sortedTable.lowerBound(key)
-    fun upperBound(this: @SortedSet, key: @this.KeyType) = _sortedTable.upperBound(key)
-    fun find(this: @SortedSet, key: @this.KeyType)       = _sortedTable.find(key)
+    fun contains(this: SortedSet const, key: this.KeyType const)   = _sortedTable.contains(key)
+    fun count(this: SortedSet const, key: this.KeyType const)      = _sortedTable.count(key)
+    fun equalRange(this: SortedSet const, key: this.KeyType const) = _sortedTable.equalRange(key)
+    fun lowerBound(this: SortedSet const, key: this.KeyType const) = _sortedTable.lowerBound(key)
+    fun upperBound(this: SortedSet const, key: this.KeyType const) = _sortedTable.upperBound(key)
+    fun find(this: SortedSet const, key: this.KeyType const)       = _sortedTable.find(key)
 
-    fun clear(this: @SortedSet)                     { _sortedTable.clear }
+    fun clear(this: !SortedSet)                     { _sortedTable.clear }
 
-    fun swap(this: @SortedSet, other: typeOf(this)) { this._sortedTable swap other._sortedTable }
+    fun swap(this: !SortedSet, other: !typeOf(this)) { this._sortedTable swap other._sortedTable }
 
 datatype _Identity(type: Type)
     using ValueType = type

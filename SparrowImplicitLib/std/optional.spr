@@ -9,52 +9,52 @@ datatype Optional(valueType: Type)
     _constructed: Bool
 
 [noDefault]
-fun ctor(this: @Optional)
+fun ctor(this: !Optional)
     _constructed ctor false
     _value ctor Uninitialized()
 [noDefault]
-fun ctor(this: @Optional, other: typeOf(this))
+fun ctor(this: !Optional, other: typeOf(this) const)
     _constructed ctor other._constructed
     if other._constructed
         _value ctor other._value
 [noDefault]
-fun ctor(this: @Optional, val: @this.ValueType)
+fun ctor(this: !Optional, val: this.ValueType const)
     _constructed ctor true
     _value ctor val
 
 [protected]
-    [noDefault] fun dtor(this: @Optional)
+    [noDefault] fun dtor(this: !Optional)
         this.reset()
 
-    fun =(this, other: @Optional)           { if other._constructed ; this.reset(other._value) else this.reset }
-    fun =(this: @Optional, val: @this.ValueType) { this.reset(val) }
+    fun =(this: !Optional, other: typeOf(this) const) { if other._constructed ; this.reset(other._value) else this.reset }
+    fun =(this: !Optional, val: this.ValueType const) { this.reset(val) }
 
-    fun ==(this, other: @Optional)          = _constructed == other._constructed && (!_constructed || _value == other._value)
+    fun ==(this, other: Optional const)          = _constructed == other._constructed && (!_constructed || _value == other._value)
 
-    fun some(x: @AnyType): -@typeOf(x) Optional = (-@typeOf(x) Optional)(x)
+    fun some(x: AnyType const): -@typeOf(x) Optional = (-@typeOf(x) Optional)(x)
     fun none(t: Type) = (t Optional)()
 
-    fun isNull(this: @Optional)                                      = !_constructed
-    fun isSet(this: @Optional)                                       = _constructed
-    fun get(this: @Optional): @ValueType                             = _value
-    fun getOrElse(this: @Optional, default: @this.ValueType): @ValueType  = ife(_constructed, cast(@ValueType, _value), default)
+    fun isNull(this: Optional const)                                      = !_constructed
+    fun isSet(this: Optional const)                                       = _constructed
+    fun get(this: Optional const): @ValueType                             = _value
+    fun getOrElse(this: Optional const, default: this.ValueType const): @ValueType  = ife(_constructed, cast(@ValueType, _value), default)
 
-    fun reset(this: @Optional)
+    fun reset(this: !Optional)
         if _constructed
             _value dtor
         _constructed = false
-    fun reset(this: @Optional, val: @this.ValueType)
+    fun reset(this: !Optional, val: this.ValueType const)
         if _constructed
             _value dtor
         _value ctor val
         _constructed = true
 
-    fun swap(this: @Optional, other: typeOf(this))
+    fun swap(this: !Optional, other: !typeOf(this))
         let tmp = this
         this = other
         other = tmp
 
-    fun >>(this: @Optional, os: @OutStream) if isValid(os << #$this.ValueType)
+    fun >>(this: Optional const, os: !OutStream) if isValid(os << #$this.ValueType)
         if this.isSet
             os << "Optional(" << _value << ")"
         else

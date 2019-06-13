@@ -16,23 +16,23 @@ using traceCalls = true
 
 //! A worker class describes a thread that is doing some work on our task system
 datatype Worker
-    taskSystem: @TaskSystem
+    taskSystem: TaskSystem Ptr
     work: TaskQueue
     workerId: Int
     curDepth: Int
 
     //! The global counter that keeps track on how many internal threads are idle
-    _idleCounter: @IdleCounter
+    _idleCounter: IdleCounter Ptr
     //! Non-zero if this thread has work to do
     _isBusy: Int Atomic
     //! Semaphore used when sleeping
     _waitSem: Semaphore
 
-fun ctor(this: !Worker, taskSystem: !TaskSystem, workerId: Int, idleCounter: !IdleCounter)
-    this.taskSystem := taskSystem
+fun ctor(this: !Worker, taskSystem: TaskSystem Ptr, workerId: Int, idleCounter: IdleCounter Ptr)
+    this.taskSystem ctor taskSystem
     this.workerId = workerId
     this.curDepth = 0
-    this._idleCounter := idleCounter
+    this._idleCounter ctor idleCounter
     this._isBusy store 0
     this._waitSem ctor 0
 
@@ -136,7 +136,7 @@ fun getInitTaskSystem: TaskSystem Ptr
 
 fun createWorker(ts: TaskSystem Ptr): Worker Ptr
     let id: Int = ts.get().workers size
-    let p: Worker Ptr = new(Worker, ts.get(), id, ts.get().idleCounter)
+    let p: Worker Ptr = new(Worker, ts, id, (IdleCounter Ptr)(ts.get().idleCounter))
     ts.get().workers.pushBack(p)
     return p
 

@@ -66,23 +66,24 @@ package Impl
 
         // Create a root task and wait until it's executed
         var range: part.RangeType = r
-        tasks.spawnRootAndWait(Impl.mkParForTask(range, f, part, 0))
+        using PartType = typeOf(part)
+        tasks.spawnRootAndWait(Impl.mkParForTask(range, f, (PartType Ptr)(part), 0))
 
     datatype ParForTask(rangeType, funcType, partType: Type)
         prefix: tasks.TaskPrefix
         range: rangeType
         func: funcType
-        part: @partType
+        part: partType
         depth: Int
 
         using RangeType = rangeType
         using _FuncType = funcType
         using _PartType = partType
 
-    fun ctor(this: !ParForTask, r: this.RangeType, f: this._FuncType, part: !this._PartType, depth: Int)
+    fun ctor(this: !ParForTask, r: this.RangeType, f: this._FuncType, part: this._PartType, depth: Int)
         this.range ctor r
         this.func ctor f
-        this.part := part
+        this.part ctor part
         this.depth ctor depth
 
     fun execute(this: !ParForTask)
@@ -104,7 +105,7 @@ package Impl
             for val: RangeType.RetType = range
                 func(val)
 
-    fun mkParForTask(r: Range, f: AnyType, part: !Partitioner, depth: Int) \
-        = ParForTask(typeOf(r), typeOf(f), -@typeOf(part))(r, f, part, depth)
-    fun allocParForTask(r: Range, f: AnyType, part: !Partitioner, depth: Int) \
-        = new(ParForTask(typeOf(r), typeOf(f), -@typeOf(part)), r, f, part, depth)
+    fun mkParForTask(r: Range, f: AnyType, part: AnyType, depth: Int) \
+        = ParForTask(typeOf(r), typeOf(f), typeOf(part))(r, f, part, depth)
+    fun allocParForTask(r: Range, f: AnyType, part: AnyType, depth: Int) \
+        = new(ParForTask(typeOf(r), typeOf(f), typeOf(part)), r, f, part, depth)

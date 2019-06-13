@@ -6,7 +6,7 @@ datatype RawPtr(valueType: Type)
 
     _ptr: @ValueType
 
-fun ctor(this: @RawPtr, byteRef: @Byte) if this.ValueType != Byte
+fun ctor(this: !RawPtr, byteRef: @Byte) if this.ValueType != Byte
     _ptr := reinterpretCast(@ValueType, byteRef)
 
 [protected]
@@ -23,21 +23,21 @@ fun ctor(this: @RawPtr, byteRef: @Byte) if this.ValueType != Byte
 
     fun bytePtr(this: RawPtr): @Byte          = reinterpretCast(@Byte, _ptr)
 
-    fun reallocPtr(this: @RawPtr, n: SizeType)
+    fun reallocPtr(this: !RawPtr, n: SizeType)
         _ptr := reinterpretCast(@ValueType, realloc(this.bytePtr(), n * sizeOf(ValueType)))
 
     fun freePtr(this: RawPtr)
         if ( this.isSet )
             free(this.bytePtr)
 
-    fun swap(this: @RawPtr, other: typeOf(this))
+    fun swap(this: !RawPtr, other: !typeOf(this))
         let t: @ValueType = _ptr
         _ptr := other._ptr
         other._ptr := t
 
-    fun >>(this: RawPtr, os: @OutStream)
+    fun >>(this: RawPtr, os: !OutStream)
         os << "RawPtr(" << mkStreamRefWrapper(this.bytePtr) << ")"
 
-fun mkRawPtr(ref: @AnyType) = RawPtr(-@typeOf(ref))(ref)
+fun mkRawPtr(ref: !AnyType) = RawPtr(-@typeOf(ref))(ref)
 fun allocRawPtr(t: Type, num: SizeType) = RawPtr(t)(reinterpretCast(@t, malloc(num * sizeOf(t))))
 

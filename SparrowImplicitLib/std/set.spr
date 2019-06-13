@@ -12,43 +12,42 @@ datatype Set(keyType: Type, traitsType: Type = DefaultTypeTraits)
 
     _hashTable: _ImplTable
 
-fun ctor(this: @Set, n: SizeType)                                       { _hashTable.ctor(n, TraitsType()) }
-fun ctor(this: @Set, n: SizeType, traits: this.TraitsType)              { _hashTable.ctor(n, traits) }
-fun ctor(this: @Set, range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()) }
-fun ctor(this: @Set, range: Range, n: SizeType)                         { _hashTable.ctor(range, n, HashType(), CompareType()) }
-fun ctor(this: @Set, range: Range, n: SizeType, traits: this.TraitsType){ _hashTable.ctor(range, n, traits) }
-//fun ctor(this, other: @Set)                                       { this._hashTable ctor other._hashTable }
+fun ctor(this: !Set, n: SizeType)                                       { _hashTable.ctor(n, TraitsType()) }
+fun ctor(this: !Set, n: SizeType, traits: this.TraitsType)              { _hashTable.ctor(n, traits) }
+fun ctor(this: !Set, range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()) }
+fun ctor(this: !Set, range: Range, n: SizeType)                         { _hashTable.ctor(range, n, HashType(), CompareType()) }
+fun ctor(this: !Set, range: Range, n: SizeType, traits: this.TraitsType){ _hashTable.ctor(range, n, traits) }
 
 [protected]
-    fun traits(this: @Set)                                  = _hashTable.traits
+    fun traits(this: Set const)                             = _hashTable.traits
 
-    fun size(this: @Set)                                    = _hashTable.size
-    fun isEmpty(this: @Set)                                 = (_hashTable.size == 0)
-    fun bucketCount(this: @Set)                             = _hashTable.bucketCount
-    fun reserve(this: @Set, n: SizeType)                    { _hashTable.reserve(n); }
+    fun size(this: Set const)                               = _hashTable.size
+    fun isEmpty(this: Set const)                            = (_hashTable.size == 0)
+    fun bucketCount(this: Set const)                        = _hashTable.bucketCount
+    fun reserve(this: !Set, n: SizeType)                    { _hashTable.reserve(n); }
 
-    fun all(this: @Set)                                     = _hashTable.all
+    fun all(this: Set const)                                = _hashTable.all
 
-    fun insert(this: @Set, value: @this.ValueType)          = _hashTable.insert(value)
-    fun insert(this: @Set, range: Range)                    { _hashTable.insert(range); }
-    fun remove(this: @Set, key: @this.KeyType)              { _hashTable.remove(key); }
-    fun remove(this: @Set, range: this.RangeType)           { _hashTable.remove(range); }
+    fun insert(this: !Set, value: this.ValueType const)     = _hashTable.insert(value)
+    fun insert(this: !Set, range: Range)                    { _hashTable.insert(range); }
+    fun remove(this: !Set, key: this.KeyType const)         { _hashTable.remove(key); }
+    fun remove(this: !Set, range: this.RangeType)           { _hashTable.remove(range); }
 
-    fun +=(this: @Set, value: @this.ValueType)              { _hashTable.insert(value) }
-    fun +=(this: @Set, range: Range)                        { _hashTable.insert(range) }
-    fun -=(this: @Set, key: @this.KeyType)                  { _hashTable.remove(key) }
-    fun -=(this: @Set, range: this.RangeType)               { _hashTable.remove(range) }
+    fun +=(this: !Set, value: this.ValueType const)         { _hashTable.insert(value) }
+    fun +=(this: !Set, range: Range)                        { _hashTable.insert(range) }
+    fun -=(this: !Set, key: this.KeyType const)             { _hashTable.remove(key) }
+    fun -=(this: !Set, range: this.RangeType)               { _hashTable.remove(range) }
 
-    fun contains(this: @Set, key: @this.KeyType)            = _hashTable.contains(key)
-    fun count(this: @Set, key: @this.KeyType)               = _hashTable.count(key)
-    fun equalRange(this: @Set, key: @this.KeyType)          = _hashTable.equalRange(key)
-    fun find(this: @Set, key: @this.KeyType)                = _hashTable.find(key)
+    fun contains(this: Set const, key: this.KeyType const)       = _hashTable.contains(key)
+    fun count(this: Set const, key: this.KeyType const)          = _hashTable.count(key)
+    fun equalRange(this: Set const, key: this.KeyType const)     = _hashTable.equalRange(key)
+    fun find(this: Set const, key: this.KeyType const)           = _hashTable.find(key)
 
-    fun clear(this: @Set)                                   { _hashTable.clear }
+    fun clear(this: !Set)                                   { _hashTable.clear }
 
-    fun swap(this: @Set, other: typeOf(this))               { this._hashTable swap other._hashTable }
+    fun swap(this: !Set, other: !typeOf(this))              { this._hashTable swap other._hashTable }
 
-    fun >>(this: @Set, os: @OutStream)                      { _hashTable.>>(os) }
+    fun >>(this: Set const, os: !OutStream)                 { _hashTable.>>(os) }
 
 datatype _Identity(type: Type)
     using ValueType = type

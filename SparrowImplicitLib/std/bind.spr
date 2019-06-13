@@ -1,18 +1,18 @@
 module std.bind
 
-fun mkBindAll(ftor, a1: @AnyType) \
+fun mkBindAll(ftor, a1: AnyType const) \
     = BindAll1(-@typeOf(ftor), -@typeOf(a1))(ftor, a1) \
     if isValid(ftor(a1))
-fun mkBindAll(ftor, a1, a2: @AnyType) \
+fun mkBindAll(ftor, a1, a2: AnyType const) \
     = BindAll2(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2))(ftor, a1, a2) \
     if isValid(ftor(a1, a2))
-fun mkBindAll(ftor, a1, a2, a3: @AnyType) \
+fun mkBindAll(ftor, a1, a2, a3: AnyType const) \
     = BindAll3(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2), -@typeOf(a3))(ftor, a1, a2, a3) \
     if isValid(ftor(a1, a2, a3))
-fun mkBindAll(ftor, a1, a2, a3, a4: @AnyType) \
+fun mkBindAll(ftor, a1, a2, a3, a4: AnyType const) \
     = BindAll4(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2), -@typeOf(a3), -@typeOf(a4))(ftor, a1, a2, a3, a4) \
     if isValid(ftor(a1, a2, a3, a4))
-fun mkBindAll(ftor, a1, a2, a3, a4, a5: @AnyType) \
+fun mkBindAll(ftor, a1, a2, a3, a4, a5: AnyType const) \
     = BindAll5(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2), -@typeOf(a3), -@typeOf(a4), -@typeOf(a5))(ftor, a1, a2, a3, a4, a5) \
     if isValid(ftor(a1, a2, a3, a4, a5))
 
@@ -62,15 +62,15 @@ datatype BindAll5(ftorType, T1, T2, T3, T4, T5: Type)
     a5: T5
 
 [protected]
-    fun ()(this: @BindAll1) = ftor(a1)
-    fun ()(this: @BindAll2) = ftor(a1, a2)
-    fun ()(this: @BindAll3) = ftor(a1, a2, a3)
-    fun ()(this: @BindAll4) = ftor(a1, a2, a3, a4)
-    fun ()(this: @BindAll5) = ftor(a1, a2, a3, a4, a5)
+    fun ()(this: BindAll1 const) = ftor(a1)
+    fun ()(this: BindAll2 const) = ftor(a1, a2)
+    fun ()(this: BindAll3 const) = ftor(a1, a2, a3)
+    fun ()(this: BindAll4 const) = ftor(a1, a2, a3, a4)
+    fun ()(this: BindAll5 const) = ftor(a1, a2, a3, a4, a5)
 
-    fun >>(this: @BindAll1, os: @OutStream) { os << 'BindAll(' << a1 << ')' }
-    fun >>(this: @BindAll2, os: @OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ')' }
-    fun >>(this: @BindAll3, os: @OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ', ' << a3 << ')' }
-    fun >>(this: @BindAll4, os: @OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ', ' << a3 << ', ' << a4 << ')' }
-    fun >>(this: @BindAll5, os: @OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ', ' << a3 << ', ' << a4 << ', ' << a5 << ')' }
+    fun >>(this: BindAll1 const, os: !OutStream) { os << 'BindAll(' << a1 << ')' }
+    fun >>(this: BindAll2 const, os: !OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ')' }
+    fun >>(this: BindAll3 const, os: !OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ', ' << a3 << ')' }
+    fun >>(this: BindAll4 const, os: !OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ', ' << a3 << ', ' << a4 << ')' }
+    fun >>(this: BindAll5 const, os: !OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ', ' << a3 << ', ' << a4 << ', ' << a5 << ')' }
 

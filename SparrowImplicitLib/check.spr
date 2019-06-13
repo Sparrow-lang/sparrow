@@ -211,7 +211,7 @@ package _Impl
         _range: rangeType
 
     fun isEmpty(this: ForAllRangeGenerator const)                = _range.isEmpty
-    fun front(this: ForAllRangeGenerator const): RetType         = RetType(_range.front)
+    fun front(this: !ForAllRangeGenerator): RetType         = RetType(_range.front)
     fun popFront(this: !ForAllRangeGenerator)                    { _range.popFront }
 
     datatype ForWhichRange(rangeType, predType: Type) \
@@ -251,7 +251,7 @@ package _Impl
 
     fun isEmpty(this: TrivialsRange const)                = _range.isEmpty()
     fun popFront(this: !TrivialsRange)                    { _range.popFront() }
-    fun front(this: TrivialsRange const): RetType
+    fun front(this: !TrivialsRange): RetType
         let res = _range.front
         res.isTrivial = _pred(res.value)
         return res
@@ -266,7 +266,7 @@ package _Impl
 
     fun isEmpty(this: ClassifierRange const)                = _range.isEmpty()
     fun popFront(this: !ClassifierRange)                    { _range.popFront() }
-    fun front(this: ClassifierRange const): RetType
+    fun front(this: !ClassifierRange): RetType
         let res = _range.front
         res.classifier = _pred(res.value)
         return res

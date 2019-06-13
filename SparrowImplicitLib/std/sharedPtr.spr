@@ -11,12 +11,12 @@ datatype SharedPtr(type: Type)
     _count: @UInt
 
 [protected]
-    fun ctor(this: @SharedPtr)
+    fun ctor(this: !SharedPtr)
         _ref := null
         _count := null
 
     [convert]
-    fun ctor(this: @SharedPtr, value: @this.ValueType)
+    fun ctor(this: !SharedPtr, value: @this.ValueType)
         if ( value === null )
             this._ref := null
             this._count := null
@@ -25,37 +25,39 @@ datatype SharedPtr(type: Type)
             this._ref := d.data
             this._count := d._count
 
-    fun ctor(this, other: @SharedPtr) if typeOf(this) == typeOf(other)
+    fun ctor(this: !SharedPtr, other: typeOf(this) const)
         _ref := other._ref
         _count := other._count
         if ( _count !== null )
             ++_count
 
-    fun dtor(this: @SharedPtr)
+    fun dtor(this: !SharedPtr)
         if ( _count !== null && --_count == 0 )
             _ref.dtor()
             delete(_count)
 
-    fun =(this, other: @SharedPtr)                      { other.swap(this) }
-    fun =(this: @SharedPtr, value: @this.ValueType)                       { this.reset(value) }
-    fun =(this: @SharedPtr, value: AnyType) if isValid(ValueType(value))  { this.reset(value) }
+    fun =(this: !SharedPtr, other: typeOf(this))
+        var other2 = other
+        this swap other2
+    fun =(this: !SharedPtr, value: @this.ValueType)                       { this.reset(value) }
+    fun =(this: !SharedPtr, value: @AnyType) if isValid(ValueType(value)) { this.reset(value) }
 
-    fun ==(this, other: @SharedPtr)                     = _ref === other._ref && _count === other._count
+    fun ==(this, other: SharedPtr const)                = _ref === other._ref && _count === other._count
 
-    fun .(this: @SharedPtr) = _ref
-    fun get(this: @SharedPtr): @ValueType               = _ref
+    fun .(this: SharedPtr const) = _ref
+    fun get(this: SharedPtr const): @ValueType          = _ref
 
-    fun isUnique(this: @SharedPtr)                      = _count !== null && _count == 1
-    fun useCount(this: @SharedPtr): UInt                = ife(_count !== null, UInt(_count), UInt(0))
+    fun isUnique(this: SharedPtr const)                 = _count !== null && _count == 1
+    fun useCount(this: SharedPtr const): UInt           = ife(_count !== null, UInt(_count), UInt(0))
 
-    fun isNull(this: @SharedPtr)                        = _ref === null
-    fun isSet(this: @SharedPtr)                         = _ref !== null
+    fun isNull(this: SharedPtr const)                   = _ref === null
+    fun isSet(this: SharedPtr const)                    = _ref !== null
 
-    fun reset(this: @SharedPtr)                         { this.dtor; this.ctor }
-    fun reset(this: @SharedPtr, value: @this.ValueType) { this.dtor; this ctor value }
-    fun release(this: @SharedPtr)                       { this.reset }
+    fun reset(this: !SharedPtr)                         { this.dtor; this.ctor }
+    fun reset(this: !SharedPtr, value: !this.ValueType) { this.dtor; this ctor value }
+    fun release(this: !SharedPtr)                       { this.reset }
 
-    fun swap(this: @SharedPtr, other: @SharedPtr)
+    fun swap(this: !SharedPtr, other: !typeOf(this))
         let tmpr: @ValueType = other._ref
         other._ref := _ref
         _ref := tmpr
@@ -64,7 +66,7 @@ datatype SharedPtr(type: Type)
         other._count := _count
         _count := tmpc
 
-    fun >>(this: @SharedPtr, os: @OutStream) if isValid(os << #$ValueType)
+    fun >>(this: SharedPtr const, os: !OutStream) if isValid(os << #$ValueType)
         if ( _count !== null )
             os << "SharedPtr(" << _ref << ", " << _count << ")"
         else
@@ -74,23 +76,23 @@ datatype _AllocData(type: Type)
     _count: UInt
     data: type
 
-fun ctor(this: @_AllocData)
+fun ctor(this: !_AllocData)
     _count ctor 1
     data ctor
 
-fun ctor(this: @_AllocData, arg1: @AnyType)
+fun ctor(this: !_AllocData, arg1: AnyType const)
     _count ctor 1
     data ctor arg1
 
-fun ctor(this: @_AllocData, arg1, arg2: @AnyType)
+fun ctor(this: !_AllocData, arg1, arg2: AnyType const)
     _count ctor 1
     data.ctor(arg1, arg2)
 
-fun ctor(this: @_AllocData, arg1, arg2, arg3: @AnyType)
+fun ctor(this: !_AllocData, arg1, arg2, arg3: AnyType const)
     _count ctor 1
     data.ctor(arg1, arg2, arg3)
 
-fun ctor(this: @_AllocData, arg1, arg2, arg3, arg4: @AnyType)
+fun ctor(this: !_AllocData, arg1, arg2, arg3, arg4: AnyType const)
     _count ctor 1
     data.ctor(arg1, arg2, arg3, arg4)
 
@@ -100,25 +102,25 @@ fun mkShared(t: Type): SharedPtr(t)
     res._ref := d.data
     res._count := d._count
     return res
-fun mkShared(t: Type, arg1: @AnyType): SharedPtr(t) if isValid((#$t).ctor(arg1))
+fun mkShared(t: Type, arg1: AnyType const): SharedPtr(t) if isValid((#$t).ctor(arg1))
     var res: SharedPtr(t)
     let d: @_AllocData(t) = new(_AllocData(t), arg1)
     res._ref := d.data
     res._count := d._count
     return res
-fun mkShared(t: Type, arg1, arg2: @AnyType): SharedPtr(t) if isValid((#$t).ctor(arg1, arg2))
+fun mkShared(t: Type, arg1, arg2: AnyType const): SharedPtr(t) if isValid((#$t).ctor(arg1, arg2))
     var res: SharedPtr(t)
     let d: @_AllocData(t) = new(_AllocData(t), arg1, arg2)
     res._ref := d.data
     res._count := d._count
     return res
-fun mkShared(t: Type, arg1, arg2, arg3: @AnyType): SharedPtr(t) if isValid((#$t).ctor(arg1, arg2, arg3))
+fun mkShared(t: Type, arg1, arg2, arg3: AnyType const): SharedPtr(t) if isValid((#$t).ctor(arg1, arg2, arg3))
     var res: SharedPtr(t)
     let d: @_AllocData(t) = new(_AllocData(t), arg1, arg2, arg3)
     res._ref := d.data
     res._count := d._count
     return res
-fun mkShared(t: Type, arg1, arg2, arg3, arg4: @AnyType): SharedPtr(t) if isValid((#$t).ctor(arg1, arg2, arg3, arg4))
+fun mkShared(t: Type, arg1, arg2, arg3, arg4: AnyType const): SharedPtr(t) if isValid((#$t).ctor(arg1, arg2, arg3, arg4))
     var res: SharedPtr(t)
     let d: @_AllocData(t) = new(_AllocData(t), arg1, arg2, arg3, arg4)
     res._ref := d.data

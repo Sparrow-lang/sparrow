@@ -6,40 +6,40 @@ import ranges
 concept Swappable(x) if isValid(x.swap(x))
 
 /// Return the maximum of the two values
-fun max(value1, value2: @AnyType): typeOf(value1)
+fun max(value1, value2: AnyType const): typeOf(value1)
     if value1 < value2
         return value2
     return value1
 
 /// Return the minimum of the two values
-fun min(value1, value2: @AnyType): typeOf(value1)
+fun min(value1, value2: AnyType const): typeOf(value1)
     if value2 < value1
         return value2
     return value1
 
 /// Return the maximum of the two values, given the less predicate
-fun max(value1, value2: @AnyType, lessPred: AnyType): typeOf(value1) if isValid(lessPred(value1, value2))
+fun max(value1, value2: AnyType const, lessPred: AnyType): typeOf(value1) if isValid(lessPred(value1, value2))
     if lessPred(value1, value2)
         return value2
     return value1
 
 /// Return the minimum of the two values, given the less predicate
-fun min(value1, value2: @AnyType, lessPred: AnyType): typeOf(value1) if typeOf(lessPred(value1, value2)) == Bool
+fun min(value1, value2: AnyType const, lessPred: AnyType): typeOf(value1) if typeOf(lessPred(value1, value2)) == Bool
     if lessPred(value2, value1)
         return value2
     return value1
 
 [autoCt]
     /// Swaps the two objects
-    fun swap(a, b: @AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
+    fun swap(a, b: !AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
         let tmp = a
         a = b
         b = tmp
-    fun swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
+    fun swap(a, b: !Swappable) if typeOf(a) == typeOf(b)
         a.swap(b)
 
 /// Find the given value in the given range
-fun find(r: Range, value: @AnyType): typeOf(r) if isValid(*r == value)
+fun find(r: Range, value: AnyType const): typeOf(r) if isValid(*r == value)
     while !!r && !(*r == value)
         ++r
     return r
@@ -52,7 +52,7 @@ fun findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(*r)) == Bool
 
 /// Finds the index of the given value in the range
 /// Returns -1 if not found
-fun indexOf(r: Range, value: @AnyType): SizeType if isValid(*r == value)
+fun indexOf(r: Range, value: AnyType const): SizeType if isValid(*r == value)
     let n: !SizeType = 0
     for v: r.RetType = r
         if v == value
@@ -87,7 +87,7 @@ fun findFirstOfIf(r1, r2: Range, pred: AnyType): typeOf(r1) if typeOf(pred(*r1, 
     return r1
 
 /// Count how many values from the give range has the given value
-fun count(range: Range, value: @AnyType): SizeType if isValid(*range == value)
+fun count(range: Range, value: AnyType const): SizeType if isValid(*range == value)
     let n: !SizeType = 0
     for v: range.RetType = range
         if v == value
@@ -302,7 +302,7 @@ fun isSorted(range: Range, pred: AnyType): Bool if typeOf(pred(*range, *range)) 
     return true
 
 /// Applies the given functor in a fold fashion, from left, starting from the given seed
-fun foldLeft(range: Range, function: AnyType, seed: @AnyType): -@typeOf(seed) \
+fun foldLeft(range: Range, function: AnyType, seed: AnyType const): TypeOp.removeCat(typeOf(seed)) \
         if isValid(seed = function(seed, *range))
     var t = seed
     for v: range.RetType = range
@@ -310,7 +310,7 @@ fun foldLeft(range: Range, function: AnyType, seed: @AnyType): -@typeOf(seed) \
     return t
 
 /// Applies the given functor in a fold fashion, from right, starting from the given seed
-fun foldRight(range: BidirRange, function: AnyType, seed: @AnyType): -@typeOf(seed) \
+fun foldRight(range: BidirRange, function: AnyType, seed: AnyType const): TypeOp.removeCat(typeOf(seed)) \
         if isValid(seed = function(seed, *range))
     return foldLeft(retro(range), function, seed)
 
@@ -324,14 +324,14 @@ fun copy(r1, r2: Range): typeOf(r2) if isValid(*r2 = *r1)
     return r2
 
 /// Replaces a value in the given range
-fun replace(r: Range, oldVal, newVal: @AnyType) \
+fun replace(r: Range, oldVal, newVal: AnyType const) \
         if isValid(*r == oldVal) && isValid(*r = newVal)
     for v: r.RetType = r
         if v == oldVal
             v = newVal
 
 /// Replaces all the value that match a predicate with the given value
-fun replaceIf(r: Range, pred: AnyType, newVal: @AnyType) \
+fun replaceIf(r: Range, pred: AnyType, newVal: AnyType const) \
         if isValid(pred(*r)) && isValid(*r = newVal)
     for v: r.RetType = r
         if pred(v)

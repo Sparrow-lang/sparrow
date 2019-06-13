@@ -23,12 +23,12 @@ fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind)
     this.kind ctor kind
     this.loc ctor l
     // cout << "Parsed: " << kind << endl
-fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, r: Range)
+fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, r: AnyType) // TODO (mut)
     this.kind ctor kind
     this.loc ctor l
     this.children ctor r
     // cout << "Parsed: " << kind << endl
-fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, r: Range, name: StringRef)
+fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, r: AnyType, name: StringRef) // TODO (mut)
     this.kind ctor kind
     this.loc ctor l
     this.name ctor name

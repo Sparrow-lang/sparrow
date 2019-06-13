@@ -8,7 +8,6 @@ fun mkVector(range: Range) = Vector(-@ range.RetType)(range)
 
 datatype Vector(valueType: Type)
     using ValueType = valueType
-    using ValuePassType = !@valueType
 
     using RangeType = ContiguousMemoryRange(valueType)
 
@@ -18,13 +17,13 @@ datatype Vector(valueType: Type)
     _begin, _end, _endOfStore: RawPtr(ValueType)
 
 [protected]
-    fun ctorFromCt(this: @Vector, src: Vector ct)
+    fun ctorFromCt(this: !Vector, src: Vector ct)
         this.ctor()
         this.reserve(ctEval(src.size()))
         [ct] for el: ValueType = src.all()
             this.pushBack(el)
 
-    fun ctor(this, other: @Vector)
+    fun ctor(this: !Vector, other: typeOf(this) const)
         let size = other.size()
 
         _begin = allocRawPtr(ValueType, size)
@@ -42,7 +41,7 @@ datatype Vector(valueType: Type)
                 dst = dst.advance()
                 src = src.advance()
 
-    fun ctor(this: @Vector, size: SizeType)
+    fun ctor(this: !Vector, size: SizeType)
         // Allocate the buffer
         _begin = allocRawPtr(ValueType, size)
         _end = _begin.advance(size)
@@ -53,14 +52,14 @@ datatype Vector(valueType: Type)
         while p != _end ; p = p.advance()
             p.value().ctor()
 
-    fun ctor(this: @Vector, range: Range) if !RandomAccessRange(range)
+    fun ctor(this: !Vector, range: Range) if !RandomAccessRange(range)
         _begin.ctor()
         _end.ctor()
         _endOfStore.ctor()
         for v = range
             this.pushBack(v)
 
-    fun ctor(this: @Vector, range: RandomAccessRange)
+    fun ctor(this: !Vector, range: RandomAccessRange)
         _begin.ctor()
         _end.ctor()
         _endOfStore.ctor()
@@ -68,21 +67,21 @@ datatype Vector(valueType: Type)
         for v = range
             this.pushBack(v)
 
-    fun dtor(this: @Vector)
+    fun dtor(this: !Vector)
         var p = _begin
 
         while p != _end ; p = p.advance()
             p.value().dtor()
         _begin.freePtr()
 
-    fun =(this, other: @Vector): @typeOf(this)
+    fun =(this: !Vector, other: typeOf(this) const): @typeOf(this)
         var tmp = other
 
         tmp.swap(this)
 
         return this
 
-    fun ==(this, other: @Vector): Bool
+    fun ==(this, other: Vector const): Bool
         if this.size() != other.size()
             return false
 
@@ -94,9 +93,9 @@ datatype Vector(valueType: Type)
                 return false
         return true
 
-    fun !=(other: @Vector): Bool = !(this == other)
+    fun !=(other: Vector const): Bool = !(this == other)
 
-    fun swap(this: @Vector, other: typeOf(this))
+    fun swap(this: !Vector, other: !typeOf(this))
         var tmp = _begin
 
         _begin = other._begin
@@ -108,11 +107,11 @@ datatype Vector(valueType: Type)
         _endOfStore = other._endOfStore
         other._endOfStore = tmp
 
-    fun size(this: @Vector): SizeType = _end.diff(_begin)
-    fun isEmpty(this: @Vector) = _begin == _end
-    fun capacity(this: @Vector): SizeType = _endOfStore.diff(_begin)
+    fun size(this: Vector const): SizeType = _end.diff(_begin)
+    fun isEmpty(this: Vector const) = _begin == _end
+    fun capacity(this: Vector const): SizeType = _endOfStore.diff(_begin)
 
-    fun reserve(this: @Vector, n: SizeType)
+    fun reserve(this: !Vector, n: SizeType)
         let curCapacity = this.capacity()
 
         if n <= curCapacity
@@ -129,15 +128,15 @@ datatype Vector(valueType: Type)
         _end = _begin.advance(curSize)
         _endOfStore = _begin.advance(n)
 
-    fun at(this: @Vector, index: SizeType)    = _begin.advance(index).value()
-    fun ()(this: @Vector, index: SizeType)    = _begin.advance(index).value()
-    fun front(this: @Vector)                   = _begin.value()
-    fun back(this: @Vector)                    = _end.advance(-1).value()
-    fun all(this: @Vector)                     = RangeType(_begin, _end)
-    fun subrange(this: @Vector, index: SizeType, num: SizeType): RangeType = RangeType(_begin.advance(index), _begin.advance(index + num))
-    fun subrange(this: @Vector, index: SizeType): RangeType = RangeType(_begin.advance(index), _end)
+    fun at(this: Vector const, index: SizeType)    = _begin.advance(index).value()
+    fun ()(this: Vector const, index: SizeType)    = _begin.advance(index).value()
+    fun front(this: Vector const)                   = _begin.value()
+    fun back(this: Vector const)                    = _end.advance(-1).value()
+    fun all(this: Vector const)                     = RangeType(_begin, _end)
+    fun subrange(this: Vector const, index: SizeType, num: SizeType): RangeType = RangeType(_begin.advance(index), _begin.advance(index + num))
+    fun subrange(this: Vector const, index: SizeType): RangeType = RangeType(_begin.advance(index), _end)
 
-    fun insertBefore(this: @Vector, value: this.ValuePassType, pos: this.RangeType)
+    fun insertBefore(this: !Vector, value: this.ValueType const, pos: this.RangeType)
         let posCount = pos.frontPtr().diff(_begin)
 
         this.reserve(this.size() + 1)
@@ -151,7 +150,7 @@ datatype Vector(valueType: Type)
         p.advance().value().ctor(value)
         _end = _end.advance()
 
-    fun insertBefore(this: @Vector, range: Range, pos: this.RangeType)
+    fun insertBefore(this: !Vector, range: Range, pos: this.RangeType)
         let n = range.size()
         let index = pos.frontPtr().diff(_begin)
 
@@ -170,13 +169,13 @@ datatype Vector(valueType: Type)
             range.popFront()
         _end = _end.advance(n)
 
-    fun insertAfter(this: @Vector, value: this.ValuePassType, pos: this.RangeType)
+    fun insertAfter(this: !Vector, value: this.ValueType const, pos: this.RangeType)
         this.insertBefore(value, RangeType(pos.backPtr(), _end))
 
-    fun insertAfter(this: @Vector, range: Range, pos: this.RangeType)
+    fun insertAfter(this: !Vector, range: Range, pos: this.RangeType)
         this.insertBefore(range, RangeType(pos.backPtr(), _end))
 
-    fun pushBack(this: @Vector, value: this.ValuePassType)
+    fun pushBack(this: !Vector, value: this.ValueType const)
         if _end == _endOfStore
             var t = 2 * this.capacity()
 
@@ -186,14 +185,14 @@ datatype Vector(valueType: Type)
         _end.value().ctor(value)
         _end = _end.advance()
 
-    fun +=(this: @Vector, value: this.ValuePassType)
+    fun +=(this: !Vector, value: this.ValueType const)
         this.pushBack(value)
 
-    fun popBack(this: @Vector)
+    fun popBack(this: !Vector)
         _end = _end.advance(-1)
         _end.value().dtor()
 
-    fun remove(this: @Vector, range: this.RangeType)
+    fun remove(this: !Vector, range: this.RangeType)
         var rBegin = range.frontPtr()
         var rEnd = range.backPtr()
 
@@ -209,14 +208,14 @@ datatype Vector(valueType: Type)
             rEnd = rEnd.advance()
         _end = rBegin
 
-    fun remove(this: @Vector, index: SizeType)
+    fun remove(this: !Vector, index: SizeType)
         var r = this.all()
 
         r.popFront(index)
         r.popBack(this.size() - index - 1)
         this.remove(r)
 
-    fun resize(this: @Vector, n: SizeType)
+    fun resize(this: !Vector, n: SizeType)
         let oldSize = this.size()
 
         if n == oldSize
@@ -237,10 +236,10 @@ datatype Vector(valueType: Type)
                 _end.value().ctor()
                 _end = _end.advance()
 
-    fun clear(this: @Vector)
+    fun clear(this: !Vector)
         this.remove(RangeType(_begin, _end))
 
-    fun assign(this: @Vector, range: Range)
+    fun assign(this: !Vector, range: Range)
         this.clear()
         for v = range
             this.pushBack(v)
@@ -253,7 +252,7 @@ datatype Vector(valueType: Type)
             os << this.at(i)
         os << ')'
 
-    fun _dumpThis(this: @Vector, prefix: StringRef)
+    fun _dumpThis(this: !Vector, prefix: StringRef)
         cout << prefix << "dumping " << TypeOp.description(Vector) << ": " << mkStreamRefWrapper(this) << endl
         cout << "    size: " << Int(this.size()) << endl
         cout << "    _begin: " << mkStreamRefWrapper(_begin.bytePtr()) << endl

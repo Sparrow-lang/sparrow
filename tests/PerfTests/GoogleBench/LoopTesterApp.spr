@@ -16,6 +16,12 @@ fun ctor(this: !BasicBlockEdge, cfg: !MaoCFG, fromName, toName: Int)
     to.addInEdge(from)
     cfg.addEdge(this mkPtr)
 
+fun allocBBE(cfg: !MaoCFG, fromName, toName: Int): @BasicBlockEdge
+    var res: @BasicBlockEdge = reinterpretCast(@BasicBlockEdge, malloc(sizeOf(BasicBlockEdge)))
+    res.ctor(cfg, fromName, toName)
+    return res
+
+
 // BasicBlock only maintains a vector of in-edges and
 // a vector of out-edges.
 //
@@ -454,14 +460,14 @@ fun findHavlakLoops(cfg: !MaoCFG, lsg: !LoopStructureGraph): SizeType
 //--- TESTING CODE -------------------
 
 fun buildDiamond(cfg: !MaoCFG, start: Int): Int
-    new(BasicBlockEdge, cfg, start  , start+1)
-    new(BasicBlockEdge, cfg, start  , start+2)
-    new(BasicBlockEdge, cfg, start+1, start+3)
-    new(BasicBlockEdge, cfg, start+2, start+3)
+    allocBBE(cfg, start  , start+1)
+    allocBBE(cfg, start  , start+2)
+    allocBBE(cfg, start+1, start+3)
+    allocBBE(cfg, start+2, start+3)
     return start+3
 
 fun buildConnect(cfg: !MaoCFG, start, end: Int)
-    new(BasicBlockEdge, cfg, start, end)
+    allocBBE(cfg, start, end)
 
 fun buildStraight(cfg: !MaoCFG, start, n: Int): Int
     for i = 0..n
@@ -492,7 +498,7 @@ fun sprMain
     cfg.createNode(0)  // top
     buildBaseLoop(cfg, 0)
     cfg.createNode(1)  // bottom
-    new(BasicBlockEdge, cfg, 0, 2)
+    allocBBE(cfg, 0, 2)
 
     cout << "15000 dummy loops" << endl
     for dummyLoop = 0..15000

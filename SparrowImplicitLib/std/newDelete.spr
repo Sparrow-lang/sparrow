@@ -5,32 +5,32 @@ fun new(t: Type): @t
     res ctor
     return res
 
-fun new(t: Type, arg1: AnyType const): @t if isValid(#$t ctor arg1)
+fun new(t: Type, arg1: AnyType const): @t if isValid((#$ @t) ctor arg1)
     var res: @t = reinterpretCast(@t, malloc(sizeOf(t)))
     res ctor arg1
     return res
 
-fun new(t: Type, arg1, arg2: AnyType const): @t if isValid((#$t).ctor(arg1, arg2))
+fun new(t: Type, arg1, arg2: AnyType const): @t if isValid((#$ @t).ctor(arg1, arg2))
     var res: @t = reinterpretCast(@t, malloc(sizeOf(t)))
     res.ctor(arg1, arg2)
     return res
 
-fun new(t: Type, arg1, arg2, arg3: AnyType const): @t if isValid((#$t).ctor(arg1, arg2, arg3))
+fun new(t: Type, arg1, arg2, arg3: AnyType const): @t if isValid((#$ @t).ctor(arg1, arg2, arg3))
     var res: @t = reinterpretCast(@t, malloc(sizeOf(t)))
     res.ctor(arg1, arg2, arg3)
     return res
 
-fun new(t: Type, arg1, arg2, arg3, arg4: AnyType const): @t if isValid((#$t).ctor(arg1, arg2, arg3, arg4))
+fun new(t: Type, arg1, arg2, arg3, arg4: AnyType const): @t if isValid((#$ @t).ctor(arg1, arg2, arg3, arg4))
     var res: @t = reinterpretCast(@t, malloc(sizeOf(t)))
     res.ctor(arg1, arg2, arg3, arg4)
     return res
 
-fun new(t: Type, arg1, arg2, arg3, arg4, arg5: AnyType const): @t if isValid((#$t).ctor(arg1, arg2, arg3, arg4, arg5))
+fun new(t: Type, arg1, arg2, arg3, arg4, arg5: AnyType const): @t if isValid((#$ @t).ctor(arg1, arg2, arg3, arg4, arg5))
     var res: @t = reinterpretCast(@t, malloc(sizeOf(t)))
     res.ctor(arg1, arg2, arg3, arg4, arg5)
     return res
 
-fun new(t: Type, arg1, arg2, arg3, arg4, arg5, arg6: AnyType const): @t if isValid((#$t).ctor(arg1, arg2, arg3, arg4, arg5, arg6))
+fun new(t: Type, arg1, arg2, arg3, arg4, arg5, arg6: AnyType const): @t if isValid((#$ @t).ctor(arg1, arg2, arg3, arg4, arg5, arg6))
     var res: @t = reinterpretCast(@t, malloc(sizeOf(t)))
     res.ctor(arg1, arg2, arg3, arg4, arg5, arg6)
     return res

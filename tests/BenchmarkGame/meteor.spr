@@ -502,7 +502,7 @@ fun boardHasIslands(cell: Byte): Bool
  * at each successful piece placement.  This data is used to create a 50 char
  * array if a solution is found.
  */
-let avail: Short = 0x03FF
+var avail: Short = 0x03FF
 var solNums: StaticArray(Byte, nPieces)
 var solMasks: StaticArray(ULong, nPieces)
 var solutions: StaticArray2d(Byte, 2100, nPositions)

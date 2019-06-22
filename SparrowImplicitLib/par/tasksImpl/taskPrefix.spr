@@ -20,12 +20,12 @@ datatype TaskPrefix
 
     //! The worker that this task belongs to
     //! Use casts to avoid direct dependency
-    /*private*/ worker: Byte Ptr
+    /*private*/ worker: UntypedPtr
     // TODO: should this be atomic?
 
     //! The worker that waits for this task to finish
     //! Use casts to avoid direct dependency
-    /*private*/ waitingWorker: Byte Ptr
+    /*private*/ waitingWorker: UntypedPtr
 
     //! Used for chaining the tasks in the task queue
     /*private*/ prev: TaskPrefix Ptr

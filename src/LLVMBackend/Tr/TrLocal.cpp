@@ -538,6 +538,10 @@ llvm::Value* translateStringRefConstant(
     llvm::Value* beginAddr = context.builder().CreateInBoundsGEP(tmpVar, indices, "");
     indices[1] = constInt1;
     llvm::Value* endAddr = context.builder().CreateInBoundsGEP(tmpVar, indices, "");
+    auto i8ptrptr = llvm::PointerType::getUnqual(
+            llvm::PointerType::getUnqual(llvm::IntegerType::get(context.llvmContext(), 8)));
+    beginAddr = context.builder().CreateBitCast(beginAddr, i8ptrptr);
+    endAddr = context.builder().CreateBitCast(endAddr, i8ptrptr);
     context.builder().CreateStore(globalStr, beginAddr);
     context.builder().CreateStore(globalStrEnd, endAddr);
 

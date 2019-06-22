@@ -11,7 +11,7 @@ datatype Ptr(type: Type)
 [protected]
     fun =(this: !Ptr, ref: this.ValueType const) = _ptr := ref
 
-    fun < (this, other: Ptr)          = ptrDiff(reinterpretCast(@Byte, this._ptr), reinterpretCast(@Byte, other._ptr)) < DiffType(0)
+    fun < (this, other: Ptr)          = (UntypedPtr(_ptr) ptrDiff UntypedPtr(other._ptr)) < DiffType(0)
 
     fun get(this: Ptr)         = _ptr
     fun isNull(this: Ptr)      = _ptr === null

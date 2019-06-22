@@ -87,9 +87,9 @@ fun tracer(this: !Worker) = Tracer(workerId, curDepth)
 ////////////////////////////////////////////////////////////////////////////////
 // TaskPrexix functions
 
-fun worker(task: !TaskPrefix): @Worker = reinterpretCast(@Worker, task.worker.get())
-fun waitingWorker(task: !TaskPrefix): @Worker = reinterpretCast(@Worker, task.waitingWorker.get())
-fun setWaitingWorker(task: !TaskPrefix, w: !Worker) { task.waitingWorker = reinterpretCast(@Byte, w); }
+fun worker(task: !TaskPrefix): @Worker = task.worker asRefOf Worker
+fun waitingWorker(task: !TaskPrefix): @Worker = task.waitingWorker asRefOf Worker
+fun setWaitingWorker(task: !TaskPrefix, w: !Worker) { task.waitingWorker = UntypedPtr(w); }
 
 ////////////////////////////////////////////////////////////////////////////////
 // TaskSystem datatype

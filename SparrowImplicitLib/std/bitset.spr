@@ -19,4 +19,4 @@ datatype Bitset
     fun testBit(this: Bitset const, n: SizeType) = UByte(0) != (_bits(n/8) !&! (UByte(1) !<<! UByte(n%8)))
 
     fun clear(this: !Bitset)
-        memset(reinterpretCast(@Byte, _bits(0)), Byte(0), _bits.size())
+        memset(UntypedPtr(_bits(0)), Byte(0), _bits.size())

@@ -17,8 +17,8 @@ template <typename ValueType> ValueType evalValue(Node* node, Type expectedExpTy
     node = Nest_ctEval(node);
     Type t = Feather::removeCategoryIfPresent(Type(node->type));
     if (!Nest::sameTypeIgnoreMode(t, expectedExpType))
-        REP_INTERNAL(node->location, "Invalid value; found expression of type %1%, expected %2%") %
-                node->type % expectedExpType;
+        REP_INTERNAL(node->location, "Invalid value; expected type %1%; found %2% (%3%)") %
+                expectedExpType % node->type % Nest_toStringEx(node);
     CHECK(node->location, node->nodeKind == nkFeatherExpCtValue);
     ValueType* val = node ? Feather_getCtValueData<ValueType>(node) : nullptr;
     if (!val)

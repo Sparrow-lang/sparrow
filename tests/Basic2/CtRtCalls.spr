@@ -1,22 +1,22 @@
 //!!
 
 [rt] fun mallocRt()
-    var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)))
+    var pi: @Int = malloc(sizeOf(Int)).asRefOf(Int)
     pi = 10
     cout << pi << endl
-    free(reinterpretCast(@Byte, pi))
+    free(UntypedPtr(pi))
 
 [ct] fun mallocCt()
-    var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)))
+    var pi: @Int = malloc(sizeOf(Int)).asRefOf(Int)
     pi = 11
     cout << pi << endl
-    free(reinterpretCast(@Byte, pi))
+    free(UntypedPtr(pi))
 
 fun mallocRtCt()
-    var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)))
+    var pi: @Int = malloc(sizeOf(Int)).asRefOf(Int)
     pi = 12
     cout << pi << endl
-    free(reinterpretCast(@Byte, pi))
+    free(UntypedPtr(pi))
 
 fun rtCaller()
     mallocRtCt();

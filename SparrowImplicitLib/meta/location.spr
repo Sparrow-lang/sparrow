@@ -5,9 +5,9 @@ datatype LineCol
     line, col: UInt
 
 /// Type describing a source code; for now we just use an untyped Ptr
-datatype SourceCode = @Byte
+datatype SourceCode = UntypedPtr
 
-fun >>(s: SourceCode const, os: !OutStream)
+fun >>(s: SourceCode, os: !OutStream)
     os << mkStreamRefWrapper(s.data)
 
 /// Type that holds the location information: a source code and a range of chars into it
@@ -105,7 +105,7 @@ fun <(lhs, rhs: LineCol const): Bool
 
 fun >>(l: Location const, os: !OutStream)
     os << l.start << '-' << l.end
-    if l.sourceCode.data !== null
+    if l.sourceCode.data != UntypedPtr()
         os << " @" << l.sourceCode
 
 fun >>(lc: LineCol, os: !OutStream)

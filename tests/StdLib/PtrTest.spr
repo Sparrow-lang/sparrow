@@ -40,17 +40,13 @@ fun sprMain
     else if n == 7; test7
     else if n == 8; test8
 
-[native("malloc")] fun mallocRt(size: SizeType): @Byte
-[native("free")] fun freeRt(p: !Byte)
+[native("malloc")] fun mallocRt(size: SizeType): UntypedPtr
+[native("free")] fun freeRt(p: UntypedPtr)
 
 fun newObj(x: Int): @MyObj
-    var ptr: @Byte
+    var ptr = mallocRt(sizeOf(MyObj))
 
-    ptr := mallocRt(sizeOf(MyObj))
-
-    var oPtr: @MyObj
-
-    oPtr := reinterpretCast(@MyObj, ptr)
+    var oPtr: @MyObj = ptr asRefOf MyObj
 
     oPtr.ctor(x)
 
@@ -58,12 +54,7 @@ fun newObj(x: Int): @MyObj
 
 fun delObj(oPtr: !MyObj)
     oPtr.dtor()
-
-    var ptr: @Byte
-
-    ptr := reinterpretCast(@Byte, oPtr)
-
-    freeRt(ptr)
+    freeRt(UntypedPtr(oPtr))
 
 fun test1()
     var p: Ptr(MyObj)

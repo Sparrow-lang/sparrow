@@ -51,7 +51,7 @@ fun isJoinable(t: Thread) = t._handle != NativeThreadHandle()
 fun join(t: !Thread)
     //assert(t isJoinable)
     //assert((t getId) !== curThreadId)
-    let res = _Impl.pthread_join(t._handle, null)
+    let res = _Impl.pthread_join(t._handle, UntypedPtr())
     //assert(res == 0)
     t._handle = NativeThreadHandle()
 
@@ -82,33 +82,33 @@ fun sleep(durMs: UInt)
     _Impl.nanosleep(req, rem)
 
 package _Impl
-    using ThreadFun = FunctionPtr(@Byte rt, @Byte rt)
+    using ThreadFun = FunctionPtr(UntypedPtr, UntypedPtr)
 
     [initCtor]
     datatype Closure(FType: Type)
         f: FType
 
-    fun threadFun(closureType: Type, arg: @Byte): @Byte
-        let self: @closureType = reinterpretCast(@closureType, arg)
+    fun threadFun(closureType: Type, arg: UntypedPtr): UntypedPtr
+        let self: @closureType = arg asRefOf closureType
         self.f()
         self delete
-        return null
+        return UntypedPtr()
 
-    fun getFunPtr(closureType: Type): ThreadFun = \threadFun(closureType, null)
+    fun getFunPtr(closureType: Type): ThreadFun = \threadFun(closureType, UntypedPtr())
 
     fun startThread(f: AnyType): NativeThreadHandle
         using ClosureType = Closure(typeOf(f))
         let closurePtr: @ClosureType = new(ClosureType, f)
         var handle: NativeThreadHandle
-        let arg: @Byte = reinterpretCast(@Byte, closurePtr)
-        let status = pthread_create(handle, null, getFunPtr(ClosureType), arg)
+        let arg = UntypedPtr(closurePtr)
+        let status = pthread_create(handle, UntypedPtr(), getFunPtr(ClosureType), arg)
         return handle
 
     [initCtor] datatype TimeSpec
         tv_sec, tv_nsec: Long
 
-    [native("pthread_create")] fun pthread_create(handle: !NativeThreadHandle, attr: @Byte, f: ThreadFun, arg: @Byte): Int
-    [native("pthread_join")] fun pthread_join(handle: NativeThreadHandle, valPtr: @ @Byte): Int
+    [native("pthread_create")] fun pthread_create(handle: !NativeThreadHandle, attr: UntypedPtr, f: ThreadFun, arg: UntypedPtr): Int
+    [native("pthread_join")] fun pthread_join(handle: NativeThreadHandle, valPtr: UntypedPtr): Int
     [native("pthread_detach")] fun pthread_detach(handle: NativeThreadHandle): Int
     [native("pthread_self")] fun pthread_self: NativeThreadHandle
 

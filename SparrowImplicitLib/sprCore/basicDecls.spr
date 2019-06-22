@@ -621,49 +621,47 @@ using oper_assoc_:=         = -1
 datatype StringRef
     using RetType = @Char
 
-    begin: @Byte
-    end: @Byte
+    begin, end: UntypedPtr
 
 [protected]
     fun ctor(this: !StringRef)
-        begin := null
-        end := null
+        begin ctor UntypedPtr()
+        end ctor UntypedPtr()
 
     fun ctor(this: !StringRef, size: SizeType)
-        begin := malloc(size + 1)
-        end := ptrAdd(begin, size)
-        end = Byte(0)
+        begin = malloc(size + 1)
+        end = (begin ptrAdd size)
+        (end asRefOf Byte) = Byte(0)
     fun ctor(this: !StringRef, other: StringRef)
-        begin := other.begin
-        end := other.end
-    fun ctor(this: !StringRef, begin, end: @Byte)
-        this.begin := begin
-        this.end := end
+        begin = other.begin
+        end = other.end
+    fun ctor(this: !StringRef, begin, end: UntypedPtr)
+        this.begin = begin
+        this.end = end
     fun dtor(this: !StringRef) {}
 
-    fun isEmpty(this: StringRef)            = ptrDiff(end, begin) == 0
-    fun size(this: StringRef): SizeType     = ptrDiff(end, begin)
+    fun isEmpty(this: StringRef)            = (end ptrDiff begin) == 0
+    fun size(this: StringRef): SizeType     = (end ptrDiff begin)
 
-    fun front(this: StringRef): @Char                 = reinterpretCast(@Char, begin)
-    fun back(this: StringRef): @Char                  = reinterpretCast(@Char, ptrSub(end, 1))
-    fun ()(this: StringRef) : @Char                   = reinterpretCast(@Char, begin)
-    fun ()(this: StringRef, index: SizeType): @Char   = reinterpretCast(@Char, ptrAdd(begin, index))
-    fun at(this: StringRef, index: SizeType): @Char   = reinterpretCast(@Char, ptrAdd(begin, index))
+    fun front(this: StringRef): @Char                 = begin asRefOf Char
+    fun back(this: StringRef): @Char                  = end ptrSub 1 asRefOf Char
+    fun ()(this: StringRef) : @Char                   = begin asRefOf Char
+    fun ()(this: StringRef, index: SizeType): @Char   = begin ptrAdd index asRefOf Char
+    fun at(this: StringRef, index: SizeType): @Char   = begin ptrAdd index asRefOf Char
 
-    fun popFront(this: !StringRef)                { begin := ptrAdd(begin, 1); }
-    fun popBack(this: !StringRef)                 { end := ptrSub(end, 1); }
-    fun popFront(this: !StringRef, n: SizeType)   { begin := ptrAdd(begin, n); }
-    fun popBack(this: !StringRef, n: SizeType)    { end := ptrSub(end, n); }
+    fun popFront(this: !StringRef)                { begin = (begin ptrAdd 1); }
+    fun popBack(this: !StringRef)                 { end = (begin ptrSub 1); }
+    fun popFront(this: !StringRef, n: SizeType)   { begin = (begin ptrAdd n); }
+    fun popBack(this: !StringRef, n: SizeType)    { end = (begin ptrAdd n); }
 
     fun subrange(this: StringRef, index: SizeType, num: SizeType): StringRef
-        return StringRef(ptrAdd(begin, index), ptrAdd(begin, index+num))
+        return StringRef(begin ptrAdd index, begin ptrAdd (index+num))
 
-    fun cStr(this: StringRef): @Char = reinterpretCast(@Char, begin)
+    fun cStr(this: StringRef): @Char = begin asRefOf Char
 
 fun = (this: !StringRef, src: StringRef): !StringRef
-    begin := src.begin
-    end := src.end
-
+    begin = src.begin
+    end = src.end
     return this
 
 [protected, autoCt]
@@ -676,22 +674,19 @@ fun == (this, other: StringRef): Bool
         if this.at(i) != other.at(i) return false
     return true
 
-    //return 0 == strcmp(begin, other.begin)
-
 [autoCt, native("_String_fromCString")]
 fun fromCString(s: @Char): StringRef
     let len = cStringLen(s)
     var res: StringRef
-    res.begin := reinterpretCast(@Byte, s)
-    res.end := ptrAdd(res.begin, len)
+    res.begin = UntypedPtr(s)
+    res.end = (res.begin ptrAdd len)
     return res
 
 fun cStringLen(s: @Char): SizeType
-    var p: @Byte
-    p := reinterpretCast(@Byte, s)
     var len: SizeType = 0
-    while p != Byte(0) ; p:=ptrAdd(p, 1)
-        len = len+1
+    var p: UntypedPtr = s
+    while p.asRefOf(Byte) != Byte(0) ; p = (p ptrAdd 1)
+        len++
     return len
 
 [autoCt]
@@ -704,7 +699,7 @@ fun cStringLen(s: @Char): SizeType
         let sz2 = y.size()
         var res: StringRef = sz1 + sz2
         memcpy(res.begin, x.begin, sz1)
-        memcpy(ptrAdd(res.begin, sz1), y.begin, sz2)
+        memcpy(res.begin ptrAdd sz1, y.begin, sz2)
         return res
 
     fun + (x: StringRef, y: Char): StringRef
@@ -712,7 +707,7 @@ fun cStringLen(s: @Char): SizeType
         let sz2 = 1
         var res: StringRef = sz1 + sz2
         memcpy(res.begin, x.begin, sz1)
-        memcpy(ptrAdd(res.begin, sz1), reinterpretCast(@Byte, y), sz2)
+        memcpy(res.begin ptrAdd sz1, UntypedPtr(y), sz2)
 
         return res
 
@@ -736,6 +731,21 @@ fun construct()
 /// Type used to represent an untyped pointer
 [bitcopiable]
 datatype UntypedPtr = @Byte
+
+[protected]
+    fun ctor(this: !UntypedPtr)
+        this.data := null
+    fun ctor(this: !UntypedPtr, other: UntypedPtr)
+        this.data := other.data
+    fun ctor(this: !UntypedPtr, val: @AnyType)
+        this.data := reinterpretCast(@Byte, val)
+    fun ctor(this: !UntypedPtr, nullptr: Null)
+        this.data := null
+    fun asRefOf(this: UntypedPtr, t: Type): @t = reinterpretCast(@t, this.data)
+
+    [native("ptrAdd"), autoCt] fun ptrAdd(p: UntypedPtr, n: SizeType): UntypedPtr
+    [native("ptrSub"), autoCt] fun ptrSub(p: UntypedPtr, n: SizeType): UntypedPtr
+    [native("ptrDiff"), autoCt] fun ptrDiff(p1, p2: UntypedPtr): DiffType
 
 [autoCt]
     [native("implOpRefEQ")] fun implOpRefEQ(x,y: @Byte): Bool
@@ -810,20 +820,13 @@ fun #$(t: Type): t
 /// Some low-level helper functions
 ///
 
-[native("malloc")] fun malloc(size: SizeType): @Byte
-[native("calloc")] fun calloc(size, count: SizeType): @Byte
-[native("realloc"), autoCt] fun realloc(p: @Byte, size: SizeType): @Byte
-[native("free"), autoCt] fun free(p: @Byte)
-[native("ptrAdd"), autoCt] fun ptrAdd(p: @Byte, n: SizeType): @Byte
-[native("ptrSub"), autoCt] fun ptrSub(p: @Byte, n: SizeType): @Byte
-[native("ptrDiff"), autoCt] fun ptrDiff(p1, p2: @Byte): DiffType
-[native("ptrAdd"), autoCt] fun ptrAdd(p: UntypedPtr, n: SizeType): UntypedPtr
-[native("ptrSub"), autoCt] fun ptrSub(p: UntypedPtr, n: SizeType): UntypedPtr
-[native("ptrDiff"), autoCt] fun ptrDiff(p1, p2: UntypedPtr): DiffType
-[native("_spr_memcpy"), autoCt] fun memcpy(dest, src: @Byte, size: SizeType)
-[native("_spr_memmove"), autoCt] fun memmove(dest, src: @Byte, size: SizeType)
-[native("_spr_memset"), autoCt] fun memset(dest: @Byte, val: Byte, count: SizeType)
-[native("strcmp"), autoCt] fun strcmp(lhs, rhs: @Byte): Int
+[native("malloc")] fun malloc(size: SizeType): UntypedPtr
+[native("calloc")] fun calloc(size, count: SizeType): UntypedPtr
+[native("realloc"), autoCt] fun realloc(p: UntypedPtr, size: SizeType): UntypedPtr
+[native("free"), autoCt] fun free(p: UntypedPtr)
+[native("_spr_memcpy"), autoCt] fun memcpy(dest, src: UntypedPtr, size: SizeType)
+[native("_spr_memmove"), autoCt] fun memmove(dest, src: UntypedPtr, size: SizeType)
+[native("_spr_memset"), autoCt] fun memset(dest: UntypedPtr, val: Byte, count: SizeType)
 [native("system")] fun systemNative(x: @Char)
 [native("sleep")] fun sleep(x: Int)
 

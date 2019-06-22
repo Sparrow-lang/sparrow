@@ -32,20 +32,20 @@ fun ctor(this: !String, size: SizeType)
     _end.value = Char(0)
 fun ctor(this: !String, count: SizeType, ch: Char)
     this.ctor(count)
-    memset(_begin.bytePtr, reinterpretCast(@Byte, ch), count)
+    memset(_begin.untypedPtr, Byte(ch), count)
 fun ctor(this: !String, other: String const)
     let size = other size
     this.ctor(size)
-    memcpy(_begin.bytePtr, other._begin.bytePtr, size)
+    memcpy(_begin.untypedPtr, other._begin.untypedPtr, size)
 [convert]
 fun ctor(this: !String, other: StringRef)
     let size = other size
     this.ctor(size)
-    memcpy(_begin.bytePtr, other.begin, size)
+    memcpy(_begin.untypedPtr, UntypedPtr(other.begin), size)
 fun ctor(this: !String, _begin, _end: RawPtr(Char))
     let size = _end.diff(_begin)
     this.ctor(size)
-    memcpy(this._begin.bytePtr, _begin.bytePtr, size)
+    memcpy(this._begin.untypedPtr, _begin.untypedPtr, size)
 fun ctor(this: !String, range: Range) if typeOf(range) != String
     this.ctor(rangeSize(range))
     var i=0
@@ -83,7 +83,7 @@ fun ctor(this: !String, range: Range) if typeOf(range) != String
         this._end        swap    other._end
         this._endOfStore swap    other._endOfStore
 
-    fun asStringRef(this: String const)             = StringRef(_begin.bytePtr, _end.bytePtr)
+    fun asStringRef(this: String const)             = StringRef(_begin.untypedPtr, _end.untypedPtr)
 
     fun size(this: String const): SizeType          = _end.diff(_begin)
     fun isEmpty(this: String const)                 = _begin == _end
@@ -93,9 +93,9 @@ fun ctor(this: !String, range: Range) if typeOf(range) != String
     fun ()(this: String const, index: SizeType)     = _begin.advance(DiffType(index)).value
     fun front(this: String const)                   = _begin.value
     fun back(this: String const)                    = _end.advance(-1).value
-    fun all(this: String const)                     = StringRef(_begin.bytePtr, _end.bytePtr)
+    fun all(this: String const)                     = StringRef(_begin.untypedPtr, _end.untypedPtr)
     fun subrange(this: String const, index: SizeType, num: SizeType): StringRef \
-                                = StringRef(_begin.advance(DiffType(index)).bytePtr, _begin.advance(DiffType(index + num)).bytePtr)
+                                = StringRef(_begin.advance(DiffType(index)).untypedPtr, _begin.advance(DiffType(index + num)).untypedPtr)
 
     fun pushBack(this: !String, value: Char)
         if _end == _endOfStore
@@ -152,7 +152,7 @@ fun ctor(this: !String, range: Range) if typeOf(range) != String
         _endOfStore = _begin.advance(DiffType(n))
 
     fun clear(this: !String)
-        this.remove(StringRef(_begin.bytePtr, _end.bytePtr))
+        this.remove(StringRef(_begin.untypedPtr, _end.untypedPtr))
 
     fun insertBefore(this: !String, value: Char, pos: StringRef)
         let posCount = _frontPtr(pos).diff(_begin)
@@ -188,15 +188,15 @@ fun ctor(this: !String, range: Range) if typeOf(range) != String
         _end = _end.advance(DiffType(n))
 
     fun insertAfter(this: !String, value: Char, pos: StringRef)
-        this.insertBefore(value, StringRef(_backPtr(pos).bytePtr, _end.bytePtr))
+        this.insertBefore(value, StringRef(_backPtr(pos).untypedPtr, _end.untypedPtr))
 
     fun insertAfter(this: !String, range: Range, pos: StringRef)
-        this.insertBefore(range, StringRef(_backPtr(pos).bytePtr, _end.bytePtr))
+        this.insertBefore(range, StringRef(_backPtr(pos).untypedPtr, _end.untypedPtr))
 
     fun append(this: !String, range: Range)
-        this.insertBefore(range, StringRef(_end.bytePtr, _end.bytePtr))
+        this.insertBefore(range, StringRef(_end.untypedPtr, _end.untypedPtr))
     fun append(this: !String, value: Char)
-        this.insertBefore(value, StringRef(_end.bytePtr, _end.bytePtr))
+        this.insertBefore(value, StringRef(_end.untypedPtr, _end.untypedPtr))
 
     fun remove(this: !String, range: StringRef)
         let rSize = range.size
@@ -225,8 +225,8 @@ fun ctor(this: !String, range: Range) if typeOf(range) != String
     fun >>(this: String const, os: !OutStream)
         os << this.asStringRef
 
-    fun _frontPtr(s: StringRef) = RawPtr(Char)(s.begin)
-    fun _backPtr(s: StringRef) = RawPtr(Char)(s.end)
+    fun _frontPtr(s: StringRef) = RawPtr(Char)(UntypedPtr(s.begin))
+    fun _backPtr(s: StringRef) = RawPtr(Char)(UntypedPtr(s.end))
 
 // TODO
 [autoCt]
@@ -234,8 +234,8 @@ fun + (x,y: String): String
     let sz1 = x.size
     let sz2 = y.size
     var res: String = sz1 + sz2
-    memcpy(res._begin.bytePtr, x._begin.bytePtr, sz1)
-    memcpy(res._begin.advance(sz1).bytePtr, y._begin.bytePtr, sz2)
+    memcpy(res._begin.untypedPtr, x._begin.untypedPtr, sz1)
+    memcpy(res._begin.advance(sz1).untypedPtr, y._begin.untypedPtr, sz2)
     return res
 
 [autoCt]
@@ -243,19 +243,9 @@ fun + (x: String, y: StringRef): String
     let sz1 = x.size
     let sz2 = y.size
     var res: String = sz1 + sz2
-    memcpy(res._begin.bytePtr, x._begin.bytePtr, sz1)
-    memcpy(res._begin.advance(sz1).bytePtr, y.begin, sz2)
+    memcpy(res._begin.untypedPtr, x._begin.untypedPtr, sz1)
+    memcpy(res._begin.advance(sz1).untypedPtr, UntypedPtr(y.begin), sz2)
     return res
-
-//[autoCt]
-//fun + (x: String, y: Char): String
-//    let sz1 = x.size
-//    let sz2 = sizeOf(y)
-//    var res: String = sz1 + sz2
-//    memcpy(res._begin, x._begin, sz1)
-//    memcpy(ptrAdd(res._begin, sz1), reinterpretCast(@Byte, y), sz2)
-
-//    return res
 
 fun intToString(x: Int): String
     var buf: static_buffer(12)

@@ -44,7 +44,7 @@ fun isEof(this: !File)       = 0 != CApi.feof(this)
 fun readChar(this: !File): Char = Char(CApi.fgetc(this))
 fun readLine(this: !File): String
     var res: String = 256
-    let cstr: @Char = CApi.fgets(res(0), 256, this)
+    let cstr: @Char = CApi.fgets(UntypedPtr(res(0)), 256, this)
     if cstr === null
         res.clear
     else
@@ -52,7 +52,7 @@ fun readLine(this: !File): String
     return res
 
 fun write(this: !File, data: StringRef): Int
-    var res: Int = CApi.fwrite(reinterpretCast(@Byte, data.begin), 1, UInt(data.size), this)
+    var res: Int = CApi.fwrite(UntypedPtr(data.begin), 1, UInt(data.size), this)
     return res
 
 //! Returns the file size.
@@ -97,9 +97,9 @@ package CApi
     [native("fflush")]  fun fflush(file: File): Int
     [native("feof")]    fun feof(file: File): Int
     [native("fgetc")]   fun fgetc(file: File): Int
-    [native("fgets")]   fun fgets(buffer: @Char, bufSize: Int, file: File): @Char
-    [native("fread")]   fun fread(buffer: @Byte, size, count: UInt, file: File): UInt
-    [native("fwrite")]  fun fwrite(buffer: @Byte, size, count: UInt, file: File): UInt
+    [native("fgets")]   fun fgets(buffer: UntypedPtr, bufSize: Int, file: File): @Char
+    [native("fread")]   fun fread(buffer: UntypedPtr, size, count: UInt, file: File): UInt
+    [native("fwrite")]  fun fwrite(buffer: UntypedPtr, size, count: UInt, file: File): UInt
     [native("fseek")]   fun fseek(file: File, offset: Long, origin: Int)
     [native("rewind")]  fun rewind(file: File)
     [native("ftell")]   fun ftell(file: File): Long

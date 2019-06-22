@@ -24,7 +24,7 @@ fun **(str: StringRef, count: Int): String
     let sz: SizeType = str.size()
     var res: String = sz*count
     for i = 0..count
-        memcpy(reinterpretCast(@Byte, res(i*sz)), str.begin, sz);
+        memcpy(UntypedPtr(res(i*sz)), UntypedPtr(str.begin), sz);
     return res;
 
 setOperPrecedence("**", getOperPrecedence("*") + 1)

@@ -6,29 +6,30 @@ datatype RawPtr(valueType: Type)
 
     _ptr: @ValueType
 
-fun ctor(this: !RawPtr, byteRef: @Byte) if this.ValueType != Byte
-    _ptr := reinterpretCast(@ValueType, byteRef)
+fun ctor(this: !RawPtr, p: UntypedPtr)
+    _ptr := p asRefOf ValueType
 
 [protected]
-    fun < (this, other: RawPtr)       = ptrDiff(this.bytePtr(), other.bytePtr()) < DiffType(0)
+    fun < (this, other: RawPtr)       = (UntypedPtr(_ptr) ptrDiff UntypedPtr(other._ptr)) < DiffType(0)
 
     fun value(this: RawPtr): @ValueType                     = _ptr
-    fun advance(this: RawPtr): typeOf(this)                 = typeOf(this)(ptrAdd(this.bytePtr(), sizeOf(ValueType)))
-    fun advance(this: RawPtr, n: SizeType): typeOf(this)    = typeOf(this)(ptrAdd(this.bytePtr(), n * sizeOf(ValueType)))
-    fun advance(this: RawPtr, n: DiffType): typeOf(this)    = typeOf(this)(ptrAdd(this.bytePtr(), n * DiffType(sizeOf(ValueType))))
-    fun diff(this: RawPtr, other: typeOf(this)): DiffType   = DiffType(ptrDiff(this.bytePtr(), other.bytePtr()) / DiffType(sizeOf(ValueType)))
+
+    fun advance(this: RawPtr): typeOf(this)                 = typeOf(this)( UntypedPtr(_ptr) ptrAdd sizeOf(ValueType) )
+    fun advance(this: RawPtr, n: SizeType): typeOf(this)    = typeOf(this)( UntypedPtr(_ptr) ptrAdd (n * sizeOf(ValueType)) )
+    fun advance(this: RawPtr, n: DiffType): typeOf(this)    = typeOf(this)( UntypedPtr(_ptr) ptrAdd (n * DiffType(sizeOf(ValueType))) )
+    fun diff(this: RawPtr, other: typeOf(this)): DiffType   = (UntypedPtr(_ptr) ptrDiff UntypedPtr(other._ptr)) / DiffType(sizeOf(ValueType))
 
     fun isNull(this: RawPtr): Bool            = _ptr === null
     fun isSet(this: RawPtr)                   = _ptr !== null
 
-    fun bytePtr(this: RawPtr): @Byte          = reinterpretCast(@Byte, _ptr)
+    fun untypedPtr(this: RawPtr): UntypedPtr  = UntypedPtr(_ptr)
 
     fun reallocPtr(this: !RawPtr, n: SizeType)
-        _ptr := reinterpretCast(@ValueType, realloc(this.bytePtr(), n * sizeOf(ValueType)))
+        _ptr := realloc(UntypedPtr(_ptr), n * sizeOf(ValueType)).asRefOf(ValueType)
 
     fun freePtr(this: RawPtr)
         if ( this.isSet )
-            free(this.bytePtr)
+            free(UntypedPtr(_ptr))
 
     fun swap(this: !RawPtr, other: !typeOf(this))
         let t: @ValueType = _ptr
@@ -36,8 +37,8 @@ fun ctor(this: !RawPtr, byteRef: @Byte) if this.ValueType != Byte
         other._ptr := t
 
     fun >>(this: RawPtr, os: !OutStream)
-        os << "RawPtr(" << mkStreamRefWrapper(this.bytePtr) << ")"
+        os << "RawPtr(" << mkStreamRefWrapper(_ptr) << ")"
 
 fun mkRawPtr(ref: !AnyType) = RawPtr(-@typeOf(ref))(ref)
-fun allocRawPtr(t: Type, num: SizeType) = RawPtr(t)(reinterpretCast(@t, malloc(num * sizeOf(t))))
+fun allocRawPtr(t: Type, num: SizeType) = RawPtr(t)(reinterpretCast(@t, malloc(num * sizeOf(t)).data))
 

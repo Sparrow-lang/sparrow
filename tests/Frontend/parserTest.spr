@@ -38,7 +38,7 @@ fun toImpl(n: Node): @NodeImpl
         return reinterpretCast(@NodeImpl, n.data.data)
     else
         return _nullNodeImpl
-fun toNode(impl: !NodeImpl)    = Node(UntypedPtr(reinterpretCast(@Byte, impl)))
+fun toNode(impl: !NodeImpl)    = Node(UntypedPtr(impl))
 
 fun >> (n: NodeImpl, os: !OutStream)
     os << n.kind

@@ -1,4 +1,4 @@
-import basicDecls(Char, Byte, Int, SizeType, DiffType, StringRef, Null, typeOf, reinterpretCast, sizeOf, ptrAdd, ptrSub, ptrDiff, fromCString, *)
+import basicDecls(Char, Byte, Int, SizeType, DiffType, StringRef, Null, typeOf, reinterpretCast, sizeOf, UntypedPtr, ptrAdd, ptrSub, ptrDiff, fromCString, *)
 
 /// Range type that returns StringRef objects referring to program arguments
 datatype MainParameters
@@ -28,11 +28,11 @@ package _Impl
     [initCtor] datatype CStrPtr { ptr: @CStr; }
 
     fun fromArgvPtr(argv: @ @Char): CStrPtr = CStrPtr(reinterpretCast(@CStr, argv))
-    fun fromBytePtr(p: @Byte): CStrPtr = CStrPtr(reinterpretCast(@CStr, p))
-    fun toBytePtr(p: CStrPtr): @Byte = reinterpretCast(@Byte, p.ptr)
-    fun +(p: CStrPtr, n: SizeType): CStrPtr = fromBytePtr( ptrAdd(toBytePtr(p), n*(sizeOf(CStrPtr))) )
-    fun -(p: CStrPtr, n: SizeType): CStrPtr = fromBytePtr( ptrSub(toBytePtr(p), n*(sizeOf(CStrPtr))) )
-    fun -(p, q: CStrPtr): SizeType = ptrDiff(toBytePtr(p), toBytePtr(q)) / (sizeOf(CStrPtr))
+    fun toCStrPtr(p: UntypedPtr): CStrPtr = CStrPtr(p.asRefOf(CStr))
+    fun toUntypedPtr(p: CStrPtr) = UntypedPtr(p.ptr)
+    fun +(p: CStrPtr, n: SizeType): CStrPtr = toUntypedPtr(p) ptrAdd (n*sizeOf(CStrPtr)) toCStrPtr
+    fun -(p: CStrPtr, n: SizeType): CStrPtr = toUntypedPtr(p) ptrSub (n*sizeOf(CStrPtr)) toCStrPtr
+    fun -(p, q: CStrPtr): SizeType = ptrDiff(toUntypedPtr(p), toUntypedPtr(q)) / (sizeOf(CStrPtr))
 
     fun toStringRef(p: CStrPtr): StringRef = fromCString(p.ptr.cstr)
 

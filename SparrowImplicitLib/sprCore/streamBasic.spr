@@ -1,4 +1,4 @@
-import sprCore.basicDecls(AnyType, Number, Char, Bool, StringRef, Byte, Int, Double, Null, isValid, &&, !, oper_precedence___fapp__, oper_precedence___dot__, typeOf, reinterpretCast)
+import sprCore.basicDecls(AnyType, Number, Char, Bool, StringRef, Byte, Int, Double, Null, isValid, &&, !, oper_precedence___fapp__, oper_precedence___dot__, typeOf, UntypedPtr)
 
 // An output stream must accept the basic types
 concept OutStream(x) if (
@@ -34,15 +34,14 @@ fun >>(this: FlushHelperClass, os: !OutStream)
         os.flush
 
 // TODO: make this work for streams other than ConsoleOutputStream
-datatype StreamRefWrapperHelperClass
-    ptr: @Byte
-fun >>(p: StreamRefWrapperHelperClass, os: !OutStream)
-    _Impl.writeRef(p.ptr)
+datatype StreamRefWrapperHelperClass = UntypedPtr
 
-fun mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass
-    var res: StreamRefWrapperHelperClass
-    res.ptr := reinterpretCast(@Byte, x)
-    return res
+fun >>(p: StreamRefWrapperHelperClass, os: !OutStream)
+    _Impl.writeRef(p.data)
+
+fun mkStreamRefWrapper(x: @AnyType) = StreamRefWrapperHelperClass(UntypedPtr(x))
+
+fun mkStreamRefWrapper(x: UntypedPtr) = StreamRefWrapperHelperClass(x)
 
 package _Impl
-    [native("writePointer")] fun writeRef(x: @Byte)
+    [native("writePointer")] fun writeRef(x: UntypedPtr)

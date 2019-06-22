@@ -16,4 +16,4 @@ fun waitForAll(curTask: !TaskPrefix)
 fun enqueue(task: !TaskPrefix)
     sched.schedEnqueue(TaskPtr(task))
 
-fun localWorker(): Byte Ptr = reinterpretPtr(Byte, worker.localWorker())
+fun localWorker(): UntypedPtr = UntypedPtr(worker.localWorker().get())

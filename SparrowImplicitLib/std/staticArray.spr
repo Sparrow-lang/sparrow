@@ -139,7 +139,7 @@ datatype StaticArray(valueType: Type, arraySize: SizeType ct)
     fun subrange(this: StaticArray const, index: SizeType, num: SizeType) \
         = RangeType(this._asPtr().advance(DiffType(index)), this._asPtr().advance(DiffType(index + num)))
 
-    fun _asPtr(this: StaticArray const) = RawPtr(ValueType)(reinterpretCast(@Byte, _buf))
+    fun _asPtr(this: StaticArray const) = RawPtr(ValueType)(UntypedPtr(_buf))
 
 fun mkValues(v0,v1: AnyType) = StaticArray(typeOf(v0), 2)(v0,v1)
 fun mkValues(v0,v1,v2: AnyType) = StaticArray(typeOf(v0), 3)(v0,v1,v2)

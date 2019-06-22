@@ -17,7 +17,7 @@ fun ctor(this: !BasicBlockEdge, cfg: !MaoCFG, fromName, toName: Int)
     cfg.addEdge(this mkPtr)
 
 fun allocBBE(cfg: !MaoCFG, fromName, toName: Int): @BasicBlockEdge
-    var res: @BasicBlockEdge = reinterpretCast(@BasicBlockEdge, malloc(sizeOf(BasicBlockEdge)))
+    var res: @BasicBlockEdge = malloc(sizeOf(BasicBlockEdge)).asRefOf(BasicBlockEdge)
     res.ctor(cfg, fromName, toName)
     return res
 

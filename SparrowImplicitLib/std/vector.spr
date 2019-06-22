@@ -34,7 +34,7 @@ datatype Vector(valueType: Type)
         var src = other._begin
 
         [ct] if TypeOp.isBitcopiable(ValueType)
-            memcpy(dst.bytePtr, src.bytePtr, size*sizeOf(ValueType))
+            memcpy(dst.untypedPtr, src.untypedPtr, size*sizeOf(ValueType))
         else
             while dst != _end
                 dst.value().ctor(src.value())
@@ -255,7 +255,7 @@ datatype Vector(valueType: Type)
     fun _dumpThis(this: !Vector, prefix: StringRef)
         cout << prefix << "dumping " << TypeOp.description(Vector) << ": " << mkStreamRefWrapper(this) << endl
         cout << "    size: " << Int(this.size()) << endl
-        cout << "    _begin: " << mkStreamRefWrapper(_begin.bytePtr()) << endl
-        cout << "    _end: " << mkStreamRefWrapper(_end.bytePtr()) << endl
-        cout << "    _endOfStore: " << mkStreamRefWrapper(_endOfStore.bytePtr()) << endl
+        cout << "    _begin: " << mkStreamRefWrapper(_begin.untypedPtr) << endl
+        cout << "    _end: " << mkStreamRefWrapper(_end.untypedPtr) << endl
+        cout << "    _endOfStore: " << mkStreamRefWrapper(_endOfStore.untypedPtr) << endl
 

@@ -85,7 +85,7 @@ package Impl
         sig: Long
         opaque: StaticArray(Byte, PTHREAD_MUTEX_SIZE)
 
-    [native("pthread_mutex_init")] fun pthread_mutex_init(mutex: !PThreadMutex, attr: @Byte): Int
+    [native("pthread_mutex_init")] fun pthread_mutex_init(mutex: !PThreadMutex, attr: UntypedPtr): Int
     [native("pthread_mutex_lock")] fun pthread_mutex_lock(mutex: !PThreadMutex): Int
     [native("pthread_mutex_trylock")] fun pthread_mutex_trylock(mutex: !PThreadMutex): Int
     [native("pthread_mutex_unlock")] fun pthread_mutex_unlock(mutex: !PThreadMutex): Int

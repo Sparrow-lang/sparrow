@@ -220,6 +220,11 @@ llvm::DISubroutineType* DebugInfo::createDiFunType(GlobalContext& ctx, Type type
 }
 
 llvm::DIType* DebugInfo::createDiStructType(GlobalContext& ctx, Type type) {
+    // Check the cache first
+    auto it = typesMap_.find(type);
+    if (it != typesMap_.end())
+        return it->second;
+
     // First, check for primitive types
     llvm::Type* t = getLLVMType(type, ctx);
     if (!t)
@@ -267,6 +272,10 @@ llvm::DIType* DebugInfo::createDiStructType(GlobalContext& ctx, Type type) {
     auto res = diBuilder_.createStructType(file, name, file, loc.start.line, sizeInBits,
             alignInBits, flags, nullptr, llvm::DINodeArray(), 0, nullptr, uniqueId);
 
+    // Add the result to the cache before we descend for the children
+    // This allows us to translate recursive structures
+    typesMap_[type] = res;
+
     // Now create the members in the scope of the struct type
     ASSERT(t->isStructTy());
     // NOLINTNEXTLINE
@@ -296,6 +305,10 @@ llvm::DIType* DebugInfo::createDiStructType(GlobalContext& ctx, Type type) {
 }
 
 llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, Type type) {
+    // For datatypes, type caching is implemented in createDiStructType
+    if (type.numReferences() == 0 && type.kind() == Feather_getDataTypeKind())
+        return createDiStructType(ctx, type);
+
     // Check the cache first
     auto it = typesMap_.find(type);
     if (it != typesMap_.end())
@@ -310,8 +323,6 @@ llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, Type type) {
         int sizeInBits = dataLayout.getTypeAllocSizeInBits(t);
         auto baseType = createDiType(ctx, removeCatOrRef(TypeWithStorage(type)));
         res = diBuilder_.createPointerType(baseType, sizeInBits);
-    } else if (type.kind() == Feather_getDataTypeKind()) {
-        res = createDiStructType(ctx, type);
     } else if (type.kind() == Feather_getArrayTypeKind()) {
         auto baseType = createDiType(ctx, Feather_baseType(type));
         auto numElements = (uint64_t)Feather_getArraySize(type);

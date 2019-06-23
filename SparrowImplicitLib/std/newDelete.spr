@@ -42,7 +42,3 @@ fun delete(obj: @AnyType) if !isValid(obj.release)
 
 fun delete(ptr: !AnyType) if isValid(ptr.release)
     ptr.release
-
-fun delete(r: Range) if isValid(delete(r.front()))
-    for x = r
-        delete(x)

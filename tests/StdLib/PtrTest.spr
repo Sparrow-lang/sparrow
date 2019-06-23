@@ -210,7 +210,8 @@ fun test7
     v += Ptr(MyObj)(newObj(13))
     for x = v.all()
         cout << x.x << endl;
-    v.all() delete
+    for p = v.all
+        p delete
     cout << "---" << endl
 
 /*<<<Delete on a Ptr range (7)

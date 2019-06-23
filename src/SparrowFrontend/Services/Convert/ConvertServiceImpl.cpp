@@ -147,8 +147,34 @@ bool ConvertServiceImpl::checkConversionToConcept(ConversionResult& res,
     ASSERT(src);
     ASSERT(dest);
 
-    // Case 1: data-like -> concept (concept)
-    if (Feather::isDataLikeType(src)) {
+    TypeWithStorage srcBase = baseType(src);
+    TypeWithStorage destBase = baseType(dest);
+
+    // Case 1: concept -> concept
+    if (srcBase.kind() == typeKindConcept) {
+        if (src.numReferences() != dest.numReferences())
+            return false;
+
+        // Iteratively search the base concept to find our dest type
+        src = srcBase;
+        while (src != destBase) {
+            ConceptDecl conceptNode = ConceptDecl(ConceptType(src).decl());
+            if (!conceptNode)
+                return false;
+            ConceptType baseType = g_ConceptsService->baseConceptType(conceptNode);
+            if (!baseType || baseType == src)
+                return false; // Not found; cannot convert
+            src = baseType.changeMode(src.mode(), conceptNode.location());
+        }
+
+        // TODO (types): Fix this after fixing references
+
+        res.addConversion(convDirect);
+        return true;
+    }
+
+    // Case 2: data-like -> concept (concept)
+    else if (Feather::isDataLikeType(src)) {
 
         // Treat the destination type kind as data-like
         int destTypeKind = dest.kind();
@@ -179,26 +205,6 @@ bool ConvertServiceImpl::checkConversionToConcept(ConversionResult& res,
 
         // Conversion is possible
         res.addConversion(convConcept);
-        return true;
-    }
-
-    // Case 2: concept -> concept
-    if (src.kind() == typeKindConcept) {
-        if (src.numReferences() != dest.numReferences())
-            return false;
-
-        // Iteratively search the base concept to find our dest type
-        while (src != dest) {
-            ConceptDecl conceptNode = ConceptDecl(ConceptType(src).decl());
-            if (!conceptNode)
-                return false;
-            ConceptType baseType = g_ConceptsService->baseConceptType(conceptNode);
-            if (!baseType || baseType == src)
-                return false; // Not found; cannot convert
-            src = baseType.changeMode(src.mode(), conceptNode.location());
-        }
-
-        res.addConversion(convDirect);
         return true;
     }
 

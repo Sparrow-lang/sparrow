@@ -34,4 +34,4 @@ module math
 [native("llvm.rint.f64")]   fun rint(x: Double): Double
 [native("llvm.rint.f64")]   fun nearbyint(x: Double): Double
 
-fun abs(x: Integer) = ife(x<0, -x, x)
+fun abs(x: Integer) = ife(x<0, -x, typeOf(x)(x))

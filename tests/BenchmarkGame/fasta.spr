@@ -7,11 +7,12 @@ import std.string
 
 fun write(r: Range, length: Int) if isValid(Char(r.front))
     using lineLength = 60
+    var rc = r
     var line: String = lineLength
     for n = length..0 ../ (-lineLength)
         let len = min(n, lineLength)
         for i = 0..len
-            line(i) = (r++);
+            line(i) = (rc++);
         if ( len < lineLength )
             line.resize(len);
         cout << line << "\n";
@@ -32,7 +33,7 @@ datatype RandomCharRange(distribValsRangeType: Type)
 
 fun isEmpty(this: !RandomCharRange) = false
 fun popFront(this: !RandomCharRange) {}
-fun front(this: !RandomCharRange): Char
+fun front(this: RandomCharRange): Char
     let randVal: Float = (randomRange++)
     var i = 0
     var r = distribVals

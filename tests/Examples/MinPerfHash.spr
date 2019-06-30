@@ -204,16 +204,14 @@ fun readFileLines(filename: StringRef, maxLines: UInt): Vector(String)
     var lines: Vector(String)
 
     var f = os.openFile(filename, "r")
-    if ( !f.isOpen() )
-        cout << "Cannot open file: " << filename << "\n"
+    if !f.isOpen
         return lines
-    while !f.isEof() && lines.size() < maxLines
-        let s = f.readLine()
-        if ( !s.isEmpty() )
-            //cout << "Key: " << s.asStringRef();
+    while !f.isEof && lines.size < maxLines
+        let s = f.readLine
+        if !s.isEmpty
             s.resize(s.size()-1)   // Cut the end of line
             lines.pushBack(s)
-    return lines;
+    return lines
 
 fun checkHashIsOk(hash: !MinPerfHash, keys: !Vector(String))
     // Test that the hash function doesn't produce any collisions

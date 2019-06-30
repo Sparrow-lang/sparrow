@@ -215,6 +215,10 @@ ConversionType GenericFunctionCallable::canCall(const CCLoc& ccloc, NodeRange ar
             return convNone;
         }
 
+        // Should we make the param const?
+        if (shouldMakeParamConst(paramType))
+            paramType = Feather::ConstType::get(TypeWithStorage(paramType));
+
         Type argType = args_[i].type();
         ASSERT(argType);
         NodeHandle& arg = args_[i];

@@ -1413,7 +1413,8 @@ fun _atoi(str: @Char): Int
 
 [bitcopiable]
 datatype _CStr { cstr: @Char; }
-[initCtor] datatype _CStrPtr { ptr: @_CStr; }
+[initCtor, bitcopiable]
+datatype _CStrPtr { ptr: @_CStr; }
 
 fun _fromBytePtr(p: @Byte): _CStrPtr = _CStrPtr(reinterpretCast(@_CStr, p))
 fun _toBytePtr(p: _CStrPtr): @Byte = reinterpretCast(@Byte, p.ptr)

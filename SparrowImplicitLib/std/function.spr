@@ -57,7 +57,10 @@ package _Impl0
         using _FunPtrType = FunctionPtr(resT, UntypedPtr)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function0, ftor: !AnyType) if isValid(ftor()) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function0, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function0, ftor: @AnyType) if isValid(ftor()) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor())
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -79,7 +82,10 @@ package _Impl1
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function1, ftor: AnyType) if isValid(ftor(#$this.T1)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function1, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function1, ftor: @AnyType) if isValid(ftor(#$this.T1)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -102,7 +108,10 @@ package _Impl2
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function2, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function2, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function2, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -126,7 +135,10 @@ package _Impl3
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function3, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function3, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function3, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -151,7 +163,10 @@ package _Impl4
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3, T4)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function4, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function4, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function4, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -177,7 +192,10 @@ package _Impl5
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3, T4, T5)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function5, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function5, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function5, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -204,7 +222,10 @@ package _Impl6
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3, T4, T5, T6)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function6, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function6, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function6, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -232,7 +253,10 @@ package _Impl7
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3, T4, T5, T6, T7)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function7, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function7, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function7, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -261,7 +285,10 @@ package _Impl8
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3, T4, T5, T6, T7, T8)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function8, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function8, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function8, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -291,7 +318,10 @@ package _Impl9
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3, T4, T5, T6, T7, T8, T9)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function9, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function9, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function9, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -322,7 +352,10 @@ package _Impl10
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function10, ftor: AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function10, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function10, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -354,7 +387,10 @@ package _Impl11
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function11, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function11, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function11, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -387,7 +423,10 @@ package _Impl12
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function12, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11, #$this.T12)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function12, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function12, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11, #$this.T12)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -421,7 +460,10 @@ package _Impl13
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function13, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11, #$this.T12, #$this.T13)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function13, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function13, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11, #$this.T12, #$this.T13)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -456,7 +498,10 @@ package _Impl14
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function14, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11, #$this.T12, #$this.T13, #$this.T14)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function14, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function14, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11, #$this.T12, #$this.T13, #$this.T14)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13, #$T14))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
@@ -492,7 +537,10 @@ package _Impl15
         using _FunPtrType = FunctionPtr(resT, UntypedPtr, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
         _data: _Impl.FunctionData
 
-    fun ctor(this: !Function15, ftor: !AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11, #$this.T12, #$this.T13, #$this.T14, #$this.T15)) && typeOf(ftor) != typeOf(this)
+    fun ctor(this: !Function15, other: typeOf(this))
+        _data ctor other._data
+
+    fun ctor(this: !Function15, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11, #$this.T12, #$this.T13, #$this.T14, #$this.T15)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13, #$T14, #$T15))
         _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)

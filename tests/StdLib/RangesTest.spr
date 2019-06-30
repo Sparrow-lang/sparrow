@@ -71,14 +71,14 @@ fun ()(this: !Fact): Int
 fun isOdd(n: Int) = n%2==1
 
 fun printRange(nr: Range)
-    while !nr.isEmpty()
-        cout << nr.front()
-        nr.popFront()
-        if (nr.isEmpty() )
-            cout << endl;
+    var rc = nr
+    while !rc.isEmpty
+        cout << rc.front
+        rc.popFront()
+        if rc.isEmpty
+            cout << endl
         else
-            cout << ' ';
-    ;
+            cout << ' '
 
 fun makeList(): List(Int)
     var li: List(Int)

@@ -42,14 +42,14 @@ fun printRange(nr: ContiguousMemoryRange(Int))
     ;
 
 fun printRange(nr: List(Int).RangeType)
-    while !nr.isEmpty()
-        cout << nr.front()
-        nr.popFront()
-        if ( nr.isEmpty() )
-            cout << endl;
+    var rc = nr
+    while !rc.isEmpty
+        cout << rc.front
+        rc.popFront()
+        if rc.isEmpty
+            cout << endl
         else
-            cout << " ";
-    ;
+            cout << ' '
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
     var ptr = allocRawPtr(Int, size)

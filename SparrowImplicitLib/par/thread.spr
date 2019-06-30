@@ -5,6 +5,7 @@ import std.newDelete
 //import assert
 
 //! Datatype describing a thread ID
+[bitcopiable]
 datatype ThreadId
     id: ULong
 
@@ -16,12 +17,13 @@ fun ctor(this: !ThreadId, h: NativeThreadHandle)
 fun >>(tid: !ThreadId, os: !OutStream)
     os << tid.id
 
+[bitcopiable]
 datatype Thread
     _handle: NativeThreadHandle
 
 //! Construct the Thread with a functor
 //! The functor can have state, not just executing code
-fun ctor(this: !Thread, f: AnyType) if isValid(f())
+fun ctor(this: !Thread, f: @AnyType) if isValid(f())
     _handle = _Impl.startThread(f)
 
 //! Cannot copy construct or assign a Thread object
@@ -104,7 +106,7 @@ package _Impl
         let status = pthread_create(handle, UntypedPtr(), getFunPtr(ClosureType), arg)
         return handle
 
-    [initCtor] datatype TimeSpec
+    [initCtor, bitcopiable] datatype TimeSpec
         tv_sec, tv_nsec: Long
 
     [native("pthread_create")] fun pthread_create(handle: !NativeThreadHandle, attr: UntypedPtr, f: ThreadFun, arg: UntypedPtr): Int

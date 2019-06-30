@@ -46,7 +46,10 @@ Node* addAssociatedFun(Node* parent, const string& name, Node* body,
     NodeVector sprParams;
     sprParams.reserve(params.size());
     for (auto param : params) {
-        sprParams.push_back(mkSprParameter(loc, StringRef(param.second), param.first));
+        auto p = mkSprParameter(loc, StringRef(param.second), param.first);
+        if (param.first.mode() == modeCt)
+            Nest_setPropertyInt(p, propNoAutoConst, 1);
+        sprParams.push_back(p);
     }
     Node* parameters = sprParams.empty() ? nullptr : Feather_mkNodeList(loc, all(sprParams));
     Node* ret =

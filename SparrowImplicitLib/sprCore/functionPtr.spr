@@ -1,6 +1,7 @@
 import basicDecls(Type, Byte, Int, AnyType, UntypedPtr)
 
 package _Impl0
+    [bitcopiable]
     datatype FunctionPtr0(resT: Type)
         using arity = 0
         using ResT = resT
@@ -10,6 +11,7 @@ package _Impl0
     fun ()(this: FunctionPtr0 const): ResT = this._doCall()
 
 package _Impl1
+    [bitcopiable]
     datatype FunctionPtr1(resT, t1: Type)
         using arity = 1
         using ResT = resT
@@ -20,6 +22,7 @@ package _Impl1
     fun ()(this: FunctionPtr1 const, p1: this.T1): ResT = this._doCall(p1)
 
 package _Impl2
+    [bitcopiable]
     datatype FunctionPtr2(resT, t1, t2: Type)
         using arity = 2
         using ResT = resT
@@ -31,6 +34,7 @@ package _Impl2
     fun ()(this: FunctionPtr2 const, p1: this.T1, p2: this.T2): ResT = this._doCall(p1, p2)
 
 package _Impl3
+    [bitcopiable]
     datatype FunctionPtr3(resT, t1, t2, t3: Type)
         using arity = 3
         using ResT = resT
@@ -43,6 +47,7 @@ package _Impl3
     fun ()(this: FunctionPtr3 const, p1: this.T1, p2: this.T2, p3: this.T3): ResT = this._doCall(p1, p2, p3)
 
 package _Impl4
+    [bitcopiable]
     datatype FunctionPtr4(resT, t1, t2, t3, t4: Type)
         using arity = 4
         using ResT = resT
@@ -56,6 +61,7 @@ package _Impl4
     fun ()(this: FunctionPtr4 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): ResT = this._doCall(p1, p2, p3, p4)
 
 package _Impl5
+    [bitcopiable]
     datatype FunctionPtr5(resT, t1, t2, t3, t4, t5: Type)
         using arity = 5
         using ResT = resT
@@ -70,6 +76,7 @@ package _Impl5
     fun ()(this: FunctionPtr5 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): ResT = this._doCall(p1, p2, p3, p4, p5)
 
 package _Impl6
+    [bitcopiable]
     datatype FunctionPtr6(resT, t1, t2, t3, t4, t5, t6: Type)
         using arity = 6
         using ResT = resT
@@ -85,6 +92,7 @@ package _Impl6
     fun ()(this: FunctionPtr6 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): ResT = this._doCall(p1, p2, p3, p4, p5, p6)
 
 package _Impl7
+    [bitcopiable]
     datatype FunctionPtr7(resT, t1, t2, t3, t4, t5, t6, t7: Type)
         using arity = 7
         using ResT = resT
@@ -101,6 +109,7 @@ package _Impl7
     fun ()(this: FunctionPtr7 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7)
 
 package _Impl8
+    [bitcopiable]
     datatype FunctionPtr8(resT, t1, t2, t3, t4, t5, t6, t7, t8: Type)
         using arity = 8
         using ResT = resT
@@ -118,6 +127,7 @@ package _Impl8
     fun ()(this: FunctionPtr8 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8)
 
 package _Impl9
+    [bitcopiable]
     datatype FunctionPtr9(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9: Type)
         using arity = 9
         using ResT = resT
@@ -136,6 +146,7 @@ package _Impl9
     fun ()(this: FunctionPtr9 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9)
 
 package _Impl10
+    [bitcopiable]
     datatype FunctionPtr10(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type)
         using arity = 10
         using ResT = resT
@@ -155,6 +166,7 @@ package _Impl10
     fun ()(this: FunctionPtr10 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
 
 package _Impl11
+    [bitcopiable]
     datatype FunctionPtr11(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11: Type)
         using arity = 11
         using ResT = resT
@@ -175,6 +187,7 @@ package _Impl11
     fun ()(this: FunctionPtr11 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
 
 package _Impl12
+    [bitcopiable]
     datatype FunctionPtr12(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12: Type)
         using arity = 12
         using ResT = resT
@@ -196,6 +209,7 @@ package _Impl12
     fun ()(this: FunctionPtr12 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12)
 
 package _Impl13
+    [bitcopiable]
     datatype FunctionPtr13(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13: Type)
         using arity = 13
         using ResT = resT
@@ -218,6 +232,7 @@ package _Impl13
     fun ()(this: FunctionPtr13 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13)
 
 package _Impl14
+    [bitcopiable]
     datatype FunctionPtr14(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14: Type)
         using arity = 14
         using ResT = resT
@@ -241,6 +256,7 @@ package _Impl14
     fun ()(this: FunctionPtr14 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14)
 
 package _Impl15
+    [bitcopiable]
     datatype FunctionPtr15(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15: Type)
         using arity = 15
         using ResT = resT

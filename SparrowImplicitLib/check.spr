@@ -145,8 +145,9 @@ fun elements(r: Range): r.RetType Gen = _Impl.ElementsGen(typeOf(r))(r).gen
 //! Given a set of generators, this will randomly chose one of them
 fun oneOf(gens: Range): gens.RetType if GenType(#$gens.RetType)
     if gens.isEmpty return gens.RetType()
-    gens advance randBetween(0, (gens rangeSize))
-    return gens.front
+    var gensc = gens
+    gensc advance randBetween(0, (gens rangeSize))
+    return gensc.front
 
 //! Same as oneOf, but for each generator we also have its frequency
 fun frequency(gens: Range): typeOf((#$gens.RetType).v2) if FreqGenType(#$gens.RetType)

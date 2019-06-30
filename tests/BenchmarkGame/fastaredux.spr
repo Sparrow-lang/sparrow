@@ -5,13 +5,14 @@ import std.algorithms
 import std.string
 import std.tuple
 
-fun write(r: Range, length: Int) if isValid(Char(r.front))
+fun write(r: Range, length: Int) if isValid(Char(#$r.RetType))
     using lineLength = 60
+    var rc = r
     var line: String = lineLength
     for n = length..0 ../ (-lineLength)
         let len = min(n, lineLength)
         for i = 0..len
-            line(i) = (r++);
+            line(i) = (rc++);
         if ( len < lineLength )
             line.resize(len);
         cout << line << "\n";
@@ -28,12 +29,16 @@ datatype RandTableRange
     using numEntries = 4095
     lookup: Array((Float rt)*(Char rt))
 
+fun ctor(this: !RandTableRange, other: RandTableRange)
+    this.lookup ctor other.lookup
+
 fun ctor(this: !RandTableRange, data: Range)
+    var datac = data
     lookup.ctor(numEntries+1)
     for i = 0...numEntries
-        while i > data.front().v1*numEntries
-            data.popFront();
-        lookup(i) = data.front;
+        while i > datac.front().v1*numEntries
+            datac.popFront()
+        lookup(i) = datac.front
 
 fun isEmpty(this: !RandTableRange)     = false
 fun popFront(this: !RandTableRange)    {}

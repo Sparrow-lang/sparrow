@@ -199,16 +199,17 @@ datatype List(valueType: Type)
 
     fun remove(this: !List, range: this.RangeType)
         let left = range._begin.value().prev
+        var rc = range
 
-        while !range.isEmpty
-            let tmp = range._begin.value().next
+        while !rc.isEmpty
+            let tmp = rc._begin.value().next
 
-            range._begin.value().data.dtor
-            range._begin.freePtr
+            rc._begin.value().data.dtor
+            rc._begin.freePtr
             _listSize = _listSize - 1
-            range._begin = tmp
-        left.value().next = range._end
-        range._end.value().prev = left
+            rc._begin = tmp
+        left.value().next = rc._end
+        rc._end.value().prev = left
 
     fun resize(this: !List, n: SizeType)
         if n == _listSize
@@ -405,15 +406,19 @@ datatype List(valueType: Type)
     fun _headNode(this: @List) = mkRawPtr(reinterpretCast(@_MyNodeType, _head))
 
     fun _transfer(pos, begin, end: /*_NodeTypePtr*/ AnyType)
-        end.value().prev.value().next = pos
-        begin.value().prev.value().next = end
-        pos.value().prev.value().next = begin
+        var posc = pos
+        var beginc = begin
+        var endc = end
 
-        let tmp = pos.value().prev
+        endc.value().prev.value().next = posc
+        beginc.value().prev.value().next = endc
+        posc.value().prev.value().next = beginc
 
-        pos.value().prev = end.value().prev
-        end.value().prev = begin.value().prev
-        begin.value().prev = tmp
+        let tmp = posc.value().prev
+
+        posc.value().prev = endc.value().prev
+        endc.value().prev = beginc.value().prev
+        beginc.value().prev = tmp
 
 datatype _NodeLinks(valueType: Type)
     prev, next: RawPtr(_NodeType(valueType))

@@ -46,7 +46,7 @@
 
     [native("_zero_init_1")] fun ctor(this: !Bool)
     [native("_ass_1_1")] fun ctor(this: !Bool, src: Bool)
-    fun dtor(this: !Bool) {}
+    fun dtor(this: Bool) {}
     [autoCt, native("_ass_1_1")] fun = (this: !Bool, other: Bool): Bool
 
     [native("_zero_init_8")] fun ctor(this: !Byte)
@@ -176,7 +176,7 @@
     [native("_ass_64_64"), convert] fun ctor(this: !ULong, src: DiffType)
     [native("_ass_u64_f")] fun ctor(this: !ULong, src: Float)
     [native("_ass_u64_d")] fun ctor(this: !ULong, src: Double)
-    fun dtor(this: !ULong) {}
+    fun dtor(this: ULong) {}
     [native("_ass_64_64")] fun = (this: !ULong, other: ULong)
 
     [native("_zero_init_64")] fun ctor(this: !SizeType)
@@ -638,7 +638,7 @@ datatype StringRef
     fun ctor(this: !StringRef, begin, end: UntypedPtr)
         this.begin = begin
         this.end = end
-    fun dtor(this: !StringRef) {}
+    fun dtor(this: StringRef) {}
 
     fun isEmpty(this: StringRef)            = (end ptrDiff begin) == 0
     fun size(this: StringRef): SizeType     = (end ptrDiff begin)

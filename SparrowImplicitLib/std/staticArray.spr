@@ -26,10 +26,11 @@ datatype StaticArray(valueType: Type, arraySize: SizeType ct)
             v.ctor(value)
 
     fun ctor(this: !StaticArray, range: Range)
+        var rc = range
         for v: @ValueType = this.all
-            if !range.isEmpty
-                v.ctor(range.front)
-                range.popFront
+            if !rc.isEmpty
+                v.ctor(rc.front)
+                rc.popFront
             else
                 v ctor
     fun ctor(this: !StaticArray, v0,v1: this.ValueType const) if this._arraySize == 2

@@ -35,15 +35,15 @@ datatype Minus
 
 fun ()(this: Minus, x: Int, y: Int) = x - y
 
-fun printRange(nr: AnyType)
-    while !nr.isEmpty()
-        cout << nr.front()
-        nr.popFront()
-        if (nr.isEmpty() )
-            cout << endl;
+fun printRange(nr: Range)
+    var rc = nr
+    while !rc.isEmpty
+        cout << rc.front
+        rc.popFront()
+        if rc.isEmpty
+            cout << endl
         else
-            cout << ' ';
-    ;
+            cout << ' '
 
 fun makeList(): List(Int)
     var li: List(Int)

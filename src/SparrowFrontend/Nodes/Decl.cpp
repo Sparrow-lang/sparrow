@@ -1013,6 +1013,10 @@ Type ParameterDecl::computeTypeImpl(ParameterDecl node) {
     if (!t)
         return {};
 
+    // Should with make this parameter const?
+    if (shouldMakeParamConst(t) && !node.hasProperty(propNoAutoConst))
+        t = Feather::ConstType::get(TypeWithStorage(t));
+
     auto resultingParam =
             Feather::VarDecl::create(loc, node.name(), Feather::TypeNode::create(loc, t));
     resultingParam.setMode(node.effectiveMode());

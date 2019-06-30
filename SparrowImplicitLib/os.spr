@@ -8,6 +8,7 @@ fun exit(code: Int)
 fun systemCall(cmd: StringRef): Int
     return CApi.system(cmd.cStr)
 
+[bitcopiable]
 datatype File = UntypedPtr
 
 [protected]

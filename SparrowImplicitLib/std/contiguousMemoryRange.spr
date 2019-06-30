@@ -3,7 +3,7 @@ module std.contiguousMemoryRange
 import rawPtr(RawPtr)
 import ranges(..)
 
-[initCtor]
+[initCtor, bitcopiable]
 datatype ContiguousMemoryRange(valueType: Type)
     using PtrType = RawPtr(valueType)
     using RetType = @valueType

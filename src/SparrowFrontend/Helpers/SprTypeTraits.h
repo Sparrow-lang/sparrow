@@ -48,4 +48,13 @@ Type changeRefCount(Type type, int numRef, const Location& loc = Location());
 //! This returns true for native types and for references
 bool isBitCopiable(Type type);
 
+//! Checks if we need to make the parameter with the given type const
+//! We are making const the following parameters:
+//!     - datatype params
+//!     - type doesn't have a category already
+//!     - type doesn't have references
+//!     - type is RT
+//!     - type is not bitcopiable
+bool shouldMakeParamConst(Type type);
+
 } // namespace SprFrontend

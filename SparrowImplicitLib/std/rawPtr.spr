@@ -1,6 +1,6 @@
 module std.rawPtr
 
-[initCtor]
+[initCtor, bitcopiable]
 datatype RawPtr(valueType: Type)
     using ValueType = valueType
 

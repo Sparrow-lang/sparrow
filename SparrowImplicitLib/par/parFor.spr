@@ -50,7 +50,7 @@ fun ctor(this: !BoundedRange, r: this._RangeType)
     _baseRange ctor r
     _count = (_baseRange rangeSize)
 
-fun ctor(this, r: !BoundedRange, nSkip, nTake: SizeType)
+fun ctor(this: !BoundedRange, r: typeOf(this), nSkip, nTake: SizeType)
     _baseRange ctor r._baseRange
     _baseRange advance nSkip
     _count ctor nTake

@@ -36,7 +36,7 @@ import std.compilerInfo
             testOneLoad(t Ptr, p)
             p release
 
-    fun testOneStore(atomic: AnyType, val: AnyType)
+    fun testOneStore(atomic: !AnyType, val: AnyType)
         atomic store val
         assertEq(atomic load, val)
     fun testStoreNumeric(t: Type, count: Int)
@@ -52,7 +52,7 @@ import std.compilerInfo
             testOneStore(atomic, p)
             p release
 
-    fun testOneFetchAndStore(atomic: AnyType, val1, val2: AnyType)
+    fun testOneFetchAndStore(atomic: !AnyType, val1, val2: AnyType)
         atomic store val1
         assertEq(atomic load, val1)
         let x = atomic fetchAndStore val2
@@ -75,7 +75,7 @@ import std.compilerInfo
             p2 release
             p1 release
 
-    fun testOneFetchAndAdd(atomic: AnyType, val, add: AnyType)
+    fun testOneFetchAndAdd(atomic: !AnyType, val, add: AnyType)
         atomic store val
         assertEq(atomic load, val)
         let x = atomic fetchAndAdd add
@@ -88,7 +88,7 @@ import std.compilerInfo
             let add: t = rand()
             testOneFetchAndAdd(atomic, val, add)
 
-    fun testOneCompareAndSwap(atomic: AnyType, val1, val2: AnyType)
+    fun testOneCompareAndSwap(atomic: !AnyType, val1, val2: AnyType)
         if val1 == val2
             return
         atomic store val1

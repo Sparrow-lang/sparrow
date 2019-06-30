@@ -16,9 +16,10 @@ fun sprMain
             if ( v.isEmpty != r.isEmpty ) return false
             if ( v.size != (r rangeSize) ) return false
             var sz = v.size
+            var rc = r
             for i = 0..sz
-                if ( v(i) != r.front ) return false
-                r.popFront
+                if ( v(i) != rc.front ) return false
+                rc.popFront
             return true
     }) ~ "vector's range constructor"
 
@@ -231,7 +232,7 @@ fun sprMain
             )
     }) ~ "vector's resize grow")
 
-    forAll(SubrangeTestData arbitrary) check ((fun td: Bool {
+    forAll(SubrangeTestData arbitrary) check ((fun (td: !SubrangeTestData): Bool {
             td.vec clear
             return td.vec.isEmpty && td.vec.size == 0
     }) ~ "that we can clear a vector")

@@ -80,12 +80,13 @@ datatype Array(valueType: Type)
 
     fun assign(this: !Array, range: Range)
         var r = this.all
+        var rc = range
 
-        while !r.isEmpty && !range.isEmpty
+        while !r.isEmpty && !rc.isEmpty
             r.front dtor
-            r.front ctor range.front
+            r.front ctor rc.front
             r.popFront
-            range.popFront
+            rc.popFront
 
         while !r.isEmpty ; r.popFront
             r.front dtor

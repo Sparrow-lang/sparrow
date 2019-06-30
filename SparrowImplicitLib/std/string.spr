@@ -169,6 +169,7 @@ fun ctor(this: !String, range: Range) if typeOf(range) != String
         _end = _end.advance
 
     fun insertBefore(this: !String, range: Range, pos: StringRef)
+        var rc = range
         let n = range.size
         let index = _frontPtr(pos).diff(_begin)
 
@@ -181,10 +182,10 @@ fun ctor(this: !String, range: Range) if typeOf(range) != String
             p.advance(DiffType(n)).value ctor p.value
             p.value dtor
         p = p.advance
-        while !range.isEmpty
-            p.value ctor range.front
+        while !rc.isEmpty
+            p.value ctor rc.front
             p = p.advance
-            range.popFront
+            rc.popFront
         _end = _end.advance(DiffType(n))
 
     fun insertAfter(this: !String, value: Char, pos: StringRef)

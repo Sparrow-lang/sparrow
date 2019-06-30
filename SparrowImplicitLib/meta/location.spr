@@ -1,16 +1,19 @@
 module meta.location
 
 /// A line + column pair, indicating a position in a file
+[bitcopiable]
 datatype LineCol
     line, col: UInt
 
 /// Type describing a source code; for now we just use an untyped Ptr
+[bitcopiable]
 datatype SourceCode = UntypedPtr
 
 fun >>(s: SourceCode, os: !OutStream)
     os << mkStreamRefWrapper(s.data)
 
 /// Type that holds the location information: a source code and a range of chars into it
+[bitcopiable]
 datatype Location
     sourceCode: SourceCode
     start, end: LineCol

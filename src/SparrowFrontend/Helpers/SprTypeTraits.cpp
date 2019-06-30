@@ -333,3 +333,8 @@ bool SprFrontend::isBitCopiable(Type type) {
         return false;
     return type.referredNode() && type.referredNode().hasProperty(propBitCopiable);
 }
+
+bool SprFrontend::shouldMakeParamConst(Type type) {
+    return type.hasStorage() && type.numReferences() == 0 && !Feather::isCategoryType(type) &&
+           type.mode() != modeCt && !isBitCopiable(type);
+}

@@ -2,6 +2,7 @@ module par.config
 
 import std.ptr
 
+[bitcopiable]
 datatype NativeThreadHandle = Byte Ptr  // Opaque type
 
 fun >>(h: NativeThreadHandle, os: !OutStream)

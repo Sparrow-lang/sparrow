@@ -17,7 +17,7 @@ datatype Array(valueType: Type)
         [ct] for i = 0..size
             this(i) = src(i)
 
-    fun ctor(this: !Array, other: typeOf(this) const)
+    fun ctor(this: !Array, other: typeOf(this))
         let size = other.size
 
         _begin = allocRawPtr(ValueType, size)
@@ -40,7 +40,7 @@ datatype Array(valueType: Type)
         while p != _end ; p = p.advance
             p.value ctor
 
-    fun ctor(this: !Array, size: SizeType, value: this.ValueType const)
+    fun ctor(this: !Array, size: SizeType, value: this.ValueType)
         _begin = allocRawPtr(ValueType, size)
         _end = _begin.advance(DiffType(size))
 
@@ -72,10 +72,10 @@ datatype Array(valueType: Type)
             p.value dtor
         _begin.freePtr
 
-    fun size(this: Array const): SizeType
+    fun size(this: Array): SizeType
         return _end.diff(_begin)
 
-    fun isEmpty(this: Array const): Bool
+    fun isEmpty(this: Array): Bool
         return _begin == _end
 
     fun assign(this: !Array, range: Range)
@@ -100,25 +100,25 @@ datatype Array(valueType: Type)
         _end = other._end
         other._end = tmp
 
-    fun at(this: Array const, index: SizeType): @ValueType
+    fun at(this: Array, index: SizeType): @ValueType
         return _begin.advance(DiffType(index)).value
-    fun ()(this: Array const, index: SizeType): @ValueType
+    fun ()(this: Array, index: SizeType): @ValueType
         return _begin.advance(DiffType(index)).value
 
-    fun all(this: Array const): RangeType
+    fun all(this: Array): RangeType
         return RangeType(_begin, _end)
 
-    fun subrange(this: Array const, index: SizeType, num: SizeType): RangeType
+    fun subrange(this: Array, index: SizeType, num: SizeType): RangeType
         return RangeType(_begin.advance(DiffType(index)), _begin.advance(DiffType(index + num)))
 
-    fun =(this: !Array, other: typeOf(this) const): @typeOf(this)
+    fun =(this: !Array, other: typeOf(this)): @typeOf(this)
         var tmp = other
 
         tmp.swap(this)
 
         return this
 
-    fun ==(this, other: Array const): Bool
+    fun ==(this, other: Array): Bool
         if this.size != other.size
             return false
 
@@ -133,10 +133,10 @@ datatype Array(valueType: Type)
 
         return true
 
-    fun !=(this, other: Array const): Bool
+    fun !=(this, other: Array): Bool
         return !(this == other)
 
-    fun >>(this: Array const, os: !OutStream) if isValid(os << #$ValueType)
+    fun >>(this: Array, os: !OutStream) if isValid(os << #$ValueType)
         var first = true
         for el = this.all
             if first
@@ -144,7 +144,7 @@ datatype Array(valueType: Type)
             else
                 os << ", "
             os << el
-    fun _dumpThis(this: Array const, prefix: StringRef)
+    fun _dumpThis(this: Array, prefix: StringRef)
         cout << prefix << "dumping " << TypeOp.description(Array) << ": " << mkStreamRefWrapper(this) << endl
         cout << "    begin: " << mkStreamRefWrapper(_begin.untypedPtr) << endl
         cout << "    end: " << mkStreamRefWrapper(_end.untypedPtr) << endl

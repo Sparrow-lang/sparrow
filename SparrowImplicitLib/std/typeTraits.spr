@@ -6,9 +6,9 @@ datatype DefaultTypeTraits
     ;
 
 [protected]
-    fun equal(this: DefaultTypeTraits, l, r: AnyType const) = l == r
-    fun less(this: DefaultTypeTraits, l, r: AnyType const) = l < r
-    fun hash(this: DefaultTypeTraits, val: AnyType const): SizeType
+    fun equal(this: DefaultTypeTraits, l, r: AnyType) = l == r
+    fun less(this: DefaultTypeTraits, l, r: AnyType) = l < r
+    fun hash(this: DefaultTypeTraits, val: AnyType): SizeType
         [ct] if ( isValid(SizeType(val hash)) )
             return val hash
         else [ct] if ( isValid(SizeType(val.get hash)) )

@@ -13,11 +13,11 @@ fun getRangeSize(range: Range): SizeType
         ++n
     return n
 
-fun getRangeSize2(range: RandomAccessRange const): SizeType
+fun getRangeSize2(range: RandomAccessRange): SizeType
     cout << "RandomAccessRange fun selected" << endl
     return range.size()
 
-fun getRangeSize2(range: Range const): SizeType
+fun getRangeSize2(range: Range): SizeType
     cout << "Range fun selected" << endl
     var n: SizeType = 0
     while !range.isEmpty(); range.popFront()

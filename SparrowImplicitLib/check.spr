@@ -12,13 +12,13 @@ datatype Gen(t: Type)
 
 concept _Generator(x) if isValid(x(UInt(0)))
 
-fun mkGen(t: Type, generator: _Generator const): Gen(t)
+fun mkGen(t: Type, generator: _Generator): Gen(t)
     using FunType = Function(t, UInt)
     return Gen(t)(FunType(generator))
 
 fun ()(this: !Gen, sizeHint: UInt): ValueType = _generator(sizeHint)
 
-fun isValid(this: Gen const): Bool = _generator isSet
+fun isValid(this: Gen): Bool = _generator isSet
 
 concept GenType(x)                  \
     if typeOf(x.ValueType) == Type  \
@@ -52,7 +52,7 @@ datatype TestableValue(t: Type)
     isTrivial: Bool
     classifier: String
 
-fun ctor(this: !TestableValue, value: this.ValueType const)
+fun ctor(this: !TestableValue, value: this.ValueType)
     this.value ctor value
     this.isTrivial ctor false
     this.classifier ctor ""
@@ -68,13 +68,13 @@ concept TestableValuesRange(x: Range) if (
 //! This will extract values from the input range and applies the predicate on
 //! them. Makes sure that the predicate holds for all these values. Reports the
 //! statistics of running the tests.
-fun check(values: TestableValuesRange, pred: AnyType const): Bool \
+fun check(values: TestableValuesRange, pred: AnyType): Bool \
         = check(values, pred, "") \
     if !isValid(pred.v1)
-fun check(values: TestableValuesRange, predMsg: AnyType const): Bool \
+fun check(values: TestableValuesRange, predMsg: AnyType): Bool \
         = check(values, predMsg.v1, predMsg.v2) \
     if isValid(predMsg.v1)
-fun check(values: TestableValuesRange, pred: AnyType const, msg: StringRef, config: CheckConfig = CheckConfig()): Bool
+fun check(values: TestableValuesRange, pred: AnyType, msg: StringRef, config: CheckConfig = CheckConfig()): Bool
     cout << "* Checking " << msg << endl
     var classes: Map(String, UInt)
 
@@ -123,12 +123,12 @@ fun forAll(gen: GenType) = _Impl.ForAllGenerator(gen.ValueType)(gen)
 fun forAll(r: Range) = _Impl.ForAllRangeGenerator(typeOf(r))(r)
 
 //! Filter functionality - filters the testable values against the given predicate
-fun forWhich(r: TestableValuesRange, pred: AnyType const) = _Impl.ForWhichRange(typeOf(r), typeOf(pred))(r, pred)
+fun forWhich(r: TestableValuesRange, pred: AnyType) = _Impl.ForWhichRange(typeOf(r), typeOf(pred))(r, pred)
 
 //! Sets the triviality of the testable values according to the result of the predicate
-fun withTrivials(r: TestableValuesRange, pred: AnyType const) = _Impl.TrivialsRange(typeOf(r), typeOf(pred))(r, pred)
+fun withTrivials(r: TestableValuesRange, pred: AnyType) = _Impl.TrivialsRange(typeOf(r), typeOf(pred))(r, pred)
 //! Sets the classifier of the testable values according to the result of the predicate
-fun withClassifier(r: TestableValuesRange, pred: AnyType const) = _Impl.ClassifierRange(typeOf(r), typeOf(pred))(r, pred)
+fun withClassifier(r: TestableValuesRange, pred: AnyType) = _Impl.ClassifierRange(typeOf(r), typeOf(pred))(r, pred)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Combinators
@@ -198,11 +198,11 @@ package _Impl
         this._gen ctor other._gen
         this._count ctor other._count
 
-    fun ctor(this: !ForAllGenerator, gen: Gen(this._T) const)
+    fun ctor(this: !ForAllGenerator, gen: Gen(this._T))
         this._gen ctor gen
         this._count = 0
 
-    fun isEmpty(this: ForAllGenerator const)                = !_gen.isValid
+    fun isEmpty(this: ForAllGenerator)                = !_gen.isValid
     fun front(this: !ForAllGenerator): RetType              = RetType(_gen(_count))
     fun popFront(this: !ForAllGenerator)                    { ++_count }
 
@@ -212,7 +212,7 @@ package _Impl
 
         _range: rangeType
 
-    fun isEmpty(this: ForAllRangeGenerator const)                = _range.isEmpty
+    fun isEmpty(this: ForAllRangeGenerator)                = _range.isEmpty
     fun front(this: !ForAllRangeGenerator): RetType         = RetType(_range.front)
     fun popFront(this: !ForAllRangeGenerator)                    { _range.popFront }
 
@@ -232,8 +232,8 @@ package _Impl
         this._lastVal ctor
         this._popUntilValid
 
-    fun isEmpty(this: ForWhichRange const)                = _range.isEmpty()
-    fun front(this: ForWhichRange const): RetType         = _lastVal
+    fun isEmpty(this: ForWhichRange)                = _range.isEmpty()
+    fun front(this: ForWhichRange): RetType         = _lastVal
     fun popFront(this: !ForWhichRange)                    { _range.popFront(); this._popUntilValid }
 
     fun _popUntilValid(this: !ForWhichRange)
@@ -251,7 +251,7 @@ package _Impl
         _range: rangeType
         _pred: predType
 
-    fun isEmpty(this: TrivialsRange const)                = _range.isEmpty()
+    fun isEmpty(this: TrivialsRange)                = _range.isEmpty()
     fun popFront(this: !TrivialsRange)                    { _range.popFront() }
     fun front(this: !TrivialsRange): RetType
         let res = _range.front
@@ -266,7 +266,7 @@ package _Impl
         _range: rangeType
         _pred: predType
 
-    fun isEmpty(this: ClassifierRange const)                = _range.isEmpty()
+    fun isEmpty(this: ClassifierRange)                = _range.isEmpty()
     fun popFront(this: !ClassifierRange)                    { _range.popFront() }
     fun front(this: !ClassifierRange): RetType
         let res = _range.front

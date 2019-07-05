@@ -20,7 +20,7 @@ datatype List(valueType: Type)
         _head.prev = this._headNode
         _head.next = this._headNode
 
-    fun ctor(this: !List, other: typeOf(this) const)
+    fun ctor(this: !List, other: typeOf(this))
         _listSize = 0
         _head.prev = this._headNode
         _head.next = this._headNode
@@ -45,11 +45,11 @@ datatype List(valueType: Type)
             p.freePtr
             p = nextNode
 
-    fun =(this: @List, other: typeOf(this) const)
+    fun =(this: @List, other: typeOf(this))
         var tmp = other
         this swap tmp
 
-    fun ==(this: List const, other: typeOf(this) const): Bool
+    fun ==(this: List, other: typeOf(this)): Bool
         if _listSize != other._listSize
             return false
 
@@ -65,13 +65,13 @@ datatype List(valueType: Type)
 
         return true
 
-    fun size(this: List const): SizeType          = _listSize
-    fun isEmpty(this: List const)                 = _listSize == 0
+    fun size(this: List): SizeType          = _listSize
+    fun isEmpty(this: List)                 = _listSize == 0
 
-    fun front(this: List const): RetType          = _head.next.value().data
-    fun back(this: List const): RetType           = _head.prev.value().data
+    fun front(this: List): RetType          = _head.next.value().data
+    fun back(this: List): RetType           = _head.prev.value().data
 
-    fun all(this: List const): RangeType          = RangeType(_head.next, this._headNode)
+    fun all(this: List): RangeType          = RangeType(_head.next, this._headNode)
 
     fun assign(this: !List, range: Range)
         this.clear
@@ -99,7 +99,7 @@ datatype List(valueType: Type)
             other._head.prev.value().next = other._headNode
             other._head.next.value().prev = other._headNode
 
-    fun insertBefore(this: !List, value: this.ValueType const, pos: this.RangeType)
+    fun insertBefore(this: !List, value: this.ValueType, pos: this.RangeType)
         let tmp = allocRawPtr(_MyNodeType, 1)
 
         tmp.value().data ctor value
@@ -113,7 +113,7 @@ datatype List(valueType: Type)
         for v = range
             this.insertBefore(v, pos)
 
-    fun insertAfter(this: !List, value: this.ValueType const, pos: this.RangeType)
+    fun insertAfter(this: !List, value: this.ValueType, pos: this.RangeType)
         let tmp = allocRawPtr(_MyNodeType, 1)
 
         tmp.value().data ctor value
@@ -127,7 +127,7 @@ datatype List(valueType: Type)
         for v = range
             this.insertAfter(v, pos)
 
-    fun pushFront(this: !List, value: this.ValueType const)
+    fun pushFront(this: !List, value: this.ValueType)
         let tmp = allocRawPtr(_MyNodeType, 1)
 
         tmp.value().data ctor value
@@ -146,7 +146,7 @@ datatype List(valueType: Type)
         right.value().prev = this._headNode
         _listSize = _listSize - 1
 
-    fun pushBack(this: !List, value: this.ValueType const)
+    fun pushBack(this: !List, value: this.ValueType)
         let tmp = allocRawPtr(_MyNodeType, 1)
 
         tmp.value().prev = _head.prev
@@ -156,7 +156,7 @@ datatype List(valueType: Type)
         _head.prev = tmp
         ++_listSize
 
-    fun +=(this: !List, value: this.ValueType const) { this.pushBack(value) }
+    fun +=(this: !List, value: this.ValueType) { this.pushBack(value) }
 
     fun popBack(this: !List)
         let left = _head.prev.value().prev
@@ -167,7 +167,7 @@ datatype List(valueType: Type)
         left.value().next = this._headNode
         _listSize = _listSize - 1
 
-    fun remove(this: !List, value: this.ValueType const)
+    fun remove(this: !List, value: this.ValueType)
         var p = _head.next
         let hn = this._headNode
 

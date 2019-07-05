@@ -274,11 +274,11 @@ datatype RetroRange(rangeType: Type) if BidirRange(#$rangeType)
     using RetType = rangeType.RetType
 
 [protected]
-    fun isEmpty(this: RetroRange const)          = _range.isEmpty
-    fun front(this: RetroRange const): RetType   = _range.back
+    fun isEmpty(this: RetroRange)          = _range.isEmpty
+    fun front(this: RetroRange): RetType   = _range.back
     fun popFront(this: !RetroRange)         { _range.popBack }
 
-    fun back(this: RetroRange const): RetType    = _range.front
+    fun back(this: RetroRange): RetType    = _range.front
     fun popBack(this: !RetroRange)          { _range.popFront }
 
 [initCtor]
@@ -289,7 +289,7 @@ datatype TakeRange(rangeType: Type) if Range(#$rangeType)
     using RetType = rangeType.RetType
 
 [protected]
-    fun isEmpty(this: TakeRange const): Bool     = _count == 0 || _range.isEmpty
+    fun isEmpty(this: TakeRange): Bool     = _count == 0 || _range.isEmpty
     fun front(this: @TakeRange): RetType    = _range.front
     fun popFront(this: !TakeRange)          { _range.popFront; --_count }
 
@@ -309,7 +309,7 @@ datatype TakeWhileRange(rangeType: Type, predType: Type) \
         _pred ctor p
         _isEmpty = _range.isEmpty || !_pred(_range.front)
 
-    fun isEmpty(this: TakeWhileRange const): Bool    = _isEmpty
+    fun isEmpty(this: TakeWhileRange): Bool    = _isEmpty
     fun front(this: !TakeWhileRange): RetType        = _range.front
     fun popFront(this: !TakeWhileRange)
         _range.popFront
@@ -325,8 +325,8 @@ datatype TakeUntilRange(rangeType: Type, predType: Type) \
     using RetType = rangeType.RetType
 
 [protected]
-    fun isEmpty(this: TakeUntilRange const)          = _range.isEmpty || _shouldStop
-    fun front(this: TakeUntilRange const): RetType   = _range.front
+    fun isEmpty(this: TakeUntilRange)          = _range.isEmpty || _shouldStop
+    fun front(this: TakeUntilRange): RetType   = _range.front
     fun popFront(this: !TakeUntilRange)
         let lastVal = _range.front
         _range.popFront
@@ -349,8 +349,8 @@ fun ctor(this: !FilteredRange, range: this._RangeType, pred: this._PredType)
     this._popUntilValid
 
 [protected]
-    fun isEmpty(this: FilteredRange const)        = _range.isEmpty
-    fun front(this: FilteredRange const): RetType = _lastVal
+    fun isEmpty(this: FilteredRange)        = _range.isEmpty
+    fun front(this: FilteredRange): RetType = _lastVal
     fun popFront(this: !FilteredRange)       { _range.popFront; this._popUntilValid }
 
     fun _popUntilValid(this: !FilteredRange)
@@ -371,7 +371,7 @@ datatype TransformedRange(rangeType, funType: Type) \
     using RetType = -@typeOf((#$funType)(#$rangeType front))
 
 [protected]
-    fun isEmpty(this: TransformedRange const)    = _range.isEmpty
+    fun isEmpty(this: TransformedRange)    = _range.isEmpty
     fun front(this: !TransformedRange): RetType
         if !_hasValue
             _curVal = _function(_range.front)
@@ -386,8 +386,8 @@ datatype RepeatRange(valueType: Type)
     using RetType = valueType
 
 [protected]
-    fun isEmpty(this: RepeatRange const): Bool   = false
-    fun front(this: RepeatRange const): RetType  = _value
+    fun isEmpty(this: RepeatRange): Bool   = false
+    fun front(this: RepeatRange): RetType  = _value
     fun popFront(this: !RepeatRange)        {}
 
 [initCtor]
@@ -399,7 +399,7 @@ datatype ChainRange(rangeType1: Type, rangeType2: Type) \
     using RetType = commonType(rangeType1.RetType, rangeType2.RetType)
 
 [protected]
-    fun isEmpty(this: ChainRange const)          = _range1.isEmpty && _range2.isEmpty
+    fun isEmpty(this: ChainRange)          = _range1.isEmpty && _range2.isEmpty
     fun front(this: !ChainRange): RetType   = ife(_range1.isEmpty, _range2.front, _range1.front)
     fun popFront(this: !ChainRange)
         if _range1.isEmpty
@@ -415,8 +415,8 @@ datatype StridedRange(rangeType: Type) if Range(#$rangeType)
     using RetType = rangeType.RetType
 
 [protected]
-    fun isEmpty(this: StridedRange const)        = _range.isEmpty
-    fun front(this: StridedRange const): RetType = _range.front
+    fun isEmpty(this: StridedRange)        = _range.isEmpty
+    fun front(this: StridedRange): RetType = _range.front
     fun popFront(this: !StridedRange)
         let s = _strideStep
         while !_range.isEmpty && s > 0
@@ -434,8 +434,8 @@ datatype RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
     using RetType = rangeType.RetType
 
 [protected]
-    fun isEmpty(this: RadialRange const)         = _range.isEmpty || _count == _range.size
-    fun front(this: RadialRange const): RetType  = _range(_index)
+    fun isEmpty(this: RadialRange)         = _range.isEmpty || _count == _range.size
+    fun front(this: RadialRange): RetType  = _range(_index)
     fun popFront(this: !RadialRange)
         _index = _index + _step * _sign
         _step = _step + 1
@@ -457,8 +457,8 @@ fun ctor(this: !CyclicRange, range: this._RangeType)
     this._base ctor range
 
 [protected]
-    fun isEmpty(this: CyclicRange const): Bool   = false
-    fun front(this: CyclicRange const): RetType  = _range.front
+    fun isEmpty(this: CyclicRange): Bool   = false
+    fun front(this: CyclicRange): RetType  = _range.front
     fun popFront(this: !CyclicRange)
         _range.popFront
         if _range.isEmpty
@@ -477,8 +477,8 @@ fun ctor(this: !CyclicCountedRange, range: this._RangeType, count: SizeType)
     this._base ctor range
 
 [protected]
-    fun isEmpty(this: CyclicCountedRange const)          = _count == 0
-    fun front(this: CyclicCountedRange const): RetType   = _range.front
+    fun isEmpty(this: CyclicCountedRange)          = _count == 0
+    fun front(this: CyclicCountedRange): RetType   = _range.front
     fun popFront(this: !CyclicCountedRange)
         _range.popFront
         if _range.isEmpty
@@ -498,8 +498,8 @@ fun ctor(this: !GeneratedRange, function: this._FunType)
     this._current ctor this._function()
 
 [protected]
-    fun isEmpty(this: GeneratedRange const): Bool    = false
-    fun front(this: GeneratedRange const): RetType   = _current
+    fun isEmpty(this: GeneratedRange): Bool    = false
+    fun front(this: GeneratedRange): RetType   = _current
     fun popFront(this: !GeneratedRange)         { _current = _function() }
 
 [initCtor]
@@ -510,8 +510,8 @@ datatype Generated1Range(elType, functionType: Type) //if isValid(elType(#$funct
     using RetType = elType
 
 [protected]
-    fun isEmpty(this: Generated1Range const): Bool   = false
-    fun front(this: Generated1Range const): RetType  = _current
+    fun isEmpty(this: Generated1Range): Bool   = false
+    fun front(this: Generated1Range): RetType  = _current
     fun popFront(this: !Generated1Range)        { _current = _function(_current) }
 
 [initCtor]
@@ -523,8 +523,8 @@ datatype ZippedRange(rangeType1, rangeType2: Type, functionType: Type) if Range(
     using RetType = typeOf((#$functionType)(#$rangeType1 front, #$rangeType2 front))
 
 [protected]
-    fun isEmpty(this: ZippedRange const)          = _range1.isEmpty || _range2.isEmpty
-    fun front(this: ZippedRange const): RetType   = _function(_range1.front, _range2.front)
+    fun isEmpty(this: ZippedRange)          = _range1.isEmpty || _range2.isEmpty
+    fun front(this: ZippedRange): RetType   = _function(_range1.front, _range2.front)
     fun popFront(this: !ZippedRange)        { _range1.popFront; _range2.popFront }
 
 [initCtor]
@@ -537,7 +537,7 @@ datatype ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$
     using RetType = accType
 
 [protected]
-    fun isEmpty(this: ScanLeftRange const)    = _range.isEmpty
+    fun isEmpty(this: ScanLeftRange)    = _range.isEmpty
     fun popFront(this: !ScanLeftRange)  { _range.popFront; _valComputed=false }
     fun front(this: @ScanLeftRange): RetType
         if !_valComputed
@@ -553,8 +553,8 @@ datatype ValuesRange(contType: Type) if isValid((#$contType)(1))
     using RetType       = contType.ValueType
 
 [protected]
-    fun isEmpty(this: ValuesRange const): Bool   = _idx >= _values.size
-    fun front(this: ValuesRange const): RetType  = _values(_idx)
+    fun isEmpty(this: ValuesRange): Bool   = _idx >= _values.size
+    fun front(this: ValuesRange): RetType  = _values(_idx)
     fun popFront(this: !ValuesRange)        { ++_idx }
 
 fun mkValuesRange(cont: AnyType) = ValuesRange(typeOf(cont))(cont)

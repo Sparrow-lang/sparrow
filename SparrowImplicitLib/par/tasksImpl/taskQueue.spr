@@ -90,7 +90,7 @@ fun popBack(q: !TaskQueue): TaskPtr
     _first: TaskPtr
     list: @TaskQueue
 
-fun >> (tasks: TasksPrinter const, os: !OutStream)
+fun >> (tasks: TasksPrinter, os: !OutStream)
     if tasks._first isSet
         os << 'task='
         os << tasks._first.get() << " + "

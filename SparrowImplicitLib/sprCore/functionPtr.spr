@@ -8,7 +8,7 @@ package _Impl0
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr0 const): ResT
-    fun ()(this: FunctionPtr0 const): ResT = this._doCall()
+    fun ()(this: FunctionPtr0): ResT = this._doCall()
 
 package _Impl1
     [bitcopiable]
@@ -19,7 +19,7 @@ package _Impl1
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr1 const, p1: this.T1): ResT
-    fun ()(this: FunctionPtr1 const, p1: this.T1): ResT = this._doCall(p1)
+    fun ()(this: FunctionPtr1, p1: this.T1): ResT = this._doCall(p1)
 
 package _Impl2
     [bitcopiable]
@@ -31,7 +31,7 @@ package _Impl2
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr2 const, p1: this.T1, p2: this.T2): ResT
-    fun ()(this: FunctionPtr2 const, p1: this.T1, p2: this.T2): ResT = this._doCall(p1, p2)
+    fun ()(this: FunctionPtr2, p1: this.T1, p2: this.T2): ResT = this._doCall(p1, p2)
 
 package _Impl3
     [bitcopiable]
@@ -44,7 +44,7 @@ package _Impl3
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr3 const, p1: this.T1, p2: this.T2, p3: this.T3): ResT
-    fun ()(this: FunctionPtr3 const, p1: this.T1, p2: this.T2, p3: this.T3): ResT = this._doCall(p1, p2, p3)
+    fun ()(this: FunctionPtr3, p1: this.T1, p2: this.T2, p3: this.T3): ResT = this._doCall(p1, p2, p3)
 
 package _Impl4
     [bitcopiable]
@@ -58,7 +58,7 @@ package _Impl4
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr4 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): ResT
-    fun ()(this: FunctionPtr4 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): ResT = this._doCall(p1, p2, p3, p4)
+    fun ()(this: FunctionPtr4, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): ResT = this._doCall(p1, p2, p3, p4)
 
 package _Impl5
     [bitcopiable]
@@ -73,7 +73,7 @@ package _Impl5
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr5 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): ResT
-    fun ()(this: FunctionPtr5 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): ResT = this._doCall(p1, p2, p3, p4, p5)
+    fun ()(this: FunctionPtr5, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): ResT = this._doCall(p1, p2, p3, p4, p5)
 
 package _Impl6
     [bitcopiable]
@@ -89,7 +89,7 @@ package _Impl6
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr6 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): ResT
-    fun ()(this: FunctionPtr6 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): ResT = this._doCall(p1, p2, p3, p4, p5, p6)
+    fun ()(this: FunctionPtr6, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): ResT = this._doCall(p1, p2, p3, p4, p5, p6)
 
 package _Impl7
     [bitcopiable]
@@ -106,7 +106,7 @@ package _Impl7
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr7 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): ResT
-    fun ()(this: FunctionPtr7 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7)
+    fun ()(this: FunctionPtr7, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7)
 
 package _Impl8
     [bitcopiable]
@@ -124,7 +124,7 @@ package _Impl8
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr8 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): ResT
-    fun ()(this: FunctionPtr8 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8)
+    fun ()(this: FunctionPtr8, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8)
 
 package _Impl9
     [bitcopiable]
@@ -143,7 +143,7 @@ package _Impl9
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr9 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): ResT
-    fun ()(this: FunctionPtr9 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9)
+    fun ()(this: FunctionPtr9, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9)
 
 package _Impl10
     [bitcopiable]
@@ -163,7 +163,7 @@ package _Impl10
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr10 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): ResT
-    fun ()(this: FunctionPtr10 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
+    fun ()(this: FunctionPtr10, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
 
 package _Impl11
     [bitcopiable]
@@ -184,7 +184,7 @@ package _Impl11
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr11 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT
-    fun ()(this: FunctionPtr11 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
+    fun ()(this: FunctionPtr11, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
 
 package _Impl12
     [bitcopiable]
@@ -206,7 +206,7 @@ package _Impl12
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr12 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): ResT
-    fun ()(this: FunctionPtr12 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12)
+    fun ()(this: FunctionPtr12, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12)
 
 package _Impl13
     [bitcopiable]
@@ -229,7 +229,7 @@ package _Impl13
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr13 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): ResT
-    fun ()(this: FunctionPtr13 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13)
+    fun ()(this: FunctionPtr13, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13)
 
 package _Impl14
     [bitcopiable]
@@ -253,7 +253,7 @@ package _Impl14
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr14 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): ResT
-    fun ()(this: FunctionPtr14 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14)
+    fun ()(this: FunctionPtr14, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14)
 
 package _Impl15
     [bitcopiable]
@@ -278,7 +278,7 @@ package _Impl15
         _funPtr: UntypedPtr
 
     [native("$funptr")] fun _doCall(this: FunctionPtr15 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): ResT
-    fun ()(this: FunctionPtr15 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15)
+    fun ()(this: FunctionPtr15, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15)
 
 using FunctionPtr = _Impl0.FunctionPtr0
 using FunctionPtr = _Impl1.FunctionPtr1

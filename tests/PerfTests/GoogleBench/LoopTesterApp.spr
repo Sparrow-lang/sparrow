@@ -102,7 +102,7 @@ fun setNestingLevel(this: !SimpleLoop, level: Int)
 
 fun hash(this: !SimpleLoop) = counter
 
-fun >>(this: SimpleLoop const, os: !OutStream)
+fun >>(this: SimpleLoop, os: !OutStream)
     os << "loop-" << counter << ", nest: " << nestingLevel << ", depth: " << depthLevel << endl
 
 //
@@ -163,7 +163,7 @@ fun _calculateNestingLevelRec(loop: SimpleLoop Ptr, depth: Int)
 
 fun numLoops(this: !LoopStructureGraph) = _loops.size
 
-fun >>(this: LoopStructureGraph const, os: !OutStream) = _dumpRec(os, _root, 0)
+fun >>(this: LoopStructureGraph, os: !OutStream) = _dumpRec(os, _root, 0)
 
 fun _dumpRec(os: !OutStream, loop: SimpleLoop Ptr, indent: Int)
     os << loop.get
@@ -193,7 +193,7 @@ fun init(this: !UnionFindNode, bb: BasicBlock Ptr, dfsNumber: Int)
 // visited and collapsed once, however, deep nests would still
 // result in significant traversals).
 //
-fun findSet(this: UnionFindNode const): UnionFindNode Ptr
+fun findSet(this: UnionFindNode): UnionFindNode Ptr
     var nodeList: List(UnionFindNode Ptr)
 
     var node: UnionFindNode Ptr = this

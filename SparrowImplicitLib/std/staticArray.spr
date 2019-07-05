@@ -17,11 +17,11 @@ datatype StaticArray(valueType: Type, arraySize: SizeType ct)
         for v: @ValueType = this.all
             v ctor
 
-    fun ctor(this: !StaticArray, other: typeOf(this) const)
+    fun ctor(this: !StaticArray, other: typeOf(this))
         for i = 0.._arraySize
             this(i) ctor other(i)
 
-    fun ctor(this: !StaticArray, value: this.ValueType const)
+    fun ctor(this: !StaticArray, value: this.ValueType)
         for v: @ValueType = this.all
             v.ctor(value)
 
@@ -33,32 +33,32 @@ datatype StaticArray(valueType: Type, arraySize: SizeType ct)
                 rc.popFront
             else
                 v ctor
-    fun ctor(this: !StaticArray, v0,v1: this.ValueType const) if this._arraySize == 2
+    fun ctor(this: !StaticArray, v0,v1: this.ValueType) if this._arraySize == 2
         this(0) ctor v0
         this(1) ctor v1
-    fun ctor(this: !StaticArray, v0,v1,v2: this.ValueType const) if this._arraySize == 3
+    fun ctor(this: !StaticArray, v0,v1,v2: this.ValueType) if this._arraySize == 3
         this(0) ctor v0
         this(1) ctor v1
         this(2) ctor v2
-    fun ctor(this: !StaticArray, v0,v1,v2,v3: this.ValueType const) if this._arraySize == 4
+    fun ctor(this: !StaticArray, v0,v1,v2,v3: this.ValueType) if this._arraySize == 4
         this(0) ctor v0
         this(1) ctor v1
         this(2) ctor v2
         this(3) ctor v3
-    fun ctor(this: !StaticArray, v0,v1,v2,v3,v4: this.ValueType const) if this._arraySize == 5
+    fun ctor(this: !StaticArray, v0,v1,v2,v3,v4: this.ValueType) if this._arraySize == 5
         this(0) ctor v0
         this(1) ctor v1
         this(2) ctor v2
         this(3) ctor v3
         this(4) ctor v4
-    fun ctor(this: !StaticArray, v0,v1,v2,v3,v4,v5: this.ValueType const) if this._arraySize == 6
+    fun ctor(this: !StaticArray, v0,v1,v2,v3,v4,v5: this.ValueType) if this._arraySize == 6
         this(0) ctor v0
         this(1) ctor v1
         this(2) ctor v2
         this(3) ctor v3
         this(4) ctor v4
         this(5) ctor v5
-    fun ctor(this: !StaticArray, v0,v1,v2,v3,v4,v5,v6: this.ValueType const) if this._arraySize == 7
+    fun ctor(this: !StaticArray, v0,v1,v2,v3,v4,v5,v6: this.ValueType) if this._arraySize == 7
         this(0) ctor v0
         this(1) ctor v1
         this(2) ctor v2
@@ -66,7 +66,7 @@ datatype StaticArray(valueType: Type, arraySize: SizeType ct)
         this(4) ctor v4
         this(5) ctor v5
         this(6) ctor v6
-    fun ctor(this: !StaticArray, v0,v1,v2,v3,v4,v5,v6,v7: this.ValueType const) if this._arraySize == 8
+    fun ctor(this: !StaticArray, v0,v1,v2,v3,v4,v5,v6,v7: this.ValueType) if this._arraySize == 8
         this(0) ctor v0
         this(1) ctor v1
         this(2) ctor v2
@@ -75,7 +75,7 @@ datatype StaticArray(valueType: Type, arraySize: SizeType ct)
         this(5) ctor v5
         this(6) ctor v6
         this(7) ctor v7
-    fun ctor(this: !StaticArray, v0,v1,v2,v3,v4,v5,v6,v7,v8: this.ValueType const) if this._arraySize == 9
+    fun ctor(this: !StaticArray, v0,v1,v2,v3,v4,v5,v6,v7,v8: this.ValueType) if this._arraySize == 9
         this(0) ctor v0
         this(1) ctor v1
         this(2) ctor v2
@@ -85,7 +85,7 @@ datatype StaticArray(valueType: Type, arraySize: SizeType ct)
         this(6) ctor v6
         this(7) ctor v7
         this(8) ctor v8
-    fun ctor(this: !StaticArray, v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: this.ValueType const) if this._arraySize == 10
+    fun ctor(this: !StaticArray, v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: this.ValueType) if this._arraySize == 10
         this(0) ctor v0
         this(1) ctor v1
         this(2) ctor v2
@@ -101,21 +101,21 @@ datatype StaticArray(valueType: Type, arraySize: SizeType ct)
         for v: @ValueType = this.all
             v dtor
 
-    fun =(this: !StaticArray, other: typeOf(this) const): @typeOf(this)
+    fun =(this: !StaticArray, other: typeOf(this)): @typeOf(this)
         for i = 0.._arraySize
             this(i) = other(i)
         return this
 
-    fun ==(this, other: StaticArray const): Bool
+    fun ==(this, other: StaticArray): Bool
         for i = 0.._arraySize
             if this(i) != other(i)
                 return false
         return true
 
-    fun size(this: StaticArray const): SizeType
+    fun size(this: StaticArray): SizeType
         return _arraySize
 
-    fun isEmpty(this: StaticArray const): Bool
+    fun isEmpty(this: StaticArray): Bool
         return _arraySize == 0
 
     fun assign(this: !StaticArray, range: this.RangeType)
@@ -132,15 +132,15 @@ datatype StaticArray(valueType: Type, arraySize: SizeType ct)
             this(i) = other(i)
             other(i) = tmp
 
-    fun at(this: StaticArray const, index: SizeType): @ValueType = this._asPtr().advance(DiffType(index)).value
-    fun ()(this: StaticArray const, index: SizeType): @ValueType = this._asPtr().advance(DiffType(index)).value
+    fun at(this: StaticArray, index: SizeType): @ValueType = this._asPtr().advance(DiffType(index)).value
+    fun ()(this: StaticArray, index: SizeType): @ValueType = this._asPtr().advance(DiffType(index)).value
 
-    fun all(this: StaticArray const) = RangeType(this._asPtr, this._asPtr().advance(DiffType(_arraySize)))
+    fun all(this: StaticArray) = RangeType(this._asPtr, this._asPtr().advance(DiffType(_arraySize)))
 
-    fun subrange(this: StaticArray const, index: SizeType, num: SizeType) \
+    fun subrange(this: StaticArray, index: SizeType, num: SizeType) \
         = RangeType(this._asPtr().advance(DiffType(index)), this._asPtr().advance(DiffType(index + num)))
 
-    fun _asPtr(this: StaticArray const) = RawPtr(ValueType)(UntypedPtr(_buf))
+    fun _asPtr(this: StaticArray) = RawPtr(ValueType)(UntypedPtr(_buf))
 
 fun mkValues(v0,v1: AnyType) = StaticArray(typeOf(v0), 2)(v0,v1)
 fun mkValues(v0,v1,v2: AnyType) = StaticArray(typeOf(v0), 3)(v0,v1,v2)

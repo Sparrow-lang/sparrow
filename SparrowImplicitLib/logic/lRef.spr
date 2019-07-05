@@ -63,7 +63,7 @@ fun ctor(this: !LRef)
 //    [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
 //        cout << "value ctor: " << this << "\n"
 
-[convert] fun ctor(this: !LRef, value: AnyType const) if isValid(this.ValueType(value))
+[convert] fun ctor(this: !LRef, value: AnyType) if isValid(this.ValueType(value))
     _pptr ctor Optional(this.ValueType)(value)
     [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
         cout << "value ctor: " << this << "\n"

@@ -7,8 +7,8 @@ datatype FibRange(valType: Type)
 
     _lastTwo: valType*valType = 1 ~ 1
 
-fun isEmpty(this: FibRange const) = false
-fun front(this: FibRange const)   = _lastTwo.v2
+fun isEmpty(this: FibRange) = false
+fun front(this: FibRange)   = _lastTwo.v2
 fun popFront(this: !FibRange)
     _lastTwo = _lastTwo.v2 ~ (_lastTwo.v1 + _lastTwo.v2)
 

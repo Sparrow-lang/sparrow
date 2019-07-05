@@ -82,8 +82,8 @@ fun ctor(this: !FileRange, file: !File)
         _isEmpty = false
 
 [protected]
-    fun isEmpty(s: FileRange const) = s._isEmpty
-    fun front(s: FileRange const)   = s._cur
+    fun isEmpty(s: FileRange) = s._isEmpty
+    fun front(s: FileRange)   = s._cur
     fun popFront(s: !FileRange)
         // Try reading a char; we don't know yet about eof, we need to check it afterwards
         s._cur = s._file.readChar

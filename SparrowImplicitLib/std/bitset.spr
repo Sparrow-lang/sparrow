@@ -16,7 +16,7 @@ datatype Bitset
     fun clearBit(this: !Bitset, n: SizeType)
         _bits(n/8) = _bits(n/8) !&! !~!(UByte(1) !<<! UByte(n%8))
 
-    fun testBit(this: Bitset const, n: SizeType) = UByte(0) != (_bits(n/8) !&! (UByte(1) !<<! UByte(n%8)))
+    fun testBit(this: Bitset, n: SizeType) = UByte(0) != (_bits(n/8) !&! (UByte(1) !<<! UByte(n%8)))
 
     fun clear(this: !Bitset)
         memset(UntypedPtr(_bits(0)), Byte(0), _bits.size())

@@ -39,7 +39,7 @@ fun dtor(this: !ScopedTryLock)
     if _lockSucceeded
         _theLock unlock
 
-fun isLocked(this: ScopedTryLock const) = _lockSucceeded
+fun isLocked(this: ScopedTryLock) = _lockSucceeded
 
 //! A simple and fast mutual-exclusion lockable
 datatype Mutex

@@ -49,7 +49,7 @@ fun printArray(a: !Array(MyObj))
             cout << endl;
     ;
 
-fun printSizeInfo(a: Array(MyObj) const)
+fun printSizeInfo(a: Array(MyObj))
     cout << a.isEmpty() << endl
     cout << a.size() << endl
 

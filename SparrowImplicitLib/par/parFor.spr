@@ -55,8 +55,8 @@ fun ctor(this: !BoundedRange, r: typeOf(this), nSkip, nTake: SizeType)
     _baseRange advance nSkip
     _count ctor nTake
 
-fun isEmpty(this: BoundedRange const)                = _count == 0 || _baseRange.isEmpty()
-fun front(this: BoundedRange const): this.RetType    = _baseRange.front()
+fun isEmpty(this: BoundedRange)                = _count == 0 || _baseRange.isEmpty()
+fun front(this: BoundedRange): this.RetType    = _baseRange.front()
 fun popFront(this: !BoundedRange)                    { _baseRange.popFront(); --_count; }
 
 package Impl

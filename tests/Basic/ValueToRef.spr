@@ -3,7 +3,7 @@
 datatype MyVal
     x: Int;
 
-fun ctor(this: !MyVal, xx: Int ) { x = xx; }
+fun ctor(this: !MyVal, xx: Int) { x = xx; }
 
 fun value(this: MyVal): Int
     return x

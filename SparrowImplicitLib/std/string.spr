@@ -33,7 +33,7 @@ fun ctor(this: !String, size: SizeType)
 fun ctor(this: !String, count: SizeType, ch: Char)
     this.ctor(count)
     memset(_begin.untypedPtr, Byte(ch), count)
-fun ctor(this: !String, other: String const)
+fun ctor(this: !String, other: String)
     let size = other size
     this.ctor(size)
     memcpy(_begin.untypedPtr, other._begin.untypedPtr, size)
@@ -59,12 +59,12 @@ fun ctor(this: !String, range: Range) if typeOf(range) != String
     fun dtor(this: !String)
         _begin.freePtr
 
-    fun =(this: !String, other: String const): @String
+    fun =(this: !String, other: String): @String
         let tmp = other
         tmp.swap(this)
         return this
 
-    fun ==(this, other: String const): Bool
+    fun ==(this, other: String): Bool
         if this.size != other.size
             return false
 
@@ -76,25 +76,25 @@ fun ctor(this: !String, range: Range) if typeOf(range) != String
                 return false
         return true
 
-    fun !=(this, other: String const): Bool = !(this == other)
+    fun !=(this, other: String): Bool = !(this == other)
 
     fun swap(this, other: !String)
         this._begin      swap    other._begin
         this._end        swap    other._end
         this._endOfStore swap    other._endOfStore
 
-    fun asStringRef(this: String const)             = StringRef(_begin.untypedPtr, _end.untypedPtr)
+    fun asStringRef(this: String)             = StringRef(_begin.untypedPtr, _end.untypedPtr)
 
-    fun size(this: String const): SizeType          = _end.diff(_begin)
-    fun isEmpty(this: String const)                 = _begin == _end
-    fun capacity(this: String const): SizeType      = _endOfStore.diff(_begin)
+    fun size(this: String): SizeType          = _end.diff(_begin)
+    fun isEmpty(this: String)                 = _begin == _end
+    fun capacity(this: String): SizeType      = _endOfStore.diff(_begin)
 
-    fun at(this: String const, index: SizeType)     = _begin.advance(DiffType(index)).value
-    fun ()(this: String const, index: SizeType)     = _begin.advance(DiffType(index)).value
-    fun front(this: String const)                   = _begin.value
-    fun back(this: String const)                    = _end.advance(-1).value
-    fun all(this: String const)                     = StringRef(_begin.untypedPtr, _end.untypedPtr)
-    fun subrange(this: String const, index: SizeType, num: SizeType): StringRef \
+    fun at(this: String, index: SizeType)     = _begin.advance(DiffType(index)).value
+    fun ()(this: String, index: SizeType)     = _begin.advance(DiffType(index)).value
+    fun front(this: String)                   = _begin.value
+    fun back(this: String)                    = _end.advance(-1).value
+    fun all(this: String)                     = StringRef(_begin.untypedPtr, _end.untypedPtr)
+    fun subrange(this: String, index: SizeType, num: SizeType): StringRef \
                                 = StringRef(_begin.advance(DiffType(index)).untypedPtr, _begin.advance(DiffType(index + num)).untypedPtr)
 
     fun pushBack(this: !String, value: Char)
@@ -223,7 +223,7 @@ fun ctor(this: !String, range: Range) if typeOf(range) != String
         for v = range
             this.pushBack(v)
 
-    fun >>(this: String const, os: !OutStream)
+    fun >>(this: String, os: !OutStream)
         os << this.asStringRef
 
     fun _frontPtr(s: StringRef) = RawPtr(Char)(UntypedPtr(s.begin))
@@ -263,7 +263,7 @@ datatype StringOutputStream
     result: String
 
 [protected]
-    fun <<<(this: !StringOutputStream, s: String const)  { result.append(s.all) }
+    fun <<<(this: !StringOutputStream, s: String)  { result.append(s.all) }
     fun <<<(this: !StringOutputStream, s: StringRef)     { result.append(s) }
     fun <<<(this: !StringOutputStream, x: Char)          { result.append(x) }
     fun <<<(this: !StringOutputStream, x: Int)           { result.append(intToString(x).all) }

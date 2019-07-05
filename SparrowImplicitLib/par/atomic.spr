@@ -29,7 +29,7 @@ datatype Atomic(T: Type) if sizeOf(T) <= 8
     //! Loads the value from an atomic; returns a non-atomic value
     [native("_Atomic_load32")] fun load(this: AtomicInt const): Int
     [native("_Atomic_load64")] fun load(this: AtomicLong const): Long
-    fun load(this: NonStdAtomicType const): ValueType \
+    fun load(this: NonStdAtomicType): ValueType \
         = this._fromUnderlying(this._baseAtomic load)
 
     //! Stores a value inside the given atomic
@@ -79,7 +79,7 @@ datatype Atomic(T: Type) if sizeOf(T) <= 8
         var res: ValueType
         res = reinterpretCast(@ValueType, val)
         return res
-    fun _baseAtomic(this: Atomic const): @Atomic(_UnderlyingType) = reinterpretCast(@Atomic(_UnderlyingType), this)
+    fun _baseAtomic(this: Atomic): @Atomic(_UnderlyingType) = reinterpretCast(@Atomic(_UnderlyingType), this)
 
 //! Compare the atomic value with the given comparand; if equal store 'newVal' and return true; if not equal returns false
 [native("_Atomic_compareAndSwap32")] fun compareAndSwap(x: !AtomicInt, newVal, comparand: Int): Bool

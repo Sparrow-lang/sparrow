@@ -9,7 +9,7 @@ datatype Ptr(type: Type)
     _ptr: @ValueType
 
 [protected]
-    fun =(this: !Ptr, ref: this.ValueType const) = _ptr := ref
+    fun =(this: !Ptr, ref: this.ValueType) = _ptr := ref
 
     fun < (this, other: Ptr)          = (UntypedPtr(_ptr) ptrDiff UntypedPtr(other._ptr)) < DiffType(0)
 

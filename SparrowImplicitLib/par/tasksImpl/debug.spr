@@ -27,7 +27,7 @@ datatype Tracer
         [ct] if traceCalls
             traceMutex unlock
 
-    fun <<<(this: !Tracer, x: AnyType const)
+    fun <<<(this: !Tracer, x: AnyType)
         [ct] if traceCalls
             cout << x
 

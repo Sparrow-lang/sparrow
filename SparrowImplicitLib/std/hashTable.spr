@@ -45,7 +45,7 @@ fun ctor(this: !HashTable, range: Range, n: SizeType, traits: this._TraitsType)
     for v = range
         this._insertPlain(v)
 
-fun ctor(this: !HashTable, other: typeOf(this) const)
+fun ctor(this: !HashTable, other: typeOf(this))
     _buckets ctor other._buckets.size
     _tr ctor other.traits
     _numElements ctor 0
@@ -70,12 +70,12 @@ fun swap(this: !HashTable, other: !typeOf(this))
         other._buckets(other._guard.next.get().hash % other._buckets.size) = other._guardNode
 
 [protected]
-    fun =(this: !HashTable, other: typeOf(this) const): @typeOf(this)
+    fun =(this: !HashTable, other: typeOf(this)): @typeOf(this)
         var tmp: HashTable = other
         this swap tmp
         return this
 
-    fun ==(this, other: HashTable const): Bool
+    fun ==(this, other: HashTable): Bool
         if !(this._tr == other._tr && _numElements == other.size)
             return false
 
@@ -85,13 +85,13 @@ fun swap(this: !HashTable, other: !typeOf(this))
 
         return true
 
-    fun traits(this: HashTable const)          = _tr
+    fun traits(this: HashTable)          = _tr
 
-    fun isEmpty(this: HashTable const)         = (_numElements == 0)
-    fun size(this: HashTable const)            = _numElements
-    fun bucketCount(this: HashTable const)     = _buckets.size
+    fun isEmpty(this: HashTable)         = (_numElements == 0)
+    fun size(this: HashTable)            = _numElements
+    fun bucketCount(this: HashTable)     = _buckets.size
 
-    fun all(this: HashTable const)             = RangeType(_guard.next, _NodePtr())
+    fun all(this: HashTable)             = RangeType(_guard.next, _NodePtr())
 
     fun reserve(this: !HashTable, n: SizeType)
         // Resize only when we are big enough to re-hash
@@ -120,7 +120,7 @@ fun swap(this: !HashTable, other: !typeOf(this))
             next = p.get().next
             this._insertNode(p)
 
-    fun insert(this: !HashTable, value: this.ValueType const): this.RangeType
+    fun insert(this: !HashTable, value: this.ValueType): this.RangeType
         this.reserve(_numElements + 1)
         return this._insertPlain(value)
 
@@ -129,7 +129,7 @@ fun swap(this: !HashTable, other: !typeOf(this))
         for v = range
             this._insertPlain(v)
 
-    fun remove(this: !HashTable, key: this.KeyType const)
+    fun remove(this: !HashTable, key: this.KeyType)
         if this.isEmpty
             return
 
@@ -153,14 +153,14 @@ fun swap(this: !HashTable, other: !typeOf(this))
             this._removeNode(prev, p)
             p = next
 
-    fun contains(this: HashTable const, key: this.KeyType const): Bool = this._findNode(key).isSet
-    fun count(this: HashTable const, key: this.KeyType const): SizeType = ife(this._findNode(key).isSet, 1, 0)
+    fun contains(this: HashTable, key: this.KeyType): Bool = this._findNode(key).isSet
+    fun count(this: HashTable, key: this.KeyType): SizeType = ife(this._findNode(key).isSet, 1, 0)
 
-    fun equalRange(this: HashTable const, key: this.KeyType const): this.RangeType
+    fun equalRange(this: HashTable, key: this.KeyType): this.RangeType
         let p = this._findNode(key)
         return ife(p.isSet, RangeType(p, p.get().next), RangeType())
 
-    fun find(this: HashTable const, key: this.KeyType const): this.RangeType
+    fun find(this: HashTable, key: this.KeyType): this.RangeType
         let p = this._findNode(key)
         return ife(p.isSet, RangeType(p, _NodePtr()), RangeType())
 
@@ -170,7 +170,7 @@ fun swap(this: !HashTable, other: !typeOf(this))
         _numElements = 0
         this._deleteElements
 
-    fun >> (this: HashTable const, os: !OutStream)
+    fun >> (this: HashTable, os: !OutStream)
         os << "HashTable, first=" << mkStreamRefWrapper(_guard.next.get) << ", size=" << _numElements << endl
 
         if this.isEmpty
@@ -194,12 +194,12 @@ fun swap(this: !HashTable, other: !typeOf(this))
         os << ' ' << prevBi << '-' << prev.get
         os << endl
 
-fun _guardNode(this: HashTable const): this._NodePtr = reinterpretPtr(_MyNode, Ptr(_MyGuardNode)(_guard))
+fun _guardNode(this: HashTable): this._NodePtr = reinterpretPtr(_MyNode, Ptr(_MyGuardNode)(_guard))
 
-fun _findNode(this: HashTable const, key: this.KeyType const): this._NodePtr
+fun _findNode(this: HashTable, key: this.KeyType): this._NodePtr
     return this._findNodeImpl(_tr.hash(key), key)
 
-fun _findNodeImpl(this: HashTable const, hashVal: SizeType, key: this.KeyType const): this._NodePtr
+fun _findNodeImpl(this: HashTable, hashVal: SizeType, key: this.KeyType): this._NodePtr
     if _numElements == 0
         return _NodePtr()
 
@@ -225,14 +225,14 @@ fun _findNodeImpl(this: HashTable const, hashVal: SizeType, key: this.KeyType co
             p = p.get().next
     return _NodePtr()
 
-fun _findPrev(this: HashTable const, node: this._NodePtr): this._NodePtr
+fun _findPrev(this: HashTable, node: this._NodePtr): this._NodePtr
     let numBuckets = _buckets.size
     var p: _NodePtr = ife(numBuckets==0, this._guardNode, _buckets(node.get().hash % numBuckets))
     while p.get().next != node
         p = p.get().next
     return p
 
-fun _insertPlain(this: !HashTable, value: this.ValueType const): this.RangeType
+fun _insertPlain(this: !HashTable, value: this.ValueType): this.RangeType
     let key = _valToKey(value)
     let h = _tr.hash(key)
 

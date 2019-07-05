@@ -2,7 +2,7 @@
 
 datatype MyObj = Int
 
-fun =(this: !MyObj, other: MyObj const)
+fun =(this: !MyObj, other: MyObj)
     this.data = other.data
 
 fun =(this: !MyObj, val: Int)

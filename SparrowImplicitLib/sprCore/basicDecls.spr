@@ -782,7 +782,7 @@ package TypeOp
         fun removeAllRef(t: Type) = changeRefCount(t, 0)
         fun atLeastOneRef(t: Type): Type = ife(isRef(t), t, addRef(t))
 
-    fun copyVal(val: AnyType const): typeOf(val)
+    fun copyVal(val: AnyType): typeOf(val)
     fun copyVal(val: !AnyType): typeOf(val)
     fun copyVal(val: @AnyType): removeRef(typeOf(val))
 

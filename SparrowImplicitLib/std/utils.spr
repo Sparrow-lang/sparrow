@@ -5,4 +5,4 @@ concept Nullable(x) if (
     && typeOf(x.isNull) == Bool
     )
 
-fun ! (obj: Nullable const): Bool = obj.isNull
+fun ! (obj: Nullable): Bool = obj.isNull

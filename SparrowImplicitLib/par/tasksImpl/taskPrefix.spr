@@ -35,7 +35,7 @@ datatype TaskPrefix
     /*private*/ desc: String
     /*private*/ depth: Int
 
-fun >>(t: TaskPrefix const, os: !OutStream)
+fun >>(t: TaskPrefix, os: !OutStream)
     if t === null
         os << "<null>"
     else

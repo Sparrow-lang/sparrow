@@ -20,7 +20,7 @@ package _Impl
         destructFn: FunctionPtr(VoidType, UntypedPtr)
 
     //! Copy constructor - clones the object and copies the FunctionPtrs
-    fun ctor(this: !FunctionData, other: FunctionData const)
+    fun ctor(this: !FunctionData, other: FunctionData)
         if other.obj != UntypedPtr()
             this.obj = other.cloneFn(other.obj)
         this.callFn ctor other.callFn
@@ -34,18 +34,18 @@ package _Impl
             delete(obj)     // Free the memory for the object
 
     //! Assignment operator -- use copy ctor
-    fun =(this: !FunctionData, other: FunctionData const)
+    fun =(this: !FunctionData, other: FunctionData)
         this dtor
         this ctor other
 
     //! Get the call function reinterpreted to the given FunctionPtr type
-    fun getCallFn(this: FunctionData const, reqType: Type): reqType = reinterpretCast(@reqType, callFn)
+    fun getCallFn(this: FunctionData, reqType: Type): reqType = reinterpretCast(@reqType, callFn)
 
     //! Makes an assignment of two incompatible types, with a reinterpretCast
     fun reinterpretCopy(dest, src: @AnyType)
             dest = reinterpretCast(typeOf(dest), src)
 
-    fun >>(this: FunctionData const, os: !OutStream)
+    fun >>(this: FunctionData, os: !OutStream)
         os << 'Fun(obj=' << mkStreamRefWrapper(obj) \
            << ', funPtr=' << mkStreamRefWrapper(reinterpretCast(@ UntypedPtr, callFn)) \
            << ')'
@@ -66,12 +66,12 @@ package _Impl0
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function0 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function0 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function0) = _data.obj == UntypedPtr()
+    fun isSet(this: Function0) = _data.obj != UntypedPtr()
 
-    fun () (this: Function0 const): this.ResT = (_data getCallFn _FunPtrType)(_data.obj)
+    fun () (this: Function0): this.ResT = (_data getCallFn _FunPtrType)(_data.obj)
 
-    fun >>(this: Function0 const, os: !OutStream)
+    fun >>(this: Function0, os: !OutStream)
         os << _data
 
 package _Impl1
@@ -91,12 +91,12 @@ package _Impl1
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function1 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function1 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function1) = _data.obj == UntypedPtr()
+    fun isSet(this: Function1) = _data.obj != UntypedPtr()
 
-    fun () (this: Function1 const, p1: this.T1): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1)
+    fun () (this: Function1, p1: this.T1): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1)
 
-    fun >>(this: Function1 const, os: !OutStream)
+    fun >>(this: Function1, os: !OutStream)
         os << _data
 
 package _Impl2
@@ -117,12 +117,12 @@ package _Impl2
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function2 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function2 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function2) = _data.obj == UntypedPtr()
+    fun isSet(this: Function2) = _data.obj != UntypedPtr()
 
-    fun () (this: Function2 const, p1: this.T1, p2: this.T2): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2)
+    fun () (this: Function2, p1: this.T1, p2: this.T2): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2)
 
-    fun >>(this: Function2 const, os: !OutStream)
+    fun >>(this: Function2, os: !OutStream)
         os << _data
 
 package _Impl3
@@ -144,12 +144,12 @@ package _Impl3
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function3 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function3 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function3) = _data.obj == UntypedPtr()
+    fun isSet(this: Function3) = _data.obj != UntypedPtr()
 
-    fun () (this: Function3 const, p1: this.T1, p2: this.T2, p3: this.T3): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3)
+    fun () (this: Function3, p1: this.T1, p2: this.T2, p3: this.T3): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3)
 
-    fun >>(this: Function3 const, os: !OutStream)
+    fun >>(this: Function3, os: !OutStream)
         os << _data
 
 package _Impl4
@@ -172,12 +172,12 @@ package _Impl4
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function4 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function4 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function4) = _data.obj == UntypedPtr()
+    fun isSet(this: Function4) = _data.obj != UntypedPtr()
 
-    fun () (this: Function4 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4)
+    fun () (this: Function4, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4)
 
-    fun >>(this: Function4 const, os: !OutStream)
+    fun >>(this: Function4, os: !OutStream)
         os << _data
 
 package _Impl5
@@ -201,12 +201,12 @@ package _Impl5
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function5 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function5 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function5) = _data.obj == UntypedPtr()
+    fun isSet(this: Function5) = _data.obj != UntypedPtr()
 
-    fun () (this: Function5 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5)
+    fun () (this: Function5, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5)
 
-    fun >>(this: Function5 const, os: !OutStream)
+    fun >>(this: Function5, os: !OutStream)
         os << _data
 
 package _Impl6
@@ -231,12 +231,12 @@ package _Impl6
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function6 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function6 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function6) = _data.obj == UntypedPtr()
+    fun isSet(this: Function6) = _data.obj != UntypedPtr()
 
-    fun () (this: Function6 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6)
+    fun () (this: Function6, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6)
 
-    fun >>(this: Function6 const, os: !OutStream)
+    fun >>(this: Function6, os: !OutStream)
         os << _data
 
 package _Impl7
@@ -262,12 +262,12 @@ package _Impl7
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function7 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function7 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function7) = _data.obj == UntypedPtr()
+    fun isSet(this: Function7) = _data.obj != UntypedPtr()
 
-    fun () (this: Function7 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7)
+    fun () (this: Function7, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7)
 
-    fun >>(this: Function7 const, os: !OutStream)
+    fun >>(this: Function7, os: !OutStream)
         os << _data
 
 package _Impl8
@@ -294,12 +294,12 @@ package _Impl8
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function8 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function8 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function8) = _data.obj == UntypedPtr()
+    fun isSet(this: Function8) = _data.obj != UntypedPtr()
 
-    fun () (this: Function8 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8)
+    fun () (this: Function8, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8)
 
-    fun >>(this: Function8 const, os: !OutStream)
+    fun >>(this: Function8, os: !OutStream)
         os << _data
 
 package _Impl9
@@ -327,12 +327,12 @@ package _Impl9
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function9 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function9 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function9) = _data.obj == UntypedPtr()
+    fun isSet(this: Function9) = _data.obj != UntypedPtr()
 
-    fun () (this: Function9 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9)
+    fun () (this: Function9, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9)
 
-    fun >>(this: Function9 const, os: !OutStream)
+    fun >>(this: Function9, os: !OutStream)
         os << _data
 
 package _Impl10
@@ -361,12 +361,12 @@ package _Impl10
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function10 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function10 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function10) = _data.obj == UntypedPtr()
+    fun isSet(this: Function10) = _data.obj != UntypedPtr()
 
-    fun () (this: Function10 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
+    fun () (this: Function10, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
 
-    fun >>(this: Function10 const, os: !OutStream)
+    fun >>(this: Function10, os: !OutStream)
         os << _data
 
 package _Impl11
@@ -396,12 +396,12 @@ package _Impl11
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function11 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function11 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function11) = _data.obj == UntypedPtr()
+    fun isSet(this: Function11) = _data.obj != UntypedPtr()
 
-    fun () (this: Function11 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
+    fun () (this: Function11, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
 
-    fun >>(this: Function11 const, os: !OutStream)
+    fun >>(this: Function11, os: !OutStream)
         os << _data
 
 package _Impl12
@@ -432,12 +432,12 @@ package _Impl12
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function12 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function12 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function12) = _data.obj == UntypedPtr()
+    fun isSet(this: Function12) = _data.obj != UntypedPtr()
 
-    fun () (this: Function12 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12)
+    fun () (this: Function12, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12)
 
-    fun >>(this: Function12 const, os: !OutStream)
+    fun >>(this: Function12, os: !OutStream)
         os << _data
 
 package _Impl13
@@ -469,12 +469,12 @@ package _Impl13
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function13 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function13 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function13) = _data.obj == UntypedPtr()
+    fun isSet(this: Function13) = _data.obj != UntypedPtr()
 
-    fun () (this: Function13 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13)
+    fun () (this: Function13, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13)
 
-    fun >>(this: Function13 const, os: !OutStream)
+    fun >>(this: Function13, os: !OutStream)
         os << _data
 
 package _Impl14
@@ -507,12 +507,12 @@ package _Impl14
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function14 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function14 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function14) = _data.obj == UntypedPtr()
+    fun isSet(this: Function14) = _data.obj != UntypedPtr()
 
-    fun () (this: Function14 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14)
+    fun () (this: Function14, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14)
 
-    fun >>(this: Function14 const, os: !OutStream)
+    fun >>(this: Function14, os: !OutStream)
         os << _data
 
 package _Impl15
@@ -546,12 +546,12 @@ package _Impl15
         _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
         this._data.obj = _data.cloneFn(UntypedPtr(ftor))
 
-    fun isNull(this: Function15 const) = _data.obj == UntypedPtr()
-    fun isSet(this: Function15 const) = _data.obj != UntypedPtr()
+    fun isNull(this: Function15) = _data.obj == UntypedPtr()
+    fun isSet(this: Function15) = _data.obj != UntypedPtr()
 
-    fun () (this: Function15 const, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15)
+    fun () (this: Function15, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): this.ResT = (_data getCallFn _FunPtrType)(_data.obj, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15)
 
-    fun >>(this: Function15 const, os: !OutStream)
+    fun >>(this: Function15, os: !OutStream)
         os << _data
 
 using Function = _Impl0.Function0

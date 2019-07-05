@@ -37,7 +37,7 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 
     return ContiguousMemoryRange(MyObj)(ptr, ptrEnd)
 
-fun printStaticArray(a: AnyType const)
+fun printStaticArray(a: AnyType)
     var i = 0
 
     while i < a.size() ; i = i + 1
@@ -48,7 +48,7 @@ fun printStaticArray(a: AnyType const)
             cout << endl;
     ;
 
-fun printSizeInfo(a: AnyType const)
+fun printSizeInfo(a: AnyType)
     cout << a.isEmpty() << endl
     cout << a.size() << endl
 

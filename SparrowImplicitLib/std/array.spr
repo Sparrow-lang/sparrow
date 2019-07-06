@@ -145,7 +145,7 @@ datatype Array(valueType: Type)
                 os << ", "
             os << el
     fun _dumpThis(this: Array, prefix: StringRef)
-        cout << prefix << "dumping " << TypeOp.description(Array) << ": " << mkStreamRefWrapper(this) << endl
-        cout << "    begin: " << mkStreamRefWrapper(_begin.untypedPtr) << endl
-        cout << "    end: " << mkStreamRefWrapper(_end.untypedPtr) << endl
+        cout << prefix << "dumping " << TypeOp.description(Array) << ": " << UntypedPtr(this) << endl
+        cout << "    begin: " << _begin.untypedPtr << endl
+        cout << "    end: " << _end.untypedPtr << endl
 

@@ -298,7 +298,7 @@ fun print(this: !NfaNodeList)
         cout << " (match)";
     cout << ":"
     for n = nodes.all()
-        cout << " " << n.get().c << " " << mkStreamRefWrapper(n.get());
+        cout << " " << n.get().c << " " << UntypedPtr(n.get());
     cout << "\n";
 
 fun _addState(this: !NfaNodeList, state: Ptr(NfaState))

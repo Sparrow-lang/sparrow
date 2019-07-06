@@ -10,7 +10,7 @@ datatype LineCol
 datatype SourceCode = UntypedPtr
 
 fun >>(s: SourceCode, os: !OutStream)
-    os << mkStreamRefWrapper(s.data)
+    os << s.data
 
 /// Type that holds the location information: a source code and a range of chars into it
 [bitcopiable]

@@ -118,7 +118,7 @@ fun swap(this: !LRef, other: typeOf(this))
     _pptr.swap(other._pptr)
 
 fun >>(this: !LRef, os: !OutStream)
-    os << "LRef(" << mkStreamRefWrapper(_pptr.get) << ", " << this.useCount << ", " << flush
+    os << "LRef(" << UntypedPtr(_pptr.get) << ", " << this.useCount << ", " << flush
     if ( this.isSet )
         os << this.get
     else

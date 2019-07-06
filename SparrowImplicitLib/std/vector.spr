@@ -254,9 +254,9 @@ datatype Vector(valueType: Type)
         os << ')'
 
     fun _dumpThis(this: !Vector, prefix: StringRef)
-        cout << prefix << "dumping " << TypeOp.description(Vector) << ": " << mkStreamRefWrapper(this) << endl
+        cout << prefix << "dumping " << TypeOp.description(Vector) << ": " << UntypedPtr(this) << endl
         cout << "    size: " << Int(this.size()) << endl
-        cout << "    _begin: " << mkStreamRefWrapper(_begin.untypedPtr) << endl
-        cout << "    _end: " << mkStreamRefWrapper(_end.untypedPtr) << endl
-        cout << "    _endOfStore: " << mkStreamRefWrapper(_endOfStore.untypedPtr) << endl
+        cout << "    _begin: " << _begin.untypedPtr << endl
+        cout << "    _end: " << _end.untypedPtr << endl
+        cout << "    _endOfStore: " << _endOfStore.untypedPtr << endl
 

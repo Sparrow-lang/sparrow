@@ -46,8 +46,8 @@ package _Impl
             dest = reinterpretCast(typeOf(dest), src)
 
     fun >>(this: FunctionData, os: !OutStream)
-        os << 'Fun(obj=' << mkStreamRefWrapper(obj) \
-           << ', funPtr=' << mkStreamRefWrapper(reinterpretCast(@ UntypedPtr, callFn)) \
+        os << 'Fun(obj=' << obj \
+           << ', funPtr=' << reinterpretCast(@ UntypedPtr, callFn) \
            << ')'
 
 package _Impl0

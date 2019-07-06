@@ -34,14 +34,8 @@ fun >>(this: FlushHelperClass, os: !OutStream)
         os.flush
 
 // TODO: make this work for streams other than ConsoleOutputStream
-datatype StreamRefWrapperHelperClass = UntypedPtr
-
-fun >>(p: StreamRefWrapperHelperClass, os: !OutStream)
-    _Impl.writeRef(p.data)
-
-fun mkStreamRefWrapper(x: @AnyType) = StreamRefWrapperHelperClass(UntypedPtr(x))
-
-fun mkStreamRefWrapper(x: UntypedPtr) = StreamRefWrapperHelperClass(x)
+fun >>(p: UntypedPtr, os: !OutStream)
+    _Impl.writeRef(p)
 
 package _Impl
     [native("writePointer")] fun writeRef(x: UntypedPtr)

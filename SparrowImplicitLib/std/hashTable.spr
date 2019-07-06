@@ -171,7 +171,7 @@ fun swap(this: !HashTable, other: !typeOf(this))
         this._deleteElements
 
     fun >> (this: HashTable, os: !OutStream)
-        os << "HashTable, first=" << mkStreamRefWrapper(_guard.next.get) << ", size=" << _numElements << endl
+        os << "HashTable, first=" << UntypedPtr(_guard.next.get) << ", size=" << _numElements << endl
 
         if this.isEmpty
             return
@@ -304,7 +304,7 @@ datatype _Node(valueType: Type)
     data: valueType
 
 fun >> (this: _Node, os: !OutStream)
-    os << data << " <" << mkStreamRefWrapper(this) << '>'
+    os << data << " <" << UntypedPtr(this) << '>'
 
 [initCtor]
 datatype _GuardNode(valueType: Type)

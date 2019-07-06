@@ -48,7 +48,7 @@ fun ()(this: !Recurse): Bool
     return _relation()
 
 fun >>(this: !Recurse, os: !OutStream)
-    os << "Recurse(this=" << mkStreamRefWrapper(this) \
+    os << "Recurse(this=" << UntypedPtr(this) \
        << ", fun=" << _relation
     [ct] if isValid( os << _predGenerator )
         os << ", gen=" << _predGenerator

@@ -52,7 +52,7 @@ fun dtor(this: !Mutex)
     Impl.pthread_mutex_destroy(handle)
 
 fun >> (m: !Mutex, os: !OutStream)
-    cout << "Mutex(" << mkStreamRefWrapper(m) << ", " << m.handle.sig << ")"
+    cout << "Mutex(" << UntypedPtr(m) << ", " << m.handle.sig << ")"
 
 //! A mutual-exclusion lockable that is able to support recursive locking
 datatype RecMutex

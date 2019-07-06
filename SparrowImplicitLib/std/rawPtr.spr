@@ -37,7 +37,7 @@ fun ctor(this: !RawPtr, p: UntypedPtr)
         other._ptr := t
 
     fun >>(this: RawPtr, os: !OutStream)
-        os << "RawPtr(" << mkStreamRefWrapper(_ptr) << ")"
+        os << "RawPtr(" << UntypedPtr(_ptr) << ")"
 
 fun mkRawPtr(ref: !AnyType) = RawPtr(-@typeOf(ref))(ref)
 fun allocRawPtr(t: Type, num: SizeType) = RawPtr(t)(reinterpretCast(@t, malloc(num * sizeOf(t)).data))

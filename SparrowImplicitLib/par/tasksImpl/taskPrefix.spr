@@ -41,7 +41,7 @@ fun >>(t: TaskPrefix, os: !OutStream)
     else
         if !(t.desc isEmpty)
             os << '"' << t.desc << '"'
-        os << '<' << mkStreamRefWrapper(t) << ", " << (t.depth) << "," << (t.refCount load) << '>'
+        os << '<' << UntypedPtr(t) << ", " << (t.depth) << "," << (t.refCount load) << '>'
 
 fun refCount(task: !TaskPrefix): Int = task.refCount load
 

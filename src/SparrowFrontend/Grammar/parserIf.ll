@@ -1799,30 +1799,30 @@ define i64 @ptrDiff(i8* %p1, i8* %p2) #0 {
 
 ; Function Attrs: alwaysinline
 define void @_spr_memcpy(i8* %dest, i8* %src, i64 %size) #0 {
-  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %dest, i8* %src, i64 %size, i1 false)
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* %dest, i8* %src, i64 %size, i32 1, i1 false)
   ret void
 }
 
 ; Function Attrs: argmemonly nounwind
-declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture writeonly, i8* nocapture readonly, i64, i1) #1
+declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture writeonly, i8* nocapture readonly, i64, i32, i1) #1
 
 ; Function Attrs: alwaysinline
 define void @_spr_memmove(i8* %dest, i8* %src, i64 %size) #0 {
-  call void @llvm.memmove.p0i8.p0i8.i64(i8* %dest, i8* %src, i64 %size, i1 false)
+  call void @llvm.memmove.p0i8.p0i8.i64(i8* %dest, i8* %src, i64 %size, i32 1, i1 false)
   ret void
 }
 
 ; Function Attrs: argmemonly nounwind
-declare void @llvm.memmove.p0i8.p0i8.i64(i8* nocapture, i8* nocapture readonly, i64, i1) #1
+declare void @llvm.memmove.p0i8.p0i8.i64(i8* nocapture, i8* nocapture readonly, i64, i32, i1) #1
 
 ; Function Attrs: alwaysinline
 define void @_spr_memset(i8* %dest, i8 %value, i64 %size) #0 {
-  call void @llvm.memset.p0i8.i64(i8* %dest, i8 %value, i64 %size, i1 false)
+  call void @llvm.memset.p0i8.i64(i8* %dest, i8 %value, i64 %size, i32 1, i1 false)
   ret void
 }
 
 ; Function Attrs: argmemonly nounwind
-declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1) #1
+declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i32, i1) #1
 
 ; Function Attrs: alwaysinline
 define void @flushOutput() #0 {

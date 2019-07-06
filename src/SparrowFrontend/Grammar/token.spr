@@ -123,6 +123,6 @@ fun _asString(t: TokenType): String
     else if t == tkCOMMENT          return "comment"
     else if t == tkWHITESPACE       return "whitespace"
 
-fun >>(t: TokenType, os: @OutStream)
+fun >>(t: TokenType, os: !OutStream)
     os << (t _asString)
 

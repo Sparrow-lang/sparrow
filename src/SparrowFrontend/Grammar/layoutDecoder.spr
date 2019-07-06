@@ -38,7 +38,7 @@ datatype SparrowLayoutDecoder(tokensRangeType: Type) \
     /// If the number of tokens is greater than 1, we change the type to '}'
     _toInjectCnt: Int
 
-fun ctor(this: @SparrowLayoutDecoder, tokens: this._TokensRangeType, errorReporter: ErrorReporter)
+fun ctor(this: !SparrowLayoutDecoder, tokens: this._TokensRangeType, errorReporter: ErrorReporter)
     this._src ctor tokens
     this._errorReporter ctor errorReporter
     this._indents += 1      // Start at column 1
@@ -49,13 +49,13 @@ fun ctor(this: @SparrowLayoutDecoder, tokens: this._TokensRangeType, errorReport
     if !_src.isEmpty && (_src.front).type == tkEOL
         this.popFront
 
-fun isEmpty(this: @SparrowLayoutDecoder): Bool = _toInjectCnt == 0 && _src.isEmpty
-fun front(this: @SparrowLayoutDecoder): Token
+fun isEmpty(this: SparrowLayoutDecoder): Bool = _toInjectCnt == 0 && _src.isEmpty
+fun front(this: SparrowLayoutDecoder): Token
     var tk = _src.front
     if _toInjectCnt > 0
         tk.type = _toInject
     return tk
-fun popFront(this: @SparrowLayoutDecoder)
+fun popFront(this: !SparrowLayoutDecoder)
     // Are we moving past the injected tokens?
     if _toInjectCnt > 0
         _toInjectCnt--         // Consume one injected token

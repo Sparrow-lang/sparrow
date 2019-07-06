@@ -25,9 +25,9 @@ package _ImplLSCR
         source: sourceType
         location: @Location
 
-    fun isEmpty(this: @LocationSyncCharRange) = source.isEmpty
-    fun front(this: @LocationSyncCharRange)   = source.front
-    fun popFront(this: @LocationSyncCharRange)
+    fun isEmpty(this: LocationSyncCharRange) = source.isEmpty
+    fun front(this: LocationSyncCharRange)   = source.front
+    fun popFront(this: !LocationSyncCharRange)
         if *source == '\n'.char
             location addLines 1
         else
@@ -59,8 +59,8 @@ datatype SparrowScanner
     /// If true, also emit whitespace & comment tokens
     _emitWitespace: Bool
 
-fun ctor(this: @SparrowScanner, chars: CharSource, errorReporter: ErrorReporter, \
-        iniLocation: @Location, emitWitespace: Bool = false)
+fun ctor(this: !SparrowScanner, chars: CharSource, errorReporter: ErrorReporter, \
+        iniLocation: Location, emitWitespace: Bool = false)
     this._curLocation ctor iniLocation
     this._bufferedSource ctor chars
     this._src.ctor(RangeWithLookahead(BufferedCharSourceRange)(_bufferedSource.all), _curLocation)
@@ -69,13 +69,13 @@ fun ctor(this: @SparrowScanner, chars: CharSource, errorReporter: ErrorReporter,
     this._errorReporter ctor errorReporter
     this._emitWitespace = emitWitespace
 
-fun isEmpty(this: @SparrowScanner) = false
-fun front(this: @SparrowScanner): Token
+fun isEmpty(this: SparrowScanner) = false
+fun front(this: !SparrowScanner): Token
     if !_tokenIsComputed
         _tokenIsComputed = true
         this.popFront
     return _curToken
-fun popFront(this: @SparrowScanner)
+fun popFront(this: !SparrowScanner)
     if _src.isEmpty
         _src.location stepOver
         _curToken.type = tkEND
@@ -88,41 +88,41 @@ fun popFront(this: @SparrowScanner)
 
 package _Impl
 
-    fun reportError(this: @SparrowScanner, msg: @String)
+    fun reportError(this: SparrowScanner, msg: String)
         _errorReporter.reportError(_src.location, msg)
 
     /// Peeks at the next char; we assume that at least the cur char is valid
     /// Returns Char(0) if no next char is available
-    fun peekChar(this: @SparrowScanner): Char
+    fun peekChar(this: !SparrowScanner): Char
         return _src.source peek 1
 
-    fun peekChar(this: @SparrowScanner, n: UInt): Char
+    fun peekChar(this: !SparrowScanner, n: UInt): Char
         return _src.source peek n
 
     /// Check if the source to has less than the given number of characters
-    fun hasLessThan(this: @SparrowScanner, n: UInt): Bool
+    fun hasLessThan(this: !SparrowScanner, n: UInt): Bool
         return _src.source hasLessThan n
 
     /// Advances the input stream while the predicate matches
     /// Captures every character that matches
-    fun advanceAndCapture(this: @SparrowScanner, pred: AnyType)
+    fun advanceAndCapture(this: !SparrowScanner, pred: AnyType)
         while !!_src && pred(*_src) ; _src.popFront
             _curToken.data += *_src
 
     /// Advances and captures 1 char
-    fun advanceAndCapture1(this: @SparrowScanner)
+    fun advanceAndCapture1(this: !SparrowScanner)
         _curToken.data += *_src
         _src.popFront
 
     /// Same as above, but do not capture '_'; we advance past it
-    fun advanceAndCaptureDigit(this: @SparrowScanner, pred: AnyType)
+    fun advanceAndCaptureDigit(this: !SparrowScanner, pred: AnyType)
         while !!_src && (pred(*_src) || *_src == '_'.char) ; _src.popFront
             if *_src != '_'.char
                 _curToken.data += *_src
 
     /// Computes the next token, for the current characters in the source stream.
     /// Stores the token in _curToken
-    fun nextToken(this: @SparrowScanner): TokenType
+    fun nextToken(this: !SparrowScanner): TokenType
         var loc: @Location = _src.location
 
 
@@ -267,7 +267,7 @@ package _Impl
     ///
     /// If this is called to parse just a '.' without any follow-up operator chars,
     /// this will return false
-    fun parseOperator(this: @SparrowScanner): Bool
+    fun parseOperator(this: !SparrowScanner): Bool
         var ch = *_src
 
         // Operators
@@ -291,7 +291,7 @@ package _Impl
 
     /// Parse an identifier; we know that we start with a letter or underscore
     /// Also checked for reserved keywords
-    fun parseIdentifer(this: @SparrowScanner): TokenType
+    fun parseIdentifer(this: !SparrowScanner): TokenType
         // Match the following:
         //      Identifier      {IdLetters} | {IdLettersOp}
         //      IdLetters       ({Letter} | '_') ({Letter} | '_' | {Digit})*
@@ -351,7 +351,7 @@ package _Impl
         else                        return tkIDENTIFIER
 
     /// Parse a numeric constant (decimal, octal, hex, binary, floating)
-    fun parseNumeric(this: @SparrowScanner): TokenType
+    fun parseNumeric(this: !SparrowScanner): TokenType
         var isLong = false
         var isUnsigned = false
         var isFloating = false
@@ -436,7 +436,7 @@ package _Impl
     fun getDigitVal(c: Char) = (Int(c) - Int('0'.char))
     fun getXdigitVal(c: Char) = ife(isDigit(c), Int(c) - Int('0'.char), 10 + Int(toLower(c)) - Int('a'.char))
 
-    fun consumeDigits(r: @Range, base: ULong, capture: @String): ULong
+    fun consumeDigits(r: !Range, base: ULong, capture: !String): ULong
         var res: ULong = 0
         if base == 16
             while !!r && (isXdigit(*r) || *r == '_'.char) ; r.popFront
@@ -452,7 +452,7 @@ package _Impl
                     res += getDigitVal(*r)
         return res
 
-    fun checkEscapeChar(this: @SparrowScanner): Bool
+    fun checkEscapeChar(this: !SparrowScanner): Bool
         var ch = *_src
         if ch == '\\'.char
             ch = ++_src
@@ -486,7 +486,7 @@ package _Impl
             return true
         return false
 
-    fun parseString(this: @SparrowScanner, endChar: Char): TokenType
+    fun parseString(this: !SparrowScanner, endChar: Char): TokenType
         _src.popFront
         if this hasLessThan 1
             this reportError "End of file found inside string literal"
@@ -506,7 +506,7 @@ package _Impl
 
         return tkSTRING_LITERAL
 
-    fun parseStringNE(this: @SparrowScanner): TokenType
+    fun parseStringNE(this: !SparrowScanner): TokenType
         _src advance 2
 
         // Get all the characters from the string

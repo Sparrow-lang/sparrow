@@ -344,14 +344,12 @@ bool ConvertServiceImpl::adjustReferences(ConversionResult& res, TypeWithStorage
     ConvType conv = conversions[srcIdx][destIdx];
     // TODO (types): Remove this after finalizing mutables
     // A reference can be converted to mutable
-    if (srcIdx == 0 && destIdx == 2 && srcRefsBase > destRefsBase)
-    {
-        for (int i=destRefsBase; i<srcRefsBase-1; i++)
-        {
+    if (srcIdx == 0 && destIdx == 2 && srcRefsBase > destRefsBase) {
+        for (int i = destRefsBase; i < srcRefsBase - 1; i++) {
             src = removeCatOrRef(src);
             res.addConversion(convImplicit, ConvAction(ActionType::dereference, src));
         }
-        ASSERT(src.numReferences() == destRefsBase+1);
+        ASSERT(src.numReferences() == destRefsBase + 1);
         src = MutableType::get(removeRef(src));
         res.addConversion(convImplicit, ConvAction(ActionType::bitcast, src));
         return true;

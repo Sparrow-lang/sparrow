@@ -93,7 +93,6 @@ void _setProfilingText(Nest_Profiling_ZoneCtx ctx, Nest_Node* node) {
 #define PROFILING_C_ZONE_SETNODETEXT(ctx, node) /*nothing*/
 #endif
 
-
 Nest_Node* Nest_createNode(int nodeKind) {
     ASSERT(nodeKind >= 0);
 
@@ -136,7 +135,7 @@ void Nest_setContext(Nest_Node* node, Nest_CompilationContext* context) {
         return;
 
     int changingContext = node->context && node->context != context;
-    (void) changingContext;
+    (void)changingContext;
 
     PROFILING_C_ZONE_BEGIN_LOC(ctx, Nest_Profiling_getSetContextLoc(node->nodeKind));
 

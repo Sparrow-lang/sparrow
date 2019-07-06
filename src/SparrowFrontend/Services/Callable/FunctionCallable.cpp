@@ -191,7 +191,7 @@ NodeHandle FunctionCallable::generateCall(const CCLoc& ccloc) {
 
 int FunctionCallable::numParams() const {
     int res = params_.size();
-    return implicitArgType_ ? res-1 : res;
+    return implicitArgType_ ? res - 1 : res;
 }
 
 Type FunctionCallable::paramType(int idx) const {

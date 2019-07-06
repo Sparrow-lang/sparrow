@@ -77,8 +77,7 @@ NodeHandle impl_typeChangeRefCount(
     return createTypeNode(context, loc, res);
 }
 
-NodeHandle impl_typeRemoveCat(
-        CompilationContext* context, const Location& loc, NodeRange args) {
+NodeHandle impl_typeRemoveCat(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
     Type t = getType(args[0]);
 

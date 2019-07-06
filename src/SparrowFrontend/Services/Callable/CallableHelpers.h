@@ -17,7 +17,6 @@ struct ParameterDecl;
 bool shouldUseCt(Feather::DeclNode decl, bool autoCt, Range<Type> argTypes, EvalMode evalMode);
 bool shouldUseCt(Feather::DeclNode decl, bool autoCt, Range<NodeHandle> args, EvalMode evalMode);
 
-
 /**
  * @brief      Completes the given 'args' with the default values found in the given parameters
  *

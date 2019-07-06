@@ -691,7 +691,7 @@ Type DataTypeDecl::computeTypeImpl(DataTypeDecl node) {
     resultingStruct.addChildren(all(fields));
 
     // Check for autoBitcopiable
-    if ( node.hasProperty(propAutoBitCopiable)) {
+    if (node.hasProperty(propAutoBitCopiable)) {
         bool allAreBitcopiable = true;
         for (auto f : fields) {
             ASSERT(f->type);

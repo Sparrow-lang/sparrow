@@ -257,5 +257,4 @@ public:
     NodeHandle existingBoundVal(int idx) const;
 };
 
-
 } // namespace SprFrontend

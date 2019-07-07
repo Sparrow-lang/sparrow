@@ -25,7 +25,7 @@ DataType::DataType(Nest::TypeRef type)
 }
 
 DataType DataType::get(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode) {
-    return DataType(Feather_getDataType(decl, numReferences, mode));
+    return {Feather_getDataType(decl, numReferences, mode)};
 }
 
 ConstType::ConstType(Nest::TypeRef type)
@@ -39,10 +39,10 @@ ConstType ConstType::get(TypeWithStorage base, Nest::Location loc) {
         REP_INTERNAL(loc, "Null type given as base to const type");
     int baseKind = base.kind();
     if (baseKind == typeKindConst)
-        return ConstType(base);
+        return {base};
     else if (baseKind == typeKindMutable || baseKind == typeKindTemp)
         REP_ERROR(loc, "Cannot construct a const type based on %1%") % base;
-    return ConstType(Feather_getConstType(base));
+    return {Feather_getConstType(base)};
 }
 
 DataType ConstType::toRef() const { return DataType::get(referredNode(), numReferences(), mode()); }
@@ -58,10 +58,10 @@ MutableType MutableType::get(TypeWithStorage base, Nest::Location loc) {
         REP_INTERNAL(loc, "Null type given as base to const type");
     int baseKind = base.kind();
     if (baseKind == typeKindMutable)
-        return MutableType(base);
+        return {base};
     else if (baseKind == typeKindConst || baseKind == typeKindTemp)
         REP_ERROR(loc, "Cannot construct a mutable type based on %1%") % base;
-    return MutableType(Feather_getMutableType(base));
+    return {Feather_getMutableType(base)};
 }
 
 DataType MutableType::toRef() const {
@@ -79,10 +79,10 @@ TempType TempType::get(TypeWithStorage base, Nest::Location loc) {
         REP_INTERNAL(loc, "Null type given as base to const type");
     int baseKind = base.kind();
     if (baseKind == typeKindTemp)
-        return TempType(base);
+        return {base};
     else if (baseKind == typeKindConst || baseKind == typeKindMutable)
         REP_ERROR(loc, "Cannot construct a tmp type based on %1%") % base;
-    return TempType(Feather_getTempType(base));
+    return {Feather_getTempType(base)};
 }
 
 DataType TempType::toRef() const { return DataType::get(referredNode(), numReferences(), mode()); }
@@ -94,7 +94,7 @@ ArrayType::ArrayType(Nest::TypeRef type)
 }
 
 ArrayType ArrayType::get(TypeWithStorage unitType, int count) {
-    return ArrayType(Feather_getArrayType(unitType, count));
+    return {Feather_getArrayType(unitType, count)};
 }
 
 FunctionType::FunctionType(Nest::TypeRef type)
@@ -105,7 +105,7 @@ FunctionType::FunctionType(Nest::TypeRef type)
 
 FunctionType FunctionType::get(
         Nest::TypeRef* resultTypeAndParams, int numTypes, Nest::EvalMode mode) {
-    return FunctionType(Feather_getFunctionType(resultTypeAndParams, numTypes, mode));
+    return {Feather_getFunctionType(resultTypeAndParams, numTypes, mode)};
 }
 
 bool isDataLikeType(Type type) {

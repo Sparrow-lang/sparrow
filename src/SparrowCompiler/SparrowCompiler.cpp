@@ -196,6 +196,7 @@ vector<Nest_CompilerModule*> gatherModules() {
     return res;
 }
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 int main(int argc, char* argv[]) {
     CompilerStats& stats = CompilerStats::instance();
     auto startTime = chrono::steady_clock::now();

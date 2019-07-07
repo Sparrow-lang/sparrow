@@ -50,6 +50,8 @@ option(BOOTSTRAP_SPARROW "Use system-wide SparrowCompiler to compile Sparrow fil
 message(STATUS "BOOTSTRAP_SPARROW: ${BOOTSTRAP_SPARROW}")
 option(SPARROW_PROFILING "Enable Tracy integration into Sparrow compiler" OFF)
 message(STATUS "SPARROW_PROFILING: ${SPARROW_PROFILING}")
+option(ENABLE_TIDY "Enable clang-tidy checks when building" OFF)
+message(STATUS "ENABLE_TIDY: ${ENABLE_TIDY}")
 
 # Where to output the results of the compilation
 set(OutDir ${CMAKE_CURRENT_SOURCE_DIR}/build/bin)
@@ -121,39 +123,39 @@ endif()
 
 # Add target for clang-tidy
 set(TIDY_CHECKS
-    #-*,   # Disable for non-debug builds
+    -*,   # Disable for non-debug builds
 
     modernize-*,
+    bugprone-*,
     cppcoreguidelines-*,
+    -cppcoreguidelines-owning-memory, # not met, requires gsl
     -cppcoreguidelines-pro-bounds-array-to-pointer-decay, # not met, requires gsl
     -cppcoreguidelines-pro-bounds-constant-array-index, # not met, requires gsl
     -cppcoreguidelines-pro-bounds-pointer-arithmetic, # not met, requires gsl
     -cppcoreguidelines-pro-type-union-access, # not met (we use some unions)
     -cppcoreguidelines-pro-type-vararg, # not met (we are using printf)
 )
+string (REPLACE ";" " " TIDY_CHECKS "${TIDY_CHECKS}")
 
-find_program(CLANG_TIDY_SCRIPT "run-clang-tidy.py" HINTS ${LLVM_TOOLS_BINARY_DIR}/../share/clang)
-if(CLANG_TIDY_SCRIPT)
+if(ENABLE_TIDY)
     # Search for clang-tidy and clang-apply-replacements
     find_program(CLANG_TIDY "clang-tidy" HINTS ${LLVM_TOOLS_BINARY_DIR})
-    find_program(CLANG_APPLY_REPLACEMENTS "clang-apply-replacements" HINTS ${LLVM_TOOLS_BINARY_DIR})
+
+    message(STATUS "Tidy checks: ${TIDY_CHECKS}")
+
+    set(TIDY_HEADER_FILTER ${CMAKE_SOURCE_DIR}/*)
 
     # Set extra arguments
-    set(TIDY_FIX 0)
-    set(TIDY_EXTRA_ARGS -quiet -format -style file)
+    set(TIDY_FIX 1)
+    set(TIDY_EXTRA_ARGS -quiet;-format-style=file)
     if (TIDY_FIX)
-        set(TIDY_EXTRA_ARGS ${TIDY_EXTRA_ARGS} -j 1 -fix)
+        set(TIDY_EXTRA_ARGS ${TIDY_EXTRA_ARGS};-fix)
     endif()
 
-    # Actually add the target
-    add_custom_target(
-        clang-tidy
-        COMMAND
-            ${CLANG_TIDY_SCRIPT} -header-filter='\.\.\/src\/.*\.hpp' -checks='${TIDY_CHECKS}'
-            -clang-tidy-binary ${CLANG_TIDY}
-            -clang-apply-replacements-binary ${CLANG_APPLY_REPLACEMENTS}
-            ${TIDY_EXTRA_ARGS}
-    )
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY};-checks=\"${TIDY_CHECKS}\";-header-filter='${TIDY_HEADER_FILTER}';${TIDY_EXTRA_ARGS}"
+        CACHE STRING "" FORCE)
+else()
+    set(CMAKE_CXX_CLANG_TIDY "")
 endif()
 
 # Ensure generation of compile_commands.json; needed for clang-tidy

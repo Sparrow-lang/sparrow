@@ -159,8 +159,8 @@ void getBoundValuesClassic(SmallVector<NodeHandle>& boundVals, NodeRange args) {
     boundVals.clear();
     boundVals.reserve(args.size());
 
-    for (int i = 0; i < args.size(); ++i) {
-        auto arg = args[i];
+    for (auto i : args) {
+        auto arg = i;
 
         // Evaluate the node and add the resulting CtValue as a bound argument
         if (!arg.computeType()) {

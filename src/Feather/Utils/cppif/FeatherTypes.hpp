@@ -54,7 +54,7 @@ struct DataType : TypeWithStorage {
 
     //! @copydoc Type::changeMode
     DataType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
-        return DataType(Type::changeMode(mode, loc));
+        return {Type::changeMode(mode, loc)};
     }
 };
 
@@ -82,14 +82,14 @@ struct ConstType : TypeWithStorage {
     static ConstType get(TypeWithStorage base, Nest::Location loc = {});
 
     //! Returns the base type of this type
-    TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }
+    TypeWithStorage base() const { return {type_->subTypes[0]}; }
 
     //! Transform this type into a corresponding DataType with the same number of references.
     DataType toRef() const;
 
     //! @copydoc Type::changeMode
     ConstType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
-        return ConstType(Type::changeMode(mode, loc));
+        return {Type::changeMode(mode, loc)};
     }
 };
 
@@ -117,14 +117,14 @@ struct MutableType : TypeWithStorage {
     static MutableType get(TypeWithStorage base, Nest::Location loc = {});
 
     //! Returns the base type of this type
-    TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }
+    TypeWithStorage base() const { return {type_->subTypes[0]}; }
 
     //! Transform this type into a corresponding DataType with the same number of references.
     DataType toRef() const;
 
     //! @copydoc Type::changeMode
     MutableType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
-        return MutableType(Type::changeMode(mode, loc));
+        return {Type::changeMode(mode, loc)};
     }
 };
 
@@ -152,14 +152,14 @@ struct TempType : TypeWithStorage {
     static TempType get(TypeWithStorage base, Nest::Location loc = {});
 
     //! Returns the base type of this type
-    TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }
+    TypeWithStorage base() const { return {type_->subTypes[0]}; }
 
     //! Transform this type into a corresponding DataType with the same number of references.
     DataType toRef() const;
 
     //! @copydoc Type::changeMode
     TempType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
-        return TempType(Type::changeMode(mode, loc));
+        return {Type::changeMode(mode, loc)};
     }
 };
 
@@ -185,13 +185,13 @@ struct ArrayType : TypeWithStorage {
     static ArrayType get(TypeWithStorage unitType, int count);
 
     //! Returns the unit type of this array type
-    TypeWithStorage unitType() const { return TypeWithStorage(type_->subTypes[0]); }
+    TypeWithStorage unitType() const { return {type_->subTypes[0]}; }
     //! Returns the number of elements in the array
     int count() const { return type_->flags; }
 
     //! @copydoc Type::changeMode
     ArrayType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
-        return ArrayType(Type::changeMode(mode, loc));
+        return {Type::changeMode(mode, loc)};
     }
 };
 
@@ -226,11 +226,11 @@ struct FunctionType : TypeWithStorage {
     //! Returns the number of parameters that we have
     int numParams() const { return type_->numSubtypes - 1; }
     //! Access operators for the parameters
-    TypeWithStorage operator[](int idx) const { return TypeWithStorage(type_->subTypes[idx + 1]); }
+    TypeWithStorage operator[](int idx) const { return {type_->subTypes[idx + 1]}; }
 
     //! @copydoc Type::changeMode
     FunctionType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
-        return FunctionType(Type::changeMode(mode, loc));
+        return {Type::changeMode(mode, loc)};
     }
 };
 

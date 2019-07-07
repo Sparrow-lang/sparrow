@@ -497,6 +497,7 @@ SearchScopes buildSearchScopes(CompilationContext* nodeCtx, StringRef operation,
 
     // Step 1: Try to find an operator that match in the class of the base expression
     if (searchInside) {
+        ASSERT(base);
         mode = base.type().mode();
         ctx = baseDecl.childrenContext();
         ASSERT(ctx);

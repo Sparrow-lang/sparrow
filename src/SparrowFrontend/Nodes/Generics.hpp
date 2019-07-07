@@ -35,7 +35,7 @@ struct GenericPackage : Feather::DeclNode {
     InstantiationsSet instSet() const;
 
     //! Returns the original package
-    PackageDecl original() const { return PackageDecl(referredNodes()[0]); }
+    PackageDecl original() const { return {referredNodes()[0]}; }
 
 private:
     static NodeHandle semanticCheckImpl(GenericPackage node);
@@ -64,7 +64,7 @@ struct GenericDatatype : Feather::DeclNode {
     InstantiationsSet instSet() const;
 
     //! Returns the original datatype decl
-    DataTypeDecl original() const { return DataTypeDecl(referredNodes()[0]); }
+    DataTypeDecl original() const { return {referredNodes()[0]}; }
 
 private:
     static NodeHandle semanticCheckImpl(GenericDatatype node);
@@ -95,7 +95,7 @@ struct GenericFunction : Feather::DeclNode {
     InstantiationsSet instSet() const;
 
     //! Returns the original function decl
-    SprFunctionDecl original() const { return SprFunctionDecl(referredNodes()[0]); }
+    SprFunctionDecl original() const { return {referredNodes()[0]}; }
 
     //! Returns the original params of the function
     NodeRangeT<ParameterDecl> originalParams() const {
@@ -137,7 +137,7 @@ struct Instantiation : NodeHandle {
     static Instantiation create(const Location& loc, NodeRange boundValues, NodeRange boundVars);
 
     //! Returns the node list containing all the bound variables
-    NodeList boundVarsNode() const { return NodeList(children()[0]); }
+    NodeList boundVarsNode() const { return {children()[0]}; }
 
     //! Returns the bound values (immutable access)
     NodeRange boundValues() const { return referredNodes(); }
@@ -205,7 +205,7 @@ struct InstantiationsSet : NodeHandle {
     void addInstantiation(Instantiation inst);
 
     //! Returns the parent node
-    Feather::DeclNode parentNode() const { return Feather::DeclNode(referredNodes()[0]); }
+    Feather::DeclNode parentNode() const { return {referredNodes()[0]}; }
     //! Returns the range of parameters for this instantiation set
     NodeRangeT<ParameterDecl> params() const {
         return NodeRangeT<ParameterDecl>(referredNodes()[1].children());

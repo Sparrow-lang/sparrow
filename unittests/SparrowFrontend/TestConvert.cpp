@@ -44,7 +44,7 @@ struct ConvertFixture : SparrowGeneralFixture {
 
 ConvertFixture::ConvertFixture() { types_.init(*this); }
 
-ConvertFixture::~ConvertFixture() {}
+ConvertFixture::~ConvertFixture() = default;
 
 TEST_CASE("User shall be able to combine two ConversionType values") {
     SECTION("combine function") {

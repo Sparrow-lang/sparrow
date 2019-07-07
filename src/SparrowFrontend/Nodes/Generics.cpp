@@ -39,7 +39,7 @@ GenericPackage GenericPackage::create(
     return res;
 }
 
-InstantiationsSet GenericPackage::instSet() const { return InstantiationsSet(children()[0]); }
+InstantiationsSet GenericPackage::instSet() const { return {children()[0]}; }
 
 NodeHandle GenericPackage::semanticCheckImpl(GenericPackage node) {
     return Feather::Nop::create(node.location());
@@ -71,7 +71,7 @@ GenericDatatype GenericDatatype::create(
     return res;
 }
 
-InstantiationsSet GenericDatatype::instSet() const { return InstantiationsSet(children()[0]); }
+InstantiationsSet GenericDatatype::instSet() const { return {children()[0]}; }
 
 NodeHandle GenericDatatype::semanticCheckImpl(GenericDatatype node) {
     return Feather::Nop::create(node.location());
@@ -94,7 +94,7 @@ GenericFunction GenericFunction::create(
     return res;
 }
 
-InstantiationsSet GenericFunction::instSet() const { return InstantiationsSet(children()[0]); }
+InstantiationsSet GenericFunction::instSet() const { return {children()[0]}; }
 
 NodeHandle GenericFunction::semanticCheckImpl(GenericFunction node) {
     return Feather::Nop::create(node.location());

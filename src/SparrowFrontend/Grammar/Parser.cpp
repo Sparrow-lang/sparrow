@@ -80,7 +80,8 @@ struct AstBuilder {
 
 //! Compiler implementation or error reporter
 struct CompilerErrorReporter : ErrorReporter {
-    CompilerErrorReporter() {
+    CompilerErrorReporter()
+        : ErrorReporter() {
         self = this;
         reportErrorFn = &CompilerErrorReporter::reportError;
     }
@@ -92,7 +93,8 @@ struct CompilerErrorReporter : ErrorReporter {
 
 //! Compiler implementation or error reporter
 struct CompilerAstBuilder : AstBuilder {
-    CompilerAstBuilder() {
+    CompilerAstBuilder()
+        : AstBuilder() {
         self = this;
         addToNodeListFn = &CompilerAstBuilder::addToNodeList_Impl;
 

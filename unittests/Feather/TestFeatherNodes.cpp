@@ -24,13 +24,13 @@ struct FeatherNodesFixture : SparrowGeneralFixture {
 
 FeatherNodesFixture::FeatherNodesFixture() {
     using TypeFactory::g_dataTypeDecls;
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i1"), globalContext_));
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i8"), globalContext_));
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i16"), globalContext_));
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i32"), globalContext_));
-    g_dataTypeDecls.push_back(createDatatypeNode(StringRef("FooType"), globalContext_));
-    g_dataTypeDecls.push_back(createDatatypeNode(StringRef("BarType"), globalContext_));
-    g_dataTypeDecls.push_back(createDatatypeNode(StringRef("NullType"), globalContext_));
+    g_dataTypeDecls.emplace_back(createNativeDatatypeNode(StringRef("i1"), globalContext_));
+    g_dataTypeDecls.emplace_back(createNativeDatatypeNode(StringRef("i8"), globalContext_));
+    g_dataTypeDecls.emplace_back(createNativeDatatypeNode(StringRef("i16"), globalContext_));
+    g_dataTypeDecls.emplace_back(createNativeDatatypeNode(StringRef("i32"), globalContext_));
+    g_dataTypeDecls.emplace_back(createDatatypeNode(StringRef("FooType"), globalContext_));
+    g_dataTypeDecls.emplace_back(createDatatypeNode(StringRef("BarType"), globalContext_));
+    g_dataTypeDecls.emplace_back(createDatatypeNode(StringRef("NullType"), globalContext_));
 }
 FeatherNodesFixture::~FeatherNodesFixture() {
     FeatherNodeFactory::instance().reset();

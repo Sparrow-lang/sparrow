@@ -31,9 +31,6 @@ using namespace SprFrontend;
 using namespace rc;
 
 struct CallableFixture : SparrowGeneralFixture {
-    CallableFixture();
-    ~CallableFixture();
-
     //! Ensures that the generated callable matches the original decl
     void checkCallable(Callable& c, NodeHandle decl, const ParamsData* paramsData = nullptr);
 
@@ -61,9 +58,6 @@ struct CallableFixture : SparrowGeneralFixture {
     SampleTypes types_;
 };
 
-CallableFixture::CallableFixture() {}
-
-CallableFixture::~CallableFixture() {}
 
 void CallableFixture::checkCallable(Callable& c, NodeHandle decl, const ParamsData* paramsData) {
     RC_ASSERT(c.valid());

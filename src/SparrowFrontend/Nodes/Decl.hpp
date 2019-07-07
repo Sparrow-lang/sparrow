@@ -141,7 +141,7 @@ struct PackageDecl : Feather::DeclNode {
     NodeHandle body() const { return children()[0]; };
 
     //! Returns the node containing the parameters
-    NodeList parameters() const { return NodeList(children()[1]); };
+    NodeList parameters() const { return {children()[1]}; };
 
     //! Returns the if clause node
     NodeHandle ifClause() const { return children()[2]; };
@@ -205,9 +205,7 @@ struct VariableDecl : Feather::DeclNode {
 
     //! Returns the resulting Feather VarDecl object.
     //! A Sparrow variable will always be implemented in terms for a Feather VarDecl node
-    Feather::VarDecl resultingVar() const {
-        return Feather::VarDecl(getCheckPropertyNode("spr.resultingVar"));
-    }
+    Feather::VarDecl resultingVar() const { return {getCheckPropertyNode("spr.resultingVar")}; }
 
 private:
     static void setContextForChildrenImpl(VariableDecl node);
@@ -251,10 +249,10 @@ struct DataTypeDecl : Feather::DeclNode {
             NodeHandle underlyingData, NodeHandle ifClause, NodeList body);
 
     //! Returns the body of the data type (fields + using decls)
-    NodeList body() const { return NodeList(children()[1]); };
+    NodeList body() const { return {children()[1]}; };
 
     //! Returns the parameters given to the data type declarations (for generic datatypes)
-    NodeList parameters() const { return NodeList(children()[0]); };
+    NodeList parameters() const { return {children()[0]}; };
 
     //! Returns the if clause for the data type declaration (for generic datatypes)
     NodeHandle ifClause() const { return children()[2]; };
@@ -336,7 +334,7 @@ struct SprFunctionDecl : Feather::DeclNode {
             NodeHandle returnType, NodeHandle body, NodeHandle ifClause = {});
 
     //! Returns the parameters of the function
-    NodeList parameters() const { return NodeList(children()[0]); };
+    NodeList parameters() const { return {children()[0]}; };
 
     //! Returns the return type of the function (if any)
     NodeHandle returnType() const { return children()[1]; };

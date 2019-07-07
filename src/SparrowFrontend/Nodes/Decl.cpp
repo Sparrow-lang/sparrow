@@ -1053,9 +1053,7 @@ ConceptDecl ConceptDecl::create(const Location& loc, StringRef name, StringRef p
 
 StringRef ConceptDecl::paramName() const { return getCheckPropertyString("spr.paramName"); }
 
-InstantiationsSet ConceptDecl::instantiationsSet() const {
-    return InstantiationsSet(children()[2]);
-};
+InstantiationsSet ConceptDecl::instantiationsSet() const { return {children()[2]}; };
 
 void ConceptDecl::setContextForChildrenImpl(ConceptDecl node) {
     commonSetContextForChildren(node, ContextChangeType::withSymTab);

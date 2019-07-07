@@ -45,12 +45,10 @@ struct StringRef : Nest_StringRef {
 
 //! The mutable version of StringRef -- we can modify its content
 struct StringRefM {
-    char* begin; ///< The beginning of the string
-    char* end;   ///< One past the last character of the string
+    char* begin{nullptr}; ///< The beginning of the string
+    char* end{nullptr};   ///< One past the last character of the string
 
-    StringRefM()
-        : begin(nullptr)
-        , end(nullptr) {}
+    StringRefM() {}
     StringRefM(int size);
 
     operator StringRef() { return {begin, end}; }

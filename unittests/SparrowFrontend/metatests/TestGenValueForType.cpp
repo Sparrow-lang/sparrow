@@ -15,9 +15,6 @@ using namespace SprFrontend;
 using namespace rc;
 
 struct GenValueForTypeFixture : SparrowGeneralFixture {
-    GenValueForTypeFixture();
-    ~GenValueForTypeFixture();
-
     void computeType(Nest::NodeHandle node) {
         RC_ASSERT(node);
         node.setContext(globalContext_);
@@ -29,9 +26,6 @@ struct GenValueForTypeFixture : SparrowGeneralFixture {
     SampleTypes types_;
 };
 
-GenValueForTypeFixture::GenValueForTypeFixture() {}
-
-GenValueForTypeFixture::~GenValueForTypeFixture() {}
 
 TEST_CASE_METHOD(GenValueForTypeFixture, "genValueForType functions generate expected results") {
     types_.init(*this);

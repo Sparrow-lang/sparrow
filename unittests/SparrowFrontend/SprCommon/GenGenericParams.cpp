@@ -88,8 +88,8 @@ rc::Gen<vector<NodeHandle>> arbBoundValues(const ParamsData& params, const Sampl
 
             // If this is a regular param (RT, non-concept), don't create a bound value for it
             if (t && t.kind() != typeKindConcept && t.mode() == modeRt) {
-                values.push_back(nullptr);
-                valTypes.push_back(nullptr);
+                values.emplace_back(nullptr);
+                valTypes.emplace_back(nullptr);
                 continue;
             }
 
@@ -105,6 +105,7 @@ rc::Gen<vector<NodeHandle>> arbBoundValues(const ParamsData& params, const Sampl
                     auto* t = Feather_getCtValueData<Type>(prevValAsCtValue);
                     if (!t || !*t)
                         REP_INTERNAL(prevValAsCtValue.location(), "No type was set for node");
+                    ASSERT(t);
                     valueType = *t;
                 }
                 value = createTypeNode(nullptr, g_LocationGen(), valueType);

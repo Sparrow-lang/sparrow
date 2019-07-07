@@ -67,7 +67,7 @@ ConceptType::ConceptType(Nest::TypeRef type)
 }
 
 ConceptType ConceptType::get(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode) {
-    return ConceptType(getConceptType(decl, numReferences, mode));
+    return {getConceptType(decl, numReferences, mode)};
 }
 
 Nest::NodeHandle ConceptType::decl() const { return referredNode(); }

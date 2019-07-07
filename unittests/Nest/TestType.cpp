@@ -12,8 +12,8 @@ struct TypesFixture : NestGeneralFixture {
     ~TypesFixture();
 };
 
-TypesFixture::TypesFixture() {}
-TypesFixture::~TypesFixture() {}
+TypesFixture::TypesFixture() = default;
+TypesFixture::~TypesFixture() = default;
 
 TEST_CASE_METHOD(TypesFixture, "User can register a new type") {
     SECTION("first time register") {

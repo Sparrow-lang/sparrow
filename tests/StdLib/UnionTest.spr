@@ -27,7 +27,7 @@ fun test1
 fun test2
     var union: Union(Int, Char)
     union.get1 = 7963
-    
+
     cout << Byte(union.get2) << endl
 
 /*<<<UnionArray(3)
@@ -39,7 +39,7 @@ fun test2
 fun test3
     var union: Union(Int, StaticArray(Byte,4))
     union.get1 = 7963
-    
+
     cout << (union.get2).at(0) << endl
     cout << (union.get2).at(1) << endl
     cout << (union.get2).at(2) << endl
@@ -50,7 +50,7 @@ fun test3
 >>>*/
 fun test4
     var union: Union(Int, StaticArray(Byte, 20), Float)
-    
+
     cout << sizeOf(union) << endl
 
 /*<<<ComplexSizeOfUnion(5)
@@ -64,7 +64,7 @@ fun test5
                      Char, \
                      Long, \
                      StaticArray(Long, 100))
-    
+
     cout << sizeOf(union) << endl
 
 /*<<<ComplexUnion(6)
@@ -86,7 +86,7 @@ fun test6
                      StaticArray(Char, 100), \
                      StaticArray(Long, 100), \
                      StaticArray(ULong, 200))
-    
+
     (union.get6) = 1234567890
 
     cout << sizeOf(union) << endl
@@ -100,7 +100,7 @@ fun test6
 104
 >>>*/
 fun test7
-    var union: Union(Int, StaticArray(Byte, 20), myType) 
+    var union: Union(Int, StaticArray(Byte, 20), myType)
     cout << sizeOf(union) << endl
 
 /*<<<UnionComplexStruct(8)
@@ -220,7 +220,7 @@ fun test9
 fun sprMain
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    var n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2

@@ -16,11 +16,11 @@ datatype ScopedLock(T: Type) if Lockable(#$T)
 
     _theLock: @LockType
 
-fun ctor(this: @ScopedLock, theLock: @this.LockType)
+fun ctor(this: !ScopedLock, theLock: !this.LockType)
     this._theLock := theLock
     _theLock lock
 
-fun dtor(this: @ScopedLock)
+fun dtor(this: !ScopedLock)
     _theLock unlock
 
 //! Class used to try to take the lock for the duration of a scope
@@ -31,50 +31,50 @@ datatype ScopedTryLock(T: Type) if TryLockable(#$T)
     _theLock: @LockType
     _lockSucceeded: Bool
 
-fun ctor(this: @ScopedTryLock, theLock: @this.LockType)
+fun ctor(this: !ScopedTryLock, theLock: !this.LockType)
     this._theLock := theLock
     this._lockSucceeded  = (_theLock tryLock)
 
-fun dtor(this: @ScopedTryLock)
+fun dtor(this: !ScopedTryLock)
     if _lockSucceeded
         _theLock unlock
 
-fun isLocked(this: @ScopedTryLock) = _lockSucceeded
+fun isLocked(this: ScopedTryLock) = _lockSucceeded
 
 //! A simple and fast mutual-exclusion lockable
 datatype Mutex
     handle: Impl.PThreadMutex
 
-fun ctor(this: @Mutex)
+fun ctor(this: !Mutex)
     handle.sig = Impl.PTHREAD_MUTEX_SIG_INIT
 
-fun dtor(this: @Mutex)
+fun dtor(this: !Mutex)
     Impl.pthread_mutex_destroy(handle)
 
-fun >> (m: @Mutex, os: @OutStream)
-    cout << "Mutex(" << mkStreamRefWrapper(m) << ", " << m.handle.sig << ")"
+fun >> (m: !Mutex, os: !OutStream)
+    cout << "Mutex(" << UntypedPtr(m) << ", " << m.handle.sig << ")"
 
 //! A mutual-exclusion lockable that is able to support recursive locking
 datatype RecMutex
     handle: Impl.PThreadMutex
 
-fun ctor(this: @RecMutex)
+fun ctor(this: !RecMutex)
     handle.sig = Impl.PTHREAD_RECURSIVE_MUTEX_SIG_INIT
 
-fun dtor(this: @RecMutex)
+fun dtor(this: !RecMutex)
     Impl.pthread_mutex_destroy(handle)
 
 //! Locks a lockable; if the lockable is already locked this call blocks until it's unblocked by the other party
-fun lock(mutex: @Mutex) { var res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
-fun lock(mutex: @RecMutex) { var res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
+fun lock(mutex: !Mutex) { let res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
+fun lock(mutex: !RecMutex) { let res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
 
 //! Attempts to lock a lockable; if already locked, returns false without locking anything
-fun tryLock(mutex: @Mutex): Bool { var res = Impl.pthread_mutex_trylock(mutex.handle); return res == 0; }
-fun tryLock(mutex: @RecMutex): Bool { var res = Impl.pthread_mutex_trylock(mutex.handle); return res == 0; }
+fun tryLock(mutex: !Mutex): Bool { let res = Impl.pthread_mutex_trylock(mutex.handle); return res == 0; }
+fun tryLock(mutex: !RecMutex): Bool { let res = Impl.pthread_mutex_trylock(mutex.handle); return res == 0; }
 
 //! Unlocks a lockable that was previously locked by a call to 'lock'
-fun unlock(mutex: @Mutex) { var res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
-fun unlock(mutex: @RecMutex) { var res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
+fun unlock(mutex: !Mutex) { let res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
+fun unlock(mutex: !RecMutex) { let res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
 
 package Impl
     using PTHREAD_MUTEX_SIZE = 56
@@ -85,8 +85,8 @@ package Impl
         sig: Long
         opaque: StaticArray(Byte, PTHREAD_MUTEX_SIZE)
 
-    [native("pthread_mutex_init")] fun pthread_mutex_init(mutex: @PThreadMutex, attr: @Byte): Int
-    [native("pthread_mutex_lock")] fun pthread_mutex_lock(mutex: @PThreadMutex): Int
-    [native("pthread_mutex_trylock")] fun pthread_mutex_trylock(mutex: @PThreadMutex): Int
-    [native("pthread_mutex_unlock")] fun pthread_mutex_unlock(mutex: @PThreadMutex): Int
-    [native("pthread_mutex_destroy")] fun pthread_mutex_destroy(mutex: @PThreadMutex): Int
+    [native("pthread_mutex_init")] fun pthread_mutex_init(mutex: !PThreadMutex, attr: UntypedPtr): Int
+    [native("pthread_mutex_lock")] fun pthread_mutex_lock(mutex: !PThreadMutex): Int
+    [native("pthread_mutex_trylock")] fun pthread_mutex_trylock(mutex: !PThreadMutex): Int
+    [native("pthread_mutex_unlock")] fun pthread_mutex_unlock(mutex: !PThreadMutex): Int
+    [native("pthread_mutex_destroy")] fun pthread_mutex_destroy(mutex: !PThreadMutex): Int

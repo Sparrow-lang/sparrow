@@ -31,11 +31,11 @@ package Inner3
     datatype Gen(t: Type)
         using MyType = t
 
-    fun print(this: @Gen) if this.MyType == Int
+    fun print(this: Gen) if this.MyType == Int
         writeLn('Gen(Int)')
-    fun print(this: @Gen) if this.MyType == Double
+    fun print(this: Gen) if this.MyType == Double
         writeLn('Gen(Double)')
-    fun print(this: @Gen) if this.MyType != Int && this.MyType != Double
+    fun print(this: Gen) if this.MyType != Int && this.MyType != Double
         writeLn('Gen(?)')
 
 using MyGen = Inner3.Gen
@@ -44,7 +44,7 @@ package Inner4
     datatype Gen(t: Type)
         using MyType1 = t
 
-    fun print(this: @Gen)
+    fun print(this: Gen)
         writeLn('Gen1')
         f1(MyType1())
 
@@ -53,7 +53,7 @@ package Inner5
         using MyType1 = t
         using MyType2 = u
 
-    fun print(this: @Gen)
+    fun print(this: Gen)
         writeLn('Gen2')
         f1(MyType1())
         f1(MyType2())
@@ -70,22 +70,22 @@ fun test(n: Int)
     my_g1(3.14)
     writeLn('---')
 
-    var a: MyInt = 2
-    var b: MyDouble = 3.14
+    let a: MyInt = 2
+    let b: MyDouble = 3.14
     my_f1(a)
     my_f1(b)
     writeLn('---')
 
-    var g1: MyGen(Int)
-    var g2: MyGen(Double)
-    var g3: MyGen(Char)
+    let g1: MyGen(Int)
+    let g2: MyGen(Double)
+    let g3: MyGen(Char)
     g1.print
     g2.print
     g3.print
     writeLn('---')
 
-    var gg1: MyG(Int)
-    var gg2: MyG(Int, Double)
+    let gg1: MyG(Int)
+    let gg2: MyG(Int, Double)
     gg1.print
     gg2.print
 

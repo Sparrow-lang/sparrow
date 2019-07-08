@@ -3,7 +3,7 @@ module std.contiguousMemoryRange
 import rawPtr(RawPtr)
 import ranges(..)
 
-[initCtor]
+[initCtor, bitcopiable]
 datatype ContiguousMemoryRange(valueType: Type)
     using PtrType = RawPtr(valueType)
     using RetType = @valueType
@@ -19,18 +19,18 @@ datatype ContiguousMemoryRange(valueType: Type)
     fun ()(this: ContiguousMemoryRange) : RetType            = _begin.value
     fun ()(this: ContiguousMemoryRange, n: SizeType): RetType = _begin.advance(DiffType(n)).value
 
-    fun popFront(this: @ContiguousMemoryRange)                { _begin = _begin.advance }
-    fun popBack(this: @ContiguousMemoryRange)                 { _end = _end.advance(-1) }
-    fun popFront(this: @ContiguousMemoryRange, n: SizeType)   { _begin = _begin.advance(DiffType(n)) }
-    fun popBack(this: @ContiguousMemoryRange, n: SizeType)    { _end = _end.advance(-DiffType(n)) }
+    fun popFront(this: !ContiguousMemoryRange)                { _begin = _begin.advance }
+    fun popBack(this: !ContiguousMemoryRange)                 { _end = _end.advance(-1) }
+    fun popFront(this: !ContiguousMemoryRange, n: SizeType)   { _begin = _begin.advance(DiffType(n)) }
+    fun popBack(this: !ContiguousMemoryRange, n: SizeType)    { _end = _end.advance(-DiffType(n)) }
 
-    fun pre_++(this: @ContiguousMemoryRange) : RetType         { this.popFront; return this.front; }
-    fun post_++(this: @ContiguousMemoryRange) : RetType        { var res: RetType = this.front; this.popFront; return res; }
+    fun pre_++(this: !ContiguousMemoryRange) : RetType         { this.popFront; return this.front; }
+    fun post_++(this: !ContiguousMemoryRange) : RetType        { var res: RetType = this.front; this.popFront; return res; }
 
     fun frontPtr(this: ContiguousMemoryRange)                = _begin
     fun backPtr(this: ContiguousMemoryRange)                 = _end
 
-    fun >>(this: ContiguousMemoryRange, os: @OutStream) if isValid(os << this.front)
+    fun >>(this: ContiguousMemoryRange, os: !OutStream) if isValid(os << this.front)
         os << "MemRange("
         for i = 0..this.size
             if i > 0

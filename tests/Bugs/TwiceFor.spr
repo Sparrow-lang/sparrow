@@ -3,7 +3,7 @@
 import std.ranges
 
 fun sprMain
-    var r = 0 .. 10
+    let r = 0 .. 10
     for val = r
         cout << ' ' << val
     cout << endl

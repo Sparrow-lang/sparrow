@@ -6,8 +6,8 @@ import std.vector
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -51,23 +51,24 @@ fun makeList(): List(Int)
     return li
 
 fun printRange(nr: AnyType)
-    var v: Vector(Int) = nr
+    let v: Vector(Int) = nr
 
     var r = v.all()
     while !r.isEmpty()
         cout << r.front()
         r.popFront()
         if (r.isEmpty() )
-            cout << endl
+            cout << endl;
         else
-            cout << ' '
+            cout << ' ';
+    ;
 
 datatype Equal(type: Type)
     using ValueType = type
 fun ()(this: Equal, x, y: this.ValueType): Bool = x == y
 
 fun test1()
-    var ss: SortedSet(Int, Less(Int), Equal(Int))
+    let ss: SortedSet(Int, Less(Int), Equal(Int))
 
     cout << ss.isEmpty() << endl
     cout << ss.size() << endl
@@ -81,7 +82,7 @@ false
 >>>*/
 
 fun test2()
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(60)
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(60)
 
     cout << ss.isEmpty() << endl
     cout << ss.size() << endl
@@ -95,7 +96,7 @@ false
 >>>*/
 
 fun test3()
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
 
     cout << ss.isEmpty() << endl
     cout << ss.size() << endl
@@ -115,8 +116,8 @@ false
 >>>*/
 
 fun test4()
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
-    var ss2 = SortedSet(Int, Less(Int), Equal(Int))(ss)
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
+    let ss2 = SortedSet(Int, Less(Int), Equal(Int))(ss)
 
     cout << ss2.isEmpty() << endl
     cout << ss2.size() << endl
@@ -187,7 +188,7 @@ false
 >>>*/
 
 fun test7()
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
 
     printRange(ss.all())
 /*<<<Range access(7)
@@ -265,7 +266,7 @@ fun test11()
 >>>*/
 
 fun test12()
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
 
     cout << ss.contains(7) << endl
     cout << ss.contains(53) << endl
@@ -309,7 +310,7 @@ fun test14()
 >>>*/
 
 fun test15()
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
 
     printRange(ss.find(5))
     printRange(ss.find(10))
@@ -344,9 +345,9 @@ fun test17()
 >>>*/
 
 fun test18()
-    var ss1 = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
+    let ss1 = SortedSet(Int, Less(Int), Equal(Int))(makeList().all())
     var ss2 = ss1
-    var ss3: SortedSet(Int, Less(Int), Equal(Int))
+    let ss3: SortedSet(Int, Less(Int), Equal(Int))
     var ss4 = SortedSet(Int, Less(Int), Equal(Int))(0 .. 10)
 
     cout << ss1 == ss2 << endl
@@ -379,10 +380,11 @@ true
 >>>*/
 
 fun test19()
-    var ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 1000)
+    let ss = SortedSet(Int, Less(Int), Equal(Int))(0 .. 1000)
 
     for i = numericRange(0, 1000)
         if ( !ss.contains(i) )
-            cout << "Test failed" << endl
+            cout << "Test failed" << endl;
+    ;
 /*<<<Large set(19)
 >>>*/

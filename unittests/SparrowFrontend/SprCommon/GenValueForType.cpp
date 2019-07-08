@@ -71,7 +71,7 @@ Gen<NodeHandle> arbValueConvertibleTo(TypeWithStorage t, const SampleTypes* samp
         int weightAddRef = 1;
         int weightFromPlain = tk == typeKindConst ? 1 : 0;
         int weightFromConst = tk == typeKindData ? 1 : 0;
-        int weightFromMutable = 1;
+        int weightFromMutable = tk != typeKindTemp ? 1 : 0;
         int weightFromTmp = 1;
 
         TypeWithStorage newType;

@@ -32,10 +32,10 @@ using LInt = LRef(Int)
 datatype ScopeTracer
     str: StringRef
 
-fun ctor(this: @ScopeTracer, name: StringRef)
+fun ctor(this: !ScopeTracer, name: StringRef)
     str ctor name
     cout << '<<< ' << name << '\n'
-fun dtor(this: @ScopeTracer)
+fun dtor(this: !ScopeTracer)
     cout << '>>> ' << str << '\n'
 
 /// A logical reference
@@ -53,7 +53,7 @@ datatype LRef(valueType: Type)
 
     _pptr: SharedPtr(Optional(ValueType))
 
-fun ctor(this: @LRef)
+fun ctor(this: !LRef)
     _pptr ctor Optional(this.ValueType)()
     [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
         cout << "ctor: " << this << "\n"
@@ -63,80 +63,80 @@ fun ctor(this: @LRef)
 //    [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
 //        cout << "value ctor: " << this << "\n"
 
-[convert] fun ctor(this: @LRef, value: @AnyType) if isValid(this.ValueType(value))
+[convert] fun ctor(this: !LRef, value: AnyType) if isValid(this.ValueType(value))
     _pptr ctor Optional(this.ValueType)(value)
     [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
         cout << "value ctor: " << this << "\n"
 
-fun ctor(this, other: @LRef)
+fun ctor(this, other: !LRef)
     _pptr ctor other._pptr
     [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
         cout << "copy ctor: " << this << "\n"
 
 [protected]
-    fun dtor(this: @LRef)
+    fun dtor(this: !LRef)
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "dtor: " << this << "\n"
 
-    fun =(this, other: @LRef)
+    fun =(this, other: !LRef)
         if ( other.isSet )
             this.reset(other.get)
         else
             this.reset
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.=" << this << "\n"
-    fun =(this: @LRef, value: @this.ValueType)
+    fun =(this: !LRef, value: !this.ValueType)
         _pptr.get().reset(value)
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.=" << this << "\n"
-    fun =(this: @LRef, value: AnyType) if isValid(ValueType(value))
+    fun =(this: !LRef, value: AnyType) if isValid(ValueType(value))
         _pptr.get().reset(value)
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.=" << this << "\n"
 
-fun get(this: @LRef): @ValueType         = _pptr.get().get
+fun get(this: !LRef): @ValueType         = _pptr.get().get
 
-fun reset(this: @LRef)
+fun reset(this: !LRef)
     // Reset the value shared by the shared pointer
     _pptr.get().reset
     [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
         cout << "LRef.reset " << this << "\n"
 
-fun reset(this: @LRef, value: @this.ValueType)
+fun reset(this: !LRef, value: !this.ValueType)
     // Reset the value shared by the shared pointer
     _pptr.get().reset(value)
     [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
         cout << "LRef.reset " << this << "\n"
 
-fun isUnique(this: @LRef)                = _pptr.isUnique
-fun useCount(this: @LRef): UInt          = _pptr.useCount
+fun isUnique(this: !LRef)                = _pptr.isUnique
+fun useCount(this: !LRef): UInt          = _pptr.useCount
 
-fun isNull(this: @LRef)                  = _pptr.get().isNull
-fun isSet(this: @LRef)                   = _pptr.get().isSet
+fun isNull(this: !LRef)                  = _pptr.get().isNull
+fun isSet(this: !LRef)                   = _pptr.get().isSet
 
-fun swap(this: @LRef, other: typeOf(this))
+fun swap(this: !LRef, other: typeOf(this))
     _pptr.swap(other._pptr)
 
-fun >>(this: @LRef, os: @OutStream)
-    os << "LRef(" << mkStreamRefWrapper(_pptr.get) << ", " << this.useCount << ", " << flush
+fun >>(this: !LRef, os: !OutStream)
+    os << "LRef(" << UntypedPtr(_pptr.get) << ", " << this.useCount << ", " << flush
     if ( this.isSet )
         os << this.get
     else
         os << "null"
     os << ")" << flush
 
-fun mkLRef(x: @LRefType) = x
-fun mkLRef(x: @StringRef) = LRef(String)(x)
-fun mkLRef(x: @AnyType): LRef(-@typeOf(x)) = x if !LRefType(x)
+fun mkLRef(x: !LRefType) = x
+fun mkLRef(x: !StringRef) = LRef(String)(x)
+fun mkLRef(x: !AnyType): LRef(-@typeOf(x)) = x if !LRefType(x)
 
-fun mkValOrRef(x: @ValWrapper) = x
-fun mkValOrRef(x: @StringRef) = Optional(String)(x)
-fun mkValOrRef(x: @AnyType) = Optional(-@typeOf(x))(x) if !ValWrapper(x)
+fun mkValOrRef(x: !ValWrapper) = x
+fun mkValOrRef(x: !StringRef) = Optional(String)(x)
+fun mkValOrRef(x: !AnyType) = Optional(-@typeOf(x))(x) if !ValWrapper(x)
 
-fun /+/ (l, r: @AnyType) = _Impl.mkPlusOp(mkValOrRef(l), mkValOrRef(r))
-fun /-/ (l, r: @AnyType) = _Impl.mkMinusOp(mkValOrRef(l), mkValOrRef(r))
-fun |*| (l, r: @AnyType) = _Impl.mkMulOp(mkValOrRef(l), mkValOrRef(r))
-fun |/| (l, r: @AnyType) = _Impl.mkDivOp(mkValOrRef(l), mkValOrRef(r))
+fun /+/ (l, r: !AnyType) = _Impl.mkPlusOp(mkValOrRef(l), mkValOrRef(r))
+fun /-/ (l, r: !AnyType) = _Impl.mkMinusOp(mkValOrRef(l), mkValOrRef(r))
+fun |*| (l, r: !AnyType) = _Impl.mkMulOp(mkValOrRef(l), mkValOrRef(r))
+fun |/| (l, r: !AnyType) = _Impl.mkDivOp(mkValOrRef(l), mkValOrRef(r))
 
 setOperPrecedence("/+/", getOperPrecedence("+") + 1)
 setOperPrecedence("/-/", getOperPrecedence("-") + 1)
@@ -158,26 +158,26 @@ package _Impl
         _left: leftType
         _right: rightType
 
-    fun ctor(this: @BinaryOp, l: @this._LT, r: @this._RT)
+    fun ctor(this: !BinaryOp, l: !this._LT, r: !this._RT)
         this._left ctor l
         this._right ctor r
 
-    fun get(this: @BinaryOp): ValueType
+    fun get(this: !BinaryOp): ValueType
         if _myOper == _operPlus ;  return _left.get + _right.get
         if _myOper == _operMinus ; return _left.get - _right.get
         if _myOper == _operMul ;   return _left.get * _right.get
         if _myOper == _operDiv ;   return _left.get / _right.get
         return _left.get
 
-    fun isNull(this: @BinaryOp)                  = _left.isNull || _right.isNull
-    fun isSet(this: @BinaryOp)                   = _left.isSet && _right.isSet
+    fun isNull(this: !BinaryOp)                  = _left.isNull || _right.isNull
+    fun isSet(this: !BinaryOp)                   = _left.isSet && _right.isSet
 
-    fun >>(this: @BinaryOp, os: @OutStream)
+    fun >>(this: !BinaryOp, os: !OutStream)
         os << "BinaryOp(left=" << _left << ", right=" << _right << ", " << _oper << ")" << flush
 
-    fun mkBinaryOp(l, r: @ValWrapper, oper: Int ct) = BinaryOp(-@typeOf(l), -@typeOf(r), oper)(l, r)
+    fun mkBinaryOp(l, r: !ValWrapper, oper: Int ct) = BinaryOp(-@typeOf(l), -@typeOf(r), oper)(l, r)
 
-    fun mkPlusOp(l, r: @ValWrapper) = mkBinaryOp(l, r, _operPlus)
-    fun mkMinusOp(l, r: @ValWrapper) = mkBinaryOp(l, r, _operMinus)
-    fun mkMulOp(l, r: @ValWrapper) = mkBinaryOp(l, r, _operMul)
-    fun mkDivOp(l, r: @ValWrapper) = mkBinaryOp(l, r, _operDiv)
+    fun mkPlusOp(l, r: !ValWrapper) = mkBinaryOp(l, r, _operPlus)
+    fun mkMinusOp(l, r: !ValWrapper) = mkBinaryOp(l, r, _operMinus)
+    fun mkMulOp(l, r: !ValWrapper) = mkBinaryOp(l, r, _operMul)
+    fun mkDivOp(l, r: !ValWrapper) = mkBinaryOp(l, r, _operDiv)

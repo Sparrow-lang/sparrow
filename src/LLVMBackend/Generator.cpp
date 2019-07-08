@@ -72,7 +72,7 @@ void runCmd(const vector<string>& args) {
         if (s.verbose_)
             cout << " " << arg;
     }
-    cstrArgs.push_back(nullptr);    // Required until LLVM 7
+    cstrArgs.push_back(nullptr); // Required until LLVM 7
 #else
     // Transform the strings into a vector of llvm::StringRef, as required by ExecuteAndWait
     vector<llvm::StringRef> llvmArgs;
@@ -113,7 +113,6 @@ void writeBitcodeFile(const Module& module, const string& outputFilename) {
     if (errorInfo)
         REP_INTERNAL(NOLOC, "Cannot generate bitcode file (%1%); reason: %2%") % outputFilename %
                 errorInfo;
-
 
 #if LLVM_VERSION_MAJOR < 7
     llvm::WriteBitcodeToFile(&module, outFile->os());

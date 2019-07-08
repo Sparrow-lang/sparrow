@@ -15,31 +15,31 @@ datatype List(valueType: Type)
     _listSize: SizeType
 
 [protected]
-    fun ctor(this: @List)
+    fun ctor(this: !List)
         _listSize = 0
         _head.prev = this._headNode
         _head.next = this._headNode
 
-    fun ctor(this: @List, other: typeOf(this))
+    fun ctor(this: !List, other: typeOf(this))
         _listSize = 0
         _head.prev = this._headNode
         _head.next = this._headNode
         for v = other.all
             this += v
 
-    fun ctor(this: @List, range: Range) if typeOf(range) != -@typeOf(this)
+    fun ctor(this: !List, range: Range) if typeOf(range) != -@typeOf(this)
         _listSize = 0
         _head.prev = this._headNode
         _head.next = this._headNode
         for v = range
             this += v
 
-    fun dtor(this: @List)
+    fun dtor(this: !List)
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
-            var nextNode = p.value().next
+            let nextNode = p.value().next
 
             p.value().data.dtor
             p.freePtr
@@ -49,7 +49,7 @@ datatype List(valueType: Type)
         var tmp = other
         this swap tmp
 
-    fun ==(this: @List, other: typeOf(this)): Bool
+    fun ==(this: List, other: typeOf(this)): Bool
         if _listSize != other._listSize
             return false
 
@@ -65,24 +65,24 @@ datatype List(valueType: Type)
 
         return true
 
-    fun size(this: @List): SizeType          = _listSize
-    fun isEmpty(this: @List)                 = _listSize == 0
+    fun size(this: List): SizeType          = _listSize
+    fun isEmpty(this: List)                 = _listSize == 0
 
-    fun front(this: @List): RetType          = _head.next.value().data
-    fun back(this: @List): RetType           = _head.prev.value().data
+    fun front(this: List): RetType          = _head.next.value().data
+    fun back(this: List): RetType           = _head.prev.value().data
 
-    fun all(this: @List): RangeType          = RangeType(_head.next, this._headNode)
+    fun all(this: List): RangeType          = RangeType(_head.next, this._headNode)
 
-    fun assign(this: @List, range: Range)
+    fun assign(this: !List, range: Range)
         this.clear
         for v = range
             this += v
 
-    fun swap(this: @List, other: typeOf(this))
+    fun swap(this: !List, other: !typeOf(this))
         _head.prev.swap(other._head.prev)
         _head.next.swap(other._head.next)
 
-        var tmpSize = _listSize
+        let tmpSize = _listSize
         _listSize = other._listSize
         other._listSize = tmpSize
 
@@ -99,8 +99,8 @@ datatype List(valueType: Type)
             other._head.prev.value().next = other._headNode
             other._head.next.value().prev = other._headNode
 
-    fun insertBefore(this: @List, value: @this.ValueType, pos: this.RangeType)
-        var tmp = allocRawPtr(_MyNodeType, 1)
+    fun insertBefore(this: !List, value: this.ValueType, pos: this.RangeType)
+        let tmp = allocRawPtr(_MyNodeType, 1)
 
         tmp.value().data ctor value
         tmp.value().next = pos._begin
@@ -109,12 +109,12 @@ datatype List(valueType: Type)
         pos._begin.value().prev = tmp
         ++_listSize
 
-    fun insertBefore(this: @List, range: Range, pos: this.RangeType)
+    fun insertBefore(this: !List, range: Range, pos: this.RangeType)
         for v = range
             this.insertBefore(v, pos)
 
-    fun insertAfter(this: @List, value: @this.ValueType, pos: this.RangeType)
-        var tmp = allocRawPtr(_MyNodeType, 1)
+    fun insertAfter(this: !List, value: this.ValueType, pos: this.RangeType)
+        let tmp = allocRawPtr(_MyNodeType, 1)
 
         tmp.value().data ctor value
         tmp.value().next = pos._end
@@ -123,12 +123,12 @@ datatype List(valueType: Type)
         pos._end.value().prev = tmp
         ++_listSize
 
-    fun insertAfter(this: @List, range: Range, pos: this.RangeType)
+    fun insertAfter(this: !List, range: Range, pos: this.RangeType)
         for v = range
             this.insertAfter(v, pos)
 
-    fun pushFront(this: @List, value: @this.ValueType)
-        var tmp = allocRawPtr(_MyNodeType, 1)
+    fun pushFront(this: !List, value: this.ValueType)
+        let tmp = allocRawPtr(_MyNodeType, 1)
 
         tmp.value().data ctor value
         tmp.value().next = _head.next
@@ -137,8 +137,8 @@ datatype List(valueType: Type)
         _head.next = tmp
         ++_listSize
 
-    fun popFront(this: @List)
-        var right = _head.next.value().next
+    fun popFront(this: !List)
+        let right = _head.next.value().next
 
         _head.next.value().data.dtor
         _head.next.freePtr
@@ -146,8 +146,8 @@ datatype List(valueType: Type)
         right.value().prev = this._headNode
         _listSize = _listSize - 1
 
-    fun pushBack(this: @List, value: @this.ValueType)
-        var tmp = allocRawPtr(_MyNodeType, 1)
+    fun pushBack(this: !List, value: this.ValueType)
+        let tmp = allocRawPtr(_MyNodeType, 1)
 
         tmp.value().prev = _head.prev
         tmp.value().next = this._headNode
@@ -156,10 +156,10 @@ datatype List(valueType: Type)
         _head.prev = tmp
         ++_listSize
 
-    fun +=(this: @List, value: @this.ValueType) { this.pushBack(value) }
+    fun +=(this: !List, value: this.ValueType) { this.pushBack(value) }
 
-    fun popBack(this: @List)
-        var left = _head.prev.value().prev
+    fun popBack(this: !List)
+        let left = _head.prev.value().prev
 
         _head.prev.value().data.dtor
         _head.prev.freePtr
@@ -167,12 +167,12 @@ datatype List(valueType: Type)
         left.value().next = this._headNode
         _listSize = _listSize - 1
 
-    fun remove(this: @List, value: @this.ValueType)
+    fun remove(this: !List, value: this.ValueType)
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
-            var tmp = p.value().next
+            let tmp = p.value().next
 
             if p.value().data == value
                 p.value().prev.value().next = p.value().next
@@ -182,12 +182,12 @@ datatype List(valueType: Type)
                 _listSize = _listSize - 1
             p = tmp
 
-    fun removeIf(this: @List, pred: AnyType)
+    fun removeIf(this: !List, pred: AnyType)
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
-            var tmp = p.value().next
+            let tmp = p.value().next
 
             if pred(p.value().data)
                 p.value().prev.value().next = p.value().next
@@ -197,20 +197,21 @@ datatype List(valueType: Type)
                 _listSize = _listSize - 1
             p = tmp
 
-    fun remove(this: @List, range: this.RangeType)
-        var left = range._begin.value().prev
+    fun remove(this: !List, range: this.RangeType)
+        let left = range._begin.value().prev
+        var rc = range
 
-        while !range.isEmpty
-            var tmp = range._begin.value().next
+        while !rc.isEmpty
+            let tmp = rc._begin.value().next
 
-            range._begin.value().data.dtor
-            range._begin.freePtr
+            rc._begin.value().data.dtor
+            rc._begin.freePtr
             _listSize = _listSize - 1
-            range._begin = tmp
-        left.value().next = range._end
-        range._end.value().prev = left
+            rc._begin = tmp
+        left.value().next = rc._end
+        rc._end.value().prev = left
 
-    fun resize(this: @List, n: SizeType)
+    fun resize(this: !List, n: SizeType)
         if n == _listSize
             return
 
@@ -220,7 +221,7 @@ datatype List(valueType: Type)
 
             _listSize = _listSize - t
             while t > 0 ; t -= 1
-                var tmp = p.value().prev
+                let tmp = p.value().prev
 
                 p.value().data.dtor
                 p.freePtr
@@ -234,15 +235,15 @@ datatype List(valueType: Type)
                 while n > _listSize
                     this += ValueType()
 
-    fun clear(this: @List)
+    fun clear(this: !List)
         if _listSize == 0
             return
 
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
-            var tmp = p.value().next
+            let tmp = p.value().next
 
             p.value().data.dtor
             p.freePtr
@@ -251,18 +252,18 @@ datatype List(valueType: Type)
         _head.prev = hn
         _listSize = 0
 
-    fun unique(this: @List)
+    fun unique(this: !List)
         if _listSize <= 1
             return
 
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
             var q = p.value().next
 
             while q != hn && p.value().data == q.value().data
-                var tmp = q.value().next
+                let tmp = q.value().next
 
                 q.value().data.dtor
                 q.freePtr
@@ -273,18 +274,18 @@ datatype List(valueType: Type)
                 q.value().prev = p
             p = q
 
-    fun unique(this: @List, pred: AnyType)
+    fun unique(this: !List, pred: AnyType)
         if _listSize <= 1
             return
 
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
             var q = p.value().next
 
             while q != hn && pred(p.value().data, q.value().data)
-                var tmp = q.value().next
+                let tmp = q.value().next
 
                 q.value().data.dtor
                 q.freePtr
@@ -295,13 +296,13 @@ datatype List(valueType: Type)
                 q.value().prev = p
             p = q
 
-    fun spliceBefore(this: @List, pos: this.RangeType, other: typeOf(this))
+    fun spliceBefore(this: !List, pos: this.RangeType, other: !typeOf(this))
         if !other.isEmpty
             _transfer(pos._begin, other._head.next, other._headNode)
             _listSize = _listSize + other._listSize
             other._listSize = 0
 
-    fun spliceBefore(this: @List, pos: this.RangeType, other: typeOf(this), range: this.RangeType)
+    fun spliceBefore(this: !List, pos: this.RangeType, other: !typeOf(this), range: this.RangeType)
         if !range.isEmpty
             var tmp = range
 
@@ -315,13 +316,13 @@ datatype List(valueType: Type)
                 other._listSize -= t
             _transfer(pos._begin, range._begin, range._end)
 
-    fun spliceAfter(this: @List, pos: this.RangeType, other: typeOf(this))
+    fun spliceAfter(this: !List, pos: this.RangeType, other: !typeOf(this))
         if !other.isEmpty
             _transfer(pos._end, other._head.next, other._headNode)
             _listSize = _listSize + other._listSize
             other._listSize = 0
 
-    fun spliceAfter(this: @List, pos: this.RangeType, other: typeOf(this), range: this.RangeType)
+    fun spliceAfter(this: !List, pos: this.RangeType, other: !typeOf(this), range: this.RangeType)
         if !range.isEmpty
             var tmp = range
 
@@ -335,7 +336,7 @@ datatype List(valueType: Type)
                 other._listSize = other._listSize - t
             _transfer(pos._end, range._begin, range._end)
 
-    fun sort(this: @List, pred: AnyType)
+    fun sort(this: !List, pred: AnyType)
         if _listSize < 2
             return
 
@@ -366,13 +367,13 @@ datatype List(valueType: Type)
             counter(i).merge(counter(i - 1), pred)
         this swap counter(fill - 1)
 
-    fun merge(this: @List, other: typeOf(this), pred: AnyType)
+    fun merge(this: !List, other: !typeOf(this), pred: AnyType)
         var r1 = this.all
         var r2 = other.all
 
         while !r1.isEmpty && !r2.isEmpty
             if pred(r2.front, r1.front)
-                var tmp = r2._begin.value().next
+                let tmp = r2._begin.value().next
 
                 _transfer(r1._begin, r2._begin, tmp)
                 r2._begin = tmp
@@ -383,21 +384,21 @@ datatype List(valueType: Type)
         _listSize = _listSize + other._listSize
         other._listSize = 0
 
-    fun reverse(this: @List)
+    fun reverse(this: !List)
         if _listSize < 2
             return
 
         var p = _head.next
-        var hn = this._headNode
+        let hn = this._headNode
 
         while p != hn
-            var tmp = p.value().prev
+            let tmp = p.value().prev
 
             p.value().prev = p.value().next
             p.value().next = tmp
             p = p.value().prev
 
-        var tmp = _head.prev
+        let tmp = _head.prev
 
         _head.prev = _head.next
         _head.next = tmp
@@ -405,15 +406,19 @@ datatype List(valueType: Type)
     fun _headNode(this: @List) = mkRawPtr(reinterpretCast(@_MyNodeType, _head))
 
     fun _transfer(pos, begin, end: /*_NodeTypePtr*/ AnyType)
-        end.value().prev.value().next = pos
-        begin.value().prev.value().next = end
-        pos.value().prev.value().next = begin
+        var posc = pos
+        var beginc = begin
+        var endc = end
 
-        var tmp = pos.value().prev
+        endc.value().prev.value().next = posc
+        beginc.value().prev.value().next = endc
+        posc.value().prev.value().next = beginc
 
-        pos.value().prev = end.value().prev
-        end.value().prev = begin.value().prev
-        begin.value().prev = tmp
+        let tmp = posc.value().prev
+
+        posc.value().prev = endc.value().prev
+        endc.value().prev = beginc.value().prev
+        beginc.value().prev = tmp
 
 datatype _NodeLinks(valueType: Type)
     prev, next: RawPtr(_NodeType(valueType))
@@ -433,10 +438,10 @@ datatype _NodeType(valueType: Type)
     fun front(this: _ListRange): RetType  = _begin.value().data
     fun back(this: _ListRange): RetType   = _end.value().prev.value().data
 
-    fun popFront(this: @_ListRange)        { _begin = _begin.value().next }
-    fun popBack(this: @_ListRange)         { _end = _end.value().prev }
+    fun popFront(this: !_ListRange)        { _begin = _begin.value().next }
+    fun popBack(this: !_ListRange)         { _end = _end.value().prev }
 
-    fun >>(this: _ListRange, os: @OutStream) if isValid(os << #$valueType)
+    fun >>(this: _ListRange, os: !OutStream) if isValid(os << #$valueType)
         var first = true
         var p = _begin
         while p != _end ; p = p.value().next

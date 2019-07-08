@@ -2,12 +2,12 @@
 
 concept Swappable(x) if isValid(x.swap(x))
 
-[autoCt] fun swap(a, b: @AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
+[autoCt] fun swap(a, b: !AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
     cout << "Simple swap called" << endl
-    var tmp = a
+    let tmp = a
     a = b
     b = tmp
-[autoCt] fun swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
+[autoCt] fun swap(a, b: !Swappable) if typeOf(a) == typeOf(b)
     cout << "Fast swap called" << endl
     a.swap(b)
 
@@ -18,8 +18,8 @@ package Inner
     [initCtor] datatype MyType2
         val: Int
 
-    fun swap(this, other: @MyType2)
-        var tmp = val
+    fun swap(this, other: !MyType2)
+        let tmp = val
         val = other.val
         other.val = tmp
 
@@ -44,6 +44,7 @@ fun sprMain
         cout << x.val << ", " << y.val << endl
         swap(x, y)
         cout << x.val << ", " << y.val << endl
+    ;
 
 /*<<<Running()
 3, 5

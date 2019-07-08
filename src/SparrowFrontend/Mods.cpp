@@ -76,8 +76,8 @@ void ModConvert_beforeComputeType(Nest_Modifier*, Node* node) {
 void ModNoDefault_beforeComputeType(Nest_Modifier*, Node* node) {
     /// Check to apply only to datatypes or functions
     if (node->nodeKind != nkSparrowDeclSprFunction && node->nodeKind != nkSparrowDeclSprDatatype)
-        REP_INTERNAL(node->location,
-                "noDefault modifier can be applied only to datatypes or functions (applied to %1%)") %
+        REP_INTERNAL(node->location, "noDefault modifier can be applied only to datatypes or "
+                                     "functions (applied to %1%)") %
                 Nest_nodeKindName(node);
 
     Nest_setPropertyInt(node, propNoDefault, 1);
@@ -152,7 +152,8 @@ Nest_Modifier _convertMod = {modTypeBeforeComputeType, &ModConvert_beforeCompute
 Nest_Modifier _noDefaultMod = {modTypeBeforeComputeType, &ModNoDefault_beforeComputeType};
 Nest_Modifier _initCtorMod = {modTypeBeforeComputeType, ModInitCtor_beforeComputeType};
 Nest_Modifier _bitCopiableMod = {modTypeBeforeComputeType, &ModBitCopiable_beforeComputeType};
-Nest_Modifier _autoBitCopiableMod = {modTypeBeforeComputeType, &ModAutoBitCopiable_beforeComputeType};
+Nest_Modifier _autoBitCopiableMod = {
+        modTypeBeforeComputeType, &ModAutoBitCopiable_beforeComputeType};
 Nest_Modifier _macroMod = {modTypeBeforeComputeType, &ModMacro_beforeComputeType};
 Nest_Modifier _noInlineMod = {modTypeBeforeComputeType, &ModNoInline_beforeComputeType};
 

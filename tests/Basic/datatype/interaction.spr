@@ -3,7 +3,7 @@
 // Test purpose: various interaction patterns with datatypes (and their ctors)
 
 concept AnyType(x)
-fun ctor(this: @AnyType, nothing: Uninitialized) {}
+fun ctor(this: !AnyType, nothing: Uninitialized) {}
 
 datatype Book { author, name, isbn: StringRef }
 datatype CollectionBook { book: Book, col: StringRef }
@@ -55,33 +55,33 @@ fun CollectionBook(author, name, isbn, collection: StringRef): CollectionBook
 [ctGeneric] fun *(t1,t2: Type): Type = Tuple(t1, t2)
 
 [native("test")] fun test(n: Int)
-    var b = Book("LucTeo", "The wonders of Sparrow", "ISBN")
+    let b = Book("LucTeo", "The wonders of Sparrow", "ISBN")
     writeLn(b.author)
     writeLn(b.name)
     writeLn(b.isbn)
     writeLn("---")
-    var cb1 = CollectionBook(b, "Sparrow")
+    let cb1 = CollectionBook(b, "Sparrow")
     writeLn(cb1.book.author)
     writeLn(cb1.book.name)
     writeLn(cb1.book.isbn)
     writeLn(cb1.col)
     writeLn("---")
-    var cb2 = CollectionBook("LucTeo", "More wonders of Sparrow", "ISBN", "Sparrow")
+    let cb2 = CollectionBook("LucTeo", "More wonders of Sparrow", "ISBN", "Sparrow")
     writeLn(cb2.book.author)
     writeLn(cb2.book.name)
     writeLn(cb2.book.isbn)
     writeLn(cb2.col)
 
     writeLn("---")
-    var b3 = Book3("LucTeo", "Nice datastructs in Sparrow", "ISBN")
-    var b4 = Book4("LucTeo", "Nicer datastructs in Sparrow", "ISBN")
+    let b3 = Book3("LucTeo", "Nice datastructs in Sparrow", "ISBN")
+    let b4 = Book4("LucTeo", "Nicer datastructs in Sparrow", "ISBN")
     writeLn(b3.name)
     writeLn(b4.data.name)
 
-    var b4_1 = Book4(b)
+    let b4_1 = Book4(b)
     writeLn(b4_1.data.name)
 
-    var o: Opaque = reinterpretCast(@Byte, b)
+    let o: Opaque = reinterpretCast(@Byte, b)
 
 /*<<<Running()
 LucTeo

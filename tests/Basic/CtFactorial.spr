@@ -2,17 +2,17 @@
 
 [autoCt] fun fact(n: Int): Int
     if ( n == 0 )
-        return 1
+        return 1;
     else
-        return n* fact(n-1)
+        return n* fact(n-1);
 
 fun testFact()
-    var n = 5
+    let n = 5
     writeLn(fact(n))
     writeLn(fact(5))
 
 [native("test")] fun test(n: Int)
-    testFact()
+    testFact();
 
 /*<<<Running()
 120

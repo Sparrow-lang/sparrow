@@ -7,10 +7,10 @@ import std.algorithms
 
 [convert]
 datatype IntWrapper
-    x: Int
+    x: Int;
 
 [convert]
-fun ctor(this: @IntWrapper, x: Int) { this.x ctor x; }
+fun ctor(this: !IntWrapper, x: Int) { this.x ctor x; }
 
 fun hash(this: IntWrapper): SizeType
     cout << "IntWrapper.hash called for value " << x << endl
@@ -18,12 +18,13 @@ fun hash(this: IntWrapper): SizeType
 
 [convert]
 datatype IntWithNoHash
-    x: Int
+    x: Int;
 
 [convert]
-fun ctor(this: @IntWithNoHash, x: Int) { this.x ctor x; }
+fun ctor(this: !IntWithNoHash, x: Int) { this.x ctor x; }
 
 datatype MyTypeTraits
+    ;
 
 fun equal(this: MyTypeTraits, l, r: IntWithNoHash) = l == r
 fun less(this: MyTypeTraits, l, r: IntWithNoHash) = l.x < r.x
@@ -33,8 +34,8 @@ fun hash(this: MyTypeTraits, val: IntWithNoHash): SizeType
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -94,12 +95,13 @@ fun printRange(nr: AnyType)
         printPair(r.front())
         r.popFront()
         if ( r.isEmpty() )
-            cout << endl
+            cout << endl;
         else
-            cout << ' '
+            cout << ' ';
+    ;
 
 fun test1()
-    var hs: Map(Int, Int)
+    let hs: Map(Int, Int)
 
     cout << hs.isEmpty() << endl
     cout << hs.size() << endl
@@ -113,7 +115,7 @@ false
 >>>*/
 
 fun test2()
-    var hs = Map(Int, Int)(60)
+    let hs = Map(Int, Int)(60)
 
     cout << hs.isEmpty() << endl
     cout << hs.size() << endl
@@ -127,7 +129,7 @@ false
 >>>*/
 
 fun test3()
-    var hs = Map(Int, Int)(makeList().all())
+    let hs = Map(Int, Int)(makeList().all())
 
     cout << hs.isEmpty() << endl
     cout << hs.size() << endl
@@ -147,8 +149,8 @@ false
 >>>*/
 
 fun test4()
-    var hs = Map(Int, Int)(makeList().all())
-    var hs2 = Map(Int, Int)(hs)
+    let hs = Map(Int, Int)(makeList().all())
+    let hs2 = Map(Int, Int)(hs)
 
     cout << hs2.isEmpty() << endl
     cout << hs2.size() << endl
@@ -219,7 +221,7 @@ false
 >>>*/
 
 fun test7()
-    var hs = Map(Int, Int)(makeList().all())
+    let hs = Map(Int, Int)(makeList().all())
 
     printRange(hs.all())
 /*<<<Range access(7)
@@ -319,7 +321,7 @@ fun test11()
 >>>*/
 
 fun test12()
-    var hs = Map(Int, Int)(makeList().all())
+    let hs = Map(Int, Int)(makeList().all())
 
     cout << hs.contains(106) << endl
     cout << hs.contains(53) << endl
@@ -333,7 +335,7 @@ false
 >>>*/
 
 fun test13()
-    var hs = Map(Int, Int)(makeList().all())
+    let hs = Map(Int, Int)(makeList().all())
 
     hs.insert(5, 10)
     cout << hs.count(5) << endl
@@ -364,7 +366,7 @@ fun test14()
 >>>*/
 
 fun test15()
-    var hs = Map(Int, Int)(makeList().all())
+    let hs = Map(Int, Int)(makeList().all())
 
     printRange(hs.find(5))
     printRange(hs.find(10))
@@ -421,7 +423,7 @@ true
 >>>*/
 
 fun test19()
-    var hs = Map(Int, Int)(makeList().all())
+    let hs = Map(Int, Int)(makeList().all())
     var keys = hs.keys()
     var values = hs.values()
 
@@ -449,8 +451,9 @@ fun test20()
         i = i + 1
     while i < 1000
         if ( !hs.contains(i) )
-            cout << "Test failed" << endl
-        i = i + 1
+            cout << "Test failed" << endl;
+        i = i + 1;
+    ;
 /*<<<Large hashmap(20)
 >>>*/
 
@@ -458,7 +461,8 @@ fun test21()
     var hs: Map(IntWrapper, Int)
 
     for i = 1..5
-        hs.insert(i, i*10)
+        hs.insert(i, i*10);
+    ;
 /*<<<Hashmap with different type(21)
 IntWrapper.hash called for value 1
 IntWrapper.hash called for value 2
@@ -470,7 +474,8 @@ fun test22()
     var hs: Map(IntWithNoHash, Int, MyTypeTraits)
 
     for i = 1..5
-        hs.insert(i, i*10)
+        hs.insert(i, i*10);
+    ;
 /*<<<External type traits (22)
 MyTypeTraits.hash called for value 1
 MyTypeTraits.hash called for value 2

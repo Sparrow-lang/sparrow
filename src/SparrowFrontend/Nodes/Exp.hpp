@@ -168,7 +168,7 @@ struct FunApplication : NodeHandle {
     NodeHandle base() const { return children()[0]; };
 
     //! Returns the node-list of arguments
-    NodeList arguments() const { return NodeList(children()[1]); };
+    NodeList arguments() const { return {children()[1]}; };
 
 private:
     static NodeHandle semanticCheckImpl(FunApplication node);
@@ -320,7 +320,7 @@ struct LambdaExp : NodeHandle {
             NodeHandle body, NodeHandle bodyExp, NodeList closureParams);
 
     //! Returns the parameters
-    NodeList parameters() const { return NodeList(referredNodes()[0]); };
+    NodeList parameters() const { return {referredNodes()[0]}; };
 
     //! Returns the return type of the lambda
     NodeHandle returnType() const { return referredNodes()[1]; };
@@ -329,7 +329,7 @@ struct LambdaExp : NodeHandle {
     NodeHandle body() const { return referredNodes()[2]; };
 
     //! Returns the closure params
-    NodeList closureParams() const { return NodeList(referredNodes()[3]); };
+    NodeList closureParams() const { return {referredNodes()[3]}; };
 
 private:
     static NodeHandle semanticCheckImpl(LambdaExp node);

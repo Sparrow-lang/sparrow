@@ -34,11 +34,12 @@ Node* createTypeNode(CompilationContext* context, const Location& loc, Type t);
 
 /// Gets the type to be used when auto is found for a node; removes category type, but tries to
 /// preserve references
-Type getAutoType(Node* typeNode, int numRefs = 0, EvalMode evalMode = modeRt);
+Type getAutoType(Node* typeNode, int numRefs = 0, int kind = 0, EvalMode evalMode = modeRt);
 
-/// Tests if this an concept or concept-ref type
+/// Tests if this an concept type.
+/// This includes mutable or const concepts, or refenrece concepts
 bool isConceptType(Type t);
-bool isConceptType(Type t, int& numRefs);
+bool isConceptType(Type t, int& numRefs, int& kind);
 
 /// Creates a new type from the original type, with the specified reference count
 Type changeRefCount(Type type, int numRef, const Location& loc = Location());
@@ -46,5 +47,14 @@ Type changeRefCount(Type type, int numRef, const Location& loc = Location());
 //! Checks if the given type is bitcopiable
 //! This returns true for native types and for references
 bool isBitCopiable(Type type);
+
+//! Checks if we need to make the parameter with the given type const
+//! We are making const the following parameters:
+//!     - datatype params
+//!     - type doesn't have a category already
+//!     - type doesn't have references
+//!     - type is RT
+//!     - type is not bitcopiable
+bool shouldMakeParamConst(Type type);
 
 } // namespace SprFrontend

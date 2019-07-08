@@ -3,26 +3,26 @@
 import std.ranges
 
 fun sprMain
-    var r = 0..10
+    let r = 0..10
     for val = r
-        cout << ' ' << val
+        cout << ' ' << val;
     cout << endl
     for val = r
-        cout << ' ' << val
+        cout << ' ' << val;
     cout << endl
     for val = r
-        cout << ' ' << val
+        cout << ' ' << val;
     cout << endl
 
-    var r2 = 125..130
+    let r2 = 125..130
     for val = r2
-        cout << ' ' << val
+        cout << ' ' << val;
     cout << endl
     for val: Int = r2
-        cout << ' ' << val
+        cout << ' ' << val;
     cout << endl
     for val: Byte = r2
-        cout << ' ' << Int(val)
+        cout << ' ' << Int(val);
     cout << endl
 
 /*<<<Running()

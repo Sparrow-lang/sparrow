@@ -179,10 +179,10 @@ Node* SprFrontend::createFunctionCall(
         args1.insert(args1.begin(), arg);
         Node* funCall = Feather_mkFunCall(loc, fun, all(args1));
 
-        res = createTempVarConstruct(loc, context, funCall, tmpVar);
+        res = createTempVarConstruct(loc, context, funCall, tmpVar, tmpVarRef);
 
-        // TODO: Check why we cannot return a reference when the result is a type
-        if (resType == StdDef::typeRefType)
+        // TODO (types): Check why we cannot return a reference when the result is a type
+        if (Feather::categoryToRefIfPresent(resType) == StdDef::typeRefType)
             res = Feather_mkMemLoad(loc, res);
     } else {
         Node* funCall = Feather_mkFunCall(loc, fun, args);
@@ -199,28 +199,28 @@ Node* SprFrontend::createFunctionCall(
     return res;
 }
 
-Node* SprFrontend::createTempVarConstruct(
-        const Location& loc, CompilationContext* context, Node* constructAction, Node* var) {
+Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContext* context,
+        Node* constructAction, Node* var, Node* varRef) {
     CHECK(loc, constructAction->nodeKind == nkFeatherExpFunCall);
     Node* funCall = constructAction;
     CHECK(loc, Nest_nodeArraySize(funCall->children) != 0);
-    Node* thisArg = at(funCall->children, 0);
-    if (!Nest_computeType(thisArg))
+    if (!varRef) {
+        varRef = Feather_mkVarRef(loc, var);
+        Nest_setContext(varRef, context);
+    }
+    if (!Nest_computeType(varRef))
         return nullptr;
 
     // Create a temp destruct action with the call of the destructor
     Node* destructAction = nullptr;
-    if (!Feather_isCt(thisArg)) {
-        Node* dtorCall = createDtorCall(loc, context, thisArg);
+    if (!Feather_isCt(varRef)) {
+        Node* dtorCall = createDtorCall(loc, context, varRef);
         if (dtorCall)
             destructAction = Feather_mkTempDestructAction(loc, dtorCall);
     }
 
-    // The result of the expressions
-    Node* result = Feather_mkVarRef(loc, var); // Return a var-ref to the temporary object
-
     Node* res =
-            Feather_mkNodeList(loc, fromIniList({var, constructAction, destructAction, result}));
+            Feather_mkNodeList(loc, fromIniList({var, constructAction, destructAction, varRef}));
     Nest_setContext(res, context);
     if (!Nest_computeType(res))
         return nullptr;

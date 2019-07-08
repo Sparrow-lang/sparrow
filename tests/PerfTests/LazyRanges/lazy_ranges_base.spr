@@ -15,19 +15,19 @@ fun collatzLen(n: ULong): UInt
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     var sum: ULong = 0
     var count = 0
     for i = 1..
-        var len = collatzLen(i)
+        let len = collatzLen(i)
         if ( len >= n )
-            break
+            break;
         // Main part of computing the root mean square
         sum += len*len
         ++count
-    var res = sqrt(Double(sum) / Double(count))
+    let res = sqrt(Double(sum) / Double(count))
     cout << res << endl
 
 /*<<<Basic test (100)

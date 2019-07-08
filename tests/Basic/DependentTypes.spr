@@ -31,10 +31,10 @@ datatype Vec(t: Type)
     using ValueType = t
     data: t
 
-fun pushBack(this: @Vec, val: this.ValueType)
+fun pushBack(this: !Vec, val: this.ValueType)
     data = val
 
-fun pushBack2(this: @Vec, val: @this.ValueType)
+fun pushBack2(this: !Vec, val: this.ValueType)
     data = val
 
 [native("test")] fun test(n: Int)

@@ -22,26 +22,26 @@ import std.compilerInfo
             n: Long
             result: @Long
 
-        fun ctor(this: @FibTask, n: Long, result: @Long)
+        fun ctor(this: !FibTask, n: Long, result: @Long)
             this.n ctor n
             this.result := result
             [ct] if isValidAndTrue(useDescriptions)
                 this.prefix.desc = this.description
 
         [ct] if isValidAndTrue(useDescriptions)
-        fun description(task: @FibTask): String
+        fun description(task: !FibTask): String
             var res: String = "Fib "
             res += intToString(Int(task.n))
             return res
 
-        fun execute(task: @FibTask)
+        fun execute(task: !FibTask)
             if task.n < cutoff
                 task.result = serialFib(task.n)
             else
                 // Create the children tasks
                 var x, y: Long
-                var t1 = FibTask(task.n-1, x)
-                var t2 = FibTask(task.n-2, y)
+                let t1 = FibTask(task.n-1, x)
+                let t2 = FibTask(task.n-2, y)
 
                 spawnAndWait(task, t1, t2)
 
@@ -59,17 +59,17 @@ import std.compilerInfo
             n: Long
             result: @Long
 
-        fun ctor(this: @FibTask, n: Long, result: @Long)
+        fun ctor(this: !FibTask, n: Long, result: @Long)
             this.n ctor n
             this.result := result
 
         [ct] if isValidAndTrue(useDescriptions)
-        fun description(task: @FibTask): String
+        fun description(task: !FibTask): String
             var res: String = "Fib "
             res += intToString(Int(task.n))
             return res
 
-        fun execute(task: @FibTask)
+        fun execute(task: !FibTask)
             if task.n < cutoff
                 task.result = serialFib(task.n)
             else
@@ -95,51 +95,51 @@ import std.compilerInfo
         datatype FibTask
             prefix: TaskPrefix
             n: Long
-            result: @Long
+            result: Long Ptr
 
-        fun ctor(this: @FibTask, n: Long, result: @Long)
+        fun ctor(this: !FibTask, n: Long, result: Long Ptr)
             this.n ctor n
-            this.result := result
+            this.result ctor result
 
         [ct] if isValidAndTrue(useDescriptions)
-        fun description(task: @FibTask): String
+        fun description(task: !FibTask): String
             var res: String = "Fib "
             res += intToString(Int(task.n))
             return res
 
-        fun execute(task: @FibTask)
+        fun execute(task: !FibTask)
             if task.n < cutoff
-                task.result = serialFib(task.n)
+                task.result.get = serialFib(task.n)
             else
                 var cont: @FibContTask = new(FibContTask, task.n, task.result)
                 setContinuation(task, cont)
 
-                var t1: @FibTask = new(FibTask, task.n-1, cont.s1)
-                var t2: @FibTask = new(FibTask, task.n-2, cont.s2)
+                var t1: @FibTask = new(FibTask, task.n-1, (Long Ptr)(cont.s1))
+                var t2: @FibTask = new(FibTask, task.n-2, (Long Ptr)(cont.s2))
                 spawn(cont, t1, t2)
 
         datatype FibContTask
             prefix: TaskPrefix
             n: Long
             s1, s2: Long
-            result: @Long
+            result: Long Ptr
 
-        fun ctor(this: @FibContTask, n, result: @Long)
+        fun ctor(this: !FibContTask, n: Long, result: Long Ptr)
             this.n ctor n
-            this.result := result
+            this.result ctor result
 
         [ct] if isValidAndTrue(useDescriptions)
-        fun description(task: @FibContTask): String
+        fun description(task: !FibContTask): String
             var res: String = "Cont "
             res += intToString(Int(task.n))
             return res
 
-        fun execute(task: @FibContTask)
-            task.result = task.s1 + task.s2
+        fun execute(task: !FibContTask)
+            task.result.get = task.s1 + task.s2
 
         fun parFib(n: Long): Long
             var res: Long
-            spawnRootAndWait(FibTask(n, res))
+            spawnRootAndWait(FibTask(n, (Long Ptr)(res)))
             return res
 
     fun sprMain

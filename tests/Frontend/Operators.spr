@@ -18,12 +18,12 @@ fun +++:(l,r: Int): Int
     cout << l << " +++: " << r << " = " << (l+r) << endl
     return l+r
 
-fun +++(x: @Int): Int
+fun +++(x: !Int): Int
     var r = x
     x += 1
     return r
 
-fun inc(x: @Int): Int
+fun inc(x: !Int): Int
     var r = x
     x += 1
     return r
@@ -33,8 +33,8 @@ using oper_assoc_:: = -1
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -148,7 +148,7 @@ fun test6
 >>>*/
 
 fun test7
-    var x: StringRef = "42"
+    let x: StringRef = "42"
     cout << ( x size ) << endl
     cout << ( x front ) << endl
 /*<<<Postfix function call(7)
@@ -190,11 +190,16 @@ fun test10
     var x = 3
     var y = 4
     cout << ( x + y ) << endl
-    cout << (+++3 + +++4) << endl
-    cout << ((3+++) + (4+++)) << endl
-    cout << ((3+++) + (+++4)) << endl
-
-    cout << (3+++ + +++4) << endl // similar to 3 +++ (+ (+++4))
+    cout << (+++x + +++y) << endl
+    x = 3
+    y = 4
+    cout << ((x+++) + (y+++)) << endl
+    x = 3
+    y = 4
+    cout << ((x+++) + (+++y)) << endl
+    x = 3
+    y = 4
+    cout << (x+++ + +++y) << endl // similar to x +++ (+ (+++y))
 
     // Both +, and +++ are unary and binary
 /*<<<Postfix, prefix, infix operator call(10)
@@ -207,9 +212,9 @@ fun test10
 >>>*/
 
 fun test11
-    var x = 3
-    var y = 4
-    var z = 5
+    let x = 3
+    let y = 4
+    let z = 5
     cout << ( x..y ) << endl
     cout << ( x..y..z ) << endl
 /*<<<Dot-dot(11)

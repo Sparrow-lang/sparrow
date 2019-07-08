@@ -9,8 +9,8 @@ import std.vector(Vector)
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
@@ -21,29 +21,30 @@ fun sprMain
 
 [initCtor]
 datatype MyObj
-    x: Int
+    x: Int;
 
-fun <(this, other: @MyObj): Bool { return x < other.x; }
+fun <(this, other: MyObj): Bool { return x < other.x; }
 
 datatype Greater
-
+    ;
 fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
 datatype Even
-
+    ;
 fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
-fun printRange(nr: AnyType)
-    while !nr.isEmpty()
-        cout << nr.front()
-        nr.popFront()
-        if (nr.isEmpty() )
+fun printRange(nr: Range)
+    var rc = nr
+    while !rc.isEmpty
+        cout << rc.front
+        rc.popFront()
+        if rc.isEmpty
             cout << endl
         else
-            cout << " "
+            cout << ' '
 
 fun printEmpty(nr: AnyType)
-    cout << ife(nr.isEmpty(), "empty", "not empty") << endl
+    cout << ife(nr.isEmpty(), "empty", "not empty") << endl;
 
 fun makeList(): List(Int)
     var li: List(Int)
@@ -66,7 +67,7 @@ fun makeList(): List(Int)
 
     return li
 
-fun makeList(li: @List(Int))
+fun makeList(li: !List(Int))
     li.pushBack(3)
     li.pushBack(1)
     li.pushBack(-4)
@@ -98,16 +99,16 @@ fun makeList(li: @List(Int))
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
     var ptr = allocRawPtr(Int, size)
-    var ptrEnd = ptr.advance(DiffType(size))
+    let ptrEnd = ptr.advance(DiffType(size))
     var i = 0
 
     while i < size ; i = i + 1
-        ptr.advance(i).value() = i
+        ptr.advance(i).value() = i;
 
-    return ContiguousMemoryRange(Int)(ptr, ptrEnd)
+    return ContiguousMemoryRange(Int)(ptr, ptrEnd);
 
 fun test1()
-    var nr = NumericRangeWithStep(Int)(0, 10, 1)
+    let nr = NumericRangeWithStep(Int)(0, 10, 1)
     var li: List(Int)
     makeList(li)
     var lr = li.all()
@@ -175,7 +176,7 @@ fun test5()
 
     sort(vec.all())
     if ( !isSorted(vec.all()) )
-        cout << "Test failed" << endl
+        cout << "Test failed" << endl;
 /*<<<Sorting(5)
 -10 -10 -8 -8 -8 -8 -6 -5 -4 -4 1 3 3 7 7
 >>>*/
@@ -197,7 +198,7 @@ fun test6()
 
     sort(vec.all(), Greater())
     if ( !isSorted(vec.all(), Greater()) )
-        cout << "Test failed" << endl
+        cout << "Test failed" << endl;
 /*<<<Predicate sorting(6)
 7 7 3 3 1 -4 -4 -5 -6 -8 -8 -8 -8 -10 -10
 >>>*/

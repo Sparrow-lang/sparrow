@@ -1,16 +1,19 @@
 module meta.location
 
 /// A line + column pair, indicating a position in a file
+[bitcopiable]
 datatype LineCol
     line, col: UInt
 
 /// Type describing a source code; for now we just use an untyped Ptr
-datatype SourceCode = @Byte
+[bitcopiable]
+datatype SourceCode = UntypedPtr
 
-fun >>(s: @SourceCode, os: @OutStream)
-    os << mkStreamRefWrapper(s.data)
+fun >>(s: SourceCode, os: !OutStream)
+    os << s.data
 
 /// Type that holds the location information: a source code and a range of chars into it
+[bitcopiable]
 datatype Location
     sourceCode: SourceCode
     start, end: LineCol
@@ -20,75 +23,75 @@ datatype Location
 //    setOne(this)
 
 fun mkLineCol(line, col: UInt): LineCol
-    var res: LineCol
+    let res: !LineCol
     res.line = line
     res.col = col
     return res
 
 fun mkLocation: Location
-    var res: Location
+    let res: !Location
     setOne(res)
     return res
 
 [autoCt]
     fun mkLocation(sourceCode: SourceCode): Location
-        var res: Location
+        let res: !Location
         res.sourceCode = sourceCode
         setOne(res)
         return res
     fun mkLocation(sourceCode: SourceCode, start, end: LineCol): Location
-        var res: Location
+        let res: !Location
         res.sourceCode = sourceCode
         res.start = start
         res.end = end
         return res
 
 /// Set the location to (1,1,1,1), the first character in a stream
-fun setOne(l: @Location)
+fun setOne(l: !Location)
     l.start.line = 1
     l.start.col = 1
     l.end.line = 1
     l.end.col = 1
 
 /// Make the start position to be the same as the end position
-fun stepOver(l: @Location)
+fun stepOver(l: !Location)
     l.start = l.end
 
 /// Add the given number of columns to the end position; start position remains unchanged
-fun addColumns(l: @Location, count: UInt)
+fun addColumns(l: !Location, count: UInt)
     l.end.col += count
 
 /// Add the given number of lines to the end position; start position remains unchanged
-fun addLines(l: @Location, count: UInt)
+fun addLines(l: !Location, count: UInt)
     l.end.line += count
     l.end.col = 1
 
 /// Set the start position of this location to the start position of the given location; the end position remains unchanged
-fun copyStart(l, other: @Location)
+fun copyStart(l: !Location, other: Location)
     l.start = other.start
 
 /// Set the end position of this location to the end position of the given location; the start position remains unchanged
-fun copyEnd(l, other: @Location)
+fun copyEnd(l: !Location, other: Location)
     l.end = other.end
 
 /// Set this location with both start and end to equal the start of the given location
-fun setAsStartOf(l, other: @Location)
+fun setAsStartOf(l: !Location, other: Location)
     l.start = other.start
     l.end = other.start
 
 /// Set this location with both start and end to equal the end of the given location
-fun setAsEndOf(l, other: @Location)
+fun setAsEndOf(l: !Location, other: Location)
     l.start = other.end
     l.end = other.end
 
 /// Computes a location that spans between the two given location
-fun span(start, end: @Location): Location
+fun span(start, end: Location): Location
     var res = start
     res copyEnd end
     return res
 
 /// Compare locations based on start pos then on end pos
-fun <(lhs, rhs: @Location): Bool
+fun <(lhs, rhs: Location): Bool
     if lhs.start.line < rhs.start.line  ; return true
     if lhs.start.line > rhs.start.line  ; return false
     if lhs.start.col < rhs.start.col    ; return true
@@ -98,17 +101,17 @@ fun <(lhs, rhs: @Location): Bool
     return lhs.end.col < rhs.end.col
 
 /// Compare location line-col
-fun <(lhs, rhs: @LineCol): Bool
+fun <(lhs, rhs: LineCol): Bool
     if lhs.line < rhs.line      ; return true
     if lhs.line > rhs.line      ; return false
     return lhs.col < rhs.col
 
-fun >>(l: @Location, os: @OutStream)
+fun >>(l: Location, os: !OutStream)
     os << l.start << '-' << l.end
-    if l.sourceCode.data !== null
+    if l.sourceCode.data != UntypedPtr()
         os << " @" << l.sourceCode
 
-fun >>(lc: LineCol, os: @OutStream)
+fun >>(lc: LineCol, os: !OutStream)
     os << lc.line << ':' << lc.col
 
 // Source code & location functions exposed by the compiler
@@ -125,5 +128,5 @@ fun >>(lc: LineCol, os: @OutStream)
 
     /// Get the code string corresponding to the given location
     [native("$meta.Location.getCorrespondingCode")]
-    fun getCorrespondingCode(l: @Location): StringRef
+    fun getCorrespondingCode(l: Location const): StringRef
 

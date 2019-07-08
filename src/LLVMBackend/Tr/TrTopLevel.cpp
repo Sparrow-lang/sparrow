@@ -17,6 +17,7 @@
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include <llvm/Linker/Linker.h>
 #include <llvm/AsmParser/Parser.h>
@@ -232,7 +233,10 @@ llvm::Value* Tr::translateGlobalVar(Node* node, GlobalContext& ctx) {
         REP_ERROR_RET(nullptr, node->location, "Invalid global variable %1%") %
                 Feather_getName(node);
 
-    llvm::Type* t = getLLVMType(node->type, ctx);
+    // Ignore category type here
+    auto varType = Feather::removeCategoryIfPresent(Type(node->type));
+
+    llvm::Type* t = getLLVMType(varType, ctx);
 
     // Get the name of the variable
     const Nest_StringRef* nativeName = Nest_getPropertyString(node, propNativeName);

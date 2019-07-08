@@ -1,0 +1,198 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main -dump-assembly -keep-intermediate-files -g
+
+// Test purpose: exercise different ways of passing datatypes on functions
+
+datatype WrapperType
+    val: Int
+    d: Double
+    b: Bool
+    p: @WrapperType = null
+
+fun ctor(this: !WrapperType)
+    writeLn('WrapperType.ctor')
+
+fun ctor(this: !WrapperType, val: Int)
+    this.val = val
+    write('WrapperType.init ctor ')
+    writeLnInt(val)
+
+fun ctor(this: !WrapperType, other: WrapperType)
+    this.val = other.val
+    write('WrapperType.copy ctor ')
+    writeLnInt(other.val)
+
+[bitcopiable]
+datatype BCWrapperType
+    val: Int
+    d: Double
+    b: Bool
+    p: @BCWrapperType = null
+
+fun ctor(this: !BCWrapperType)
+    writeLn('BCWrapperType.ctor')
+
+fun ctor(this: !BCWrapperType, val: Int)
+    this.val = val
+    write('BCWrapperType.init ctor ')
+    writeLnInt(val)
+
+fun ctor(this: !BCWrapperType, other: BCWrapperType)
+    this.val = other.val
+    write('BCWrapperType.copy ctor ')
+    writeLnInt(other.val)
+
+var g: WrapperType = 10
+var g2: BCWrapperType = 10
+
+fun doIncrement
+    g.val += 1
+
+fun doIncrementBC
+    g2.val += 1
+
+fun passDefault(obj: WrapperType)
+    writeLn('default')
+    writeLnInt(obj.val)
+    doIncrement
+    writeLnInt(obj.val)
+
+fun passConst(obj: WrapperType const)
+    writeLn('const')
+    writeLnInt(obj.val)
+    doIncrement
+    writeLnInt(obj.val)
+
+fun passMutable(obj: !WrapperType)
+    writeLn('mutable')
+    writeLnInt(obj.val)
+    doIncrement
+    writeLnInt(obj.val)
+
+
+fun retValue: WrapperType = WrapperType(100)
+fun retConst: WrapperType const = g
+fun retMutable: !WrapperType = g
+
+fun testRegularPass
+    passDefault(g)
+    passConst(g)
+    passMutable(g)
+
+fun testRegularReturn
+    writeLn('ret value')
+    let o1 = retValue()               // init ctor call here
+    writeLn(o1.val)
+
+    writeLn('ret const')
+    g.val = 20
+    let o2: @WrapperType = retConst() // no ctor call here
+    writeLn(o2.val)
+    let o22 = retConst()              // init ctor call here
+    writeLn(o22.val)
+
+    writeLn('ret mutable')
+    g.val = 30
+    var o3: @WrapperType = retMutable() // no ctor call here
+    writeLn(o3.val)
+    let o32 = retMutable()              // init ctor call here
+    writeLn(o32.val)
+
+
+fun bcPassDefault(obj: BCWrapperType)
+    writeLn('bitcopiable default')
+    writeLnInt(obj.val)
+    doIncrement
+    writeLnInt(obj.val)
+
+fun bcRetValue: BCWrapperType = BCWrapperType(100)
+
+fun testBitcopiable
+    bcPassDefault(g2)
+
+    writeLn('ret value')
+    let o1 = bcRetValue()               // init ctor call here
+    writeLn(o1.val)
+
+
+[native('natPassDefault')]
+fun natPassDefault(obj: WrapperType)
+    writeLn('native default')
+    writeLnInt(obj.val)
+    doIncrement
+    writeLnInt(obj.val)
+
+[native('natRetValue')]
+fun natRetValue: WrapperType = WrapperType(100)
+
+fun testNative
+    natPassDefault(g)
+
+    writeLn('ret value')
+    let o1 = natRetValue()               // init ctor call here
+    writeLn(o1.val)
+
+[native("test")]
+fun test(n: Int)
+    writeLn('---')
+    if n == 1 ; testRegularPass
+    if n == 2 ; testRegularReturn
+    if n == 3 ; testBitcopiable
+    if n == 4 ; testNative
+
+/*<<<Passing regular datatypes(1)
+WrapperType.init ctor 10
+BCWrapperType.init ctor 10
+---
+default
+10
+11
+const
+11
+12
+mutable
+12
+13
+>>>*/
+
+/*<<<Returning regular datatypes(2)
+WrapperType.init ctor 10
+BCWrapperType.init ctor 10
+---
+ret value
+WrapperType.init ctor 100
+100
+ret const
+20
+WrapperType.copy ctor 20
+20
+ret mutable
+30
+WrapperType.copy ctor 30
+30
+>>>*/
+
+/*<<<Test passing/returning bitcopiable(3)
+WrapperType.init ctor 10
+BCWrapperType.init ctor 10
+---
+bitcopiable default
+10
+10
+ret value
+BCWrapperType.init ctor 100
+BCWrapperType.copy ctor 100
+100
+>>>*/
+
+/*<<<Test passing/returning with native functions(4)
+WrapperType.init ctor 10
+BCWrapperType.init ctor 10
+---
+native default
+10
+11
+ret value
+WrapperType.init ctor 100
+WrapperType.copy ctor 100
+100
+>>>*/

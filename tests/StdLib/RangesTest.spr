@@ -7,8 +7,8 @@ import std.algorithms
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -32,37 +32,37 @@ fun sprMain
 
 [initCtor]
 datatype MyObj
-    x: Int
+    x: Int;
 
-fun =(this, other: @MyObj): @MyObj { x = other.x; return this; }
-fun ==(this, other: @MyObj): Bool = x == other.x
-fun <(this, other: @MyObj): Bool = x < other.x
+fun =(this, other: !MyObj): @MyObj { x = other.x; return this; }
+fun ==(this, other: MyObj): Bool = x == other.x
+fun <(this, other: MyObj): Bool = x < other.x
 
 datatype Greater
-
+    ;
 fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
 datatype Even
-
+    ;
 fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
 datatype Minus
-
+    ;
 fun ()(this: Minus, x: Int, y: Int) = x - y
 
 datatype Square
-
+    ;
 fun ()(this: Square, x: AnyType) = x * x
 
 datatype Multiply
-
+    ;
 fun ()(this: Multiply, x: AnyType, y: AnyType) = x * y
 
 datatype Fact
     _res: Int = 1
     _k: Int = 0
 
-fun ()(this: @Fact): Int
+fun ()(this: !Fact): Int
     ++_k
     _res *= _k
 
@@ -71,10 +71,11 @@ fun ()(this: @Fact): Int
 fun isOdd(n: Int) = n%2==1
 
 fun printRange(nr: Range)
-    while !nr.isEmpty()
-        cout << nr.front()
-        nr.popFront()
-        if (nr.isEmpty() )
+    var rc = nr
+    while !rc.isEmpty
+        cout << rc.front
+        rc.popFront()
+        if rc.isEmpty
             cout << endl
         else
             cout << ' '
@@ -102,28 +103,28 @@ fun makeList(): List(Int)
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
     var ptr = allocRawPtr(Int, size)
-    var ptrEnd = ptr.advance(DiffType(size))
+    let ptrEnd = ptr.advance(DiffType(size))
     var i = 0
 
     while i < size ; i++
-        ptr.advance(i).value() = i
+        ptr.advance(i).value() = i;
 
-    return ContiguousMemoryRange(Int)(ptr, ptrEnd)
+    return ContiguousMemoryRange(Int)(ptr, ptrEnd);
 
 fun test1()
-    var l = makeList()
-    var lr = l.all()
-    var v = Vector(Int)(lr)
-    var vr = v.all()
-    var ev = Vector(Int)()
-    var evr = ev.all()
+    let l = makeList()
+    let lr = l.all()
+    let v = Vector(Int)(lr)
+    let vr = v.all()
+    let ev = Vector(Int)()
+    let evr = ev.all()
 
     printRange(retro(lr))
     printRange(retro(retro(lr)))
     printRange(retro(vr))
     cout << retro(evr).isEmpty() << endl
 
-    var rvr = retro(vr)
+    let rvr = retro(vr)
 
     cout << rvr.front() << endl
 /*<<<Retro ranges(1)
@@ -135,8 +136,8 @@ true
 >>>*/
 
 fun test2()
-    var li = makeList()
-    var lr = li.all()
+    let li = makeList()
+    let lr = li.all()
 
     printRange(take(lr, 5))
     printRange(take(take(lr, 5), 3))
@@ -150,7 +151,7 @@ true
 >>>*/
 
 fun test3()
-    var li = makeList()
+    let li = makeList()
     var lr = li.all()
 
     cout << takeWhile(lr, Even()).isEmpty() << endl
@@ -158,7 +159,7 @@ fun test3()
     lr.popFront()
     printRange(takeWhile(lr, Even()))
 
-    var nr = NumericRangeWithStep(Int)(0, 10, 2)
+    let nr = NumericRangeWithStep(Int)(0, 10, 2)
 
     printRange(takeWhile(nr, Even()))
 /*<<<Take while ranges(3)
@@ -169,14 +170,14 @@ true
 
 fun test4()
     var li = makeList()
-    var lr = li.all()
+    let lr = li.all()
 
     cout << takeWhile(lr, Even(), 2).isEmpty() << endl
     lr.popFront()
     lr.popFront()
     printRange(takeWhile(lr, Even(), 2))
 
-    var nr = NumericRangeWithStep(Int)(0, 10, 2)
+    let nr = NumericRangeWithStep(Int)(0, 10, 2)
 
     printRange(takeWhile(nr, Even(), 3))
 /*<<<Take while counted ranges(4)
@@ -186,14 +187,14 @@ true
 >>>*/
 
 fun test5()
-    var li = makeList()
-    var lr = li.all()
+    let li = makeList()
+    let lr = li.all()
 
     printRange(filter(lr, Even()))
     printRange(lr filter Even())
     printRange(lr filter ((fun x = x%2 == 0)))
 
-    var nr = NumericRangeWithStep(Int)(1, 11, 2)
+    let nr = NumericRangeWithStep(Int)(1, 11, 2)
 
     cout << filter(nr, Even()).isEmpty() << endl
 /*<<<Filtered ranges(5)
@@ -204,8 +205,8 @@ true
 >>>*/
 
 fun test6()
-    var li = makeList()
-    var lr = li.all()
+    let li = makeList()
+    let lr = li.all()
 
     printRange(transform(lr, Square()))
     printRange(lr map Square())
@@ -217,12 +218,12 @@ fun test6()
 >>>*/
 
 fun test7()
-    var range = repeat(42)
+    let range = repeat(42)
     var i = 0
 
     while i < 1000
         if ( range.front() != 42 )
-            cout << "Test failed" << endl
+            cout << "Test failed" << endl;
         i = i + 1
         range.popFront()
     printRange(repeat(42, 10))
@@ -231,11 +232,11 @@ fun test7()
 >>>*/
 
 fun test8()
-    var li = makeList()
-    var lr = li.all()
-    var nr = NumericRangeWithStep(Int)(0, 5, 1)
-    var enr = NumericRangeWithStep(Int)(5, 5, 1)
-    var elr = List(Int)().all()
+    let li = makeList()
+    let lr = li.all()
+    let nr = NumericRangeWithStep(Int)(0, 5, 1)
+    let enr = NumericRangeWithStep(Int)(5, 5, 1)
+    let elr = List(Int)().all()
 
     printRange(chain(lr, nr))
     printRange(chain(nr, lr))
@@ -251,21 +252,21 @@ true
 >>>*/
 
 fun test9()
-    var l = makeList()
-    var lr = l.all()
+    let l = makeList()
+    let lr = l.all()
 
     printRange(stride(lr, 5))
 
-    var nr = NumericRangeWithStep(Int)(0, 10, 1)
+    let nr = NumericRangeWithStep(Int)(0, 10, 1)
 
     printRange(stride(nr, 3))
 
-    var v = Vector(Int)(makeList().all())
-    var vr = v.all()
+    let v = Vector(Int)(makeList().all())
+    let vr = v.all()
 
     printRange(stride(vr, 5))
 
-    var nr2 = NumericRangeWithStep(Int)(0, 5, 1)
+    let nr2 = NumericRangeWithStep(Int)(0, 5, 1)
 
     printRange(stride(nr2, 10))
 /*<<<Strided ranges(9)
@@ -276,8 +277,8 @@ fun test9()
 >>>*/
 
 fun test10()
-    var v = Vector(Int)(NumericRangeWithStep(Int)(0, 5, 1))
-    var vr = v.all()
+    let v = Vector(Int)(NumericRangeWithStep(Int)(0, 5, 1))
+    let vr = v.all()
 
     printRange(radial(vr, 0))
     printRange(radial(vr, 1))
@@ -285,8 +286,8 @@ fun test10()
     printRange(radial(vr, 3))
     printRange(radial(vr, 4))
 
-    var v2 = Vector(Int)(NumericRangeWithStep(Int)(0, 4, 1))
-    var vr2 = v2.all()
+    let v2 = Vector(Int)(NumericRangeWithStep(Int)(0, 4, 1))
+    let vr2 = v2.all()
 
     printRange(radial(vr2, 0))
     printRange(radial(vr2, 1))
@@ -305,7 +306,7 @@ fun test10()
 >>>*/
 
 fun test11()
-    var nr = NumericRangeWithStep(Int)(0, 5, 1)
+    let nr = NumericRangeWithStep(Int)(0, 5, 1)
 
     printRange(cycle(nr, 4))
     cout << cycle(nr, 0).isEmpty() << endl
@@ -364,10 +365,10 @@ fun test13()
 fun test14()
     printRange(zip(numericRange(0, 6), numericRange(3, 12), Multiply()))
 
-    var zr = zip(numericRange(0, 4), numericRange(0, -4, -1))
+    let zr = zip(numericRange(0, 4), numericRange(0, -4, -1))
 
     for p = zr
-        cout << p.v1 << ' ' << p.v2 << '\n'
+        cout << p.v1 << ' ' << p.v2 << '\n';
 /*<<<Zipping(14)
 0 4 10 18 28 40
 0 0
@@ -381,18 +382,18 @@ fun test15()
     printRange(r)
 
     while !r.isEmpty()
-        cout << ' ' << (r++)
+        cout << ' ' << (r++);
     cout << endl
 
     r = 1...10
     while ! !r        // call isEmpty() by pre_! operator
-        cout << ' ' << (r++)
+        cout << ' ' << (r++);
     cout << endl
 
     r = 1...10
     while !r.isEmpty() && r.front() != 10
-        cout << ' ' << (++r)
-    cout << endl
+        cout << ' ' << (++r);
+    cout << endl;
 /*<<<Pre and post ++ operators (15)
 1 2 3 4 5 6 7 8 9 10
  1 2 3 4 5 6 7 8 9 10
@@ -405,13 +406,13 @@ fun test16()
     printRange(r)
 
     while !r.isEmpty()
-        cout << ' ' << (r--)
+        cout << ' ' << (r--);
     cout << endl
 
     r = 1...10
     while !r.isEmpty() && r.back() != 1
-        cout << ' ' << (--r)
-    cout << endl
+        cout << ' ' << (--r);
+    cout << endl;
 /*<<<Pre and post -- operators (16)
 1 2 3 4 5 6 7 8 9 10
  10 9 8 7 6 5 4 3 2 1
@@ -453,7 +454,7 @@ fun test19()
     var rcount: @Int = count
     printRange( (0..10) map (fun.{rcount} (n: Int): Int { ++rcount; return n; }) )
     cout << count << endl
-/*<<<Map doen't call the function too often (19)
+/*<<<Map doesn't call the function too often (19)
 0 1 2 3 4 5 6 7 8 9
 10
 >>>*/

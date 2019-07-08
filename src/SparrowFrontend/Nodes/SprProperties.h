@@ -22,4 +22,5 @@ constexpr const char* propSprLiteralData = "spr.literalData";
 constexpr const char* propSprOperation = "spr.operation";
 constexpr const char* propBitCopiable = "spr.bitcopiable";
 constexpr const char* propAutoBitCopiable = "spr.autoBitcopiable";
+constexpr const char* propNoAutoConst = "spr.noAutoConst";
 } // namespace SprFrontend

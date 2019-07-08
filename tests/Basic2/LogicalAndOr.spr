@@ -11,29 +11,29 @@ fun getF: Bool
     return false
 
 datatype BoolValue
-    b: Bool
+    b: Bool;
 
-fun ctor(this: @BoolValue, b: Bool)
+fun ctor(this: !BoolValue, b: Bool)
     this.b ctor b
     cout << "C"
     if ( b )
-        cout << "t"
+        cout << "t";
     else
-        cout << "f"
-    cout << '.'
+        cout << "f";
+    cout << '.';
 
 fun dtor(this: BoolValue)
     cout << "D"
     if ( b )
-        cout << "t"
+        cout << "t";
     else
-        cout << "f"
-    cout << '.'
+        cout << "f";
+    cout << '.';
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
@@ -42,8 +42,8 @@ fun sprMain
     else if n == 5; test5
 
 fun test1
-    var t = true
-    var f = false
+    let t = true
+    let f = false
 
     cout << (t || t) << endl
     cout << (t || f) << endl
@@ -76,8 +76,8 @@ false
 >>>*/
 
 fun test2
-    var t = true
-    var f = false
+    let t = true
+    let f = false
 
     cout << (t && t) << endl
     cout << (t && f) << endl

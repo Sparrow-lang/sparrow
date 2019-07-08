@@ -3,7 +3,7 @@ import logic.predicates
 import logic.recurse
 //import assert;
 
-fun children(child, parent: @LStr) = (
+fun children(child, parent: !LStr) = (
        child /=/ "Sam"    && parent /=/ "Mary"
     || child /=/ "Denise" && parent /=/ "Mary"
     || child /=/ "Sam"    && parent /=/ "Frank"
@@ -11,7 +11,7 @@ fun children(child, parent: @LStr) = (
     || child /=/ "Frank"  && parent /=/ "Gary"
     )
 
-fun gender(name, g: @LStr) = (
+fun gender(name, g: !LStr) = (
        name /=/ "Frank"   && g /=/ "male"
     || name /=/ "Sam"     && g /=/ "male"
     || name /=/ "Mary"    && g /=/ "female"
@@ -19,15 +19,15 @@ fun gender(name, g: @LStr) = (
     || name /=/ "Gary"    && g /=/ "male"
     )
 
-fun male(name: @LStr) = gender(name, "male")
-fun female(name: @LStr) = gender(name, "female")
+fun male(name: !LStr) = gender(name, "male")
+fun female(name: !LStr) = gender(name, "female")
 
-fun parent(parent, child: @LStr) = children(child, parent)
+fun parent(parent, child: !LStr) = children(child, parent)
 
-fun father(name, child: @LStr) = children(child, name) && gender(name, "male")
-fun mother(name, child: @LStr) = children(child, name) && gender(name, "female")
+fun father(name, child: !LStr) = children(child, name) && gender(name, "male")
+fun mother(name, child: !LStr) = children(child, name) && gender(name, "female")
 
-fun ancestor(a, c: @LStr): Predicate
+fun ancestor(a, c: !LStr): Predicate
     var parent: LStr
     return children(c, a) \
         || children(c, parent) && rec(\ancestor, a, parent)

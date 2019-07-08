@@ -40,7 +40,8 @@ public:
     void emitFunctionEnd(LlvmBuilder& builder, const Location& loc);
 
     //! Emit the debug info for a parameter variable
-    void emitParamVar(GlobalContext& ctx, Node* param, int idx, llvm::AllocaInst* llvmAlloca);
+    void emitParamVar(
+            GlobalContext& ctx, Node* param, int idx, llvm::Value* value, llvm::BasicBlock* where);
 
     //! Emit the debug info for a local variable
     void emitLocalVar(GlobalContext& ctx, Node* var, llvm::AllocaInst* llvmAlloca);

@@ -5,10 +5,12 @@ import std.contiguousMemoryRange
 
 /// Type representing a compilation context -- some information describing how
 /// a particular node should be compiled
-[ct] datatype CompilationContext = UntypedPtr
+[ct, bitcopiable]
+datatype CompilationContext = UntypedPtr
 
 /// Type representing a compiler-internal type
-[ct] datatype AstType = UntypedPtr
+[ct, bitcopiable]
+datatype AstType = UntypedPtr
 
 /// The compiler AST node
 using AstNode = CompilerAstNode
@@ -44,8 +46,8 @@ fun mkDiagnostic(type: Int, loc: Location, message: StringRef): Diagnostic
 [ct]
 /// Function called to report a diagnostic in the compiler
     [native("$meta.report")]
-    fun report(type: Int, loc: @Location, message: StringRef)
-    fun report(diag: @Diagnostic) = report(diag.type, diag.loc, diag.message)
+    fun report(type: Int, loc: Location const, message: StringRef)
+    fun report(diag: Diagnostic const) = report(diag.type, diag.loc, diag.message)
 
     /// When this is called, we stop the compiler
     [native("$meta.raise")]
@@ -129,16 +131,16 @@ fun mkDiagnostic(type: Int, loc: Location, message: StringRef): Diagnostic
     fun hasProperty(n: AstNode, name: StringRef): Bool
     /// Get a string property (can fail)
     [native("$meta.AstNode.getPropertyString")]
-    fun getPropertyString(n: AstNode, name: StringRef, value: @StringRef): Bool
+    fun getPropertyString(n: AstNode, name: StringRef, value: !StringRef): Bool
     /// Get an integer property (can fail)
     [native("$meta.AstNode.getPropertyInt")]
-    fun getPropertyInt(n: AstNode, name: StringRef, value: @Int): Bool
+    fun getPropertyInt(n: AstNode, name: StringRef, value: !Int): Bool
     /// Get an node property (can fail)
     [native("$meta.AstNode.getPropertyNode")]
-    fun getPropertyNode(n: AstNode, name: StringRef, value: @AstNode): Bool
+    fun getPropertyNode(n: AstNode, name: StringRef, value: !AstNode): Bool
     /// Get an type property (can fail)
     [native("$meta.AstNode.getPropertyType")]
-    fun getPropertyType(n: AstNode, name: StringRef, value: @AstType): Bool
+    fun getPropertyType(n: AstNode, name: StringRef, value: !AstType): Bool
     /// Set a string property
     [native("$meta.AstNode.setProperty")]
     fun setProperty(n: AstNode, name: StringRef, value: StringRef)

@@ -44,7 +44,7 @@ struct ConceptType : TypeWithStorage {
 
     //! @copydoc Type::changeMode
     ConceptType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
-        return ConceptType(Type::changeMode(mode, loc));
+        return {Type::changeMode(mode, loc)};
     }
 };
 

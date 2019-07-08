@@ -18,6 +18,9 @@ bool ConceptsServiceImpl::conceptIsFulfilled(ConceptDecl concept, Type type) {
     if (!Feather::isDataLikeType(type))
         return false;
 
+    // Remove any category and any reference from the given type
+    type = Feather::removeAllRefs(TypeWithStorage(type));
+
     if (!concept.isSemanticallyChecked() || !instSet)
         REP_INTERNAL(concept.location(), "Invalid concept");
     ASSERT(instSet);

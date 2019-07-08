@@ -20,7 +20,7 @@ fun stdFun(s: String): String
 datatype FunctorInt
     storedNum: Int
 
-fun ()(this: @FunctorInt, n: Int): Int
+fun ()(this: !FunctorInt, n: Int): Int
     cout << "Functor(" << storedNum << ")(" << n << ") called" << flush
     return n*storedNum
 
@@ -28,24 +28,24 @@ fun ()(this: @FunctorInt, n: Int): Int
 datatype Functor
     storedString: String
 
-fun ()(this: @Functor, s: String): String
+fun ()(this: !Functor, s: String): String
     cout << "Functor(" << storedString << ")(" << s << ") called" << flush
     return "Functor"
 
 datatype BigFunctor
 
-fun () (this: @BigFunctor, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10: Int): Int
+fun () (this: BigFunctor, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10: Int): Int
     return p1+p2+p3+p4+p5+p6+p7+p8+p9+p10
 
 [initCtor] datatype Counter
     count: Int
 
-fun ()(this: @Counter): Int = ++count
+fun ()(this: !Counter): Int = ++count
 
 fun sprMain
     if programArgs.size() < 2
         return
-    var n = programArgs(1) asInt
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
@@ -58,12 +58,12 @@ fun sprMain
     else cout << "Invalid test number!\n"
 
 fun test1
-    var f0 = \stdFunInt
-    var r0 = f0(10)
+    let f0 = \stdFunInt
+    let r0 = f0(10)
     cout << " => " << r0 << endl
 
-    var f1 = \stdFun
-    var r1 = f1("Hello, world!")
+    let f1 = \stdFun
+    let r1 = f1("Hello, world!")
     cout << " => " << r1 << endl
 /*<<< Basic testing of FunctionPtr(1)
 stdFunInt(10) called => 100
@@ -71,12 +71,12 @@ stdFun(Hello, world!) called => stdFun
 >>>*/
 
 fun test2
-    var f0: Function(Int, Int) = \stdFunInt
-    var r0 = f0(10)
+    let f0: Function(Int, Int) = \stdFunInt
+    let r0 = f0(10)
     cout << " => " << r0 << endl
 
-    var f1: Function(String, String) = \stdFun
-    var r1 = f1("Hello, world!")
+    let f1: Function(String, String) = \stdFun
+    let r1 = f1("Hello, world!")
     cout << " => " << r1 << endl
 /*<<< Function constructed with function pointer(2)
 stdFunInt(10) called => 100
@@ -84,12 +84,12 @@ stdFun(Hello, world!) called => stdFun
 >>>*/
 
 fun test3
-    var f0: Function(Int, Int) = FunctorInt(3)
-    var r0 = f0(10)
+    let f0: Function(Int, Int) = FunctorInt(3)
+    let r0 = f0(10)
     cout << " => " << r0 << endl
 
-    var f1: Function(String, String) = Functor("bubu")
-    var r1 = f1("Hello, world!")
+    let f1: Function(String, String) = Functor("bubu")
+    let r1 = f1("Hello, world!")
     cout << " => " << r1 << endl
 /*<<< Function constructed with functor(3)
 Functor(3)(10) called => 30
@@ -97,19 +97,19 @@ Functor(bubu)(Hello, world!) called => Functor
 >>>*/
 
 fun test4
-    var f: Function(Int, Int,Int,Int,Int,Int,Int,Int,Int,Int,Int) = BigFunctor()
+    let f: Function(Int, Int,Int,Int,Int,Int,Int,Int,Int,Int,Int) = BigFunctor()
     cout << f(1,2,3,4,5,6,7,8,9,10) << endl
 /*<<< Functor with a large number of parameters(4)
 55
 >>>*/
 
 fun test5
-    var f1: Function(String, String) = Functor("bubu")
-    var r1 = f1("Hello, world!")
+    let f1: Function(String, String) = Functor("bubu")
+    let r1 = f1("Hello, world!")
     cout << " => " << r1 << endl
 
-    var f2 = f1
-    var r2 = f2("Hello, to you too!")
+    let f2 = f1
+    let r2 = f2("Hello, to you too!")
     cout << " => " << r2 << endl
 /*<<< Copying functors (5)
 Functor(bubu)(Hello, world!) called => Functor
@@ -117,13 +117,13 @@ Functor(bubu)(Hello, to you too!) called => Functor
 >>>*/
 
 fun test6
-    var f1: Function(String, String) = Functor("bubu")
-    var r1 = f1("Hello, world!")
+    let f1: Function(String, String) = Functor("bubu")
+    let r1 = f1("Hello, world!")
     cout << " => " << r1 << endl
 
     var f2: Function(String, String)
     f2 = f1
-    var r2 = f2("Hello, to you too!")
+    let r2 = f2("Hello, to you too!")
     cout << " => " << r2 << endl
 /*<<< Functor assignment (6)
 Functor(bubu)(Hello, world!) called => Functor
@@ -131,8 +131,8 @@ Functor(bubu)(Hello, to you too!) called => Functor
 >>>*/
 
 fun test7
-    var f1: Function(String, String) = Functor("bubu")
-    var r1 = f1("Hello, world!")
+    let f1: Function(String, String) = Functor("bubu")
+    let r1 = f1("Hello, world!")
     cout << " => " << r1 << endl
     assert(f1.isSet())
     assert(!f1.isNull())
@@ -151,8 +151,8 @@ Functor(bubu)(Hello, to you too!) called => Functor
 >>>*/
 
 fun test8
-    var f1: Function(Int) = Counter(10)
-    var f2 = f1
+    let f1: Function(Int) = Counter(10)
+    let f2 = f1
 
     cout << f1() << endl
     cout << f2() << endl

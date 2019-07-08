@@ -57,7 +57,7 @@ struct Module : Feather::DeclNode {
     NodeHandle moduleName() const { return children()[0]; };
 
     //! Returns the node with the declarations of the module
-    NodeList decls() const { return NodeList(children()[1]); };
+    NodeList decls() const { return {children()[1]}; };
 
 private:
     static void setContextForChildrenImpl(Module node);
@@ -113,7 +113,7 @@ struct ImportName : Feather::DeclNode {
     NodeHandle moduleName() const { return children()[0]; };
 
     //! Returns the imported decls names
-    NodeList importedDeclNames() const { return NodeList(children()[1]); };
+    NodeList importedDeclNames() const { return {children()[1]}; };
 
     //! Returns the alias we set to the imported module
     StringRef name() const { return getPropertyStringDeref("name"); };

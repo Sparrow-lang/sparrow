@@ -3,64 +3,64 @@
 [ct]
 
     [native("$meta.Feather.mkNodeList")]
-    fun mkNodeList(loc: @Location, nodes: AstNodeRange = AstNodeRange(), voidResult: Bool = false): AstNode
+    fun mkNodeList(loc: Location const, nodes: AstNodeRange = AstNodeRange(), voidResult: Bool = false): AstNode
     [native("$meta.Feather.addToNodeList")]
     fun addToNodeList(list, newNode: AstNode): AstNode
     [native("$meta.Feather.appendNodeList")]
     fun appendNodeList(main, newList: AstNode): AstNode
 
     [native("$meta.Feather.mkNop")]
-    fun mkNop(loc: @Location): AstNode
+    fun mkNop(loc: Location const): AstNode
     [native("$meta.Feather.mkTypeNode")]
-    fun mkTypeNode(loc: @Location, type: AstType): AstNode
+    fun mkTypeNode(loc: Location const, type: AstType): AstNode
     [native("$meta.Feather.mkBackendCode")]
-    fun mkBackendCode(loc: @Location, code: StringRef, mode: Int): AstNode
+    fun mkBackendCode(loc: Location const, code: StringRef, mode: Int): AstNode
     [native("$meta.Feather.mkLocalSpace")]
-    fun mkLocalSpace(loc: @Location, children: AstNodeRange): AstNode
+    fun mkLocalSpace(loc: Location const, children: AstNodeRange): AstNode
     [native("$meta.Feather.mkGlobalConstructAction")]
-    fun mkGlobalConstructAction(loc: @Location, action: AstNode): AstNode
+    fun mkGlobalConstructAction(loc: Location const, action: AstNode): AstNode
     [native("$meta.Feather.mkGlobalDestructAction")]
-    fun mkGlobalDestructAction(loc: @Location, action: AstNode): AstNode
+    fun mkGlobalDestructAction(loc: Location const, action: AstNode): AstNode
     [native("$meta.Feather.mkScopeDestructAction")]
-    fun mkScopeDestructAction(loc: @Location, action: AstNode): AstNode
+    fun mkScopeDestructAction(loc: Location const, action: AstNode): AstNode
     [native("$meta.Feather.mkTempDestructAction")]
-    fun mkTempDestructAction(loc: @Location, action: AstNode): AstNode
+    fun mkTempDestructAction(loc: Location const, action: AstNode): AstNode
 
     [native("$meta.Feather.mkFunction")]
-    fun mkFunction(loc: @Location, name: StringRef, resType: AstNode, params: @AstNodeRange, body: AstNode, mode: Int): AstNode
+    fun mkFunction(loc: Location const, name: StringRef, resType: AstNode, params: !AstNodeRange, body: AstNode, mode: Int): AstNode
     [native("$meta.Feather.mkClass")]
-    fun mkClass(loc: @Location, name: StringRef, fields: @AstNodeRange, mode: Int): AstNode
+    fun mkClass(loc: Location const, name: StringRef, fields: !AstNodeRange, mode: Int): AstNode
     [native("$meta.Feather.mkVar")]
-    fun mkVar(loc: @Location, name: StringRef, type: AstNode, mode: Int): AstNode
+    fun mkVar(loc: Location const, name: StringRef, type: AstNode, mode: Int): AstNode
 
     [native("$meta.Feather.mkCtValue")]
-    fun mkCtValue(loc: @Location, type: AstType, data: StringRef): AstNode
+    fun mkCtValue(loc: Location const, type: AstType, data: StringRef): AstNode
     [native("$meta.Feather.mkNull")]
-    fun mkNull(loc: @Location, typeNode: AstNode): AstNode
+    fun mkNull(loc: Location const, typeNode: AstNode): AstNode
     [native("$meta.Feather.mkVarRef")]
-    fun mkVarRef(loc: @Location, varDecl: AstNode): AstNode
+    fun mkVarRef(loc: Location const, varDecl: AstNode): AstNode
     [native("$meta.Feather.mkFieldRef")]
-    fun mkFieldRef(loc: @Location, obj, fieldDecl: AstNode): AstNode
+    fun mkFieldRef(loc: Location const, obj, fieldDecl: AstNode): AstNode
     [native("$meta.Feather.mkFunRef")]
-    fun mkFunRef(loc: @Location, funDecl: AstNode, resType: AstNode): AstNode
+    fun mkFunRef(loc: Location const, funDecl: AstNode, resType: AstNode): AstNode
     [native("$meta.Feather.mkFunCall")]
-    fun mkFunCall(loc: @Location, funDecl: AstNode, args: @AstNode): AstNode
+    fun mkFunCall(loc: Location const, funDecl: AstNode, args: !AstNode): AstNode
     [native("$meta.Feather.mkMemLoad")]
-    fun mkMemLoad(loc: @Location, exp: AstNode): AstNode
+    fun mkMemLoad(loc: Location const, exp: AstNode): AstNode
     [native("$meta.Feather.mkMemStore")]
-    fun mkMemStore(loc: @Location, value, address: AstNode): AstNode
+    fun mkMemStore(loc: Location const, value, address: AstNode): AstNode
     [native("$meta.Feather.mkBitcast")]
-    fun mkBitcast(loc: @Location, destType: AstNode, node: AstNode): AstNode
+    fun mkBitcast(loc: Location const, destType: AstNode, node: AstNode): AstNode
     [native("$meta.Feather.mkConditional")]
-    fun mkConditional(loc: @Location, condition, alt1, alt2: AstNode): AstNode
+    fun mkConditional(loc: Location const, condition, alt1, alt2: AstNode): AstNode
 
     [native("$meta.Feather.mkIf")]
-    fun mkIf(loc: @Location, condition, thenClause, elseClause: AstNode, isCt: Bool = false): AstNode
+    fun mkIf(loc: Location const, condition, thenClause, elseClause: AstNode, isCt: Bool = false): AstNode
     [native("$meta.Feather.mkWhile")]
-    fun mkWhile(loc: @Location, condition, body, step: AstNode, isCt: Bool = false): AstNode
+    fun mkWhile(loc: Location const, condition, body, step: AstNode, isCt: Bool = false): AstNode
     [native("$meta.Feather.mkBreak")]
     fun mkBreak(loc: Location): AstNode
     [native("$meta.Feather.mkContinue")]
     fun mkContinue(loc: Location): AstNode
     [native("$meta.Feather.mkReturn")]
-    fun mkReturn(loc: @Location, exp: AstNode = AstNode()): AstNode
+    fun mkReturn(loc: Location const, exp: AstNode = AstNode()): AstNode

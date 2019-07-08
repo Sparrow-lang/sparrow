@@ -9,24 +9,24 @@ datatype Ptr(type: Type)
     _ptr: @ValueType
 
 [protected]
-    fun =(this: @Ptr, ref: @this.ValueType) = _ptr := ref
+    fun =(this: !Ptr, ref: this.ValueType) = _ptr := ref
 
-    fun < (this, other: Ptr)          = ptrDiff(reinterpretCast(@Byte, this._ptr), reinterpretCast(@Byte, other._ptr)) < DiffType(0)
+    fun < (this, other: Ptr)          = (UntypedPtr(_ptr) ptrDiff UntypedPtr(other._ptr)) < DiffType(0)
 
     fun get(this: Ptr)         = _ptr
-    fun isNull(this: Ptr)                  = _ptr === null
-    fun isSet(this: Ptr)                   = _ptr !== null
+    fun isNull(this: Ptr)      = _ptr === null
+    fun isSet(this: Ptr)       = _ptr !== null
 
-    fun reset(this: @Ptr)                  = _ptr := null
-    fun reset(this: @Ptr, ref: @this.ValueType)  = _ptr := ref
-    fun release(this: @Ptr)                { delete(_ptr); }
+    fun reset(this: !Ptr)                  = _ptr := null
+    fun reset(this: !Ptr, ref: !this.ValueType)  = _ptr := ref
+    fun release(this: !Ptr)    { delete(_ptr); }
 
-    fun swap(this: @Ptr, other: typeOf(this))
-        var t: @ValueType = _ptr
+    fun swap(this: !Ptr, other: !typeOf(this))
+        let t: @ValueType = _ptr
         _ptr := other._ptr
         other._ptr := t
 
-    fun >>(this: Ptr, os: @OutStream) if isValid(os << #$ValueType)
+    fun >>(this: Ptr, os: !OutStream) if isValid(os << #$ValueType)
         if ( _ptr !== null )
             os << "Ptr(" << _ptr << ")"
         else
@@ -36,5 +36,5 @@ datatype Ptr(type: Type)
     fun .(this: Ptr) = _ptr
 
 fun mkPtr(v: @AnyType) = Ptr(-@typeOf(v))(v)
-fun reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull()) && isValid(p.get())
+fun reinterpretPtr(t: Type, ptr: Ptr): Ptr(t)
     return Ptr(t)(reinterpretCast(@t, ptr.get()))

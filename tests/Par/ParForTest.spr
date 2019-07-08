@@ -13,7 +13,7 @@ import std.compilerInfo
     var outOfOrderCount: Int Atomic
 
     fun foo(x: Int)
-        var curIdx = counter++
+        let curIdx = counter++
         if ( curIdx != x )
             outOfOrderCount++
         sleep(0)
@@ -21,7 +21,7 @@ import std.compilerInfo
     fun sprMain
         if ( programArgs.size() < 2 )
             return
-        var n = programArgs(1) asInt
+        let n = programArgs(1) asInt
 
         0..n parFor \foo
 

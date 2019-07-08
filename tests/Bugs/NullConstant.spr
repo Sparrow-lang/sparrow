@@ -1,6 +1,6 @@
 
 fun sprMain
-    var p: @Int = null
+    let p: @Int = null
 
     cout << (p === null) << endl
     cout << (p !== null) << endl

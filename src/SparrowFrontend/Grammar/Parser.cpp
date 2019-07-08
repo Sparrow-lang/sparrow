@@ -3,6 +3,7 @@
 #include "Nodes/Builder.h"
 #include "Helpers/DeclsHelpers.h"
 #include "Nest/Api/SourceCode.h"
+#include "SparrowFrontend/Nodes/Decl.hpp"
 
 using namespace SprFrontend;
 
@@ -42,6 +43,7 @@ struct AstBuilder {
     Node* (*mkDatatypeFn)(AstBuilder*, const Location*, StringRef, Node*, Node*, Node*, Node*);
     Node* (*mkFieldFn)(AstBuilder*, const Location*, StringRef, Node*, Node*);
     Node* (*mkConceptFn)(AstBuilder*, const Location*, StringRef, StringRef, Node*, Node*);
+    Node* (*mkLetFn)(AstBuilder*, const Location*, StringRef, Node*, Node*);
     Node* (*mkVarFn)(AstBuilder*, const Location*, StringRef, Node*, Node*);
     Node* (*mkParameterFn)(AstBuilder*, const Location*, StringRef, Node*, Node*);
     Node* (*mkFunFn)(AstBuilder*, const Location*, StringRef, Node*, Node*, Node*, Node*, Node*);
@@ -78,7 +80,8 @@ struct AstBuilder {
 
 //! Compiler implementation or error reporter
 struct CompilerErrorReporter : ErrorReporter {
-    CompilerErrorReporter() {
+    CompilerErrorReporter()
+        : ErrorReporter() {
         self = this;
         reportErrorFn = &CompilerErrorReporter::reportError;
     }
@@ -90,7 +93,8 @@ struct CompilerErrorReporter : ErrorReporter {
 
 //! Compiler implementation or error reporter
 struct CompilerAstBuilder : AstBuilder {
-    CompilerAstBuilder() {
+    CompilerAstBuilder()
+        : AstBuilder() {
         self = this;
         addToNodeListFn = &CompilerAstBuilder::addToNodeList_Impl;
 
@@ -102,6 +106,7 @@ struct CompilerAstBuilder : AstBuilder {
         mkDatatypeFn = &CompilerAstBuilder::mkDatatype_Impl;
         mkFieldFn = &CompilerAstBuilder::mkField_Impl;
         mkConceptFn = &CompilerAstBuilder::mkConcept_Impl;
+        mkLetFn = &CompilerAstBuilder::mkLet_Impl;
         mkVarFn = &CompilerAstBuilder::mkVar_Impl;
         mkParameterFn = &CompilerAstBuilder::mkParameter_Impl;
         mkFunFn = &CompilerAstBuilder::mkFun_Impl;
@@ -169,9 +174,13 @@ struct CompilerAstBuilder : AstBuilder {
             StringRef paramName, Node* baseConcept, Node* ifClause) {
         return mkSprConcept(*loc, name, paramName, baseConcept, ifClause);
     }
+    static Node* mkLet_Impl(
+            AstBuilder*, const Location* loc, StringRef name, Node* typeNode, Node* init) {
+        return VariableDecl::createConst(*loc, name, typeNode, init);
+    }
     static Node* mkVar_Impl(
             AstBuilder*, const Location* loc, StringRef name, Node* typeNode, Node* init) {
-        return mkSprVariable(*loc, name, typeNode, init);
+        return VariableDecl::createMut(*loc, name, typeNode, init);
     }
     static Node* mkParameter_Impl(
             AstBuilder*, const Location* loc, StringRef name, Node* typeNode, Node* init) {

@@ -538,6 +538,10 @@ llvm::Value* translateStringRefConstant(
     llvm::Value* beginAddr = context.builder().CreateInBoundsGEP(tmpVar, indices, "");
     indices[1] = constInt1;
     llvm::Value* endAddr = context.builder().CreateInBoundsGEP(tmpVar, indices, "");
+    auto i8ptrptr = llvm::PointerType::getUnqual(
+            llvm::PointerType::getUnqual(llvm::IntegerType::get(context.llvmContext(), 8)));
+    beginAddr = context.builder().CreateBitCast(beginAddr, i8ptrptr);
+    endAddr = context.builder().CreateBitCast(endAddr, i8ptrptr);
     context.builder().CreateStore(globalStr, beginAddr);
     context.builder().CreateStore(globalStrEnd, endAddr);
 
@@ -1183,8 +1187,11 @@ llvm::Value* translateContinue(Node* node, TrContext& context) {
 llvm::Value* translateVar(Node* node, TrContext& context) {
     ASSERT(context.parentFun());
 
+    // Ignore category type here
+    auto varType = Feather::removeCategoryIfPresent(Type(node->type));
+
     // Create an 'alloca' instruction for the local variable
-    llvm::Type* t = Tr::getLLVMType(node->type, context.globalContext());
+    llvm::Type* t = Tr::getLLVMType(varType, context.globalContext());
     llvm::AllocaInst* val = context.addVariable(t, Feather_getName(node).begin);
     int alignment = Nest_getCheckPropertyInt(node, "alignment");
     if (alignment > 0)

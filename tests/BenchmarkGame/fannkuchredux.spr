@@ -12,14 +12,14 @@ fun fannkuch(n: Int): Int
     while r>0
         (1...r) copy count.subrange(0, r)
         for i = 0..n
-            perm(i) = perm1(i)
+            perm(i) = perm1(i);
 
         // Count flips and update max and checksum
         var f = 0
         var k = perm(0)
         while k != 0
             for i = 0..(k+1)/2
-                swap(perm(i), perm(k-i))
+                swap(perm(i), perm(k-i));
             k = perm(0)
             ++f
         if f>flips;     flips = f
@@ -32,9 +32,9 @@ fun fannkuch(n: Int): Int
             if ( r == n )
                 cout << checksum << endl
                 return flips
-            var p0 = perm1(0)
+            let p0 = perm1(0)
             for i = 0..r
-                perm1(i) = perm1(i+1)
+                perm1(i) = perm1(i+1);
             perm1(r) = p0
 
             --count(r)
@@ -44,8 +44,8 @@ fun fannkuch(n: Int): Int
     return flips
 
 fun sprMain
-    var n = programArgs(1) asInt
-    var r = fannkuch(n)
+    let n = programArgs(1) asInt
+    let r = fannkuch(n)
     cout << "Pfannkuchen(" << n << ") = " << r << endl
 
 /*<<<run (4)

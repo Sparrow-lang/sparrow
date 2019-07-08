@@ -11,7 +11,7 @@ datatype BufferedCharSource
     _buffer: String     //!< Buffer in which we read characters; striving to keeping it with data
     _curPos: Int        //!< The current position in _buffer from which we read the current char
 
-fun ctor(this: @BufferedCharSource, src: CharSource)
+fun ctor(this: !BufferedCharSource, src: CharSource)
     _src ctor src
     _buffer ctor
     _buffer reserve _bufferSize
@@ -20,7 +20,7 @@ fun ctor(this: @BufferedCharSource, src: CharSource)
 
 fun all(this: @BufferedCharSource) = BufferedCharSourceRange(this)
 
-fun _ensureBufferHasData(this: @BufferedCharSource)
+fun _ensureBufferHasData(this: !BufferedCharSource)
     if _curPos >= (_buffer size)
         _buffer clear
         _curPos = 0
@@ -32,8 +32,8 @@ datatype BufferedCharSourceRange
     using RetType = Char
     _data: @BufferedCharSource
 
-fun isEmpty(this: @BufferedCharSourceRange): Bool = _data._buffer.isEmpty
-fun front(this: @BufferedCharSourceRange): Char   = _data._buffer(_data._curPos)
-fun popFront(this: @BufferedCharSourceRange)
+fun isEmpty(this: BufferedCharSourceRange): Bool = _data._buffer.isEmpty
+fun front(this: BufferedCharSourceRange): Char   = _data._buffer(_data._curPos)
+fun popFront(this: !BufferedCharSourceRange)
     _data._curPos++
     _data._ensureBufferHasData

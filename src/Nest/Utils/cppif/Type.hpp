@@ -20,7 +20,7 @@ struct NodeHandle;
  */
 struct Type {
     //! The actual type we are wrapping
-    Nest::TypeRef type_{};
+    Nest::TypeRef type_{nullptr};
 
     //! Constructor that initializes this with a null type
     Type() = default;

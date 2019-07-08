@@ -21,9 +21,6 @@ using namespace SprFrontend;
 using namespace rc;
 
 struct GenericsFixture : SparrowGeneralFixture {
-    GenericsFixture();
-    ~GenericsFixture();
-
     //! Checks if the created instantiation is OK, matching the parameters and given bound values
     static void checkInst(Instantiation inst, const ParamsData& paramsData, NodeRange values);
 
@@ -31,9 +28,6 @@ struct GenericsFixture : SparrowGeneralFixture {
     SampleTypes types_;
 };
 
-GenericsFixture::GenericsFixture() {}
-
-GenericsFixture::~GenericsFixture() {}
 
 //! Checks if the created instantiation is OK, matching the parameters and given bound values
 void GenericsFixture::checkInst(
@@ -146,9 +140,10 @@ TEST_CASE_METHOD(GenericsFixture, "GenericsFixture..checkCreateGenericFun") {
             RC_ASSERT(instSet.params().size() == ourParams.size());
             for (int i = 0; i < ourParams.size(); i++) {
                 auto t = ourParams[i].type();
-                bool isRegular = t && t.kind() == typeKindData && t.mode() == modeRt;
+                bool isRegular = t && (t.kind() == typeKindData || t.kind() == typeKindConst) &&
+                                 t.mode() == modeRt;
                 bool genericParamIsNull = !instSet.params()[i];
-                RC_ASSERT(isRegular == genericParamIsNull);
+                RC_ASSERT(!genericParamIsNull || isRegular);
             }
         }
     });

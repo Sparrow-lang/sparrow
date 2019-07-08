@@ -1,25 +1,25 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 datatype MyVal
-    x: Int
+    x: Int;
 
-fun ctor(this: @MyVal, xx: Int ) { x = xx; }
+fun ctor(this: !MyVal, xx: Int) { x = xx; }
 
 fun value(this: MyVal): Int
     return x
 
 fun print(this: MyVal)
-    writeLn(x)
+    writeLn(x);
 
-fun increment(this: @MyVal): MyVal@
+fun increment(this: !MyVal): MyVal@
     x += 1
     return this
 
 fun next(this: MyVal): MyVal
-    return MyVal(x+1)
+    return MyVal(x+1);
 
 fun getValue(x: Int): MyVal
-    return MyVal(x)
+    return MyVal(x);
 
 [native("test")] fun test(n: Int)
     var v: MyVal

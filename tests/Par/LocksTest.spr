@@ -21,12 +21,12 @@ import std.compilerInfo
         sleep(waitTime)
         --numUsers
 
-    fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false)
+    fun doProtectedJob(mutex: !Lockable, useTryLock: Bool = false)
         if !useTryLock
-            var lock: ScopedLock(typeOf(mutex)) = mutex
+            let lock: ScopedLock(typeOf(mutex)) = mutex
             doCoreJob(1)
         else
-            var lock: ScopedTryLock(typeOf(mutex)) = mutex
+            let lock: ScopedTryLock(typeOf(mutex)) = mutex
             if lock.isLocked
                 doCoreJob(3)
 
@@ -34,7 +34,7 @@ import std.compilerInfo
         amountOfWork: Int
         useTryLock: Bool
 
-    fun ()(this: @Worker)
+    fun ()(this: !Worker)
         for i = 0..amountOfWork
             doProtectedJob(normalMutex, useTryLock)
         //if !useTryLock
@@ -44,18 +44,18 @@ import std.compilerInfo
         amountOfWork, numWorkers, numTryWorkers: Int
         threads: (Thread Ptr) Vector
 
-    fun ctor(this: @WorkManager, amountOfWork, numWorkers, numTryWorkers: Int)
+    fun ctor(this: !WorkManager, amountOfWork, numWorkers, numTryWorkers: Int)
         this.amountOfWork ctor amountOfWork
         this.numWorkers ctor numWorkers
         this.numTryWorkers ctor numTryWorkers
         for i=0..numWorkers
-            var p: Thread Ptr = new(Thread, Worker(amountOfWork, false))
+            let p: Thread Ptr = new(Thread, Worker(amountOfWork, false))
             threads.pushBack(p)
         for i=0..numTryWorkers
-            var p: Thread Ptr = new(Thread, Worker(amountOfWork, true))
+            let p: Thread Ptr = new(Thread, Worker(amountOfWork, true))
             threads.pushBack(p)
 
-    fun dtor(this: @WorkManager)
+    fun dtor(this: !WorkManager)
         for t = threads.all
             t.get join
             t.release
@@ -66,11 +66,11 @@ import std.compilerInfo
     fun sprMain
         if programArgs.size() < 4
             return
-        var amountOfWork = programArgs(1) asInt
-        var numWorkers = programArgs(2) asInt
-        var numTryWorkers = programArgs(3) asInt
+        let amountOfWork = programArgs(1) asInt
+        let numWorkers = programArgs(2) asInt
+        let numTryWorkers = programArgs(3) asInt
 
-        var work = WorkManager(amountOfWork, numWorkers, numTryWorkers)
+        let work = WorkManager(amountOfWork, numWorkers, numTryWorkers)
 else
     fun sprMain
         ;

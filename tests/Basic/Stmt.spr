@@ -10,7 +10,7 @@ fun writeIf     { writeLn("IF"); }
 fun writeIfErr  { writeLn("IF-bad"); }
 fun writeMarker { writeLn("---"); }
 
-fun pre_--(n: @Int): Int { n=n-1; return n; }
+fun pre_--(n: !Int): Int { n=n-1; return n; }
 
 [native("test")]
 fun test(n: Int)

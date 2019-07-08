@@ -16,7 +16,7 @@ datatype RangeWithLookahead(baseRangeType: Type) if Range(#$baseRangeType)
     source: baseRangeType
     buffer: Vector(RetType)
 
-fun ctor(this: @RangeWithLookahead, src: this._RangeType)
+fun ctor(this: !RangeWithLookahead, src: this._RangeType)
     this.source = src
     this.buffer ctor
     this.buffer reserve 10
@@ -25,15 +25,15 @@ fun ctor(this: @RangeWithLookahead, src: this._RangeType)
     if !!source
         buffer += (source++)
 
-fun isEmpty(this: @RangeWithLookahead): Bool = buffer.isEmpty
-fun front(this: @RangeWithLookahead): RetType = buffer.front
-fun popFront(this: @RangeWithLookahead)
+fun isEmpty(this: RangeWithLookahead): Bool = buffer.isEmpty
+fun front(this: RangeWithLookahead): RetType = buffer.front
+fun popFront(this: !RangeWithLookahead)
     buffer remove 0
     // Add a new element in the buffer if the buffer is empty
     if (buffer.isEmpty) && !!source
         buffer += (source++)
 
-fun peek(this: @RangeWithLookahead, n: UInt): RetType
+fun peek(this: !RangeWithLookahead, n: UInt): RetType
     // If not enough elements in the buffer, add them now
     while n >= buffer.size && !!source
         buffer += (source++)
@@ -42,7 +42,7 @@ fun peek(this: @RangeWithLookahead, n: UInt): RetType
     else
         return RetType() // not enough elements in the source
 
-fun hasLessThan(this: @RangeWithLookahead, n: UInt): Bool
+fun hasLessThan(this: !RangeWithLookahead, n: UInt): Bool
     // Try to fill the buffer with the amount of elements
     while n >= buffer.size && !!source
         buffer += (source++)

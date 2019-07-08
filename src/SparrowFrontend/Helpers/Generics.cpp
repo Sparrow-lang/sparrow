@@ -325,7 +325,6 @@ bool isConceptParam(Type paramType, NodeHandle boundValue) {
     return isConceptType(paramType) || paramType.mode() != modeCt;
 }
 
-
 IterativeInstantiationBuilder::IterativeInstantiationBuilder(
         InstantiationsSet instSet, int numParams, EvalMode finalEvalMode, bool isCtGeneric)
     : instSet_(instSet)

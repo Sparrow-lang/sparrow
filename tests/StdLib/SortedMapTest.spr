@@ -7,8 +7,8 @@ import std.algorithms
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -66,16 +66,17 @@ fun printRange(nr: AnyType)
         printPair(r.front())
         r.popFront()
         if ( r.isEmpty() )
-            cout << endl
+            cout << endl;
         else
-            cout << ' '
+            cout << ' ';
+    ;
 
 datatype Equal(type: Type)
     using ValueType = type
 fun ()(this: Equal, x, y: this.ValueType): Bool = x == y
 
 fun test1()
-    var sm: SortedMap(Int, Int, Less(Int), Equal(Int))
+    let sm: SortedMap(Int, Int, Less(Int), Equal(Int))
 
     cout << sm.isEmpty() << endl
     cout << sm.size() << endl
@@ -89,7 +90,7 @@ false
 >>>*/
 
 fun test2()
-    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(60)
+    let sm = SortedMap(Int, Int, Less(Int), Equal(Int))(60)
 
     cout << sm.isEmpty() << endl
     cout << sm.size() << endl
@@ -103,7 +104,7 @@ false
 >>>*/
 
 fun test3()
-    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all())
+    let sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all())
 
     cout << sm.isEmpty() << endl
     cout << sm.size() << endl
@@ -123,8 +124,8 @@ false
 >>>*/
 
 fun test4()
-    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all())
-    var sm2 = SortedMap(Int, Int, Less(Int), Equal(Int))(sm)
+    let sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all())
+    let sm2 = SortedMap(Int, Int, Less(Int), Equal(Int))(sm)
 
     cout << sm2.isEmpty() << endl
     cout << sm2.size() << endl
@@ -195,7 +196,7 @@ false
 >>>*/
 
 fun test7()
-    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all())
+    let sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all())
 
     printRange(sm.all())
 /*<<<Range access(7)
@@ -295,7 +296,7 @@ fun test11()
 >>>*/
 
 fun test12()
-    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all())
+    let sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all())
 
     cout << sm.contains(106) << endl
     cout << sm.contains(53) << endl
@@ -340,7 +341,7 @@ fun test14()
 >>>*/
 
 fun test15()
-    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all())
+    let sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all())
 
     printRange(sm.find(5))
     printRange(sm.find(10))
@@ -397,7 +398,7 @@ true
 >>>*/
 
 fun test19()
-    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all())
+    let sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all())
     var keys = sm.keys()
     var values = sm.values()
 
@@ -425,7 +426,8 @@ fun test20()
         i = i + 1
     while i < 1000
         if ( !sm.contains(i) )
-            cout << "Test failed" << endl
-        i = i + 1
+            cout << "Test failed" << endl;
+        i = i + 1;
+    ;
 /*<<<Large hashmap(20)
 >>>*/

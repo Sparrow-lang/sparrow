@@ -21,7 +21,7 @@ fun f(arg: Double): Double
 fun sprMain
     if ( programArgs.size() < 2 )
         return
-    var n = programArgs(1) asInt
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
@@ -30,12 +30,12 @@ fun sprMain
     else cout << "Invalid test number!\n"
 
 fun test1
-    var f0 = \stdFunInt
-    var r0 = f0(10)
+    let f0 = \stdFunInt
+    let r0 = f0(10)
     cout << " => " << r0 << endl
 
-    var f1 = \stdFun
-    var r1 = f1("Hello, world!")
+    let f1 = \stdFun
+    let r1 = f1("Hello, world!")
     cout << " => " << r1 << endl
 /*<<< Basic testing of FunctionPtr(1)
 stdFunInt(10) called => 100
@@ -43,12 +43,12 @@ stdFun(Hello, world!) called => stdFun
 >>>*/
 
 fun test2
-    var f0 = \(stdFunInt)
-    var r0 = f0(10)
+    let f0 = \(stdFunInt)
+    let r0 = f0(10)
     cout << " => " << r0 << endl
 
-    var f1 = \(stdFun)
-    var r1 = f1("Hello, world!")
+    let f1 = \(stdFun)
+    let r1 = f1("Hello, world!")
     cout << " => " << r1 << endl
 /*<<< FunctionPtr applied to parenthesis(2)
 stdFunInt(10) called => 100
@@ -56,12 +56,12 @@ stdFun(Hello, world!) called => stdFun
 >>>*/
 
 fun test3
-    var f0 = \(f(0))
-    var r0 = f0(10)
+    let f0 = \(f(0))
+    let r0 = f0(10)
     cout << ' => ' << r0 << '\n'
 
-    var f1 = \(f(3.14))
-    var r1 = f1(2.71)
+    let f1 = \(f(3.14))
+    let r1 = f1(2.71)
     cout << ' => ' << r1 << '\n'
 /*<<< FunctionPtr applied to overloaded function(3)
 f(Int) called => 10
@@ -69,12 +69,12 @@ f(Double) called => 2.71
 >>>*/
 
 fun test4
-    var f0 = \f(0)
-    var r0 = f0(10)
+    let f0 = \f(0)
+    let r0 = f0(10)
     cout << ' => ' << r0 << '\n'
 
-    var f1 = \f(3.14)
-    var r1 = f1(2.71)
+    let f1 = \f(3.14)
+    let r1 = f1(2.71)
     cout << ' => ' << r1 << '\n'
 /*<<< FunctionPtr applied to overloaded function - no parens(4)
 f(Int) called => 10

@@ -3,47 +3,47 @@
 // Test purpose: Test calling ctor & dtor for objects
 
 datatype MyObj
-    v: Int
+    v: Int;
 
-fun ctor(this: @MyObj)
-    writeLn("MyObj.ctor()")
-fun ctor(this: @MyObj, i: Int)
-    write("MyObj.ctor("); write(i); writeLn(")")
-fun ctor(this: @MyObj, i,j: Int)
-    write("MyObj.ctor("); write(i); write(", "); write(j); writeLn(")")
-fun ctor(this: @MyObj, src: @MyObj)
-    writeLn("MyObj.ctor(copy)")
+fun ctor(this: !MyObj)
+    writeLn("MyObj.ctor()");
+fun ctor(this: !MyObj, i: Int)
+    write("MyObj.ctor("); write(i); writeLn(")");
+fun ctor(this: !MyObj, i,j: Int)
+    write("MyObj.ctor("); write(i); write(", "); write(j); writeLn(")");
+fun ctor(this: !MyObj, src: MyObj)
+    writeLn("MyObj.ctor(copy)");
 
-fun dtor(this: @MyObj)
-    writeLn("MyObj.dtor")
+fun dtor(this: !MyObj)
+    writeLn("MyObj.dtor");
 
-fun reconstruct(this: @MyObj)
+fun reconstruct(this: !MyObj)
     this.dtor()
     this.ctor(100)
 
 datatype Pair
-    first, second: MyObj
+    first, second: MyObj;
 
-fun ctor(this: @Pair)
+fun ctor(this: !Pair)
     first.ctor()
     second.ctor()
     writeLn("Pair.ctor()")
-fun ctor(this: @Pair, i,j: Int)
+fun ctor(this: !Pair, i,j: Int)
     first.ctor(i)
     second.ctor(j)
     write("Pair.ctor("); write(i); write(", "); write(j); writeLn(")")
-fun ctor(this: @Pair, src: Pair@)
+fun ctor(this: !Pair, src: Pair)
     first.ctor(src.first)
     second.ctor(src.second)
     writeLn("Pair.ctor(copy)")
-fun dtor(this: @Pair)
-    writeLn("Pair.dtor")
+fun dtor(this: !Pair)
+    writeLn("Pair.dtor");
 
 [native("test")] fun test(n: Int)
     ;
-        var x: MyObj
-        var x1 = MyObj(1)
-        var x2 = MyObj(1,2)
+        let x: MyObj
+        let x1 = MyObj(1)
+        let x2 = MyObj(1,2)
     writeLn("---")
         var x: MyObj
         x.dtor()
@@ -52,13 +52,14 @@ fun dtor(this: @Pair)
         var x: MyObj
         x.reconstruct()
     writeLn("---")
-        var x: Pair
-        var x1 = Pair(15,16)
+        let x: Pair
+        let x1 = Pair(15,16)
     writeLn("---")
         var p: @MyObj = reinterpretCast(@MyObj, mallocRt(sizeOf(MyObj)))
         p.ctor(10)
         p.dtor()
         free(reinterpretCast(@Byte, p))
+    ;
 
 /*<<<Running()
 MyObj.ctor()

@@ -11,14 +11,14 @@ datatype Array(valueType: Type)
     _begin, _end: RawPtr(ValueType)
 
 [protected]
-    fun ctorFromCt(this: @Array, src: Array ct)
-        [ct] var size = src size
+    fun ctorFromCt(this: !Array, src: Array ct)
+        [ct] let size = src size
         this ctor size
         [ct] for i = 0..size
             this(i) = src(i)
 
-    fun ctor(this: @Array, other: typeOf(this))
-        var size = other.size
+    fun ctor(this: !Array, other: typeOf(this))
+        let size = other.size
 
         _begin = allocRawPtr(ValueType, size)
         _end = _begin.advance(DiffType(size))
@@ -31,7 +31,7 @@ datatype Array(valueType: Type)
             dst = dst.advance
             src = src.advance
 
-    fun ctor(this: @Array, size: SizeType)
+    fun ctor(this: !Array, size: SizeType)
         _begin = allocRawPtr(ValueType, size)
         _end = _begin.advance(DiffType(size))
 
@@ -40,7 +40,7 @@ datatype Array(valueType: Type)
         while p != _end ; p = p.advance
             p.value ctor
 
-    fun ctor(this: @Array, size: SizeType, value: @this.ValueType)
+    fun ctor(this: !Array, size: SizeType, value: this.ValueType)
         _begin = allocRawPtr(ValueType, size)
         _end = _begin.advance(DiffType(size))
 
@@ -49,9 +49,9 @@ datatype Array(valueType: Type)
         while p != _end ; p = p.advance
             p.value ctor value
 
-    fun ctor(this: @Array, range: Range) if typeOf(range) != Array
+    fun ctor(this: !Array, range: Range) if typeOf(range) != Array
         if !range.isEmpty
-            var size = rangeSize(range)
+            let size = rangeSize(range)
 
             _begin = allocRawPtr(ValueType, size)
             _end = _begin.advance(DiffType(size))
@@ -62,7 +62,7 @@ datatype Array(valueType: Type)
                 p.value ctor v
                 p = p.advance
 
-    fun dtor(this: @Array)
+    fun dtor(this: !Array)
         if this.isEmpty
             return
 
@@ -72,26 +72,27 @@ datatype Array(valueType: Type)
             p.value dtor
         _begin.freePtr
 
-    fun size(this: @Array): SizeType
+    fun size(this: Array): SizeType
         return _end.diff(_begin)
 
-    fun isEmpty(this: @Array): Bool
+    fun isEmpty(this: Array): Bool
         return _begin == _end
 
-    fun assign(this: @Array, range: Range)
+    fun assign(this: !Array, range: Range)
         var r = this.all
+        var rc = range
 
-        while !r.isEmpty && !range.isEmpty
+        while !r.isEmpty && !rc.isEmpty
             r.front dtor
-            r.front ctor range.front
+            r.front ctor rc.front
             r.popFront
-            range.popFront
+            rc.popFront
 
         while !r.isEmpty ; r.popFront
             r.front dtor
             r.front ctor
 
-    fun swap(this: @Array, other: typeOf(this))
+    fun swap(this: !Array, other: !typeOf(this))
         var tmp = _begin
         _begin = other._begin
         other._begin = tmp
@@ -99,25 +100,25 @@ datatype Array(valueType: Type)
         _end = other._end
         other._end = tmp
 
-    fun at(this: @Array, index: SizeType): @ValueType
+    fun at(this: Array, index: SizeType): @ValueType
         return _begin.advance(DiffType(index)).value
-    fun ()(this: @Array, index: SizeType): @ValueType
+    fun ()(this: Array, index: SizeType): @ValueType
         return _begin.advance(DiffType(index)).value
 
-    fun all(this: @Array): RangeType
+    fun all(this: Array): RangeType
         return RangeType(_begin, _end)
 
-    fun subrange(this: @Array, index: SizeType, num: SizeType): RangeType
+    fun subrange(this: Array, index: SizeType, num: SizeType): RangeType
         return RangeType(_begin.advance(DiffType(index)), _begin.advance(DiffType(index + num)))
 
-    fun =(this, other: @Array): @typeOf(this)
+    fun =(this: !Array, other: typeOf(this)): @typeOf(this)
         var tmp = other
 
         tmp.swap(this)
 
         return this
 
-    fun ==(this, other: @Array): Bool
+    fun ==(this, other: Array): Bool
         if this.size != other.size
             return false
 
@@ -132,10 +133,10 @@ datatype Array(valueType: Type)
 
         return true
 
-    fun !=(this, other: @Array): Bool
+    fun !=(this, other: Array): Bool
         return !(this == other)
 
-    fun >>(this: @Array, os: @OutStream) if isValid(os << #$ValueType)
+    fun >>(this: Array, os: !OutStream) if isValid(os << #$ValueType)
         var first = true
         for el = this.all
             if first
@@ -143,8 +144,8 @@ datatype Array(valueType: Type)
             else
                 os << ", "
             os << el
-    fun _dumpThis(this: @Array, prefix: StringRef)
-        cout << prefix << "dumping " << TypeOp.description(Array) << ": " << mkStreamRefWrapper(this) << endl
-        cout << "    begin: " << mkStreamRefWrapper(_begin.bytePtr) << endl
-        cout << "    end: " << mkStreamRefWrapper(_end.bytePtr) << endl
+    fun _dumpThis(this: Array, prefix: StringRef)
+        cout << prefix << "dumping " << TypeOp.description(Array) << ": " << UntypedPtr(this) << endl
+        cout << "    begin: " << _begin.untypedPtr << endl
+        cout << "    end: " << _end.untypedPtr << endl
 

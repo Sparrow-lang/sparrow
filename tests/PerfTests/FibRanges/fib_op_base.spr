@@ -13,14 +13,15 @@ fun fib(n: UInt): UInt
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     var res: UInt = 0
     for i = 1...n
-        var f = fib(i)
+        let f = fib(i)
         if ( f % 2 != 0 )
-            res += f*f
+            res += f*f;
+        ;
     cout << res << endl
 
 /*-<<<Basic test (50000)

@@ -196,14 +196,23 @@ void createFunDefinition(
         if (!param)
             REP_INTERNAL(paramNode->location, "Expected Var node; found %1%") % paramNode;
         ASSERT(param);
-        llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), 0,
-                StringRef(Feather_getName(param)).toStd() + ".addr", bodyBlock);
-        newVar->setAlignment(Nest_getCheckPropertyInt(param, "alignment"));
-        new llvm::StoreInst(argIt, newVar, bodyBlock); // Copy the value of the parameter into it
-        Tr::setValue(localCtx, *param, newVar);        // We point now to the new temp variable
+
+        llvm::Value* paramVal = nullptr;
+        if (Feather::isCategoryType(param->type)) {
+            paramVal = argIt;
+        } else {
+            // Create a new var on the stack, to be able to take the address of our param
+            llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), 0,
+                    StringRef(Feather_getName(param)).toStd() + ".addr", bodyBlock);
+            newVar->setAlignment(Nest_getCheckPropertyInt(param, "alignment"));
+            new llvm::StoreInst(
+                    argIt, newVar, bodyBlock); // Copy the value of the parameter into it
+            paramVal = newVar;                 // We point now to the new temp variable
+        }
+        Tr::setValue(localCtx, *param, paramVal);
 
         if (dbgInfo)
-            dbgInfo->emitParamVar(ctx, param, idx + 1, newVar);
+            dbgInfo->emitParamVar(ctx, param, idx + 1, paramVal, bodyBlock);
     }
 
     // Translate the body

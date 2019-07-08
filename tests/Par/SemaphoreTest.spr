@@ -13,7 +13,7 @@ import std.compilerInfo
     var numUsers: Int Atomic = 0
     var numExecutions: Int Atomic = 0
 
-    fun doJob(sem: @Semaphore, waitTime: Int)
+    fun doJob(sem: !Semaphore, waitTime: Int)
         sem acquire
         ++numUsers
         //cout << (numUsers load) << ' '
@@ -27,7 +27,7 @@ import std.compilerInfo
         sem: @Semaphore
         amountOfWork: Int
 
-    fun ()(this: @Worker)
+    fun ()(this: !Worker)
         for i = 0..amountOfWork
             doJob(sem, i % 5 + 1)
         assertGe(numExecutions load, amountOfWork, "all our job should be executed")
@@ -37,14 +37,14 @@ import std.compilerInfo
         amountOfWork, numWorkers: Int
         threads: (Thread Ptr) Vector
 
-    fun ctor(this: @WorkManager, sem: @Semaphore, amountOfWork, numWorkers: Int)
+    fun ctor(this: !WorkManager, sem: !Semaphore, amountOfWork, numWorkers: Int)
         this.amountOfWork ctor amountOfWork
         this.numWorkers ctor numWorkers
         for i=0..numWorkers
-            var p: Thread Ptr = new(Thread, Worker(sem, amountOfWork))
+            let p: Thread Ptr = new(Thread, Worker(sem, amountOfWork))
             threads.pushBack(p)
 
-    fun dtor(this: @WorkManager)
+    fun dtor(this: !WorkManager)
         for t = threads.all
             t.get join
             t.release
@@ -53,14 +53,14 @@ import std.compilerInfo
         if programArgs.size() < 4
             return
         numResources = (programArgs(1) asInt)
-        var amountOfWork = programArgs(2) asInt
-        var numWorkers = programArgs(3) asInt
+        let amountOfWork = programArgs(2) asInt
+        let numWorkers = programArgs(3) asInt
 
         // Initialize the semaphore
         var sem: Semaphore = numResources
 
         // Do the work
-        var work = WorkManager(sem, amountOfWork, numWorkers)
+        let work = WorkManager(sem, amountOfWork, numWorkers)
 else
     fun sprMain
         ;

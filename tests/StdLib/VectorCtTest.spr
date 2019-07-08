@@ -5,8 +5,8 @@ import std.rawPtr
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
@@ -17,7 +17,7 @@ datatype MyObj
 
 [ct] fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
     var ptr = allocRawPtr(MyObj, size)
-    var ptrEnd = ptr.advance(DiffType(size))
+    let ptrEnd = ptr.advance(DiffType(size))
     var i = 0
 
     while i < size ; i = i + 1
@@ -28,14 +28,15 @@ datatype MyObj
     return ContiguousMemoryRange(MyObj)(ptr, ptrEnd)
 
 [ct] fun createVector(size: SizeType): Vector(MyObj)
-    var v = Vector(MyObj)(createRangeAscending(size))
+    let v = Vector(MyObj)(createRangeAscending(size))
     return v
 
 fun test1()
-    [ct] var v = createVector(10)
+    [ct] let v = createVector(10)
     cout << v.size() << endl
     [ct] for el = v.all()
-        cout << ctEval(el.x) << endl
+        cout << ctEval(el.x) << endl;
+    ;
 /*<<<Creation of a CT vector(1)
 10
 0
@@ -51,11 +52,12 @@ fun test1()
 >>>*/
 
 fun test2()
-    [ct] var v = createVector(10)
-    var v2: Vector(MyObj) = v
+    [ct] let v = createVector(10)
+    let v2: Vector(MyObj) = v
     cout << v2.size() << endl
     for el = v2.all()
-        cout << el.x << endl
+        cout << el.x << endl;
+    ;
 /*<<<Creation of a RT vector from a CT vector(2)
 10
 0

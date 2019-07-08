@@ -1,23 +1,23 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-[ct] var t: Type = Int
-[ct] var u: Type
+[ct] let t: Type = Int
+[ct] let u: Type
 
-[ct] var x: Int = 1
-[ct] var y: t = 2
-var z = 3
+[ct] let x: Int = 1
+[ct] let y: t = 2
+let z = 3
 
-[ct] var c1: Int@ = x
+[ct] let c1: Int@ = x
 
 [ct] fun testCt(a: Int)
 {
 }
 
 [autoCt] fun id(x: Int@): Int@
-    return x
+    return x;
 
 fun printRef(x: Int@)
-    writeLn(x)
+    writeLn(x);
 
 [native("test")] fun test(n: Int)
     testCt(x)

@@ -4,32 +4,32 @@ import std.vector
 
 [initCtor]
 datatype MyObj
-    x: Int
+    x: Int;
 
 fun dtor(this: MyObj)
     cout << x
     cout << " destroyed" << endl
 
-fun >>(this: @MyObj, os: @OutStream)
-    os << "MyObj(" << x << ")"
+fun >>(this: !MyObj, os: !OutStream)
+    os << "MyObj(" << x << ")";
 
-fun print(this: @MyObj)
-    cout << "MyObj.print" << endl
-fun print(this: @MyObj, arg: StringRef)
-    cout << "MyObj.print(" << arg << ")" << endl
+fun print(this: !MyObj)
+    cout << "MyObj.print" << endl;
+fun print(this: !MyObj, arg: StringRef)
+    cout << "MyObj.print(" << arg << ")" << endl;
 
 datatype Foo
-    obj: MyObj
+    obj: MyObj;
 
-fun ctor(this: @Foo, x: Int)
-    obj ctor x
+fun ctor(this: !Foo, x: Int)
+    obj ctor x;
 
-fun get(this: @Foo) = obj
+fun get(this: !Foo) = obj
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
@@ -40,42 +40,33 @@ fun sprMain
     else if n == 7; test7
     else if n == 8; test8
 
-[native("malloc")] fun mallocRt(size: SizeType): @Byte
-[native("free")] fun freeRt(p: @Byte)
+[native("malloc")] fun mallocRt(size: SizeType): UntypedPtr
+[native("free")] fun freeRt(p: UntypedPtr)
 
 fun newObj(x: Int): @MyObj
-    var ptr: @Byte
+    var ptr = mallocRt(sizeOf(MyObj))
 
-    ptr := mallocRt(sizeOf(MyObj))
-
-    var oPtr: @MyObj
-
-    oPtr := reinterpretCast(@MyObj, ptr)
+    var oPtr: @MyObj = ptr asRefOf MyObj
 
     oPtr.ctor(x)
 
     return oPtr
 
-fun delObj(oPtr: @MyObj)
+fun delObj(oPtr: !MyObj)
     oPtr.dtor()
-
-    var ptr: @Byte
-
-    ptr := reinterpretCast(@Byte, oPtr)
-
-    freeRt(ptr)
+    freeRt(UntypedPtr(oPtr))
 
 fun test1()
     var p: Ptr(MyObj)
     var scp: ScopedPtr(MyObj)
-    var shp: SharedPtr(MyObj)
+    let shp: SharedPtr(MyObj)
 
     if ( !isNullRef(reinterpretCast(@Byte, p.get())) || !p.isNull() )
-        cout << "test failed" << endl
+        cout << "test failed" << endl;
     if ( !isNullRef(reinterpretCast(@Byte, scp.get())) || !scp.isNull() )
-        cout << "test failed" << endl
+        cout << "test failed" << endl;
     if ( !isNullRef(reinterpretCast(@Byte, shp.get())) || !shp.isNull() )
-        cout << "test failed" << endl
+        cout << "test failed" << endl;
 /*<<<Default constructors(1)
 >>>*/
 
@@ -88,7 +79,7 @@ fun test2()
     cout << p.get().x << endl
     p.reset()
     if ( !isNullRef(reinterpretCast(@Byte, p.get())) || !p.isNull() )
-        cout << "test failed" << endl
+        cout << "test failed" << endl;
     p.reset(obj)
     cout << p.get().x << endl
     p = pp
@@ -100,10 +91,10 @@ fun test2()
     cout << p.get().x << endl
     cout << pp.get().x << endl
     if ( p == pp )
-        cout << "test failed" << endl
+        cout << "test failed" << endl;
     p = pp
     if ( p != pp )
-        cout << "test failed" << endl
+        cout << "test failed" << endl;
 /*<<<Ptr operations(2)
 42
 42
@@ -120,7 +111,7 @@ fun test3()
     cout << p.get().x << endl
     p.reset()
     if ( !isNullRef(reinterpretCast(@Byte, p.get())) || !p.isNull() )
-        cout << "test failed" << endl
+        cout << "test failed" << endl;
     obj := newObj(42)
     p.reset(obj)
     cout << p.get().x << endl
@@ -139,21 +130,21 @@ fun test4()
     var p = SharedPtr(MyObj)(obj)
 
     if ( !p.isUnique() )
-        cout << "test failed" << endl
+        cout << "test failed" << endl;
     if ( true )
         var pp = p
 
         if ( p.isUnique() )
-            cout << "test failed" << endl
+            cout << "test failed" << endl;
         p.get().x = 0
         cout << p.useCount() << endl
     cout << p.useCount() << endl
     if ( !p.isUnique() )
-        cout << "test failed" << endl
+        cout << "test failed" << endl;
     cout << p.get().x << endl
     p.reset()
     if ( !isNullRef(reinterpretCast(@Byte, p.get())) || !p.isNull() )
-        cout << "test failed" << endl
+        cout << "test failed" << endl;
     obj := newObj(42)
     p.reset(obj)
     cout << p.get().x << endl
@@ -171,8 +162,8 @@ fun test4()
 
 fun test5()
     var obj: @MyObj = newObj(42)
-    var p = Ptr(MyObj)(obj)
-    var sp = SharedPtr(MyObj)(obj)
+    let p = Ptr(MyObj)(obj)
+    let sp = SharedPtr(MyObj)(obj)
 
     cout << p.x << endl
     cout << sp.x << endl
@@ -180,7 +171,7 @@ fun test5()
     p.print()
     p.print("some argument")
 
-    var pp: Ptr(Foo) = new(Foo, 13)
+    let pp: Ptr(Foo) = new(Foo, 13)
     cout << pp.obj.x << endl
 
 /*<<<Arrow operations(5)
@@ -218,8 +209,9 @@ fun test7
     v += Ptr(MyObj)(newObj(12))
     v += Ptr(MyObj)(newObj(13))
     for x = v.all()
-        cout << x.x << endl
-    v.all() delete
+        cout << x.x << endl;
+    for p = v.all
+        p delete
     cout << "---" << endl
 
 /*<<<Delete on a Ptr range (7)

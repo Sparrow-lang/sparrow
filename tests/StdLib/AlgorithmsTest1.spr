@@ -8,8 +8,8 @@ import std.tuple(~)
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
@@ -23,12 +23,12 @@ fun sprMain
 
 [initCtor]
 datatype MyObj
-    x: Int
+    x: Int;
 
-fun <(this, other: @MyObj): Bool { return x < other.x; }
+fun <(this, other: MyObj): Bool { return x < other.x; }
 
 datatype Greater
-
+    ;
 fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
 fun printRange(nr: ContiguousMemoryRange(Int))
@@ -36,28 +36,30 @@ fun printRange(nr: ContiguousMemoryRange(Int))
         cout << nr.front()
         nr.popFront()
         if ( nr.isEmpty() )
-            cout << endl
+            cout << endl;
         else
-            cout << " "
+            cout << " ";
+    ;
 
 fun printRange(nr: List(Int).RangeType)
-    while !nr.isEmpty()
-        cout << nr.front()
-        nr.popFront()
-        if ( nr.isEmpty() )
+    var rc = nr
+    while !rc.isEmpty
+        cout << rc.front
+        rc.popFront()
+        if rc.isEmpty
             cout << endl
         else
-            cout << " "
+            cout << ' '
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
     var ptr = allocRawPtr(Int, size)
-    var ptrEnd = ptr.advance(DiffType(size))
+    let ptrEnd = ptr.advance(DiffType(size))
     var i = 0
 
     while i < size ; i = i + 1
-        ptr.advance(i).value() = i
+        ptr.advance(i).value() = i;
 
-    return ContiguousMemoryRange(Int)(ptr, ptrEnd)
+    return ContiguousMemoryRange(Int)(ptr, ptrEnd);
 
 fun test1()
     cout << min(-3, 10) << endl
@@ -138,8 +140,8 @@ fun test7()
 >>>*/
 
 fun test8()
-    var cmr = createRangeAscending(20)
-    var cmr0 = createRangeAscending(0)
+    let cmr = createRangeAscending(20)
+    let cmr0 = createRangeAscending(0)
 
     cout << rangeSize(cmr) << endl
     cout << rangeSize(cmr0) << endl
@@ -149,14 +151,14 @@ fun test8()
 >>>*/
 
 fun test9()
-    var x = 10
-    var nr = createRangeAscending(5)
-    var pair = x ~ nr
+    let x = 10
+    let nr = createRangeAscending(5)
+    let pair = x ~ nr
 
     cout << pair.v1 << endl
     printRange(pair.v2)
 
-    var pair2 = 20 ~ (50 ~ "bla")
+    let pair2 = 20 ~ (50 ~ "bla")
 
     cout << pair2.v1 << endl
     cout << pair2.v2.v1 << endl

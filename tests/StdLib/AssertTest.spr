@@ -3,11 +3,11 @@ import assert
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
-    //else if n == 2; test2
+    else if n == 2; test2
     //else if n == 3; test3
 
 fun printerTrue: Bool
@@ -30,15 +30,6 @@ fun test1
     assert(printerFalse())
     assert(2 == 1+1)
     assert(2 != 1+1, "intentional error")
-    var a = 12
-    var b = 13
-    var c = 5
-    var foo: FooType = 10
-    assert(a == b)
-    assert(a+1 < b)
-    assert(a >= b, "intentional error")
-    assert(foo.data == 100, "non-printable vars work too")
-    assert(fact(c) != 120, "calling functions")
 /*<<<All asserts are ok (1)
 AssertTest.spr(27): assertion failure: check false has failed
 Inside printerTrue
@@ -46,9 +37,22 @@ Inside printerTrue
 Inside printerFalse
 AssertTest.spr(30): assertion failure: check printerFalse() has failed
 AssertTest.spr(32): assertion failure: check 2 != 1+1 has failed: intentional error
-AssertTest.spr(37): assertion failure: check a[=12] == b[=13] has failed
-AssertTest.spr(38): assertion failure: check a[=12]+1 < b[=13] has failed
-AssertTest.spr(39): assertion failure: check a[=12] >= b[=13] has failed: intentional error
-AssertTest.spr(40): assertion failure: check foo.data == 100 has failed: non-printable vars work too
-AssertTest.spr(41): assertion failure: check fact(c[=5]) != 120 has failed: calling functions
+>>>*/
+
+fun test2
+    let a = 12
+    let b = 13
+    let c = 5
+    let foo: FooType = 10
+    assert(a == b)
+    assert(a+1 < b)
+    assert(a >= b, "intentional error")
+    assert(foo.data == 100, "non-printable vars work too")
+    assert(fact(c) != 120, "calling functions")
+/*<<<Asserts with variable names KNOWN-PROBLEM(2)
+AssertTest.spr(47): assertion failure: check a[=12] == b[=13] has failed
+AssertTest.spr(48): assertion failure: check a[=12]+1 < b[=13] has failed
+AssertTest.spr(49): assertion failure: check a[=12] >= b[=13] has failed: intentional error
+AssertTest.spr(50): assertion failure: check foo.data == 100 has failed: non-printable vars work too
+AssertTest.spr(51): assertion failure: check fact(c[=5]) != 120 has failed: calling functions
 >>>*/

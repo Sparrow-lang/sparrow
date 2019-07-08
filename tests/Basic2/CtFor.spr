@@ -10,37 +10,40 @@ import std.vector
         _min, _max: Int
 
     fun front(this: MyRange) = _min
-    fun popFront(this: @MyRange) { _min += 1; }
+    fun popFront(this: !MyRange) { _min += 1; }
     fun isEmpty(this: MyRange) = _min > _max
 
 fun test1()
     [ct] for i = MyRange(0, 4)
-        cout << ctEval(i) << endl
+        cout << ctEval(i) << endl;
+    ;
 
 [ct] fun fact(n: Int): Int
     if ( n < 2 )
-        return 1
+        return 1;
     else
-        return n*fact(n-1)
+        return n*fact(n-1);
 
 fun test2()
     [ct] for i = 0..5
-        cout << ctEval(fact(i)) << endl
+        cout << ctEval(fact(i)) << endl;
+    ;
 
 [ct] fun createVector(min, max: Int): Vector(Int)
-    var v = Vector(Int)(min..max)
+    let v = Vector(Int)(min..max)
     return v
 
 fun test3()
-    [ct] var v = createVector(10, 15)
+    [ct] let v = createVector(10, 15)
 
     [ct] for el = v.all()
-        cout << ctEval(el) << endl
+        cout << ctEval(el) << endl;
+    ;
 
 fun sprMain
-    var x = 10
-    var y = 2
-    [ct] var yy = 2
+    let x = 10
+    let y = 2
+    [ct] let yy = 2
 
     test1()
     cout << "---" << endl

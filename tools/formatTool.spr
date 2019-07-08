@@ -12,8 +12,9 @@ using TransformFun = FunctionPtr(VoidType, @SourceData)
 using Transforms = TransformFun Vector
 
 fun sprMain
-    if programArgs.size() < 2
+    if programArgs.size < 2
         _printArgsError('not enough arguments')
+
     var filename = ''
 
     var inPlace = false

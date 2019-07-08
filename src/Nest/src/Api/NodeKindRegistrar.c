@@ -47,12 +47,10 @@ int Nest_registerNodeKind(const char* name, FSemanticCheck funSemanticCheck,
         funToString = Nest_defaultFunToString;
 
 #if SPARROW_PROFILING
-    const Nest_Profiling_LocType* setContextLoc =
-            Nest_Profiling_createLoc(strconcat("setCtx ", name), "Nest_setContext", "Node.c",
-                    1, 0x4f94cd); // SteelBlue3
-    const Nest_Profiling_LocType* computeTypeLoc =
-            Nest_Profiling_createLoc(strconcat("compType ", name), "Nest_computeType", "Node.c",
-                    1, 0x36648b); // SteelBlue4
+    const Nest_Profiling_LocType* setContextLoc = Nest_Profiling_createLoc(
+            strconcat("setCtx ", name), "Nest_setContext", "Node.c", 1, 0x4f94cd); // SteelBlue3
+    const Nest_Profiling_LocType* computeTypeLoc = Nest_Profiling_createLoc(
+            strconcat("compType ", name), "Nest_computeType", "Node.c", 1, 0x36648b); // SteelBlue4
     const Nest_Profiling_LocType* semanticCheckLoc =
             Nest_Profiling_createLoc(strconcat("semCheck ", name), "Nest_semanticCheck", "Node.c",
                     1, 0x27408b); // RoyalBlue4

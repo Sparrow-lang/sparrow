@@ -418,7 +418,7 @@ struct FunctionDecl : DeclNode {
     void setBody(NodeHandle body);
 
     //! @copydoc Nest::NodeHandle::type()
-    FunctionType type() const { return FunctionType(DeclNode::type()); }
+    FunctionType type() const { return {DeclNode::type()}; }
 
 private:
     static void setContextForChildrenImpl(ThisNodeType node);
@@ -452,7 +452,7 @@ struct StructDecl : DeclNode {
     NodeRange fields() const;
 
     //! @copydoc Nest::NodeHandle::type()
-    DataType type() const { return DataType(DeclNode::type()); }
+    DataType type() const { return {DeclNode::type()}; }
 
 private:
     static void setContextForChildrenImpl(ThisNodeType node);
@@ -489,7 +489,7 @@ struct VarDecl : DeclNode {
     NodeHandle typeNode() const;
 
     //! @copydoc Nest::NodeHandle::type()
-    TypeWithStorage type() const { return TypeWithStorage(DeclNode::type()); }
+    TypeWithStorage type() const { return {DeclNode::type()}; }
 
 private:
     static void setContextForChildrenImpl(ThisNodeType node);

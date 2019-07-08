@@ -46,7 +46,10 @@ Node* addAssociatedFun(Node* parent, const string& name, Node* body,
     NodeVector sprParams;
     sprParams.reserve(params.size());
     for (auto param : params) {
-        sprParams.push_back(mkSprParameter(loc, StringRef(param.second), param.first));
+        auto p = mkSprParameter(loc, StringRef(param.second), param.first);
+        if (param.first.mode() == modeCt)
+            Nest_setPropertyInt(p, propNoAutoConst, 1);
+        sprParams.push_back(p);
     }
     Node* parameters = sprParams.empty() ? nullptr : Feather_mkNodeList(loc, all(sprParams));
     Node* ret =
@@ -93,7 +96,7 @@ Node* generateAssociatedFun(
     Node* body = Feather_mkLocalSpace(loc, {});
     for (Node* field : cls->children) {
         // Left-hand side: field-ref to the current field
-        Node* lhs = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, thisRef), field);
+        Node* lhs = Feather_mkFieldRef(loc, thisRef, field);
 
         // Right-hand side
         Node* rhs =
@@ -116,7 +119,7 @@ Node* generateAssociatedFun(
 
     vector<pair<Type, string>> params;
     params.reserve(2);
-    params.emplace_back(Feather::addRef(Feather::DataType(cls->type)), string("this"));
+    params.emplace_back(Feather::MutableType::get(Feather::DataType(cls->type)), string("this"));
     if (otherParam)
         params.emplace_back(otherParam, string("other"));
 
@@ -259,6 +262,11 @@ bool hasCtorCall(Node* inSpace, bool checkThis, Node* forField) {
         if (Nest_nodeArraySize(n->children) == 0)
             continue;
         Node* thisArg = at(n->children, 0);
+        if (!Nest_semanticCheck(thisArg))
+            continue;
+        thisArg = Nest_explanation(thisArg);
+        if (!thisArg)
+            continue;
 
         // Check for this to be passed as argument
         if (checkThis) {

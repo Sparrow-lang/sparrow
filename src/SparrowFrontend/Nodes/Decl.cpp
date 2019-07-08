@@ -10,6 +10,7 @@
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/Helpers/Generics.h"
 #include "SparrowFrontend/Services/IConvertService.h"
+#include "SparrowFrontend/SprDebug.h"
 
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
@@ -140,6 +141,13 @@ Type computeVarType(
     if (typeNode) {
         typeNode.setPropertyExpl(propAllowDeclExp, 1);
         t = getType(typeNode);
+        if (t.hasStorage() && !Feather::isCategoryType(t)) {
+            TypeWithStorage tt = TypeWithStorage(t);
+            if (parent.hasProperty("addConst"))
+                t = Feather::ConstType::get(tt);
+            // else
+            //     t = Feather::MutableType::get(tt);
+        }
         if (!t)
             return {};
     } else {
@@ -151,7 +159,8 @@ Type computeVarType(
     // Should we get the type from the initialization expression?
     bool getTypeFromInit = !t;
     int numRefs = 0;
-    if (t && isConceptType(t, numRefs))
+    int kind = typeKindData;
+    if (t && isConceptType(t, numRefs, kind))
         getTypeFromInit = true;
     if (getTypeFromInit) {
         if (!init)
@@ -171,7 +180,7 @@ Type computeVarType(
                         init.type();
             }
 
-            t = getAutoType(init, numRefs);
+            t = getAutoType(init, numRefs, kind);
         } else
             return {};
     }
@@ -454,7 +463,15 @@ NodeHandle PackageDecl::semanticCheckImpl(PackageDecl node) {
 
 DEFINE_NODE_COMMON_IMPL(VariableDecl, DeclNode)
 
-VariableDecl VariableDecl::create(
+VariableDecl VariableDecl::createConst(
+        const Location& loc, StringRef name, NodeHandle typeNode, NodeHandle init) {
+    if (!typeNode && !init)
+        REP_ERROR(loc, "Cannot create variable without a type and without an initializer");
+    auto res = createDeclNode<VariableDecl>(loc, name, NodeRange({typeNode, init}));
+    res.setProperty("addConst", 1);
+    return res;
+}
+VariableDecl VariableDecl::createMut(
         const Location& loc, StringRef name, NodeHandle typeNode, NodeHandle init) {
     if (!typeNode && !init)
         REP_ERROR(loc, "Cannot create variable without a type and without an initializer");
@@ -484,7 +501,7 @@ Type VariableDecl::computeTypeImpl(VariableDecl node) {
 
     // Get the type of the variable
     Type t = computeVarType(node, node.childrenContext(), typeNode, init);
-    if (!t)
+    if (!t && !t.hasStorage())
         return {};
 
     // If the type of the variable indicates a variable that can only be CT, change the evalMode
@@ -507,7 +524,7 @@ Type VariableDecl::computeTypeImpl(VariableDecl node) {
     if (varKind == varLocal && node.context()->evalMode == modeRt && t.mode() == modeCt)
         varKind = varGlobal;
 
-    bool isRef = t.numReferences() > 0;
+    bool isRef = Feather::removeCategoryIfPresent(t).numReferences() > 0;
 
     // Generate the initialization and destruction calls
     NodeHandle ctorCall;
@@ -516,7 +533,17 @@ Type VariableDecl::computeTypeImpl(VariableDecl node) {
     if (Feather::isDataLikeType(t) && (init || !isRef)) {
         ASSERT(resultingVar.type());
 
-        varRef = Feather::VarRefExp::create(loc, resultingVar);
+        // Create a var-ref object to refer to the variable to be initialized/destructed.
+        NodeHandle varRef = Feather::VarRefExp::create(loc, resultingVar);
+
+        // If the variable is const, cast the constness away for initialization & destruction
+        if (resultingVar.type().kind() == Feather_getConstTypeKind()) {
+            TypeWithStorage t = Feather::ConstType(resultingVar.type()).base();
+            t = Feather::MutableType::get(t);
+            auto typeNode = Feather::TypeNode::create(loc, t);
+            varRef = Feather::BitcastExp::create(loc, typeNode, varRef);
+        }
+
         varRef.setContext(node.childrenContext());
 
         if (!isRef) {
@@ -664,7 +691,7 @@ Type DataTypeDecl::computeTypeImpl(DataTypeDecl node) {
     resultingStruct.addChildren(all(fields));
 
     // Check for autoBitcopiable
-    if ( node.hasProperty(propAutoBitCopiable)) {
+    if (node.hasProperty(propAutoBitCopiable)) {
         bool allAreBitcopiable = true;
         for (auto f : fields) {
             ASSERT(f->type);
@@ -908,8 +935,9 @@ Type SprFunctionDecl::computeTypeImpl(SprFunctionDecl node) {
     if (!preserveRetAbi) {
         ASSERT(returnType);
         const Location& retLoc = returnType.location();
-        auto resParam = Feather::VarDecl::create(retLoc, StringRef("_result"),
-                Feather::TypeNode::create(retLoc, Feather::addRef(TypeWithStorage(resType))));
+        auto resParamType = Feather::MutableType::get(TypeWithStorage(resType));
+        auto resParam = Feather::VarDecl::create(
+                retLoc, StringRef("_result"), Feather::TypeNode::create(retLoc, resParamType));
         resParam.setContext(node.childrenContext());
         resultingFun.addParameter(resParam, true);
         resultingFun.setProperty(propResultParam, resParam);
@@ -985,6 +1013,10 @@ Type ParameterDecl::computeTypeImpl(ParameterDecl node) {
     if (!t)
         return {};
 
+    // Should with make this parameter const?
+    if (shouldMakeParamConst(t) && !node.hasProperty(propNoAutoConst))
+        t = Feather::ConstType::get(TypeWithStorage(t));
+
     auto resultingParam =
             Feather::VarDecl::create(loc, node.name(), Feather::TypeNode::create(loc, t));
     resultingParam.setMode(node.effectiveMode());
@@ -1021,9 +1053,7 @@ ConceptDecl ConceptDecl::create(const Location& loc, StringRef name, StringRef p
 
 StringRef ConceptDecl::paramName() const { return getCheckPropertyString("spr.paramName"); }
 
-InstantiationsSet ConceptDecl::instantiationsSet() const {
-    return InstantiationsSet(children()[2]);
-};
+InstantiationsSet ConceptDecl::instantiationsSet() const { return {children()[2]}; };
 
 void ConceptDecl::setContextForChildrenImpl(ConceptDecl node) {
     commonSetContextForChildren(node, ContextChangeType::withSymTab);

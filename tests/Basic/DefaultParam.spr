@@ -5,12 +5,12 @@ concept AnyType(x) if true
 fun myadd(x: Int, y: Int = 1) = x+y
 
 datatype Foo
-    x: Int
+    x: Int;
 
-fun ctor(this: @Foo, x: Int = 10) { this.x = x; }
-fun ctor(this: @Foo, dummy1, dummy2: Int, x: Int = 10) { this.x = x; }
+fun ctor(this: !Foo, x: Int = 10) { this.x = x; }
+fun ctor(this: !Foo, dummy1, dummy2: Int, x: Int = 10) { this.x = x; }
 
-fun ctor(this: @Foo, dummy1, dummy2, dummy3: AnyType, x: AnyType = 10) { this.x ctor x; }
+fun ctor(this: !Foo, dummy1, dummy2, dummy3: AnyType, x: AnyType = 10) { this.x ctor x; }
 
 fun incWith(this: Foo, n: Int = 1) = x+n
 
@@ -20,11 +20,11 @@ fun writeGen(x: AnyType = 1) { writeLn(x); }
 
 fun printType(t: Type)
     if ( t == Int )
-        write("Int")
+        write("Int");
     else if ( t == Double )
-        write("Double")
+        write("Double");
     else if ( t == Char )
-        write("Char")
+        write("Char");
 
 datatype TypePrinter(t1: Type, t2: Type = Int)
     using T1 = t1
@@ -42,7 +42,7 @@ datatype Bar(t: Type = Int)
 fun print(this: Bar)  { printType(T); writeLn(""); }
 
 [native("test")] fun test(n: Int)
-    var foo = Foo(7)
+    let foo = Foo(7)
 
     // Functions with default args
     writeLn(myadd(2,3))
@@ -60,8 +60,8 @@ fun print(this: Bar)  { printType(T); writeLn(""); }
 
     // Ctor with default args
     writeLn("---")
-    var foo2 = Foo(6, 7, 5)
-    var foo3 = Foo(6, 7)
+    let foo2 = Foo(6, 7, 5)
+    let foo3 = Foo(6, 7)
     writeLn(foo2.x)
     writeLn(foo3.x)
 

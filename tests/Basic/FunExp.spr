@@ -17,8 +17,8 @@ datatype Test1
     aa: Int
     bb: Int
 
-fun ctor(this: @Test1, a,b: Int) { aa = a; bb = b; }
-fun ctor(this, other: @Test1) { aa = other.aa; bb = other.bb; }
+fun ctor(this: !Test1, a,b: Int) { aa = a; bb = b; }
+fun ctor(this, other: !Test1) { aa = other.aa; bb = other.bb; }
 
 fun a(this: Test1) = this.aa
 fun b(this: Test1) = this.bb
@@ -34,7 +34,7 @@ fun b(this: Test1) = this.bb
     writeLn(nextAsDouble(3.14))
     writeLn("---")
 
-    var t = Test1(3,5)
+    let t = Test1(3,5)
     writeLn(t.a())
     writeLn(t.b())
 

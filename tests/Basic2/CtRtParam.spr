@@ -15,24 +15,24 @@ fun apply(f: AnyType, n: Int ct)
         f()
         apply(f, n-1)
     else
-        cout << " @ct" << endl
+        cout << " @ct" << endl;
 
 fun apply(f: AnyType, n: Int rt)
     for i = 0..n
-        f()
+        f();
     cout << " @rt" << endl
 
 fun sprMain
-    var x = 10
-    var y = 2
-    [ct] var yy = 2
+    let x = 10
+    let y = 2
+    [ct] let yy = 2
 
     cout << doCompute(x, y) << endl
     cout << doCompute(x, yy) << endl
 
     cout << "---" << endl
 
-    var n = 5
+    let n = 5
     apply((fun {cout << 'x';}), 5)
     apply((fun {cout << 'x';}), n)
 

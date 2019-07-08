@@ -24,26 +24,26 @@ fun lessEqual(x,y: Ordered)    = (x<=y) == !(y<x)
 fun greaterEqual(x,y: Ordered) = (x>=y) == !(x<y)
 
 fun testOrdered(x: Ordered)
-    cout << TypeOp.description(typeOf(x)) << " is Ordered\n"
+    cout << TypeOp.description(typeOf(x)) << " is Ordered\n";
 
 fun testOrdered(x: AnyType) if !Ordered(x)
-    cout << TypeOp.description(typeOf(x)) << " is not Ordered\n"
+    cout << TypeOp.description(typeOf(x)) << " is not Ordered\n";
 
 datatype MyType
-
+    ;
 fun < (this, other: MyType) = false
 // Other operators are implicitly defined
 
 [noDefault]
 datatype EmptyType
-
-fun ctor(this: @EmptyType) {}
+    ;
+fun ctor(this: !EmptyType) {}
 
 fun sprMain
     testOrdered(1)
     testOrdered(1.0)
-    var o1: MyType
-    var o2: EmptyType
+    let o1: MyType
+    let o2: EmptyType
     testOrdered(o1)
     testOrdered(o2)
 /*<<<Running()

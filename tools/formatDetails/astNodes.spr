@@ -23,12 +23,12 @@ fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind)
     this.kind ctor kind
     this.loc ctor l
     // cout << "Parsed: " << kind << endl
-fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, r: Range)
+fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, r: AnyType) // TODO (mut)
     this.kind ctor kind
     this.loc ctor l
     this.children ctor r
     // cout << "Parsed: " << kind << endl
-fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, r: Range, name: StringRef)
+fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, r: AnyType, name: StringRef) // TODO (mut)
     this.kind ctor kind
     this.loc ctor l
     this.name ctor name
@@ -40,7 +40,11 @@ fun ctor(this: @AstNodeImpl, l: Location, kind: NodeKind, name: StringRef)
     this.name ctor name
     // cout << "Parsed: " << kind << endl
 
-fun _toImpl(n: Node): @AstNodeImpl = ife(n.data.data !== null, reinterpretCast(@AstNodeImpl, n.data.data), _nullAstNodeImpl)
+fun _toImpl(n: Node): @AstNodeImpl
+    if n.data.data !== null
+        return reinterpretCast(@AstNodeImpl, n.data.data)
+    else
+        return _nullAstNodeImpl
 fun _toNode(impl: @AstNodeImpl)    = Node(UntypedPtr(reinterpretCast(@Byte, impl)))
 
 fun isSet(this: Node)                   = this.data.data !== null
@@ -99,6 +103,8 @@ fun mkField(this: @SimpleAstBuilder, loc: @Location, name: StringRef, typeNode, 
     = createNode(loc, nkField, values(typeNode, init), name)
 fun mkConcept(this: @SimpleAstBuilder, loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node) \
     = createNode(loc, nkConcept, values(baseConcept, ifClause), name)
+fun mkLet(this: @SimpleAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \
+    = createNode(loc, nkLet, values(typeNode, init), name)
 fun mkVar(this: @SimpleAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \
     = createNode(loc, nkVar, values(typeNode, init), name)
 fun mkParameter(this: @SimpleAstBuilder, loc: @Location, name: StringRef, typeNode, init: Node) \

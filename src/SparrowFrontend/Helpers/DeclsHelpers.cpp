@@ -148,6 +148,7 @@ Nest_NodeArray SprFrontend::expandDecls(Nest_NodeRange decls, Node* seenFrom) {
                 }
 
                 // Make sure we run again for the newly replaced decl
+                // NOLINTNEXTLINE
                 goto run_loop_again;
             }
         }

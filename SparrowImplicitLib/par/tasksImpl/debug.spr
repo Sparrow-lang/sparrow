@@ -14,20 +14,20 @@ var traceMutex: TraceLockType
 datatype Tracer
 
 [protected]
-    fun ctor(this: @Tracer)
+    fun ctor(this: !Tracer)
         [ct] if traceCalls
             traceMutex lock
 
-    fun ctor(this: @Tracer, workerId: Int, depth: Int)
+    fun ctor(this: !Tracer, workerId: Int, depth: Int)
         [ct] if traceCalls
             traceMutex lock
             cout << workerId << ": " << Depth(depth)
 
-    fun dtor(this: @Tracer)
+    fun dtor(this: !Tracer)
         [ct] if traceCalls
             traceMutex unlock
 
-    fun <<<(this: @Tracer, x: @AnyType)
+    fun <<<(this: !Tracer, x: AnyType)
         [ct] if traceCalls
             cout << x
 
@@ -35,7 +35,7 @@ datatype Tracer
 datatype Depth
     depth: Int
 
-fun >> (d: Depth, os: @OutStream)
+fun >> (d: Depth, os: !OutStream)
     if d.depth > 0
         os << String(d.depth*2, ' '.char)
 

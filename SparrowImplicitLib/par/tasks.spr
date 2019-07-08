@@ -8,7 +8,7 @@ import tp = tasksImpl.taskPrefix
 import tasksImpl.workerImpl
 import schedulerIf = tasksImpl.schedulerIf
 
-fun spawnRootAndWait(task: @TaskType)
+fun spawnRootAndWait(task: !TaskType)
     [ct] if isValidAndTrue(tasksImpl.traceCalls) && isValid(cout << task)
         cout << "spawnRootAndWait(" << task << ")" << endl
 
@@ -16,32 +16,32 @@ fun spawnRootAndWait(task: @TaskType)
 
     schedulerIf.spawnRootAndWait(getPrefix(task))
 
-fun spawn(curTask, childTask: @TaskType)
+fun spawn(curTask, childTask: !TaskType)
     getPrefix(curTask) addRefCount 1
     Impl.doSpawn(curTask, childTask)
-fun spawn(curTask, t1, t2: @TaskType)
+fun spawn(curTask, t1, t2: !TaskType)
     getPrefix(curTask) addRefCount 2
     Impl.doSpawn(curTask, t2)
     Impl.doSpawn(curTask, t1)
-fun spawn(curTask, t1, t2, t3: @TaskType)
+fun spawn(curTask, t1, t2, t3: !TaskType)
     getPrefix(curTask) addRefCount 3
     Impl.doSpawn(curTask, t3)
     Impl.doSpawn(curTask, t2)
     Impl.doSpawn(curTask, t1)
-fun spawn(curTask, t1, t2, t3, t4: @TaskType)
+fun spawn(curTask, t1, t2, t3, t4: !TaskType)
     getPrefix(curTask) addRefCount 4
     Impl.doSpawn(curTask, t4)
     Impl.doSpawn(curTask, t3)
     Impl.doSpawn(curTask, t2)
     Impl.doSpawn(curTask, t1)
-fun spawn(curTask, t1, t2, t3, t4, t5: @TaskType)
+fun spawn(curTask, t1, t2, t3, t4, t5: !TaskType)
     getPrefix(curTask) addRefCount 5
     Impl.doSpawn(curTask, t5)
     Impl.doSpawn(curTask, t4)
     Impl.doSpawn(curTask, t3)
     Impl.doSpawn(curTask, t2)
     Impl.doSpawn(curTask, t1)
-fun spawn(curTask, t1, t2, t3, t4, t5, t6: @TaskType)
+fun spawn(curTask, t1, t2, t3, t4, t5, t6: !TaskType)
     getPrefix(curTask) addRefCount 6
     Impl.doSpawn(curTask, t6)
     Impl.doSpawn(curTask, t5)
@@ -49,7 +49,7 @@ fun spawn(curTask, t1, t2, t3, t4, t5, t6: @TaskType)
     Impl.doSpawn(curTask, t3)
     Impl.doSpawn(curTask, t2)
     Impl.doSpawn(curTask, t1)
-fun spawn(curTask, t1, t2, t3, t4, t5, t6, t7: @TaskType)
+fun spawn(curTask, t1, t2, t3, t4, t5, t6, t7: !TaskType)
     getPrefix(curTask) addRefCount 7
     Impl.doSpawn(curTask, t7)
     Impl.doSpawn(curTask, t6)
@@ -59,36 +59,36 @@ fun spawn(curTask, t1, t2, t3, t4, t5, t6, t7: @TaskType)
     Impl.doSpawn(curTask, t2)
     Impl.doSpawn(curTask, t1)
 
-fun wait(curTask: @TaskType)
+fun wait(curTask: !TaskType)
     getPrefix(curTask) addRefCount 1
     schedulerIf.waitForAll(getPrefix(curTask))
 
-fun spawnAndWait(curTask, t1: @TaskType)
+fun spawnAndWait(curTask, t1: !TaskType)
     getPrefix(curTask) addRefCount 2
     Impl.doSpawnAndWait(curTask, t1)
-fun spawnAndWait(curTask, t1, t2: @TaskType)
+fun spawnAndWait(curTask, t1, t2: !TaskType)
     getPrefix(curTask) addRefCount 3
     Impl.doSpawn(curTask, t2)
     Impl.doSpawnAndWait(curTask, t1)
-fun spawnAndWait(curTask, t1, t2, t3: @TaskType)
+fun spawnAndWait(curTask, t1, t2, t3: !TaskType)
     getPrefix(curTask) addRefCount 4
     Impl.doSpawn(curTask, t3)
     Impl.doSpawn(curTask, t2)
     Impl.doSpawnAndWait(curTask, t1)
-fun spawnAndWait(curTask, t1, t2, t3, t4: @TaskType)
+fun spawnAndWait(curTask, t1, t2, t3, t4: !TaskType)
     getPrefix(curTask) addRefCount 5
     Impl.doSpawn(curTask, t4)
     Impl.doSpawn(curTask, t3)
     Impl.doSpawn(curTask, t2)
     Impl.doSpawnAndWait(curTask, t1)
-fun spawnAndWait(curTask, t1, t2, t3, t4, t5: @TaskType)
+fun spawnAndWait(curTask, t1, t2, t3, t4, t5: !TaskType)
     getPrefix(curTask) addRefCount 6
     Impl.doSpawn(curTask, t5)
     Impl.doSpawn(curTask, t4)
     Impl.doSpawn(curTask, t3)
     Impl.doSpawn(curTask, t2)
     Impl.doSpawnAndWait(curTask, t1)
-fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6: @TaskType)
+fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6: !TaskType)
     getPrefix(curTask) addRefCount 7
     Impl.doSpawn(curTask, t6)
     Impl.doSpawn(curTask, t5)
@@ -96,7 +96,7 @@ fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6: @TaskType)
     Impl.doSpawn(curTask, t3)
     Impl.doSpawn(curTask, t2)
     Impl.doSpawnAndWait(curTask, t1)
-fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6, t7: @TaskType)
+fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6, t7: !TaskType)
     getPrefix(curTask) addRefCount 8
     Impl.doSpawn(curTask, t7)
     Impl.doSpawn(curTask, t6)
@@ -106,7 +106,7 @@ fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6, t7: @TaskType)
     Impl.doSpawn(curTask, t2)
     Impl.doSpawnAndWait(curTask, t1)
 
-fun setContinuation(curTask, cont: @TaskType)
+fun setContinuation(curTask, cont: !TaskType)
     Impl.initTaskBasic(cont)
 
     // The continuation has the same parent, depth & worker as the current task
@@ -121,6 +121,6 @@ fun setContinuation(curTask, cont: @TaskType)
     //assert(getPrefix(curTask).cont isNull)
     getPrefix(curTask).cont = getPrefix(cont)
 
-fun enqueue(task: @TaskType)
+fun enqueue(task: !TaskType)
     Impl.initAsRoot(task)
     schedulerIf.enqueue(getPrefix(task))

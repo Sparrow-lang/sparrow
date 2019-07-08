@@ -27,35 +27,35 @@ fun schedSpawn(task: TaskPtr)
     taskWorker.work pushFront task
 
 fun schedWaitForAll(parent: TaskPtr, child: TaskPtr)
-    var taskWroker: @Worker = parent.get() worker
+    var taskWorker: @Worker = parent.get() worker
 
     [ct] if isValidAndTrue(traceCalls)
-        tracer(taskWroker) << "schedWaitForAll(" << parent.get() << ", " << child.get() << ")" << endl
+        tracer(taskWorker) << "schedWaitForAll(" << parent.get() << ", " << child.get() << ")" << endl
     if child isSet
         child.get() assertValid
     parent.get() assertValid
 
     // Ensure the right depth is set in the worker
-    var oldDepth = taskWroker.curDepth
-    taskWroker.curDepth = parent.get().depth
+    let oldDepth = taskWorker.curDepth
+    taskWorker.curDepth = parent.get().depth
 
-    parent.get() setWaitingWorker taskWroker
+    parent.get() setWaitingWorker taskWorker
 
-    schedDoWait(taskWroker, child, parent)
+    schedDoWait(taskWorker, child, parent)
 
     // Restore the old depth
-    taskWroker.curDepth = oldDepth
+    taskWorker.curDepth = oldDepth
 
 fun schedSpawnRootAndWait(task: TaskPtr)
-    var taskWroker: @Worker = task.get() worker
+    var taskWorker: @Worker = task.get() worker
 
     [ct] if isValidAndTrue(traceCalls)
-        tracer(taskWroker) << "schedSpawnRootAndWait(" << task.get() << ")" << endl
+        tracer(taskWorker) << "schedSpawnRootAndWait(" << task.get() << ")" << endl
     task.get() assertValid
 
     // Ensure the right depth is set in the worker
-    var oldDepth = taskWroker.curDepth
-    taskWroker.curDepth = 0
+    let oldDepth = taskWorker.curDepth
+    taskWorker.curDepth = 0
 
     // Create a dummy task to wait for
     var waitingTask: EmptyTask
@@ -64,32 +64,32 @@ fun schedSpawnRootAndWait(task: TaskPtr)
     task.get().parent = TaskPtr(waitingTask.prefix)
 
     // This is the task we are waiting for
-    waitingTask.prefix setWaitingWorker taskWroker
+    waitingTask.prefix setWaitingWorker taskWorker
 
     // Execute the root task and wait for it
-    schedDoWait(taskWroker, task, TaskPtr(waitingTask.prefix))
+    schedDoWait(taskWorker, task, TaskPtr(waitingTask.prefix))
 
     // Restore the old depth
-    taskWroker.curDepth = oldDepth
+    taskWorker.curDepth = oldDepth
 
 fun schedEnqueue(task: TaskPtr)
-    var taskWroker: @Worker = task.get() worker
+    var taskWorker: @Worker = task.get() worker
 
     [ct] if isValidAndTrue(traceCalls)
-        tracer(taskWroker) << "schedEnqueue(" << task.get() << ")" << endl
+        tracer(taskWorker) << "schedEnqueue(" << task.get() << ")" << endl
     task.get() assertValid
 
     // Announce new work in the task system
-    taskWroker.taskSystem onTaskAvailable
+    taskWorker.taskSystem onTaskAvailable
 
     // Enqueue the task
-    taskWroker.taskSystem.globalQueue pushFront task
+    taskWorker.taskSystem.globalQueue pushFront task
 
 ///////////////////////////////////////////////////////////////////////////////
 // Task execution logic
 
 [native('par.tasksImpl.scheduler.schedDoWait')]
-fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr)
+fun schedDoWait(worker: !Worker, toExecute, waitingTask: TaskPtr)
 
     using maxRetriesBeforeGoingIdle = 1
     var numRetries = maxRetriesBeforeGoingIdle
@@ -130,7 +130,7 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr)
         // Steal work from other queues
         if toExecute isNull
             // Try different queues until we find one we can steal from
-            var numStealAttempts = 2*(worker.taskSystem numAvailableWorkers)
+            let numStealAttempts = 2*(worker.taskSystem numAvailableWorkers)
             for i = 1..numStealAttempts
                 // Get a queue from another worker; chose it randomly
                 var otherQueue: @TaskQueue = (worker.taskSystem getRandomTaskQueue)
@@ -138,7 +138,7 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr)
                 toExecute = (otherQueue popBack)
                 if toExecute isSet
                     // Change the worker for the stolen task
-                    toExecute.get().worker = reinterpretCast(@Byte, worker)
+                    toExecute.get().worker = UntypedPtr(worker)
 
                     [ct] if isValidAndTrue(traceCalls)
                         tracer(worker)<< "************************* Task stolen: " << toExecute.get() << "\n\n\n"
@@ -181,8 +181,8 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr)
     [ct] if isValidAndTrue(traceCalls)
         tracer(worker) << "task " << waitingTask.get() << " can continue; remaining work: " << TasksPrinter(TaskPtr(), worker.work) << endl
 
-fun executeTask(task: @TaskPrefix): TaskPtr
-    var taskWroker: @Worker = task worker
+fun executeTask(task: !TaskPrefix): TaskPtr
+    var taskWorker: @Worker = task worker
 
     // TODO: check cancellation
     if false
@@ -190,7 +190,7 @@ fun executeTask(task: @TaskPrefix): TaskPtr
 
     // Execute the task
     [ct] if isValidAndTrue(traceCalls)
-        tracer(taskWroker) << "executing task " << task << "; parent=" << task.parent.get() << endl
+        tracer(taskWorker) << "executing task " << task << "; parent=" << task.parent.get() << endl
     task.executeFn(task)
 
     // Now check if we can execute the parent
@@ -210,12 +210,12 @@ fun executeTask(task: @TaskPrefix): TaskPtr
     if cnt == 0
         // If we are waiting on the parent task, make sure it's waiting worker is awake
         var ww: @Worker = task.parent.get() waitingWorker
-        if ww !== taskWroker && ww !== null
+        if ww !== taskWorker && ww !== null
             ww tryWakeUp
 
         // Enqueue the parent task for execution
         [ct] if isValidAndTrue(traceCalls)
-            tracer(taskWroker) << "Can continue with the parent task: " << task.parent.get() << endl
+            tracer(taskWorker) << "Can continue with the parent task: " << task.parent.get() << endl
         return task.parent
 
     return TaskPtr()

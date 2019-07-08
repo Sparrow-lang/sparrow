@@ -1,7 +1,7 @@
 //!!
 import logic.prologFrontend
 
-fun fib_native(p_1: Int, p_2: @Int): Bool
+fun fib_native(p_1: Int, p_2: !Int): Bool
     var l2_X2: Int = Uninitialized()
     var l2_Y2: Int = Uninitialized()
     var l2_X1: Int = Uninitialized()
@@ -13,15 +13,15 @@ fun fib_native(p_1: Int, p_2: @Int): Bool
 datatype fib_pred_wrapper
     p_1: LInt
     p_2: LInt
-fun ctor(this: @fib_pred_wrapper, p_1: @LInt, p_2: @LInt)
+fun ctor(this: !fib_pred_wrapper, p_1: !LInt, p_2: !LInt)
     this.p_1 ctor p_1
     this.p_2 ctor p_2
-fun ()(this: @fib_pred_wrapper): Bool
+fun ()(this: !fib_pred_wrapper): Bool
     if ( p_1.isNull() )
         return false
     p_2 = Int()
     return fib_native(p_1.get(), p_2.get())
-fun fib(p_1: @LInt, p_2: @LInt): Predicate = fib_pred_wrapper(p_1, p_2)
+fun fib(p_1: !LInt, p_2: !LInt): Predicate = fib_pred_wrapper(p_1, p_2)
 
 fun sprMain
     if ( programArgs.size() < 2 )

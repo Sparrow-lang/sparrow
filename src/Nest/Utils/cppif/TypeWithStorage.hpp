@@ -23,7 +23,7 @@ struct TypeWithStorage : Type {
 
     //! @copydoc Type::changeMode
     TypeWithStorage changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
-        return TypeWithStorage(Type::changeMode(mode, loc));
+        return {Type::changeMode(mode, loc)};
     }
 
     //!@}

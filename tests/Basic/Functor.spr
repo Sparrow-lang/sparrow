@@ -1,9 +1,10 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 datatype Test
+    ;
 
 fun ()(this: Test)
-    writeLn("call operator")
+    writeLn("call operator");
 
 fun ()(this: Test, x: Int)
     write("call operator(")
@@ -18,10 +19,10 @@ fun ()(this: Test, x,y: Int)
     writeLn(")")
 
 fun selfCall(this: Test)
-    this(100)
+    this(100);
 
 [native("test")] fun test(n: Int)
-    var t: Test
+    let t: Test
     t()
     t(10)
     t(10, 20)

@@ -2,46 +2,48 @@
 
 fun assert(b: Bool)
     if ( !b )
-        write('F'); write('A'); write('I'); writeLn('L')
+        write('F'); write('A'); write('I'); writeLn('L');
+    ;
 
 fun fassert(b: Bool)
     if ( ! !b )
-        write('F'); write('A'); write('I'); writeLn('L')
+        write('F'); write('A'); write('I'); writeLn('L');
+    ;
 
 fun pow1(x: Double, n: Int): Double
     if ( n == 0 )
-        return 1.0
+        return 1.0;
     else if ( n == 1 )
-        return x
+        return x;
     else
-        return pow1(x*x, n/2) * pow1(x, n%2)
+        return pow1(x*x, n/2) * pow1(x, n%2);
 
 fun pow2(x: Double, n: Int): Double
     if ( n == 0 )
-        return 1.0
+        return 1.0;
     else
-        return x * pow2(x, n-1)
-    return x
+        return x * pow2(x, n-1);
+    return x;
 
 fun pow3(x: Double, n: Int): Double
     var res: Double
     res = 1.0
     while n>0 ; n=n-1
-        res = res * x
+        res = res * x;
     return res
 
 fun pow4(x: Double, n: Int): Double
     var res: Double
     res = 1.0
     while n>0 ; n-=1
-        res *= x
+        res *= x;
     return res
 
 datatype MyInt
-    x: Int
+    x: Int;
 
-fun ctor(this: @MyInt) { x = 0; }
-fun ctor(this: @MyInt, other: MyInt) { x = other.x; }
+fun ctor(this: !MyInt) { x = 0; }
+fun ctor(this: !MyInt, other: MyInt) { x = other.x; }
 
 fun + (x,y: MyInt): MyInt
     var res: MyInt
@@ -54,18 +56,18 @@ fun * (x,y: MyInt): MyInt
     return res
 
 fun < (x,y: MyInt): Bool
-    return x.x < y.x
+    return x.x < y.x;
 
 fun = (x: MyInt@, y: MyInt)
-    x.x = y.x
+    x.x = y.x;
 
 package NearClass
 
     datatype MyInt2
-        x: Int
+        x: Int;
 
-    fun ctor(this: @MyInt2) { x = 0; }
-    fun ctor(this: @MyInt2, other: MyInt2) { x = other.x; }
+    fun ctor(this: !MyInt2) { x = 0; }
+    fun ctor(this: !MyInt2, other: MyInt2) { x = other.x; }
 
     fun + (l, r: MyInt2): MyInt2
         var res: MyInt2
@@ -78,20 +80,20 @@ package NearClass
         return res
 
     fun < (l, r: MyInt2): Bool
-        return l.x < r.x
+        return l.x < r.x;
 
-    fun = (this: @MyInt2, other: MyInt2)
-        this.x = other.x
+    fun = (this: !MyInt2, other: MyInt2)
+        this.x = other.x;
 
 using NearClass.MyInt2
 
 fun + (x,y: MyInt2): MyInt2
-    var res: MyInt2
+    let res: MyInt2
     writeLn("failure")
     return res
 
 fun * (x,y: MyInt2): MyInt2
-    var res: MyInt2
+    let res: MyInt2
     writeLn("failure")
     return res
 
@@ -100,7 +102,7 @@ fun < (x,y: MyInt2): Bool
     return false
 
 fun = (x: MyInt2@, y: MyInt2)
-    writeLn("failure")
+    writeLn("failure");
 
 [native("test")] fun test(n: Int)
     writeLn(pow1(2.0, 0))

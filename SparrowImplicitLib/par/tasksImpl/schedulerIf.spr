@@ -5,15 +5,15 @@ import sched = scheduler(schedSpawn, schedWaitForAll, schedSpawnRootAndWait, sch
 import worker = workerImpl(localWorker)
 import std.ptr
 
-fun spawn(task: @TaskPrefix)
+fun spawn(task: !TaskPrefix)
     sched.schedSpawn(TaskPtr(task))
-fun spawnAndWaitForAll(curTask, child: @TaskPrefix)
+fun spawnAndWaitForAll(curTask, child: !TaskPrefix)
     sched.schedWaitForAll(TaskPtr(curTask), TaskPtr(child))
-fun spawnRootAndWait(root: @TaskPrefix)
+fun spawnRootAndWait(root: !TaskPrefix)
     sched.schedSpawnRootAndWait(TaskPtr(root))
-fun waitForAll(curTask: @TaskPrefix)
+fun waitForAll(curTask: !TaskPrefix)
     sched.schedWaitForAll(TaskPtr(curTask), TaskPtr())
-fun enqueue(task: @TaskPrefix)
+fun enqueue(task: !TaskPrefix)
     sched.schedEnqueue(TaskPtr(task))
 
-fun localWorker(): Byte Ptr = reinterpretPtr(Byte, worker.localWorker())
+fun localWorker(): UntypedPtr = UntypedPtr(worker.localWorker().get())

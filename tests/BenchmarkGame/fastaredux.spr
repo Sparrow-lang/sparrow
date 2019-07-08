@@ -5,16 +5,18 @@ import std.algorithms
 import std.string
 import std.tuple
 
-fun write(r: Range, length: Int) if isValid(Char(r.front))
+fun write(r: Range, length: Int) if isValid(Char(#$r.RetType))
     using lineLength = 60
+    var rc = r
     var line: String = lineLength
     for n = length..0 ../ (-lineLength)
-        var len = min(n, lineLength)
+        let len = min(n, lineLength)
         for i = 0..len
-            line(i) = (r++)
+            line(i) = (rc++);
         if ( len < lineLength )
-            line.resize(len)
-        cout << line << "\n"
+            line.resize(len);
+        cout << line << "\n";
+    ;
 
 var seed: Int = 42
 fun nextRandom: Double
@@ -27,26 +29,30 @@ datatype RandTableRange
     using numEntries = 4095
     lookup: Array((Float rt)*(Char rt))
 
-fun ctor(this: @RandTableRange, data: Range)
+fun ctor(this: !RandTableRange, other: RandTableRange)
+    this.lookup ctor other.lookup
+
+fun ctor(this: !RandTableRange, data: Range)
+    var datac = data
     lookup.ctor(numEntries+1)
     for i = 0...numEntries
-        while i > data.front().v1*numEntries
-            data.popFront()
-        lookup(i) = data.front
+        while i > datac.front().v1*numEntries
+            datac.popFront()
+        lookup(i) = datac.front
 
-fun isEmpty(this: @RandTableRange)     = false
-fun popFront(this: @RandTableRange)    {}
-fun front(this: @RandTableRange): Char
-    var r = nextRandom
+fun isEmpty(this: !RandTableRange)     = false
+fun popFront(this: !RandTableRange)    {}
+fun front(this: !RandTableRange): Char
+    let r = nextRandom
     var idx: SizeType = r*numEntries
     while lookup(idx).v1 < r
-        ++idx
-    return lookup(idx).v2
+        ++idx;
+    return lookup(idx).v2;
 
 fun sprMain
-    var n = (programArgs(1) asInt)
+    let n = (programArgs(1) asInt)
 
-    var alu: String = (
+    let alu: String = (
         "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGG" +
         "GAGGCCGAGGCGGGCGGATCACCTGAGGTCAGGAGTTCGAGA" +
         "CCAGCCTGGCCAACATGGTGAAACCCCGTCTCTACTAAAAAT" +
@@ -55,13 +61,13 @@ fun sprMain
         "AGGCGGAGGTTGCAGTGAGCCGAGATCGCGCCACTGCACTCC" +
         "AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA")
 
-    var iubStr: String = "acgtBDHKMNRSVWY"
-    var iubDist = values(0.27f, 0.12f, 0.12f, 0.27f) ++ repeat(0.02f, 11)
-    var iubCum = scanLeft(0.0f, iubDist, (fun acc,v = acc+v))
+    let iubStr: String = "acgtBDHKMNRSVWY"
+    let iubDist = values(0.27f, 0.12f, 0.12f, 0.27f) ++ repeat(0.02f, 11)
+    let iubCum = scanLeft(0.0f, iubDist, (fun acc,v = acc+v))
 
-    var homoSapiensStr: String = "acgt"
-    var hsDist = values(0.3029549426680f, 0.1979883004921f, 0.1975473066391f, 0.3015094502008f)
-    var hsCum = scanLeft(0.0f, hsDist, (fun acc,v = acc+v))
+    let homoSapiensStr: String = "acgt"
+    let hsDist = values(0.3029549426680f, 0.1979883004921f, 0.1975473066391f, 0.3015094502008f)
+    let hsCum = scanLeft(0.0f, hsDist, (fun acc,v = acc+v))
 
     cout << ">ONE Homo sapiens alu\n"
     write(alu.all cycle, n*2)

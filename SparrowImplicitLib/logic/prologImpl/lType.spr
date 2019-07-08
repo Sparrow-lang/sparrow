@@ -19,15 +19,15 @@ import meta = meta.compilerCore
     fun isAtomOnly(this: LType): Bool    = this._testBit(atom) && !this._testBit(number)
     fun isNumberOnly(this: LType): Bool  = this._testBit(number) && !this._testBit(atom)
 
-    fun setAtomOnly(this: @LType): Bool   = this._setAlternativeBits(atom, number)
-    fun setNumberOnly(this: @LType): Bool = this._setAlternativeBits(number, atom)
+    fun setAtomOnly(this: !LType): Bool   = this._setAlternativeBits(atom, number)
+    fun setNumberOnly(this: !LType): Bool = this._setAlternativeBits(number, atom)
 
     //fun setInputOnly(this: @LType): Bool  = this._setAlternativeBits(input, output)
     //fun setOutputOnly(this: @LType): Bool = this._setAlternativeBits(output, input)
 
     fun _testBit(this: LType, b: Int): Bool = ((_bits !&! b) != 0)
 
-    fun _setAlternativeBits(this: @LType, toSet, toClear: Int): Bool
+    fun _setAlternativeBits(this: !LType, toSet, toClear: Int): Bool
         if !this._testBit(toSet)
             return false
         if this._testBit(toClear)
@@ -40,24 +40,24 @@ import meta = meta.compilerCore
         expList: Vector(ExpressionPtr) ///< The list of all the expressions in this set, that share the same type
         idx: Int                       ///< The index of this type set
 
-    fun ctor(this: @LTypeSet, idx: Int, type: LType)
+    fun ctor(this: !LTypeSet, idx: Int, type: LType)
         this.type ctor type
         this.expList ctor
         this.idx ctor idx
 
-    fun addExpression(this: @LTypeSet, exp: @ExpressionPtr)
+    fun addExpression(this: !LTypeSet, exp: !ExpressionPtr)
         expList.pushBack(exp)
         exp.get().typeSetIdx = idx
 
-    fun setAtomOnly(this: @LTypeSet, loc: @Location)
+    fun setAtomOnly(this: !LTypeSet, loc: !Location)
         if !type.setAtomOnly
             this._reportTypeError(loc)
 
-    fun setNumberOnly(this: @LTypeSet, loc: @Location)
+    fun setNumberOnly(this: !LTypeSet, loc: !Location)
         if !type.setNumberOnly
             this._reportTypeError(loc)
 
-    fun mergeWith(this: @LTypeSet, other: @LTypeSet, mergeLocation: @Location)
+    fun mergeWith(this: !LTypeSet, other: !LTypeSet, mergeLocation: !Location)
         if this === other
             return
 
@@ -83,7 +83,7 @@ import meta = meta.compilerCore
 
         //cout << " => " << this << endl << flush
 
-    fun >>(this: @LTypeSet, os: @OutStream)
+    fun >>(this: !LTypeSet, os: !OutStream)
         os << '{' << idx << "} "
         if type.isAtomOnly
             os << "str"
@@ -95,32 +95,32 @@ import meta = meta.compilerCore
         for pe = expList.all
             os << ' ' << pe.get
 
-    fun _reportTypeError(this: @LTypeSet, loc: @Location)
-        var l = loc
+    fun _reportTypeError(this: !LTypeSet, loc: !Location)
+        let l = loc
         meta.report(meta.diagError, l, "Type mismatch: cannot combine atom with number")
 
-        var atomExp = this._findAtomExp
+        let atomExp = this._findAtomExp
         if atomExp isSet
-            var lAtom = atomExp.get().loc
+            let lAtom = atomExp.get().loc
             meta.report(meta.diagInfo, lAtom, "See also atom expression")
 
-        var numExp = this._findNumberExp
+        let numExp = this._findNumberExp
         if numExp isSet
-            var lNum = numExp.get().loc
+            let lNum = numExp.get().loc
             meta.report(meta.diagInfo, lNum, "See also number expression")
 
         meta.raise
 
-    fun _findNumberExp(this: @LTypeSet): ExpressionPtr
+    fun _findNumberExp(this: !LTypeSet): ExpressionPtr
         for e = expList.all
-            var k = e.get().kind
+            let k = e.get().kind
             if k == ekNumber || k == ekOpPlus || k == ekOpMinus || k == ekOpMul || k == ekOpDiv
                 return e
         return ExpressionPtr()
 
-    fun _findAtomExp(this: @LTypeSet): ExpressionPtr
+    fun _findAtomExp(this: !LTypeSet): ExpressionPtr
         for e = expList.all
-            var k = e.get().kind
+            let k = e.get().kind
             if k == ekAtom
                 return e
         return ExpressionPtr()

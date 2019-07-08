@@ -16,8 +16,8 @@ Node* createFunctionCall(
         const Location& loc, CompilationContext* context, Node* fun, Nest_NodeRange args);
 
 /// Create a temporary variable structure given the construct action for the given variable
-Node* createTempVarConstruct(
-        const Location& loc, CompilationContext* context, Node* constructAction, Node* var);
+Node* createTempVarConstruct(const Location& loc, CompilationContext* context,
+        Node* constructAction, Node* var, Node* varRef = nullptr);
 
 /// Assuming the given node points to a function, creates a FunPtr object to refer to that function
 Node* createFunPtr(Node* funNode);

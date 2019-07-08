@@ -21,41 +21,41 @@ import std.ranges, std.vector
     res.pushBack(p3)
     return res
 
-[ct] var nullNode: AstNode
+[ct] let nullNode: AstNode
 
 [ct] fun addFactorialFun(context: CompilationContext, funName: StringRef): Bool
-    var loc = mkLocation(currentSourceCode, mkLineCol(39, 1), mkLineCol(39, 79))
+    let loc = mkLocation(currentSourceCode, mkLineCol(39, 1), mkLineCol(39, 79))
 
     var factParams = mkNodeList(loc, AstNodeRange(), true)
     addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode))
-    var factReturnType = mkIdentifier(loc, "Int")
-    var ifCond = mkInfixOp(loc, "==", mkIdentifier(loc, "n"), mkIntLiteral(loc, 0))
-    var ifThen = mkReturnStmt(loc, mkIntLiteral(loc, 1))
+    let factReturnType = mkIdentifier(loc, "Int")
+    let ifCond = mkInfixOp(loc, "==", mkIdentifier(loc, "n"), mkIntLiteral(loc, 0))
+    let ifThen = mkReturnStmt(loc, mkIntLiteral(loc, 1))
     var recFunArgs = mkNodeList(loc)
     addToNodeList(recFunArgs, mkInfixOp(loc, "-", mkIdentifier(loc, "n"), mkIntLiteral(loc, 1)))
-    var recCall = mkFunApplication(loc, mkIdentifier(loc, funName), recFunArgs)
-    var ifElse = mkReturnStmt(loc, mkInfixOp(loc, "*", mkIdentifier(loc, "n"), recCall))
-    var bodyVec = mkNodeVector(mkIf(loc, ifCond, ifThen, ifElse))
-    var body = mkLocalSpace(loc, bodyVec.all)
+    let recCall = mkFunApplication(loc, mkIdentifier(loc, funName), recFunArgs)
+    let ifElse = mkReturnStmt(loc, mkInfixOp(loc, "*", mkIdentifier(loc, "n"), recCall))
+    let bodyVec = mkNodeVector(mkIf(loc, ifCond, ifThen, ifElse))
+    let body = mkLocalSpace(loc, bodyVec.all)
     var factFun = mkSprFunction(loc, funName, factParams, factReturnType, body, nullNode)
     factFun setContext context
     factFun semanticCheck
     return !(factFun hasError)
 
 [ct] fun addFactorialFun2(context: CompilationContext, funName: StringRef): Bool
-    var loc = mkLocation(currentSourceCode, mkLineCol(39, 1), mkLineCol(39, 79))
+    let loc = mkLocation(currentSourceCode, mkLineCol(39, 1), mkLineCol(39, 79))
 
     var factParams = mkNodeList(loc, AstNodeRange(), true)
     addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode))
-    var factReturnType = mkIdentifier(loc, "Int")
-    var body = mkReturnStmt(loc, astLift( ife(n==0, 1, n*fact2(n-1))) )
+    let factReturnType = mkIdentifier(loc, "Int")
+    let body = mkReturnStmt(loc, astLift( ife(n==0, 1, n*fact2(n-1))) )
     var factFun = mkSprFunction(loc, funName, factParams, factReturnType, body, nullNode)
     factFun setContext context
     factFun semanticCheck
     return !(factFun hasError)
 
-[ct] var factAdded = addFactorialFun(currentCompilationContext, "fact")
-[ct] var fact2Added = addFactorialFun2(currentCompilationContext, "fact2")
+[ct] let factAdded = addFactorialFun(currentCompilationContext, "fact")
+[ct] let fact2Added = addFactorialFun2(currentCompilationContext, "fact2")
 
 fun sprMain
     cout << fact(5) << endl

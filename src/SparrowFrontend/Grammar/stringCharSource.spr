@@ -6,7 +6,7 @@ import std.ranges, std.string
 datatype StringCharSource
     _content: StringRef
 
-fun readChars(this: @StringCharSource, dest: @String, numChars: Int)
+fun readChars(this: !StringCharSource, dest: !String, numChars: Int)
     var sz: Int = _content.size
     var toRead = ife(numChars < sz, numChars, sz)
     for i = 0..sz

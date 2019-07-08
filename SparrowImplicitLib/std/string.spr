@@ -21,82 +21,83 @@ datatype String
 
     _begin, _end, _endOfStore: _PtrType
 
-fun ctor(this: @String)
+fun ctor(this: !String)
     _begin ctor
     _end ctor
     _endOfStore ctor
-fun ctor(this: @String, size: SizeType)
+fun ctor(this: !String, size: SizeType)
     _begin       ctor allocRawPtr(Char, size+1)
     _end         ctor _begin.advance(DiffType(size))
     _endOfStore  ctor _end
     _end.value = Char(0)
-fun ctor(this: @String, count: SizeType, ch: Char)
+fun ctor(this: !String, count: SizeType, ch: Char)
     this.ctor(count)
-    memset(_begin.bytePtr, reinterpretCast(@Byte, ch), count)
-fun ctor(this, other: @String)
-    var size = other size
+    memset(_begin.untypedPtr, Byte(ch), count)
+fun ctor(this: !String, other: String)
+    let size = other size
     this.ctor(size)
-    memcpy(_begin.bytePtr, other._begin.bytePtr, size)
-[convert] fun ctor(this: @String, other: @StringRef)
-    var size = other size
+    memcpy(_begin.untypedPtr, other._begin.untypedPtr, size)
+[convert]
+fun ctor(this: !String, other: StringRef)
+    let size = other size
     this.ctor(size)
-    memcpy(_begin.bytePtr, other.begin, size)
-fun ctor(this: @String, _begin, _end: RawPtr(Char))
-    var size = _end.diff(_begin)
+    memcpy(_begin.untypedPtr, UntypedPtr(other.begin), size)
+fun ctor(this: !String, _begin, _end: RawPtr(Char))
+    let size = _end.diff(_begin)
     this.ctor(size)
-    memcpy(this._begin.bytePtr, _begin.bytePtr, size)
-fun ctor(this: @String, range: Range) if typeOf(range) != String
+    memcpy(this._begin.untypedPtr, _begin.untypedPtr, size)
+fun ctor(this: !String, range: Range) if typeOf(range) != String
     this.ctor(rangeSize(range))
     var i=0
     for ch = range
         _begin.advance(DiffType(i++)).value = ch
 
 [protected]
-    fun ctorFromCt(this: @String, src: String ct)
+    fun ctorFromCt(this: !String, src: String ct)
         this ctor src.asStringRef
 
-    fun dtor(this: @String)
+    fun dtor(this: !String)
         _begin.freePtr
 
-    fun =(this, other: @String): @String
-        var tmp = other
+    fun =(this: !String, other: String): @String
+        let tmp = other
         tmp.swap(this)
         return this
 
-    fun ==(this, other: @String): Bool
+    fun ==(this, other: String): Bool
         if this.size != other.size
             return false
 
         var i: SizeType = 0
-        var s = this.size
+        let s = this.size
 
         while i < s ; i++
             if this(i) != other(i)
                 return false
         return true
 
-    fun !=(this, other: @String): Bool = !(this == other)
+    fun !=(this, other: String): Bool = !(this == other)
 
-    fun swap(this: @String, other: @String)
+    fun swap(this, other: !String)
         this._begin      swap    other._begin
         this._end        swap    other._end
         this._endOfStore swap    other._endOfStore
 
-    fun asStringRef(this: @String)             = StringRef(_begin.bytePtr, _end.bytePtr)
+    fun asStringRef(this: String)             = StringRef(_begin.untypedPtr, _end.untypedPtr)
 
-    fun size(this: @String): SizeType          = _end.diff(_begin)
-    fun isEmpty(this: @String)                 = _begin == _end
-    fun capacity(this: @String): SizeType      = _endOfStore.diff(_begin)
+    fun size(this: String): SizeType          = _end.diff(_begin)
+    fun isEmpty(this: String)                 = _begin == _end
+    fun capacity(this: String): SizeType      = _endOfStore.diff(_begin)
 
-    fun at(this: @String, index: SizeType)     = _begin.advance(DiffType(index)).value
-    fun ()(this: @String, index: SizeType)     = _begin.advance(DiffType(index)).value
-    fun front(this: @String)                   = _begin.value
-    fun back(this: @String)                    = _end.advance(-1).value
-    fun all(this: @String)                     = StringRef(_begin.bytePtr, _end.bytePtr)
-    fun subrange(this: @String, index: SizeType, num: SizeType): StringRef \
-                                = StringRef(_begin.advance(DiffType(index)).bytePtr, _begin.advance(DiffType(index + num)).bytePtr)
+    fun at(this: String, index: SizeType)     = _begin.advance(DiffType(index)).value
+    fun ()(this: String, index: SizeType)     = _begin.advance(DiffType(index)).value
+    fun front(this: String)                   = _begin.value
+    fun back(this: String)                    = _end.advance(-1).value
+    fun all(this: String)                     = StringRef(_begin.untypedPtr, _end.untypedPtr)
+    fun subrange(this: String, index: SizeType, num: SizeType): StringRef \
+                                = StringRef(_begin.advance(DiffType(index)).untypedPtr, _begin.advance(DiffType(index + num)).untypedPtr)
 
-    fun pushBack(this: @String, value: Char)
+    fun pushBack(this: !String, value: Char)
         if _end == _endOfStore
             var t = 2 * this.capacity
 
@@ -105,21 +106,21 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
             this.reserve(t)
         _end.value ctor value
         _end = _end.advance
-    fun +=(this: @String, value: Char)
+    fun +=(this: !String, value: Char)
         this.pushBack(value)
 
-    fun popBack(this: @String)
+    fun popBack(this: !String)
         _end = _end advance -1
         _end.value dtor
 
-    fun resize(this: @String, n: SizeType)
-        var oldSize = this.size
+    fun resize(this: !String, n: SizeType)
+        let oldSize = this.size
 
         if n == oldSize
             return
 
         if n < oldSize
-            var newEnd = _begin.advance(DiffType(n))
+            let newEnd = _begin.advance(DiffType(n))
 
             while _end != newEnd
                 _end = _end.advance(-1)
@@ -127,14 +128,14 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
         else
             this.reserve(n)
 
-            var newEnd = _begin.advance(DiffType(n))
+            let newEnd = _begin.advance(DiffType(n))
 
             while _end != newEnd
                 _end.value ctor
                 _end = _end.advance
 
-    fun reserve(this: @String, n: SizeType)
-        var curCapacity = this.capacity
+    fun reserve(this: !String, n: SizeType)
+        let curCapacity = this.capacity
 
         if n <= curCapacity
             return
@@ -144,17 +145,17 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
         if n <_growthFactor*curCapacity
             n = SizeType(_growthFactor*curCapacity)
 
-        var curSize = this.size
+        let curSize = this.size
 
         _begin.reallocPtr(n)
         _end = _begin.advance(DiffType(curSize))
         _endOfStore = _begin.advance(DiffType(n))
 
-    fun clear(this: @String)
-        this.remove(StringRef(_begin.bytePtr, _end.bytePtr))
+    fun clear(this: !String)
+        this.remove(StringRef(_begin.untypedPtr, _end.untypedPtr))
 
-    fun insertBefore(this: @String, value: Char, pos: StringRef)
-        var posCount = _frontPtr(pos).diff(_begin)
+    fun insertBefore(this: !String, value: Char, pos: StringRef)
+        let posCount = _frontPtr(pos).diff(_begin)
 
         this.reserve(this.size + 1)
 
@@ -167,40 +168,41 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
         p.advance().value ctor value
         _end = _end.advance
 
-    fun insertBefore(this: @String, range: Range, pos: StringRef)
-        var n = range.size
-        var index = _frontPtr(pos).diff(_begin)
+    fun insertBefore(this: !String, range: Range, pos: StringRef)
+        var rc = range
+        let n = range.size
+        let index = _frontPtr(pos).diff(_begin)
 
         this.reserve(this.size + n)
 
         var p = _end.advance(-1)
-        var q = _begin.advance(index - DiffType(1))
+        let q = _begin.advance(index - DiffType(1))
 
         while p != q ; p = p.advance(-1)
             p.advance(DiffType(n)).value ctor p.value
             p.value dtor
         p = p.advance
-        while !range.isEmpty
-            p.value ctor range.front
+        while !rc.isEmpty
+            p.value ctor rc.front
             p = p.advance
-            range.popFront
+            rc.popFront
         _end = _end.advance(DiffType(n))
 
-    fun insertAfter(this: @String, value: Char, pos: StringRef)
-        this.insertBefore(value, StringRef(_backPtr(pos).bytePtr, _end.bytePtr))
+    fun insertAfter(this: !String, value: Char, pos: StringRef)
+        this.insertBefore(value, StringRef(_backPtr(pos).untypedPtr, _end.untypedPtr))
 
-    fun insertAfter(this: @String, range: Range, pos: StringRef)
-        this.insertBefore(range, StringRef(_backPtr(pos).bytePtr, _end.bytePtr))
+    fun insertAfter(this: !String, range: Range, pos: StringRef)
+        this.insertBefore(range, StringRef(_backPtr(pos).untypedPtr, _end.untypedPtr))
 
-    fun append(this: @String, range: Range)
-        this.insertBefore(range, StringRef(_end.bytePtr, _end.bytePtr))
-    fun append(this: @String, value: Char)
-        this.insertBefore(value, StringRef(_end.bytePtr, _end.bytePtr))
+    fun append(this: !String, range: Range)
+        this.insertBefore(range, StringRef(_end.untypedPtr, _end.untypedPtr))
+    fun append(this: !String, value: Char)
+        this.insertBefore(value, StringRef(_end.untypedPtr, _end.untypedPtr))
 
-    fun remove(this: @String, range: StringRef)
-        var rSize = range.size
+    fun remove(this: !String, range: StringRef)
+        let rSize = range.size
         var rBegin = _frontPtr(range)
-        var rEnd = rBegin.advance(DiffType(rSize))
+        let rEnd = rBegin.advance(DiffType(rSize))
 
         while rEnd != _end
             rBegin.value dtor
@@ -209,52 +211,42 @@ fun ctor(this: @String, range: Range) if typeOf(range) != String
             rEnd = rEnd.advance
         _end = rBegin
 
-    fun remove(this: @String, index: SizeType)
+    fun remove(this: !String, index: SizeType)
         var r = this.all
 
         r.popFront(index)
         r.popBack(this.size - index - 1)
         this.remove(r)
 
-    fun assign(this: @String, range: Range)
+    fun assign(this: !String, range: Range)
         this.clear
         for v = range
             this.pushBack(v)
 
-    fun >>(this: @String, os: @OutStream)
+    fun >>(this: String, os: !OutStream)
         os << this.asStringRef
 
-    fun _frontPtr(s: StringRef) = RawPtr(Char)(s.begin)
-    fun _backPtr(s: StringRef) = RawPtr(Char)(s.end)
+    fun _frontPtr(s: StringRef) = RawPtr(Char)(UntypedPtr(s.begin))
+    fun _backPtr(s: StringRef) = RawPtr(Char)(UntypedPtr(s.end))
 
 // TODO
 [autoCt]
 fun + (x,y: String): String
-    var sz1 = x.size
-    var sz2 = y.size
+    let sz1 = x.size
+    let sz2 = y.size
     var res: String = sz1 + sz2
-    memcpy(res._begin.bytePtr, x._begin.bytePtr, sz1)
-    memcpy(res._begin.advance(sz1).bytePtr, y._begin.bytePtr, sz2)
+    memcpy(res._begin.untypedPtr, x._begin.untypedPtr, sz1)
+    memcpy(res._begin.advance(sz1).untypedPtr, y._begin.untypedPtr, sz2)
     return res
 
 [autoCt]
 fun + (x: String, y: StringRef): String
-    var sz1 = x.size
-    var sz2 = y.size
+    let sz1 = x.size
+    let sz2 = y.size
     var res: String = sz1 + sz2
-    memcpy(res._begin.bytePtr, x._begin.bytePtr, sz1)
-    memcpy(res._begin.advance(sz1).bytePtr, y.begin, sz2)
+    memcpy(res._begin.untypedPtr, x._begin.untypedPtr, sz1)
+    memcpy(res._begin.advance(sz1).untypedPtr, UntypedPtr(y.begin), sz2)
     return res
-
-//[autoCt]
-//fun + (x: String, y: Char): String
-//    var sz1 = x.size
-//    var sz2 = sizeOf(y)
-//    var res: String = sz1 + sz2
-//    memcpy(res._begin, x._begin, sz1)
-//    memcpy(ptrAdd(res._begin, sz1), reinterpretCast(@Byte, y), sz2)
-
-//    return res
 
 fun intToString(x: Int): String
     var buf: static_buffer(12)
@@ -271,12 +263,12 @@ datatype StringOutputStream
     result: String
 
 [protected]
-    fun <<<(this: @StringOutputStream, s: @String)       { result.append(s.all) }
-    fun <<<(this: @StringOutputStream, s: StringRef)     { result.append(s) }
-    fun <<<(this: @StringOutputStream, x: Char)          { result.append(x) }
-    fun <<<(this: @StringOutputStream, x: Int)           { result.append(intToString(x).all) }
-    fun <<<(this: @StringOutputStream, x: ULong)         { result.append(ulongToString(x).all) }
-    fun <<<(this: @StringOutputStream, x: Double)        { result.append(ulongToString(ULong(x)).all) } // Not properly supported
+    fun <<<(this: !StringOutputStream, s: String)  { result.append(s.all) }
+    fun <<<(this: !StringOutputStream, s: StringRef)     { result.append(s) }
+    fun <<<(this: !StringOutputStream, x: Char)          { result.append(x) }
+    fun <<<(this: !StringOutputStream, x: Int)           { result.append(intToString(x).all) }
+    fun <<<(this: !StringOutputStream, x: ULong)         { result.append(ulongToString(x).all) }
+    fun <<<(this: !StringOutputStream, x: Double)        { result.append(ulongToString(ULong(x)).all) } // Not properly supported
 
 fun toString = String()
 fun toString(a1: AnyType): String

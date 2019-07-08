@@ -26,16 +26,16 @@ datatype Token
     type: Int
     data: String
 
-fun ctor(this: @Token, loc: @Location, type: Int)
+fun ctor(this: !Token, loc: !Location, type: Int)
     this.loc ctor loc
     this.type ctor type
     this.data ctor
-fun ctor(this: @Token, loc: @Location, type: Int, data: @String)
+fun ctor(this: !Token, loc: !Location, type: Int, data: !String)
     this.loc ctor loc
     this.type ctor type
     this.data ctor data
 
-fun >>(this: @Token, os: @OutStream)
+fun >>(this: !Token, os: !OutStream)
     if type == tkEof
         os << "<eof>"
     else if type == tkWhitespace

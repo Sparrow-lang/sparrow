@@ -18,79 +18,79 @@ datatype Atomic(T: Type) if sizeOf(T) <= 8
     _value: _UnderlyingType
 
 [protected]
-    fun ctor(this: @Atomic, v: this.ValueType)
+    fun ctor(this: !Atomic, v: this.ValueType)
         _value ctor _toUnderlying(this, v)
 
-    fun =(lhs: @AtomicType, rhs: typeOf(lhs))
+    fun =(lhs: !AtomicType, rhs: typeOf(lhs))
         lhs store (rhs load)
     //! Stores a value inside the given atomic, using the assignment operator
-    fun =(this: @AtomicType, val: this.ValueType) = this store val
+    fun =(this: !AtomicType, val: this.ValueType) = this store val
 
     //! Loads the value from an atomic; returns a non-atomic value
-    [native("_Atomic_load32")] fun load(this: @AtomicInt): Int
-    [native("_Atomic_load64")] fun load(this: @AtomicLong): Long
-    fun load(this: @NonStdAtomicType): ValueType \
+    [native("_Atomic_load32")] fun load(this: AtomicInt const): Int
+    [native("_Atomic_load64")] fun load(this: AtomicLong const): Long
+    fun load(this: NonStdAtomicType): ValueType \
         = this._fromUnderlying(this._baseAtomic load)
 
     //! Stores a value inside the given atomic
-    [native("_Atomic_store32")] fun store(this: @AtomicInt, newVal: Int)
-    [native("_Atomic_store64")] fun store(this: @AtomicLong, newVal: Long)
-    fun store(this: @NonStdAtomicType, newVal: AnyType)
+    [native("_Atomic_store32")] fun store(this: !AtomicInt, newVal: Int)
+    [native("_Atomic_store64")] fun store(this: !AtomicLong, newVal: Long)
+    fun store(this: !NonStdAtomicType, newVal: AnyType)
         this._baseAtomic store this._toUnderlying(newVal)
 
     //! Fetches the current value of an atomic, and stores a new value in the atomic
-    [native("_Atomic_fetchAndStore32")] fun fetchAndStore(x: @AtomicInt, newVal: Int): Int
-    [native("_Atomic_fetchAndStore64")] fun fetchAndStore(x: @AtomicLong, newVal: Long): Long
-    fun fetchAndStore(x: @NonStdAtomicType, newVal: AnyType): x.ValueType \
+    [native("_Atomic_fetchAndStore32")] fun fetchAndStore(x: !AtomicInt, newVal: Int): Int
+    [native("_Atomic_fetchAndStore64")] fun fetchAndStore(x: !AtomicLong, newVal: Long): Long
+    fun fetchAndStore(x: !NonStdAtomicType, newVal: AnyType): x.ValueType \
         = x._fromUnderlying(x._baseAtomic fetchAndStore x._toUnderlying(newVal))
 
     //! Fetch the value of the atomic, and then add the given value to it
-    [native("_Atomic_fetchAndAdd32")] fun fetchAndAdd(x: @AtomicInt, val: Int): Int
-    [native("_Atomic_fetchAndAdd64")] fun fetchAndAdd(x: @AtomicLong, val: Long): Long
-    fun fetchAndAdd(x: @NonStdAtomicType, val: AnyType): x.ValueType \
+    [native("_Atomic_fetchAndAdd32")] fun fetchAndAdd(x: !AtomicInt, val: Int): Int
+    [native("_Atomic_fetchAndAdd64")] fun fetchAndAdd(x: !AtomicLong, val: Long): Long
+    fun fetchAndAdd(x: !NonStdAtomicType, val: AnyType): x.ValueType \
         = x._fromUnderlying(x._baseAtomic fetchAndAdd x._toUnderlying(val)) \
         if Integer(#$x.ValueType)
 
     //! Fetch the value of the atomic and the increment it
-    fun fetchAndIncrement(x: @AtomicInteger) = x fetchAndAdd 1
+    fun fetchAndIncrement(x: !AtomicInteger) = x fetchAndAdd 1
     //! Fetch the value of the atomic and the decrement it
-    fun fetchAndDecrement(x: @AtomicInteger) = x fetchAndAdd -1
+    fun fetchAndDecrement(x: !AtomicInteger) = x fetchAndAdd -1
 
     //! Adds the given value to the atomic
-    fun += (x: @AtomicInteger, val: AnyType) { x fetchAndAdd val; }
+    fun += (x: !AtomicInteger, val: AnyType) { x fetchAndAdd val; }
     //! Subtracts the given value to the atomic
-    fun -= (x: @AtomicInteger, val: AnyType) { x fetchAndAdd (-val); }
+    fun -= (x: !AtomicInteger, val: AnyType) { x fetchAndAdd (-val); }
 
     //! Increment the atomic value; returns the new value
-    fun pre_++(x: @AtomicInteger): x.ValueType = (x fetchAndIncrement)+1
+    fun pre_++(x: !AtomicInteger): x.ValueType = (x fetchAndIncrement)+1
     //! Increment the atomic value; returns the old value
-    fun post_++(x: @AtomicInteger): x.ValueType = (x fetchAndIncrement)
+    fun post_++(x: !AtomicInteger): x.ValueType = (x fetchAndIncrement)
 
     //! Decrement the atomic value; returns the new value
-    fun pre_--(x: @AtomicInteger): x.ValueType = (x fetchAndDecrement)-1
+    fun pre_--(x: !AtomicInteger): x.ValueType = (x fetchAndDecrement)-1
     //! Decrement the atomic value; returns the old value
-    fun post_--(x: @AtomicInteger): x.ValueType = (x fetchAndDecrement)
+    fun post_--(x: !AtomicInteger): x.ValueType = (x fetchAndDecrement)
 
-    fun _toUnderlying(this: @Atomic, val: this.ValueType): this._UnderlyingType
+    fun _toUnderlying(this: Atomic, val: this.ValueType): this._UnderlyingType
         var res: _UnderlyingType
         reinterpretCast(@ValueType, res) = val
         return res
-    fun _fromUnderlying(this: @Atomic, val: this._UnderlyingType): this.ValueType
+    fun _fromUnderlying(this: Atomic, val: this._UnderlyingType): this.ValueType
         var res: ValueType
         res = reinterpretCast(@ValueType, val)
         return res
-    fun _baseAtomic(this: @Atomic): @Atomic(_UnderlyingType) = reinterpretCast(@Atomic(_UnderlyingType), this)
+    fun _baseAtomic(this: Atomic): @Atomic(_UnderlyingType) = reinterpretCast(@Atomic(_UnderlyingType), this)
 
 //! Compare the atomic value with the given comparand; if equal store 'newVal' and return true; if not equal returns false
-[native("_Atomic_compareAndSwap32")] fun compareAndSwap(x: @AtomicInt, newVal, comparand: Int): Bool
-[native("_Atomic_compareAndSwap64")] fun compareAndSwap(x: @AtomicLong, newVal, comparand: Long): Bool
-fun compareAndSwap(x: @NonStdAtomicType, newVal, comparand: AnyType): Bool \
+[native("_Atomic_compareAndSwap32")] fun compareAndSwap(x: !AtomicInt, newVal, comparand: Int): Bool
+[native("_Atomic_compareAndSwap64")] fun compareAndSwap(x: !AtomicLong, newVal, comparand: Long): Bool
+fun compareAndSwap(x: !NonStdAtomicType, newVal, comparand: AnyType): Bool \
     = compareAndSwap(x._baseAtomic, x._toUnderlying(newVal), x._toUnderlying(comparand))
 
 //! Converts a regular value to an atomic value
 //! Returns the reference to the same memory address
 //! Used to make it possible to use atomic operations
-fun asAtomic(val: @AnyType): @Atomic(-@typeOf(val)) if sizeOf(val) == sizeOf(Atomic(-@typeOf(val)))
+fun asAtomic(val: !AnyType): @Atomic(-@typeOf(val)) if sizeOf(val) == sizeOf(Atomic(-@typeOf(val)))
     return reinterpretCast(@Atomic(-@typeOf(val)), val)
 
 package _Impl

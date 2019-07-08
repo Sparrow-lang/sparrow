@@ -2,6 +2,7 @@ import basicDecls(UntypedPtr, Byte, StringRef, Null, pre_@)
 
 [ct]
     /// The type used to represent a compiler AST node
+    [bitcopiable]
     datatype CompilerAstNode = @Byte
 
     /// Taking an AST node, this will evaluate the node and produce the corresponding code

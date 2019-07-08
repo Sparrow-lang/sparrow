@@ -7,14 +7,16 @@ import std.string
 
 fun write(r: Range, length: Int) if isValid(Char(r.front))
     using lineLength = 60
+    var rc = r
     var line: String = lineLength
     for n = length..0 ../ (-lineLength)
-        var len = min(n, lineLength)
+        let len = min(n, lineLength)
         for i = 0..len
-            line(i) = (r++)
+            line(i) = (rc++);
         if ( len < lineLength )
-            line.resize(len)
-        cout << line << "\n"
+            line.resize(len);
+        cout << line << "\n";
+    ;
 
 var seed: Int = 42
 fun nextRandom: Double
@@ -29,24 +31,24 @@ datatype RandomCharRange(distribValsRangeType: Type)
     distribStr: StringRef
     distribVals: distribValsRangeType
 
-fun isEmpty(this: @RandomCharRange) = false
-fun popFront(this: @RandomCharRange) {}
-fun front(this: @RandomCharRange): Char
-    var randVal: Float = (randomRange++)
+fun isEmpty(this: !RandomCharRange) = false
+fun popFront(this: !RandomCharRange) {}
+fun front(this: RandomCharRange): Char
+    let randVal: Float = (randomRange++)
     var i = 0
     var r = distribVals
     while !r.isEmpty; r.popFront()
         if ( randVal < *r )
-            break
-        ++i
+            break;
+        ++i;
     return distribStr(i)
 
 fun mkRandomCharRange(s: StringRef, v: Range) = RandomCharRange(typeOf(v))(s,v)
 
 fun sprMain
-    var n = (programArgs(1) asInt)
+    let n = (programArgs(1) asInt)
 
-    var alu: String = (
+    let alu: String = (
         "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGG" +
         "GAGGCCGAGGCGGGCGGATCACCTGAGGTCAGGAGTTCGAGA" +
         "CCAGCCTGGCCAACATGGTGAAACCCCGTCTCTACTAAAAAT" +
@@ -55,14 +57,14 @@ fun sprMain
         "AGGCGGAGGTTGCAGTGAGCCGAGATCGCGCCACTGCACTCC" +
         "AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA")
 
-    var iubStr = "acgtBDHKMNRSVWY"
-    var iubDist = mkValues(0.27f, 0.12f, 0.12f, 0.27f).all ++ repeat(0.02f, 11)
-    var iubCum = scanLeft(0.0f, iubDist, (fun acc,v = acc+v))
+    let iubStr = "acgtBDHKMNRSVWY"
+    let iubDist = mkValues(0.27f, 0.12f, 0.12f, 0.27f).all ++ repeat(0.02f, 11)
+    let iubCum = scanLeft(0.0f, iubDist, (fun acc,v = acc+v))
 
-    var homoSapiensStr = "acgt"
-    var hsDist = mkValues(
-        0.3029549426680f, 0.1979883004921f, 0.1975473066391f, 0.3015094502008f)
-    var hsCum = scanLeft(0.0f, hsDist.all, (fun acc,v = acc+v))
+    let homoSapiensStr = "acgt"
+    let hsDist = mkValues(
+        0.3029549426680f, 0.1979883004921f, 0.1975473066391f, 0.3015094502008f);
+    let hsCum = scanLeft(0.0f, hsDist.all, (fun acc,v = acc+v))
 
     cout << ">ONE Homo sapiens alu\n"
     write(alu.all cycle, n*2)

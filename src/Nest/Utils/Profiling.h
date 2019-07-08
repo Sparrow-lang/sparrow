@@ -54,7 +54,7 @@ inline void _Nest_Profiling_message(Nest_StringRef text) {
 typedef TracyCZoneCtx Nest_Profiling_ZoneCtx;
 
 #define PROFILING_C_ZONE_BEGIN_NAME(ctx, staticName, active)                                       \
-    static const Nest_Profiling_LocType TracyConcat(__tracy_source_location, __LINE__) = {  \
+    static const Nest_Profiling_LocType TracyConcat(__tracy_source_location, __LINE__) = {         \
             staticName, __FUNCTION__, __FILE__, (uint32_t)__LINE__, 0};                            \
     Nest_Profiling_ZoneCtx ctx =                                                                   \
             ___tracy_emit_zone_begin(&TracyConcat(__tracy_source_location, __LINE__), active);

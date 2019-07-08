@@ -13,7 +13,7 @@ concept Partitioner(x) \
 fun parFor(r: Range, f: AnyType) if isValid(f(r.front()))
     Impl.parFor(r, f, DefaultPartitioner(typeOf(r))())
 
-fun parFor(r: Range, f: AnyType, part: @Partitioner) if isValid(f(r.front()))
+fun parFor(r: Range, f: AnyType, part: !Partitioner) if isValid(f(r.front()))
     Impl.parFor(r, f, part)
 
 datatype DefaultPartitioner(rangeType: Type)
@@ -21,21 +21,21 @@ datatype DefaultPartitioner(rangeType: Type)
 
     _maxDepth: Int
 
-fun partStart(this: @DefaultPartitioner)
-    var p: Int = getAvailableCoresNum
+fun partStart(this: !DefaultPartitioner)
+    let p: Int = getAvailableCoresNum
     var depth = 1
     while 2 !<<! depth < p
         ++depth
 
     _maxDepth = 1 + depth
 
-fun partition(this: @DefaultPartitioner, r: Range, depth: Int) : RangeType * RangeType
+fun partition(this: !DefaultPartitioner, r: Range, depth: Int) : RangeType * RangeType
     var splitIdx = 0
-    var sz: Int = r rangeSize
+    let sz: Int = r rangeSize
     if depth <= _maxDepth
         splitIdx = (sz+1) / 2  // split in half
-    var r1 = RangeType(r, 0, splitIdx)
-    var r2 = RangeType(r, splitIdx, sz-splitIdx)
+    let r1 = RangeType(r, 0, splitIdx)
+    let r2 = RangeType(r, splitIdx, sz-splitIdx)
 
     return r1 ~ r2
 
@@ -46,51 +46,52 @@ datatype BoundedRange(baseRangeType: Type)
     using RetType = baseRangeType.RetType
     using _RangeType = baseRangeType
 
-fun ctor(this: @BoundedRange, r: @this._RangeType)
+fun ctor(this: !BoundedRange, r: this._RangeType)
     _baseRange ctor r
     _count = (_baseRange rangeSize)
 
-fun ctor(this, r: @BoundedRange, nSkip, nTake: SizeType)
+fun ctor(this: !BoundedRange, r: typeOf(this), nSkip, nTake: SizeType)
     _baseRange ctor r._baseRange
     _baseRange advance nSkip
     _count ctor nTake
 
-fun isEmpty(this: @BoundedRange)                     = _count == 0 || _baseRange.isEmpty()
-fun front(this: @BoundedRange): this.RetType         = _baseRange.front()
-fun popFront(this: @BoundedRange)                    { _baseRange.popFront(); --_count; }
+fun isEmpty(this: BoundedRange)                = _count == 0 || _baseRange.isEmpty()
+fun front(this: BoundedRange): this.RetType    = _baseRange.front()
+fun popFront(this: !BoundedRange)                    { _baseRange.popFront(); --_count; }
 
 package Impl
-    fun parFor(r: Range, f: AnyType, part: @Partitioner)
+    fun parFor(r: Range, f: AnyType, part: !Partitioner)
         // Tell the partitioner that we are starting work
         part partStart
 
         // Create a root task and wait until it's executed
         var range: part.RangeType = r
-        tasks.spawnRootAndWait(Impl.mkParForTask(range, f, part, 0))
+        using PartType = typeOf(part)
+        tasks.spawnRootAndWait(Impl.mkParForTask(range, f, (PartType Ptr)(part), 0))
 
     datatype ParForTask(rangeType, funcType, partType: Type)
         prefix: tasks.TaskPrefix
         range: rangeType
         func: funcType
-        part: @partType
+        part: partType
         depth: Int
 
         using RangeType = rangeType
         using _FuncType = funcType
         using _PartType = partType
 
-    fun ctor(this: @ParForTask, r: this.RangeType, f: this._FuncType, part: @this._PartType, depth: Int)
+    fun ctor(this: !ParForTask, r: this.RangeType, f: this._FuncType, part: this._PartType, depth: Int)
         this.range ctor r
         this.func ctor f
-        this.part := part
+        this.part ctor part
         this.depth ctor depth
 
-    fun execute(this: @ParForTask)
+    fun execute(this: !ParForTask)
         // Check if we need to split the range
-        var split = part.partition(range, depth)
+        let split = part.partition(range, depth)
 
         // Do we have a split?
-        var splitValid = !(split.v1 isEmpty) && !(split.v2 isEmpty)
+        let splitValid = !(split.v1 isEmpty) && !(split.v2 isEmpty)
 
         if splitValid
             // Create two new tasks for the splits
@@ -104,7 +105,7 @@ package Impl
             for val: RangeType.RetType = range
                 func(val)
 
-    fun mkParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int) \
-        = ParForTask(typeOf(r), typeOf(f), -@typeOf(part))(r, f, part, depth)
-    fun allocParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int) \
-        = new(ParForTask(typeOf(r), typeOf(f), -@typeOf(part)), r, f, part, depth)
+    fun mkParForTask(r: Range, f: AnyType, part: AnyType, depth: Int) \
+        = ParForTask(typeOf(r), typeOf(f), typeOf(part))(r, f, part, depth)
+    fun allocParForTask(r: Range, f: AnyType, part: AnyType, depth: Int) \
+        = new(ParForTask(typeOf(r), typeOf(f), typeOf(part)), r, f, part, depth)

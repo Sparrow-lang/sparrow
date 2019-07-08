@@ -41,7 +41,7 @@ ConversionType bestConv(ConversionType lhs, ConversionType rhs) {
     return (ConversionType)max(lhs, rhs);
 }
 
-ConversionResult::ConversionResult() {}
+ConversionResult::ConversionResult() = default;
 
 ConversionResult::ConversionResult(ConversionType convType)
     : convType_(convType) {}

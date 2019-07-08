@@ -1,9 +1,9 @@
 //!!
 
-var a = 2048
+let a = 2048
 
 fun ctor
-    cout << 42 << endl
+    cout << 42 << endl;
 
 datatype MyObj(n: Int ct)
     using b = 1024

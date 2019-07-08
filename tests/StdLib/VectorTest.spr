@@ -16,9 +16,10 @@ fun sprMain
             if ( v.isEmpty != r.isEmpty ) return false
             if ( v.size != (r rangeSize) ) return false
             var sz = v.size
+            var rc = r
             for i = 0..sz
-                if ( v(i) != r.front ) return false
-                r.popFront
+                if ( v(i) != rc.front ) return false
+                rc.popFront
             return true
     }) ~ "vector's range constructor"
 
@@ -231,7 +232,7 @@ fun sprMain
             )
     }) ~ "vector's resize grow")
 
-    forAll(SubrangeTestData arbitrary) check ((fun td: Bool {
+    forAll(SubrangeTestData arbitrary) check ((fun (td: !SubrangeTestData): Bool {
             td.vec clear
             return td.vec.isEmpty && td.vec.size == 0
     }) ~ "that we can clear a vector")
@@ -289,7 +290,7 @@ datatype SubrangeTestData
     vec: Vec
     start, count: SizeType
 
-fun >>(this: @SubrangeTestData, os: @OutStream)
+fun >>(this: SubrangeTestData, os: !OutStream)
     os << vec << ", start=" << start << ", count=" << count
 
 fun arbitrary(t: Type): SubrangeTestData Gen if t == SubrangeTestData
@@ -307,7 +308,7 @@ datatype InsertValueTestData
     idx: SizeType
     value: Int
 
-fun >>(this: @InsertValueTestData, os: @OutStream)
+fun >>(this: InsertValueTestData, os: !OutStream)
     os << vec << ", idx=" << idx << ", value=" << value
 
 fun arbitrary(t: Type): InsertValueTestData Gen if t == InsertValueTestData
@@ -324,7 +325,7 @@ datatype InsertRangeTestData
     idx: SizeType
     values: Vec
 
-fun >>(this: @InsertRangeTestData, os: @OutStream)
+fun >>(this: InsertRangeTestData, os: !OutStream)
     os << vec << ", idx=" << idx << ", values=" << values
 
 fun arbitrary(t: Type): InsertRangeTestData Gen if t == InsertRangeTestData
@@ -342,10 +343,10 @@ using DataVec = Data Vector
 datatype Data
     x: Int
 
-fun >>(this: @Data, os: @OutStream)
+fun >>(this: Data, os: !OutStream)
     os << 'Data(' << x << ')\n'
 
-fun ctor(this: @Data, other: Data)
+fun ctor(this: !Data, other: Data)
     copyCtorCnt++
 
 var copyCtorCnt = 0

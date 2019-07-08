@@ -22,7 +22,7 @@ fun f2(i: Int)  { writeLn("inside f2()"); }
 
     writeLn("---")
 
-    var foo: Foo
+    let foo: Foo
 
     foo.a
     foo.b

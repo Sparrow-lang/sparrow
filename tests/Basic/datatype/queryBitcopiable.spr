@@ -14,18 +14,22 @@ datatype Data1
 datatype Data2
     x: Int
 
-fun ctor(this, other: @Data1)
-    writeLn('Data1.copy ctor')
+fun ctor(this: !Data1, other: Data1)
+    x ctor other.x
+    write('Data1.copy ctor ')
+    writeLnInt(x)
 
-fun ctor(this, other: @Data2)
-    writeLn('Data2.copy ctor')
+fun ctor(this: !Data2, other: Data2)
+    x ctor other.x
+    write('Data2.copy ctor ')
+    writeLnInt(x)
 
 [initCtor]
 datatype Vec3(t: Type)
     using ValueType = t
     x, y, z: t
 
-fun ctor(this: @Vec3, other: typeOf(this))
+fun ctor(this: !Vec3, other: typeOf(this))
     [ct]
     if isBitcopiable(this.ValueType)
         memcpy(reinterpretCast(@Byte, this), reinterpretCast(@Byte, other), sizeOf(this))
@@ -52,17 +56,17 @@ fun testCopyWithQuery
     writeLn('-----')
     testCopyWithQuery
 /*<<<Running()
-Data1.copy ctor
-Data2.copy ctor
+Data1.copy ctor 17
+Data2.copy ctor 19
 -----
-Data1.copy ctor
-Data1.copy ctor
-Data1.copy ctor
-Data2.copy ctor
-Data2.copy ctor
-Data2.copy ctor
+Data1.copy ctor 3
+Data1.copy ctor 5
+Data1.copy ctor 7
+Data2.copy ctor 13
+Data2.copy ctor 17
+Data2.copy ctor 19
 -
-Data1.copy ctor
-Data1.copy ctor
-Data1.copy ctor
+Data1.copy ctor 3
+Data1.copy ctor 5
+Data1.copy ctor 7
 >>>*/

@@ -54,6 +54,18 @@ contexts:
         3: entity.name.function.sparrow
       scope: meta.function.sparrow
 
+    # Let decl
+    - match: |-
+        (?x)^\s*
+        (\[.*\])?\s*          # modifier
+        \b(let)\b\s*
+        (\w+)                 # identifier
+      captures:
+        1: storage.modifier.sparrow
+        2: storage.type.var.sparrow
+        3: entity.name.variable.sparrow
+      scope: meta.var.sparrow
+
     # Variable
     - match: |-
         (?x)^\s*

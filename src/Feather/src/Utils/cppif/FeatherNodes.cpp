@@ -596,9 +596,7 @@ CtValueExp CtValueExp::create(const Location& loc, TypeWithStorage type, StringR
     res.setProperty("valueData", data);
     return res;
 }
-TypeWithStorage CtValueExp::valueType() const {
-    return TypeWithStorage(getCheckPropertyType("valueType"));
-}
+TypeWithStorage CtValueExp::valueType() const { return {getCheckPropertyType("valueType")}; }
 StringRef CtValueExp::valueData() const { return getCheckPropertyString("valueData"); }
 NodeHandle CtValueExp::semanticCheckImpl(CtValueExp node) {
     // Check the type
@@ -701,7 +699,7 @@ VarRefExp VarRefExp::create(const Location& loc, VarDecl varDecl) {
     res.setReferredNodes(NodeRange{varDecl});
     return res;
 }
-VarDecl VarRefExp::varDecl() const { return VarDecl(referredNodes()[0]); }
+VarDecl VarRefExp::varDecl() const { return {referredNodes()[0]}; }
 NodeHandle VarRefExp::semanticCheckImpl(VarRefExp node) {
     VarDecl var = node.varDecl();
     ASSERT(var);
@@ -737,7 +735,7 @@ FieldRefExp FieldRefExp::create(const Location& loc, NodeHandle obj, VarDecl fie
     return res;
 }
 NodeHandle FieldRefExp::object() const { return children()[0]; }
-VarDecl FieldRefExp::fieldDecl() const { return VarDecl(referredNodes()[0]); }
+VarDecl FieldRefExp::fieldDecl() const { return {referredNodes()[0]}; }
 NodeHandle FieldRefExp::semanticCheckImpl(FieldRefExp node) {
     NodeHandle obj = node.object();
     VarDecl field = node.fieldDecl();
@@ -777,8 +775,15 @@ NodeHandle FieldRefExp::semanticCheckImpl(FieldRefExp node) {
     // Set the correct type for this node
     TypeWithStorage t = field.type();
     ASSERT(t);
-    if (!Feather::isCategoryType(t))
-        t = MutableType::get(t);
+    if (!Feather::isCategoryType(t)) {
+        auto baseTypeKind = obj.type().kind();
+        if (baseTypeKind == typeKindConst)
+            t = ConstType::get(t);
+        else if (baseTypeKind == typeKindTemp)
+            t = TempType::get(t);
+        else
+            t = MutableType::get(t);
+    }
     node.setType(t);
     EvalMode mode = Feather_combineMode(obj.type().mode(), node.context()->evalMode);
     node.setType(node.type().changeMode(mode, node.location()));
@@ -799,7 +804,7 @@ FunRefExp FunRefExp::create(const Location& loc, FunctionDecl funDecl, NodeHandl
     res.setReferredNodes(NodeRange{funDecl});
     return res;
 }
-FunctionDecl FunRefExp::funDecl() const { return FunctionDecl(referredNodes()[0]); }
+FunctionDecl FunRefExp::funDecl() const { return {referredNodes()[0]}; }
 NodeHandle FunRefExp::resTypeNode() const { return children()[0]; }
 NodeHandle FunRefExp::semanticCheckImpl(FunRefExp node) {
     NodeHandle resType = node.resTypeNode();
@@ -826,7 +831,7 @@ FunCallExp FunCallExp::create(const Location& loc, FunctionDecl funDecl, NodeRan
     res.setReferredNodes(NodeRange{funDecl});
     return res;
 }
-FunctionDecl FunCallExp::funDecl() const { return FunctionDecl(referredNodes()[0]); }
+FunctionDecl FunCallExp::funDecl() const { return {referredNodes()[0]}; }
 NodeRange FunCallExp::arguments() const { return children(); }
 NodeHandle FunCallExp::semanticCheckImpl(FunCallExp node) {
     FunctionDecl fun = node.funDecl();
@@ -1147,8 +1152,7 @@ NodeHandle IfStmt::semanticCheckImpl(IfStmt node) {
 
         // For ct ifs do a compute type beforehand
         // This is needed for top-level ct ifs
-        if (selectedBranch)
-        {
+        if (selectedBranch) {
             selectedBranch.setContext(node.context());
             selectedBranch.computeType();
         }

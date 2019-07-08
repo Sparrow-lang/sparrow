@@ -2,33 +2,33 @@
 
 datatype A
 
-fun ctor(this: @A)
+fun ctor(this: !A)
     writeLn("A.ctor")
 
-fun ctor(this: @A, n: Int)
+fun ctor(this: !A, n: Int)
     write("A.ctor("); write(n); writeLn(")")
 
-fun ctor(this: @A, a: A)
+fun ctor(this: !A, a: A)
     writeLn("A.ctor(copy)")
 
-fun dtor(this: @A)
+fun dtor(this: !A)
     writeLn("A.dtor")
 
-fun =(this, other: @A)
+fun =(this, other: !A)
     writeLn("A.=")
 
 datatype B
 
-fun ctor(this: @B)
+fun ctor(this: !B)
     writeLn("B.ctor")
 
-fun ctor(this: @B, n: Int)
+fun ctor(this: !B, n: Int)
     write("B.ctor("); write(n); writeLn(")")
 
-fun ctor(this: @B, b: B)
+fun ctor(this: !B, b: B)
     writeLn("B.ctor(copy)")
 
-fun dtor(this: @B)
+fun dtor(this: !B)
     writeLn("B.dtor")
 
 fun =(this, other: B)
@@ -38,27 +38,27 @@ datatype MyType
     a: A
     b: B
 
-fun ctor(this: @MyType)
+fun ctor(this: !MyType)
     writeLn("MyType.ctor")
 
-fun ctor(this, other: @MyType)
+fun ctor(this, other: !MyType)
     ;
 
-fun ctor(this: @MyType, i: Int)
+fun ctor(this: !MyType, i: Int)
     a.ctor(i)
     writeLn("MyType.ctor(Int)")
 
-fun ctor(this: @MyType, i,j: Int)
+fun ctor(this: !MyType, i,j: Int)
     a.ctor(i)
     b.ctor(j)
     writeLn("MyType.ctor(Int, Int)")
 
-fun ctor(this: @MyType, x,y: Double)
+fun ctor(this: !MyType, x,y: Double)
     this.ctor(Int(x), Int(y))
     //ctor(this, Int(x), Int(y))
     writeLn("MyType.ctor(Double, Double)")
 
-fun dtor(this: @MyType)
+fun dtor(this: !MyType)
     writeLn("MyType.dtor")
 
 datatype Empty
@@ -77,16 +77,16 @@ fun test(n: Int)
         test5
 
 fun t1_1
-    var o: MyType
+    let o: MyType
 
 fun t1_2
-    var o = MyType(10)
+    let o = MyType(10)
 
 fun t1_3
-    var o = MyType(10, 11)
+    let o = MyType(10, 11)
 
 fun t1_4
-    var o = MyType(20.0, 21.0)
+    let o = MyType(20.0, 21.0)
 
 fun test1
     t1_1
@@ -132,7 +132,7 @@ fun test4
     var x = Empty()
     x.ctor(Empty())
 
-    var y = AlmostEmpty()
+    let y = AlmostEmpty()
     writeLn(">")
     var z: AlmostEmpty
     writeLn(">")
@@ -164,7 +164,7 @@ fun test5
     var x = Empty()
     x.ctor(Empty())
 
-    var y = AlmostEmpty()
+    let y = AlmostEmpty()
     writeLn(">")
     var z: AlmostEmpty
     writeLn("assign:")

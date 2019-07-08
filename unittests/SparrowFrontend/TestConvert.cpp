@@ -44,7 +44,7 @@ struct ConvertFixture : SparrowGeneralFixture {
 
 ConvertFixture::ConvertFixture() { types_.init(*this); }
 
-ConvertFixture::~ConvertFixture() {}
+ConvertFixture::~ConvertFixture() = default;
 
 TEST_CASE("User shall be able to combine two ConversionType values") {
     SECTION("combine function") {
@@ -204,6 +204,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         CHECK(getConvType(t0mut, t1) == convImplicit);
         CHECK(getConvType(t1mut, t1) == convDirect);
         CHECK(getConvType(t1mut, t2) == convImplicit);
+        CHECK(getConvType(t1, t0mut) == convImplicit);
+        CHECK(getConvType(t2, t1mut) == convImplicit);
         CHECK(getConvType(t1, t2) == convNone);
         CHECK(getConvType(t0, t2) == convNone);
     }
@@ -236,6 +238,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         auto dest = *TypeFactory::arbType();
         auto srcRef = addRef(DataType(src));
         RC_PRE(srcRef != dest);
+        RC_PRE(dest.kind() != typeKindMutable);
         RC_LOG() << src << " -> " << dest << endl;
 
         auto c1 = getConvType(srcRef, dest);
@@ -266,6 +269,35 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     SECTION("Concept base conversion") {
         CHECK(getConvType(types_.concept1Type_, types_.concept2Type_) == convNone);
         CHECK(getConvType(types_.concept2Type_, types_.concept1Type_) == convDirect);
+
+        // Exhaustively test category combinations
+        auto addCat = [](TypeWithStorage t, int idx) -> TypeWithStorage {
+            switch (idx) {
+            case 1:
+                return ConstType::get(t);
+            case 2:
+                return MutableType::get(t);
+            case 3:
+                return TempType::get(t);
+            case 0:
+            default:
+                return t;
+            }
+        };
+        for ( int i=0; i<4; i++) {
+            for ( int j=0; j<4; j++) {
+                auto t1 = addCat(types_.concept1Type_, i);
+                auto t2 = addCat(types_.concept2Type_, j);
+                // INFO(t1 << " -> " << t2);
+                CHECK(getConvType(t1, t2) == convNone);
+                INFO(t2 << " -> " << t1);
+                if (t1.numReferences() == t2.numReferences())
+                    CHECK(getConvType(t2, t1) == convDirect);
+                else
+                    CHECK(getConvType(t2, t1) == convNone);
+                // TODO (types): Revisit this
+            }
+        }
     }
 
     SECTION("Concept with categories") {

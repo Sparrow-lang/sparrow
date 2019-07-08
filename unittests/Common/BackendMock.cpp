@@ -23,7 +23,7 @@ BackendMock::BackendMock()
     ctApiRegisterFun = &BackendMock::CtApiRegisterFun;
 }
 
-BackendMock::~BackendMock() {}
+BackendMock::~BackendMock() = default;
 
 void BackendMock::Init(Nest_Backend* /*backend*/, const char* /*mainFilename*/) {
     // Nothing to do

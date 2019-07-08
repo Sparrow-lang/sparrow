@@ -20,9 +20,9 @@ datatype TaskSystem
     idleCounter: IdleCounter
 
 [protected]
-    fun ctor(this: @TaskSystem) {}
+    fun ctor(this: !TaskSystem) {}
 
-    fun dtor(this: @TaskSystem) {}
+    fun dtor(this: !TaskSystem) {}
 
 var globalTaskSystem: TaskSystem Ptr
 
@@ -37,8 +37,8 @@ fun initTaskSystem(numWorkers: UInt = 0)
     //numWorkers = 1
     var ts: @TaskSystem = globalTaskSystem.get()
     for i=0..numWorkers
-        var worker = ts createWorker
-        var p: Thread Ptr = new(Thread, InternalWorkerThread(worker))
+        let worker = ts createWorker
+        let p: Thread Ptr = new(Thread, InternalWorkerThread(worker))
         ts._threads.pushBack(p)
 
 fun getInitTaskSystem: TaskSystem Ptr
@@ -48,20 +48,20 @@ fun getInitTaskSystem: TaskSystem Ptr
     return globalTaskSystem
 
 fun createWorker(ts: TaskSystem Ptr): Worker Ptr
-    var id: Int = ts.get().workers size
-    var p: Worker Ptr = new(Worker, ts.get(), id, ts.get().idleCounter)
+    let id: Int = ts.get().workers size
+    let p: Worker Ptr = new(Worker, ts.get(), id, ts.get().idleCounter)
     ts.get().workers.pushBack(p)
     return p
 
 // TODO: make it random
 var cnt: Int = 0
 
-fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue
+fun getRandomTaskQueue(ts: !TaskSystem): @TaskQueue
     // TODO: make the selection truly random
-    var worker: Worker Ptr = ts.workers(++cnt % (ts.workers size))
+    let worker: Worker Ptr = ts.workers(++cnt % (ts.workers size))
     return worker.get().work
 
-fun onTaskAvailable(ts: @TaskSystem)
+fun onTaskAvailable(ts: !TaskSystem)
     // Do something only if we have at least one idle worker
     if ts.idleCounter hasIdle
         for w: Worker Ptr = ts.workers.all
@@ -70,4 +70,4 @@ fun onTaskAvailable(ts: @TaskSystem)
                 return
 
 //! Get the number of currently available workers
-fun numAvailableWorkers(ts: @TaskSystem): SizeType = (ts.workers size) - (ts.idleCounter numIdleWorkers)
+fun numAvailableWorkers(ts: !TaskSystem): SizeType = (ts.workers size) - (ts.idleCounter numIdleWorkers)

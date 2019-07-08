@@ -8,7 +8,7 @@ fun f1(t: Type, i: Int): Int
     return tmp + i
 
 fun f2(t: Type)
-    var tmp: t
+    let tmp: t
     write('S')
     write('i')
     write('z')
@@ -22,9 +22,9 @@ datatype MyVector(t: Type)
     using glob = _MyVectorHelper(t).glob
 
 package _MyVectorHelper(t: Type)
-    var glob: t
+    var glob: t;
 
-fun print(this: @MyVector)
+fun print(this: !MyVector)
     write(start)
     write(' ')
     write('-')
@@ -32,7 +32,7 @@ fun print(this: @MyVector)
     writeLn(end)
 
 fun valSize(x: AnyType): SizeType
-    return sizeOf(x)
+    return sizeOf(x);
 
 [native("test")] fun test(n: Int)
     writeLn(f1(Int, 4))
@@ -42,9 +42,9 @@ fun valSize(x: AnyType): SizeType
     f2(Byte)
 
     if ( Int == Double )
-        writeLn('F')
+        writeLn('F');
     if ( Int == Int )
-        write('O'); writeLn('K')
+        write('O'); writeLn('K');
 
     var v1: MyVector(Int)
     v1.start = 4

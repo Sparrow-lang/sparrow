@@ -160,22 +160,22 @@ void printNodeImpl(Node* node, int mode) {
         printf("}");
         return;
     case nkRelFeatherGlobalConstructAction:
-        printf("GlobalDestructAction(");
-        printNodeImpl(at(node->children, 0), 2);
-        printf(")");
-        return;
-    case nkRelFeatherGlobalDestructAction:
         printf("GlobalConstructAction(");
         printNodeImpl(at(node->children, 0), 2);
         printf(")");
         return;
+    case nkRelFeatherGlobalDestructAction:
+        printf("GlobalDestructAction(");
+        printNodeImpl(at(node->children, 0), 2);
+        printf(")");
+        return;
     case nkRelFeatherScopeDestructAction:
-        printf("GlobalScopeDestructAction(");
+        printf("ScopeDestructAction(");
         printNodeImpl(at(node->children, 0), 2);
         printf(")");
         return;
     case nkRelFeatherTempDestructAction:
-        printf("GlobalTempDestructAction(");
+        printf("TempDestructAction(");
         printNodeImpl(at(node->children, 0), 2);
         printf(")");
         return;

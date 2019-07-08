@@ -12,20 +12,21 @@ datatype MyRtOnlyType {}
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
     else if n == 3; test3
     else if n == 4; test4
+    else if n == 5; test5
 
 fun getMode(mode: Int): String
     if ( mode == 1 )
-        return "rt    "
+        return "rt    ";
     if ( mode == 2 )
-        return "ct    "
-    return "???   "
+        return "ct    ";
+    return "???   ";
 
 fun printHeader
     cout << "hasStorage  Mode  rt ref  Description\n"
@@ -173,3 +174,38 @@ Int
 @Int
 @@Int
 >>>*/
+
+fun test5
+    var a: Int
+    var b: Int const
+    var c: Int mut
+    var d: !Int
+    var e: Int tmp
+
+    printHeader()
+    printType(typeOf(a))
+    printType(typeOf(b))
+    printType(typeOf(c))
+    printType(typeOf(d))
+    printType(typeOf(e))
+    printType(Int)
+    printType(Int const)
+    printType(Int mut)
+    printType(!Int)
+    printType(Int tmp)
+
+/*<<<Type categories(5)
+hasStorage  Mode  rt ref  Description
+-------------------------------------
+storage     rt    y  0    Int
+storage     rt    y  0    Int
+storage     rt    y  0    Int
+storage     rt    y  0    Int
+storage     rt    y  0    Int
+storage     rt    y  0    Int
+storage     rt    y  1    Int const
+storage     rt    y  1    Int mut
+storage     rt    y  1    Int mut
+storage     rt    y  1    Int tmp
+>>>*/
+

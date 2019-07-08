@@ -1,33 +1,33 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main -fno-rvo
 
 datatype MyType
-    x: Int
+    x: Int;
 
-fun ctor(this: @MyType)
+fun ctor(this: !MyType)
     x = 0
     write('c'); write('t'); write('o'); write('r'); write('('); writeLn(')')
-fun ctor(this: @MyType, i: Int)
+fun ctor(this: !MyType, i: Int)
     x = i
     write('c'); write('t'); write('o'); write('r'); write('('); write(i); writeLn(')')
-fun ctor(this, other: @MyType)
+fun ctor(this: !MyType, other: MyType)
     x = other.x
     write('c'); write('t'); write('o'); write('r'); write('('); write('C'); write(' '); write(x); writeLn(')')
 
-fun dtor(this: @MyType)
-    write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x)
+fun dtor(this: !MyType)
+    write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x);
 
-var g: MyType = 999
+let g: MyType = 999
 
 package TestPkg
-    var g2: MyType = 777
+    let g2: MyType = 777;
 
 fun doTest()
-    var o1: MyType
-    var o2: MyType = 1
+    let o1: MyType
+    let o2: MyType = 1
     MyType(10)
     MyType(o2)
-    var o3 = o1
-    var o4 = MyType(100)
+    let o3 = o1
+    let o4 = MyType(100)
     write('o'); writeLn('k')
 
 [native("test")] fun test(n: Int)

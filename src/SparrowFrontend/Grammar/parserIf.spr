@@ -12,7 +12,7 @@ datatype ParserContext
     _layoutDecoder: _LayoutDecoderType
     _parser: _ParserType
 
-fun ctor(this: @ParserContext, chars: CharSource, loc: Location, astBuilder: @AstBuilder, reporter: ErrorReporter)
+fun ctor(this: !ParserContext, chars: CharSource, loc: Location, astBuilder: AstBuilder, reporter: ErrorReporter)
     _scanner.ctor(chars, reporter, loc)
     _layoutDecoder.ctor(_scanner, reporter)
     _parser.ctor(_layoutDecoder, astBuilder, reporter)
@@ -20,28 +20,28 @@ fun ctor(this: @ParserContext, chars: CharSource, loc: Location, astBuilder: @As
 // Used by the compiler
 [noInline]
     [native("spr_parserIf_createParser")]
-    fun createParser(chars: CharSource, loc: @Location, astBuilder: @AstBuilder, reporter: ErrorReporter): @ParserContext
+    fun createParser(chars: CharSource, loc: Location const, astBuilder: !AstBuilder, reporter: ErrorReporter): @ParserContext
         var res: @ParserContext = new(ParserContext, chars, loc, astBuilder, reporter)
         return res
     [native("spr_parserIf_createParserFile")]
-    fun createParserFile(filename: StringRef, loc: @Location, astBuilder: @AstBuilder, reporter: ErrorReporter): @ParserContext
+    fun createParserFile(filename: StringRef, loc: Location const, astBuilder: !AstBuilder, reporter: ErrorReporter): @ParserContext
         var fileCharSource: @FileCharSource = new(FileCharSource, filename)
         return createParser(mkCharSource(fileCharSource), loc, astBuilder, reporter)
     [native("spr_parserIf_createParserStringRef")]
-    fun createParserStringRef(code: StringRef, loc: @Location, astBuilder: @AstBuilder, reporter: ErrorReporter): @ParserContext
+    fun createParserStringRef(code: StringRef, loc: Location const, astBuilder: !AstBuilder, reporter: ErrorReporter): @ParserContext
         var stringCharSource: @StringCharSource = new(StringCharSource, code)
         return createParser(mkCharSource(stringCharSource), loc, astBuilder, reporter)
 
     [native("spr_parserIf_destroyParser")]
-    fun destroyParser(ctx: @ParserContext)
+    fun destroyParser(ctx: !ParserContext)
         delete(ctx)
 
     [native("spr_parserIf_nextToken")]
-    fun nextToken(ctx: @ParserContext, outToken: @Token)
+    fun nextToken(ctx: !ParserContext, outToken: !Token)
         outToken = (ctx._scanner++)
 
     [native("spr_parserIf_parseModule")]
-    fun parseModule(ctx: @ParserContext): Node = ctx._parser parseModule
+    fun parseModule(ctx: !ParserContext): Node = ctx._parser parseModule
 
     [native("spr_parserIf_parseExpression")]
-    fun parseExpression(ctx: @ParserContext): Node = ctx._parser parseExpression
+    fun parseExpression(ctx: !ParserContext): Node = ctx._parser parseExpression

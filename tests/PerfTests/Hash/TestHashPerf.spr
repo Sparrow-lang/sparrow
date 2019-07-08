@@ -15,7 +15,7 @@ datatype Obj
     value: UInt
     payload: StaticArray(Byte, payloadSize)
 
-fun >> (this: @Obj, os: @OutStream) { os << "Obj(" << value << ")"; }
+fun >> (this: !Obj, os: !OutStream) { os << "Obj(" << value << ")"; }
 
 // TODO: Move this to Std ???
 datatype Equal(type: Type)
@@ -30,21 +30,22 @@ var objects: Array(Obj)
 var insertKeys: Array(UInt)
 var searchKeys: Array(UInt)
 
-fun testInsert(bag: @AnyType, n: Int)
+fun testInsert(bag: !AnyType, n: Int)
     for i = 0..n
         // The element to insert
-        var key = insertKeys(i)
+        let key = insertKeys(i)
         var obj: ObjPtr = objects(i)
         obj.get().value = key
 
         // Insert it
         bag(key) = obj
+    ;
 
-fun testChange(bag: @AnyType, n: Int)
+fun testChange(bag: !AnyType, n: Int)
     for i = 0..n
         // Search the element
-        var key = searchKeys(i)
-        var r = bag.equalRange(key)
+        let key = searchKeys(i)
+        let r = bag.equalRange(key)
         if ( r.isEmpty() )
             cout << "FAIL: Cannot find element " << key << " in map!" << endl
             os.exit(-1)
@@ -58,42 +59,47 @@ fun testChange(bag: @AnyType, n: Int)
         key = insertKeys(i) + 1
         obj.get().value = key
         bag(key) = obj
+    ;
 
-[noInline] fun testHit(bag: @AnyType, n: Int)
+[noInline] fun testHit(bag: !AnyType, n: Int)
     for i = 0..n
         // Search the element
-        var key = searchKeys(i) + 1
-        var r = bag.equalRange(key)
+        let key = searchKeys(i) + 1
+        let r = bag.equalRange(key)
         if ( r.isEmpty() )
             cout << "FAIL: Cannot find element " << key << " in map!" << endl
             return
 
         // Ensure that we have the correct element
-        var obj = r.front().v2
+        let obj = r.front().v2
         if ( obj.get().value != key )
             cout << "FAIL: Element with key " << key << " has an invalid value: " << obj.get().value << endl
             return
+        ;
+    ;
 
-fun testMiss(bag: @AnyType, n: Int)
+fun testMiss(bag: !AnyType, n: Int)
     for i = 0..n
         // Search the element
         // As all elements are shifted by one, we will find nothing
-        var key = searchKeys(i)
-        var r = bag.equalRange(key)
+        let key = searchKeys(i)
+        let r = bag.equalRange(key)
         if ( !r.isEmpty() )
             cout << "FAIL: Element " << key << " shouldn't be in the map!" << endl
             return
+        ;
+    ;
 
-fun testRemove(bag: @AnyType, n: Int)
+fun testRemove(bag: !AnyType, n: Int)
     for i = 0..n
         // Search the element
-        var key = searchKeys(i) + 1
-        var r = bag.equalRange(key)
+        let key = searchKeys(i) + 1
+        let r = bag.equalRange(key)
         if ( r.isEmpty() )
             cout << "FAIL: Cannot find element " << key << " in map!" << endl
             return
 
-        var obj = r.front().v2
+        let obj = r.front().v2
 
         // Remove it
         bag.remove(r)
@@ -102,6 +108,8 @@ fun testRemove(bag: @AnyType, n: Int)
         if ( obj.get().value != key )
             cout << "FAIL: Element with key " << key << " has an invalid value: " << obj.get().value << endl
             return
+        ;
+    ;
 
 [noDefault]
 datatype TestTimer
@@ -109,20 +117,20 @@ datatype TestTimer
     n: UInt
     timerImpl: time.Timer
 
-fun ctor(this: @TestTimer, desc: StringRef, n: UInt)
+fun ctor(this: !TestTimer, desc: StringRef, n: UInt)
     this.desc ctor desc
     this.n ctor n
     timerImpl ctor
 
-fun dtor(this: @TestTimer)
-    var t = timerImpl.elapsed()
-    var t_ns = t * 1000000.0 / Double(n)
+fun dtor(this: !TestTimer)
+    let t = timerImpl.elapsed()
+    let t_ns = t * 1000000.0 / Double(n)
     cout << desc << ":\t" << t << ", " << t_ns << " ns" << endl
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    //var n = programArgs(1) asInt;
+        return;
+    //let n = programArgs(1) asInt;
     using n = 10000000
 
     // Preallocate the objects
@@ -136,20 +144,21 @@ fun sprMain
         searchKeys(i) = 0x80000000 + i*2
     // TODO: random shuffling
 
-    var hashBag: TestHashMap;
-        var t = TestTimer("Hash Insert", n)
+    var hashBag: TestHashMap
+    ;
+        let t = TestTimer("Hash Insert", n)
         testInsert(hashBag, n)
     ;
-        var t = TestTimer("Hash Change", n)
+        let t = TestTimer("Hash Change", n)
         testChange(hashBag, n)
     ;
-        var t = TestTimer("Hash Hit", n)
+        let t = TestTimer("Hash Hit", n)
         testHit(hashBag, n)
     ;
-        var t = TestTimer("Hash Miss", n)
+        let t = TestTimer("Hash Miss", n)
         testMiss(hashBag, n)
     ;
-        var t = TestTimer("Hash Remove", n)
+        let t = TestTimer("Hash Remove", n)
         testRemove(hashBag, n)
     ;
 

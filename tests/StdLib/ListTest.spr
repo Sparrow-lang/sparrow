@@ -5,8 +5,8 @@ import std.rawPtr
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -37,23 +37,23 @@ fun sprMain
 
 [initCtor]
 datatype MyObj
-    x: Int
+    x: Int;
 
-fun <(this, other: @MyObj): Bool { return x < other.x; }
+fun <(this, other: MyObj): Bool { return x < other.x; }
 
-fun >>(this: MyObj, os: @OutStream)      { os << x; }
+fun >>(this: MyObj, os: !OutStream)      { os << x; }
 
 datatype Greater
-
+    ;
 fun ()(this: Greater, x: MyObj, y: MyObj): Bool { return x.x > y.x; }
 
 datatype Even
-
+    ;
 fun ()(this: Even, x: MyObj): Bool { return x.x % 2 == 0; }
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
     var ptr = allocRawPtr(MyObj, size)
-    var ptrEnd = ptr.advance(DiffType(size))
+    let ptrEnd = ptr.advance(DiffType(size))
     var i = 0
 
     while i < size ; i = i + 1
@@ -63,20 +63,21 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 
     return ContiguousMemoryRange(MyObj)(ptr, ptrEnd)
 
-fun printList(li: @List(MyObj))
+fun printList(li: !List(MyObj))
     var i = 0
     var r = li.all()
 
     while !r.isEmpty()
         cout << r.front().x
         if ( i < li.size() - 1 )
-            cout << ' '
+            cout << ' ';
         else
-            cout << endl
+            cout << endl;
         i = i + 1
         r.popFront()
+    ;
 
-fun printSizeInfo(li: @List(MyObj))
+fun printSizeInfo(li: !List(MyObj))
     cout << li.isEmpty() << endl
     cout << li.size() << endl
 
@@ -123,10 +124,10 @@ false
 >>>*/
 
 fun test3()
-    var li1: List(MyObj)
-    var li2 = List(MyObj)(createRangeAscending(4))
-    var li3 = List(MyObj)(li1)
-    var li4 = List(MyObj)(li2)
+    let li1: List(MyObj)
+    let li2 = List(MyObj)(createRangeAscending(4))
+    let li3 = List(MyObj)(li1)
+    let li4 = List(MyObj)(li2)
 
     printSizeInfo(li3)
     printSizeInfo(li4)
@@ -166,8 +167,8 @@ false
 >>>*/
 
 fun test6()
-    var li1 = List(MyObj)(createRangeAscending(8))
-    var li2 = List(MyObj)(createRangeAscending(1))
+    let li1 = List(MyObj)(createRangeAscending(8))
+    let li2 = List(MyObj)(createRangeAscending(1))
 
     cout << li1.front().x << endl
     li1.front().x = 42
@@ -203,11 +204,11 @@ fun test7()
     var r = li.all()
 
     while !r.isEmpty() ; r.popFront()
-        cout << r.front().x << endl
+        cout << r.front().x << endl;
 
     r = li.all()
     while !r.isEmpty() ; r.popFront()
-        r.front().x = r.front().x + 1
+        r.front().x = r.front().x + 1;
     printSizeInfo(li)
     printList(li)
 /*<<<Range access(7)
@@ -225,7 +226,7 @@ fun test8()
     var i = 0
 
     while i < 4 ; i = i + 1
-        li.pushBack(MyObj(i))
+        li.pushBack(MyObj(i));
     printSizeInfo(li)
     printList(li)
     li.popBack()
@@ -243,7 +244,7 @@ fun test8()
     li.popBack()
     i = 0
     while i < 20 ; i = i + 1
-        li.pushBack(MyObj(i))
+        li.pushBack(MyObj(i));
     printSizeInfo(li)
     printList(li)
 /*<<<Pushing & popping(8)
@@ -995,9 +996,9 @@ false
 >>>*/
 
 fun test25()
-    var l1: List(MyObj) = createRangeAscending(4)
-    var l2: List(MyObj) = createRangeAscending(4)
-    var l3: List(MyObj) = createRangeAscending(6)
+    let l1: List(MyObj) = createRangeAscending(4)
+    let l2: List(MyObj) = createRangeAscending(4)
+    let l3: List(MyObj) = createRangeAscending(6)
 
     cout << l1 == l2 << endl
     cout << l1 == l3 << endl
@@ -1014,8 +1015,8 @@ fun test26()
     printSizeInfo(li)
     while !r.isEmpty() ; r.popFront()
         if ( r.front().x != i )
-            cout << "test failed" << endl
-        i = i + 1
+            cout << "test failed" << endl;
+        i = i + 1;
 
     var lili: List(MyObj) = li
 
@@ -1024,8 +1025,8 @@ fun test26()
     printSizeInfo(lili)
     while !r.isEmpty() ; r.popFront()
         if ( r.front().x != i )
-            cout << "test failed" << endl
-        i = i + 1
+            cout << "test failed" << endl;
+        i = i + 1;
 
     var lilili: List(MyObj)
 
@@ -1035,8 +1036,9 @@ fun test26()
     printSizeInfo(lilili)
     while !r.isEmpty() ; r.popFront()
         if ( r.front().x != i )
-            cout << "test failed" << endl
-        i = i + 1
+            cout << "test failed" << endl;
+        i = i + 1;
+    ;
 /*<<<Large lists(26)
 false
 1000

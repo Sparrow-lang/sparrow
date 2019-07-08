@@ -1,34 +1,34 @@
 
-fun +++(x: @Int): @Int
+fun +++(x: !Int): @Int
     x += 1
     return x
 
-fun ---(x: @Int): @Int
+fun ---(x: !Int): @Int
     x -= 1
     return x
 
-fun pre_+++(x: @Int): @Int
+fun pre_+++(x: !Int): @Int
     x += 1
     return x
 
-fun pre_---(x: @Int): @Int
+fun pre_---(x: !Int): @Int
     x -= 1
     return x
 
-fun post_+++(x: @Int): Int
-    var r = x
+fun post_+++(x: !Int): Int
+    let r = x
     x += 1
     return r
 
-fun post_---(x: @Int): Int
-    var r = x
+fun post_---(x: !Int): Int
+    let r = x
     x -= 1
     return r
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
@@ -94,7 +94,7 @@ fun test4
 
     cout << (+++x + +++x) << endl
     x = 10
-    cout << (+++x + x+++) << endl
+    cout << (+++x + (x+++)) << endl
     x = 10
     cout << ((x+++) + +++x) << endl
 /*<<<Prefix & postfix + infix operator(4)

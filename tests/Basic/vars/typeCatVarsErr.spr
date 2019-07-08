@@ -1,0 +1,88 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+
+datatype MyObj = Int
+
+fun =(this: !MyObj, other: MyObj)
+    this.data = other.data
+
+fun =(this: !MyObj, val: Int)
+    this.data = val
+
+fun takesPlain(this: MyObj)
+fun takesConst(this: MyObj const)
+fun takesMut(this: MyObj mut)
+fun takesTmp(this: MyObj tmp)
+
+fun decls
+    var a: MyObj
+    var b: MyObj mut
+    var c: MyObj const
+    var d: MyObj tmp
+    var b1: !MyObj
+
+    a = 9
+    b = 9
+    c = 9 // ERROR
+    d = 9
+    b1 = 9
+
+fun declsInit
+    var a: MyObj = 1
+    var b: MyObj mut = 2
+    var c: MyObj const = 3
+    var d: MyObj tmp = 4
+    var b1: !MyObj = 5
+
+    a = 9
+    b = 9
+    c = 9 // ERROR
+    d = 9
+    b1 = 9
+
+fun funCall
+    var plainObj: MyObj
+    var constObj: MyObj const
+    var mutObj: MyObj mut
+    var tmpObj: MyObj tmp
+
+    takesPlain(plainObj)
+    takesPlain(constObj)
+    takesPlain(mutObj)
+    takesPlain(tmpObj)
+
+    takesConst(plainObj)
+    takesConst(constObj)
+    takesConst(mutObj)
+    takesConst(tmpObj)
+
+    takesMut(plainObj)
+    takesMut(constObj) // ERROR
+    takesMut(mutObj)
+    takesMut(tmpObj)
+
+    takesTmp(plainObj) // ERROR
+    takesTmp(constObj) // ERROR
+    takesTmp(mutObj)   // ERROR
+    takesTmp(tmpObj)
+
+fun letDecls
+    let a: MyObj
+    let b: !MyObj
+    let c: MyObj tmp
+
+    a = 9       // ERROR
+    b = 9
+    c = 9
+    takesMut(a) // ERROR
+    takesMut(b)
+    takesMut(c)
+    takesTmp(a) // ERROR
+    takesTmp(b) // ERROR
+    takesTmp(c)
+
+[native("test")]
+fun test(n: Int)
+    decls
+    declsInit
+    funCall
+    letDecls

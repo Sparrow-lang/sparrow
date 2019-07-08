@@ -15,16 +15,10 @@ using namespace SprFrontend;
 using namespace rc;
 
 struct GenGenericParamsFixture : SparrowGeneralFixture {
-    GenGenericParamsFixture();
-    ~GenGenericParamsFixture();
-
     //! The types that we are using while performing our tests
     SampleTypes types_;
 };
 
-GenGenericParamsFixture::GenGenericParamsFixture() {}
-
-GenGenericParamsFixture::~GenGenericParamsFixture() {}
 
 TEST_CASE_METHOD(GenGenericParamsFixture, "Test GenGenericParams.genParams") {
     types_.init(*this);

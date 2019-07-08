@@ -8,62 +8,63 @@ fun exit(code: Int)
 fun systemCall(cmd: StringRef): Int
     return CApi.system(cmd.cStr)
 
+[bitcopiable]
 datatype File = UntypedPtr
 
 [protected]
-    fun ctor(this: @File)
+    fun ctor(this: !File)
         ;
-    fun ctor(this: @File, filename: StringRef, mode: StringRef = "r")
+    fun ctor(this: !File, filename: StringRef, mode: StringRef = "r")
         this.data = CApi.fopen(filename.cStr, mode.cStr).data
 
     // Move ctor and operator
-    fun ctor(this, other: @File)
+    fun ctor(this, other: !File)
         this.data = other.data
         other.data = UntypedPtr()
 
-    fun dtor(this: @File)
+    fun dtor(this: !File)
         this.close
 
-    fun =(this, other: @File)
+    fun =(this, other: !File)
         this.data = other.data
         other.data = UntypedPtr()
 
 fun openFile(filename: StringRef, mode: StringRef = "r"): File
     return CApi.fopen(filename.cStr, mode.cStr)
 
-fun close(this: @File)
+fun close(this: !File)
     if this.isOpen
         CApi.fclose(this)
     data = UntypedPtr()
 
-fun flush(this: @File)       = ife(this.isOpen, CApi.fflush(this), -1)
+fun flush(this: !File)       = ife(this.isOpen, CApi.fflush(this), -1)
 
-fun isOpen(this: @File)      = data != UntypedPtr()
-fun isEof(this: @File)       = 0 != CApi.feof(this)
+fun isOpen(this: !File)      = data != UntypedPtr()
+fun isEof(this: !File)       = 0 != CApi.feof(this)
 
-fun readChar(this: @File): Char = Char(CApi.fgetc(this))
-fun readLine(this: @File): String
+fun readChar(this: !File): Char = Char(CApi.fgetc(this))
+fun readLine(this: !File): String
     var res: String = 256
-    var cstr: @Char = CApi.fgets(res(0), 256, this)
+    let cstr: @Char = CApi.fgets(UntypedPtr(res(0)), 256, this)
     if cstr === null
         res.clear
     else
         res.resize(cStringLen(cstr))
     return res
 
-fun write(this: @File, data: StringRef): Int
-    var res: Int = CApi.fwrite(reinterpretCast(@Byte, data.begin), 1, UInt(data.size), this)
+fun write(this: !File, data: StringRef): Int
+    var res: Int = CApi.fwrite(UntypedPtr(data.begin), 1, UInt(data.size), this)
     return res
 
 //! Returns the file size.
 //! Note: as a side effect, seeks the file to the beginning
-fun size(this: @File): Int
+fun size(this: !File): Int
     CApi.fseek(this, 0, CApi.SEEK_END)
     var res: Int = CApi.ftell(this)
     CApi.rewind(this)
     return res
 
-fun all(this: @File) = FileRange(this)
+fun all(this: !File) = FileRange(this)
 
 datatype FileRange
     using RetType = Char
@@ -72,7 +73,7 @@ datatype FileRange
     _isEmpty: Bool
     _cur: Char
 
-fun ctor(this: @FileRange, file: @File)
+fun ctor(this: !FileRange, file: !File)
     this._file := file
     _isEmpty = true
     _cur ctor
@@ -81,9 +82,9 @@ fun ctor(this: @FileRange, file: @File)
         _isEmpty = false
 
 [protected]
-    fun isEmpty(s: @FileRange) = s._isEmpty
-    fun front(s: @FileRange)   = s._cur
-    fun popFront(s: @FileRange)
+    fun isEmpty(s: FileRange) = s._isEmpty
+    fun front(s: FileRange)   = s._cur
+    fun popFront(s: !FileRange)
         // Try reading a char; we don't know yet about eof, we need to check it afterwards
         s._cur = s._file.readChar
         if s._file.isEof
@@ -97,9 +98,9 @@ package CApi
     [native("fflush")]  fun fflush(file: File): Int
     [native("feof")]    fun feof(file: File): Int
     [native("fgetc")]   fun fgetc(file: File): Int
-    [native("fgets")]   fun fgets(buffer: @Char, bufSize: Int, file: File): @Char
-    [native("fread")]   fun fread(buffer: @Byte, size, count: UInt, file: File): UInt
-    [native("fwrite")]  fun fwrite(buffer: @Byte, size, count: UInt, file: File): UInt
+    [native("fgets")]   fun fgets(buffer: UntypedPtr, bufSize: Int, file: File): @Char
+    [native("fread")]   fun fread(buffer: UntypedPtr, size, count: UInt, file: File): UInt
+    [native("fwrite")]  fun fwrite(buffer: UntypedPtr, size, count: UInt, file: File): UInt
     [native("fseek")]   fun fseek(file: File, offset: Long, origin: Int)
     [native("rewind")]  fun rewind(file: File)
     [native("ftell")]   fun ftell(file: File): Long

@@ -13,18 +13,11 @@ using namespace SprFrontend;
 using namespace rc;
 
 struct GenCallableDeclFixture : SparrowGeneralFixture {
-    GenCallableDeclFixture();
-    ~GenCallableDeclFixture();
-
     void checkSemanticallyOk(NodeHandle decl);
 
     //! The types that we are using while performing our tests
     SampleTypes types_;
 };
-
-GenCallableDeclFixture::GenCallableDeclFixture() {}
-
-GenCallableDeclFixture::~GenCallableDeclFixture() {}
 
 void GenCallableDeclFixture::checkSemanticallyOk(NodeHandle decl) {
     if (!decl)

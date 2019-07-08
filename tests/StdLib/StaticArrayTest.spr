@@ -5,8 +5,8 @@ import std.rawPtr
 
 fun sprMain
     if ( programArgs.size() < 2 )
-        return
-    var n = programArgs(1) asInt
+        return;
+    let n = programArgs(1) asInt
 
     if      n == 1  ; test1
     else if n == 2  ; test2
@@ -23,11 +23,11 @@ fun sprMain
 
 [initCtor]
 datatype MyObj
-    x: Int
+    x: Int;
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
     var ptr = allocRawPtr(MyObj, size)
-    var ptrEnd = ptr.advance(DiffType(size))
+    let ptrEnd = ptr.advance(DiffType(size))
     var i = 0
 
     while i < size ; i = i + 1
@@ -37,22 +37,23 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 
     return ContiguousMemoryRange(MyObj)(ptr, ptrEnd)
 
-fun printStaticArray(a: @AnyType)
+fun printStaticArray(a: AnyType)
     var i = 0
 
     while i < a.size() ; i = i + 1
         cout << a.at(i).x
         if ( i < a.size() - 1 )
-            cout << ' '
+            cout << ' ';
         else
-            cout << endl
+            cout << endl;
+    ;
 
-fun printSizeInfo(a: @AnyType)
+fun printSizeInfo(a: AnyType)
     cout << a.isEmpty() << endl
     cout << a.size() << endl
 
 fun test1()
-    var a: StaticArray(MyObj, 10)
+    let a: StaticArray(MyObj, 10)
 
     printSizeInfo(a)
     printStaticArray(a)
@@ -63,7 +64,7 @@ false
 >>>*/
 
 fun test2()
-    var a: StaticArray(MyObj, 10) = MyObj(15)
+    let a: StaticArray(MyObj, 10) = MyObj(15)
 
     printSizeInfo(a)
     printStaticArray(a)
@@ -74,7 +75,7 @@ false
 >>>*/
 
 fun test3()
-    var a: StaticArray(MyObj, 10) = createRangeAscending(10)
+    let a: StaticArray(MyObj, 10) = createRangeAscending(10)
 
     printSizeInfo(a)
     printStaticArray(a)
@@ -85,10 +86,10 @@ false
 >>>*/
 
 fun test4()
-    var a1: StaticArray(MyObj, 4)
-    var a2 = StaticArray(MyObj, 4)(createRangeAscending(4))
-    var a3: StaticArray(MyObj, 4) = a1
-    var a4 = a2
+    let a1: StaticArray(MyObj, 4)
+    let a2 = StaticArray(MyObj, 4)(createRangeAscending(4))
+    let a3: StaticArray(MyObj, 4) = a1
+    let a4 = a2
 
     printSizeInfo(a3)
     printSizeInfo(a4)
@@ -119,14 +120,14 @@ fun test6()
 >>>*/
 
 fun test7()
-    var a = StaticArray(MyObj, 4)(createRangeAscending(4))
+    let a = StaticArray(MyObj, 4)(createRangeAscending(4))
     var r = a.all()
 
     while !r.isEmpty() ; r.popFront()
-        cout << r.front().x << endl
+        cout << r.front().x << endl;
     r = ContiguousMemoryRange(MyObj)(a.all())
     while !r.isEmpty() ; r.popFront()
-        r.front().x = r.front().x + 1
+        r.front().x = r.front().x + 1;
     printSizeInfo(a)
     printStaticArray(a)
 /*<<<Range access(7)
@@ -186,8 +187,8 @@ false
 >>>*/
 
 fun test10()
-    var a1 = StaticArray(MyObj, 4)(createRangeAscending(4))
-    var a2 = StaticArray(MyObj, 4)(createRangeAscending(4))
+    let a1 = StaticArray(MyObj, 4)(createRangeAscending(4))
+    let a2 = StaticArray(MyObj, 4)(createRangeAscending(4))
     var a3 = StaticArray(MyObj, 4)(createRangeAscending(4))
 
     a3.at(2) = MyObj(10)
@@ -199,21 +200,21 @@ false
 >>>*/
 
 fun test11()
-    var a = StaticArray(MyObj, 1000)(createRangeAscending(1000))
+    let a = StaticArray(MyObj, 1000)(createRangeAscending(1000))
     var i = 0
 
     printSizeInfo(a)
     while i < a.size() ; i = i + 1
         if ( a.at(i).x != i )
-            cout << "test failed" << endl
+            cout << "test failed" << endl;
 
-    var aa = a
+    let aa = a
 
     i = 0
     printSizeInfo(aa)
     while i < aa.size() ; i = i + 1
         if ( aa.at(i).x != i )
-            cout << "test failed" << endl
+            cout << "test failed" << endl;
 
     var aaa = StaticArray(MyObj, 1000)()
 
@@ -222,7 +223,8 @@ fun test11()
     printSizeInfo(aaa)
     while i < aaa.size() ; i = i + 1
         if ( aaa.at(i).x != i )
-            cout << "test failed" << endl
+            cout << "test failed" << endl;
+    ;
 /*<<<Large arrays(11)
 false
 1000
@@ -233,20 +235,20 @@ false
 >>>*/
 
 fun test12()
-    var v = StaticArray(MyObj, 8)(createRangeAscending(8))
+    let v = StaticArray(MyObj, 8)(createRangeAscending(8))
     var r = v.subrange(0, 0)
 
     while !r.isEmpty() ; r.popFront()
-        cout << r.front().x << endl
+        cout << r.front().x << endl;
     r = v.subrange(0, 1)
     while !r.isEmpty() ; r.popFront()
-        cout << r.front().x << endl
+        cout << r.front().x << endl;
     r = v.subrange(2, 3)
     while !r.isEmpty() ; r.popFront()
-        cout << r.front().x << endl
+        cout << r.front().x << endl;
     r = v.subrange(0, v.size())
     while !r.isEmpty() ; r.popFront()
-        cout << r.front().x << endl
+        cout << r.front().x << endl;
 /*<<<Subrange(12)
 0
 2

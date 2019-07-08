@@ -37,23 +37,23 @@ import std.compilerInfo
         numThreads: Int
         threads: (Thread Ptr) Vector
 
-    fun ctor(this: @WorkManager, numThreads: Int)
+    fun ctor(this: !WorkManager, numThreads: Int)
         this.numThreads ctor numThreads
 
-        var i1 = 10
-        var i2 = 20
+        let i1 = 10
+        let i2 = 20
         var pi1: @Int = i1
         var pi2: @Int = i2
 
         for i=0..numThreads
-            var p: Thread Ptr = new(Thread, IntWorker(i1, i2))
+            let p: Thread Ptr = new(Thread, IntWorker(i1, i2))
             threads.pushBack(p)
 
         for i=0..numThreads
-            var p: Thread Ptr = new(Thread, PtrWorker(pi1, pi2))
+            let p: Thread Ptr = new(Thread, PtrWorker(pi1, pi2))
             threads.pushBack(p)
 
-    fun dtor(this: @WorkManager)
+    fun dtor(this: !WorkManager)
         for t = threads.all
             t.get join
             t.release
@@ -61,9 +61,9 @@ import std.compilerInfo
     fun sprMain
         if programArgs.size() < 4
             return
-        var numThreads = programArgs(1) asInt
+        let numThreads = programArgs(1) asInt
 
-        var work = WorkManager(numThreads)
+        let work = WorkManager(numThreads)
 else
     fun sprMain
         ;

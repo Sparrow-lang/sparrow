@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr" -fno-main
+//!! -t "../SparrowImplicitLib.spr" -fno-main
 
 fun assert(b: Bool)
     if ( !b )

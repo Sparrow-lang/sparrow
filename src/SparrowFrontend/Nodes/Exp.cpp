@@ -32,6 +32,91 @@ bool isField(NodeHandle node) {
     return nullptr != Feather_getParentClass(node.context());
 }
 
+//! Combine type categories for field refs; the inputs and output are type kinds
+int combineCatForFieldRef(int baseCat, int fieldCat) {
+    if (fieldCat == typeKindConst)
+        return typeKindConst;
+    else if (fieldCat == typeKindMutable)
+        return typeKindMutable;
+    else
+        return baseCat;
+}
+
+//! Check for special case in which we should ignore a const in field-ref:
+//! Whenever we are in a ctor, and the field-ref is based of 'this'
+bool shouldIgnoreConst(NodeHandle baseExp) {
+    // Check that the base expression is 'this' identifier
+    Identifier baseId = baseExp.kindCast<Identifier>();
+    if (!baseId || baseId.name() != "this")
+        return false;
+
+    // Check that we are in a function named 'ctor' or 'dtor'
+    Feather::DeclNode fun = Feather_getParentFun(baseId.context());
+    if (!fun || (fun.name() != "ctor" && fun.name() != "dtor"))
+        return false;
+
+    return true;
+}
+
+//! Create a field ref expression following Sparrow frontend rules
+Feather::FieldRefExp createFieldRef(const Location& loc, NodeHandle baseExp, Feather::VarDecl var) {
+    // First, the base expression needs to be valid
+    if (!baseExp)
+        REP_INTERNAL(loc, "No base expression to refer to a field");
+    ASSERT(baseExp);
+
+    // Make sure the base is a reference
+    if (baseExp.type().numReferences() == 0) {
+        ConversionResult res = g_ConvertService->checkConversion(
+                baseExp, Feather::addRef(TypeWithStorage(baseExp.type())));
+        if (!res)
+            REP_INTERNAL(loc, "Cannot add reference to base of field access");
+        baseExp = res.apply(baseExp);
+        if (!baseExp.computeType())
+            return {};
+    }
+    auto origBaseExp = baseExp;
+
+    Type t = baseExp.type();
+    if (!t.hasStorage())
+        REP_INTERNAL(loc, "Invalid type for base of field expression: %1%") % baseExp;
+    assert(t.hasStorage());
+
+    int origTypeCat = t.kind();
+
+    // Dereference to have just a cat type to the field
+    if (t.numReferences() > 1) {
+        // If we have N references apply N-1 dereferencing operations
+        for (size_t i = 1; i < t.numReferences(); ++i) {
+            baseExp = Feather::MemLoadExp::create(loc, baseExp);
+        }
+        t = Feather::DataType::get(t.referredNode(), 0, t.mode()); // Zero references
+    }
+
+    // Compute the desired category of the base expression type
+    int desiredTypeCat = origTypeCat;
+    const int* fieldCat = var.getPropertyInt(propSprOrigCat);
+    if (fieldCat) {
+        desiredTypeCat = combineCatForFieldRef(origTypeCat, *fieldCat);
+    }
+
+    // If the desired category is const, but we are initializing a filed in the ctor, transform it
+    // into mutable
+    if (desiredTypeCat == typeKindConst && origTypeCat != typeKindConst) {
+        if (shouldIgnoreConst(origBaseExp))
+            desiredTypeCat = origTypeCat;
+    }
+
+    // Do we need to change the type of the base expression?
+    if (desiredTypeCat != origTypeCat) {
+        t = Feather::changeCat(TypeWithStorage(t), desiredTypeCat);
+        auto typeNode = Feather::TypeNode::create(loc, t);
+        baseExp = Feather::BitcastExp::create(loc, typeNode, baseExp);
+    }
+
+    return Feather::FieldRefExp::create(loc, baseExp, var);
+}
+
 NodeHandle getIdentifierResult(
         NodeHandle node, NodeRange decls, NodeHandle baseExp, bool allowDeclExp) {
     const Location& loc = node.location();
@@ -44,26 +129,10 @@ NodeHandle getIdentifierResult(
         // Check if we can refer to a variable
         Feather::VarDecl resDeclVar = resDecl.kindCast<Feather::VarDecl>();
         if (resDeclVar) {
-            if (isField(resDecl)) {
-                if (!baseExp)
-                    REP_INTERNAL(loc, "No base expression to refer to a field");
-                ASSERT(baseExp);
-
-                // Make sure the base is a reference
-                if (baseExp.type().numReferences() == 0) {
-                    ConversionResult res = g_ConvertService->checkConversion(
-                            baseExp, Feather::addRef(TypeWithStorage(baseExp.type())));
-                    if (!res)
-                        REP_INTERNAL(loc, "Cannot add reference to base of field access");
-                    baseExp = res.apply(baseExp);
-                    if (!baseExp.computeType())
-                        return {};
-                }
-                doDereference1(baseExp, baseExp); // ... but no more than one reference
-
-                return Feather::FieldRefExp::create(loc, baseExp, resDeclVar);
-            }
-            return Feather::VarRefExp::create(loc, resDeclVar);
+            if (isField(resDecl))
+                return createFieldRef(loc, baseExp, resDeclVar);
+            else
+                return Feather::VarRefExp::create(loc, resDeclVar);
         }
 
         // If this is a using, get its value

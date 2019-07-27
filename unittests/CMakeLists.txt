@@ -31,6 +31,7 @@ SET(sourceFiles
     "SparrowFrontend/SprCommon/SampleTypes.cpp"
     "SparrowFrontend/TestCallable.cpp"
     "SparrowFrontend/TestConvert.cpp"
+    "SparrowFrontend/TestDecls.cpp"
     "SparrowFrontend/TestGenerics.cpp"
 )
 

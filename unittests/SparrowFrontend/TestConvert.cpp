@@ -187,7 +187,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         ConversionType c1 = getConvType(rt, u);
         RC_LOG() << "    " << rt << " -> " << u << " = " << int(c1) << endl;
 
-        if (c1) {
+        if (c1 && u.kind() != typeKindConst) {
             RC_ASSERT(getConvType(mutT, u) != convNone);
         }
     });

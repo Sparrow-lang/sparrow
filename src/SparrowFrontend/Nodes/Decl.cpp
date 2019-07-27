@@ -145,8 +145,6 @@ Type computeVarType(
             TypeWithStorage tt = TypeWithStorage(t);
             if (parent.hasProperty("addConst"))
                 t = Feather::ConstType::get(tt);
-            // else
-            //     t = Feather::MutableType::get(tt);
         }
         if (!t)
             return {};
@@ -762,6 +760,12 @@ Type FieldDecl::computeTypeImpl(FieldDecl node) {
     if (!t)
         return {};
 
+    int origTypeKind = -1;
+    if (Feather::isCategoryType(t)) {
+        origTypeKind = t.kind();
+        t = Feather::removeCategoryIfPresent(t);
+    }
+
     // If the type of the variable indicates a variable that can only be CT, change the evalMode
     if (t.mode() == modeCt)
         node.setMode(modeCt);
@@ -772,6 +776,8 @@ Type FieldDecl::computeTypeImpl(FieldDecl node) {
     resultingVar.setMode(node.effectiveMode());
     Feather_setShouldAddToSymTab(resultingVar, 0);
     node.setProperty(propResultingDecl, resultingVar);
+    if (origTypeKind >= 0)
+        resultingVar.setProperty(propSprOrigCat, origTypeKind);
 
     // Set the context and compute the type for the resulting var
     resultingVar.setContext(node.childrenContext());

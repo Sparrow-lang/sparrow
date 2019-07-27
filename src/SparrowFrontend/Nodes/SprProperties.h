@@ -17,6 +17,7 @@ extern const char* propOverloadPrio;
 
 constexpr const char* propVarInit = "spr.varInit";
 constexpr const char* propSprGivenType = "spr.givenType";
+constexpr const char* propSprOrigCat = "spr.origCat";
 constexpr const char* propSprLiteralType = "spr.literalType";
 constexpr const char* propSprLiteralData = "spr.literalData";
 constexpr const char* propSprOperation = "spr.operation";

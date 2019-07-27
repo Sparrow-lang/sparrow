@@ -22,6 +22,12 @@ namespace {
 const int generatedOverloadPrio = -100;
 const int defaultOverloadPrio = 0;
 
+//! Checks if the given field indicates a true reference type (without cat)
+bool fieldIsRef(Node* field) {
+    auto t = Feather::removeCategoryIfPresent(Type(field->type));
+    return t.numReferences() > 0;
+}
+
 // Add to a local space an operator call
 void addOperatorCall(Node* dest, bool reverse, Node* operand1, const string& op, Node* operand2) {
     Node* call = mkOperatorCall(dest->location, operand1, StringRef(op), operand2);
@@ -106,7 +112,7 @@ Node* generateAssociatedFun(
                                           : nullptr);
 
         string oper = op;
-        if (field->type->numReferences > 0) {
+        if (fieldIsRef(field)) {
             if (op == "=" || op == "ctor") {
                 oper = ":="; // Transform into ref assignment
                 if (!rhs)
@@ -159,7 +165,7 @@ bool generateInitCtor(Node* parent) {
         // Left-hand side: field-ref to the current field
         Node* lhs = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, thisRef), field);
 
-        string oper = t.numReferences() > 0 ? ":=" : "ctor";
+        string oper = fieldIsRef(field) ? ":=" : "ctor";
         addOperatorCall(body, false, lhs, oper, init);
     }
 
@@ -183,7 +189,7 @@ Node* generateEqualityCheckFun(Node* parent) {
         Node* otherFieldRef = Feather_mkFieldRef(
                 loc, Feather_mkMemLoad(loc, mkIdentifier(loc, StringRef("other"))), field);
 
-        const char* op = (field->type->numReferences == 0) ? "==" : "===";
+        const char* op = fieldIsRef(field) ? "===" : "==";
         Node* curExp = mkOperatorCall(loc, fieldRef, StringRef(op), otherFieldRef);
         if (!exp)
             exp = curExp;
@@ -330,7 +336,7 @@ void _IntModClassMembers_afterComputeType(Nest_Modifier*, Node* node) {
 }
 
 void IntModCtorMembers_beforeSemanticCheck(Nest_Modifier*, Node* fun) {
-    /// Check to apply only to non-static constructors
+    // Check to apply only to non-static constructors
     if (fun->nodeKind != nkSparrowDeclSprFunction || Feather_getName(fun) != StringRef("ctor"))
         REP_INTERNAL(
                 fun->location, "IntModCtorMembers modifier can be applied only to constructors");
@@ -365,7 +371,7 @@ void IntModCtorMembers_beforeSemanticCheck(Nest_Modifier*, Node* fun) {
             Node* base = mkCompoundExp(
                     loc, mkIdentifier(loc, StringRef("this")), Feather_getName(field));
             Node* call = nullptr;
-            if (field->type->numReferences == 0) {
+            if (!fieldIsRef(field)) {
                 call = mkOperatorCall(loc, base, StringRef("ctor"), nullptr);
             } else {
                 call = mkOperatorCall(loc, base, StringRef(":="), buildNullLiteral(loc));
@@ -406,7 +412,7 @@ void IntModDtorMembers_beforeSemanticCheck(Nest_Modifier*, Node* fun) {
         if (!canHaveCtorDtor(field))
             continue;
 
-        if (field->type->numReferences == 0) {
+        if (!fieldIsRef(field)) {
             Node* base = mkCompoundExp(
                     loc, mkIdentifier(loc, StringRef("this")), Feather_getName(field));
             Node* call = mkOperatorCall(loc, base, StringRef("dtor"), nullptr);

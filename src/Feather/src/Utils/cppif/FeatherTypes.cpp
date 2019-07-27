@@ -216,4 +216,29 @@ Type categoryToRefIfPresent(Type type) {
         return type;
 }
 
+TypeWithStorage changeCat(TypeWithStorage type, int newCatKind) {
+    if (!type)
+        REP_INTERNAL(NOLOC, "Null type passed to changeCat");
+    if (type.numReferences() < 1)
+        REP_INTERNAL(NOLOC, "Cannot change cat of non-reference type %1%") % type;
+
+    int baseKind = type.kind();
+    if (baseKind != typeKindData && baseKind != typeKindConst && baseKind != typeKindMutable &&
+            baseKind != typeKindTemp)
+        REP_INTERNAL(NOLOC, "Invalid type given to change category: %1%") % type;
+
+    TypeWithStorage base =
+            DataType::get(type.referredNode(), type.numReferences() - 1, type.mode());
+
+    if (newCatKind == typeKindConst)
+        return ConstType::get(base);
+    else if (newCatKind == typeKindMutable)
+        return MutableType::get(base);
+    else if (newCatKind == typeKindTemp)
+        return TempType::get(base);
+
+    REP_INTERNAL(NOLOC, "Invalid type kind given when changing category(%1%)") % newCatKind;
+    return {};
+}
+
 } // namespace Feather

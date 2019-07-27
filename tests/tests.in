@@ -137,6 +137,7 @@ Basic/datatype/initCtor.spr:            Basic features - datatype - initCtor
 Basic/datatype/bitcopiable.spr:         Basic features - datatype - bitcopiable
 Basic/datatype/queryBitcopiable.spr:    Basic features - datatype - query bitcopiable
 Basic/datatype/autoBitcopiable.spr:     Basic features - datatype - auto bitcopiable
+Basic/datatype/datatypeCat.spr:         Basic features - datatype - categories in datatype
 Basic/exp/dotOper.spr:                  Basic features - expressions - dot operator
 Basic/vars/typeCatVarsErr.spr:          Basic features - vars - type cat variables (err)
 Basic/vars/typeCatFieldsErr.spr:        Basic features - vars - type cat fields (err)

@@ -318,4 +318,19 @@ TypeWithStorage removeCategoryIfPresent(TypeWithStorage type);
  */
 Type categoryToRefIfPresent(Type type);
 
+/**
+ * @brief      Change the category of the given type
+ *
+ * @param[in]  type        The type to change the category for
+ * @param[in]  newCatKind  The kind representing the new category
+ *
+ * @return     The type with the category changed.
+ *
+ * The @a newCatKind must match a category type.
+ * The given type must have at least one reference.
+ *
+ * The resulting type will have the same number of references as the original type.
+ */
+TypeWithStorage changeCat(TypeWithStorage type, int newCatKind);
+
 } // namespace Feather

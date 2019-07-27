@@ -1,0 +1,58 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+
+// Test purpose: datatypes with cat-type fields
+
+[bitcopiable, initCtor]
+datatype Pos
+    x: SizeType
+    y: SizeType
+
+datatype MyData
+    a: Pos
+    b: !Pos
+    c: Pos const
+    d: Pos tmp
+
+fun ctor(this: !MyData)
+    a ctor Pos(1,1)
+    b ctor Pos(2,2)
+    c ctor Pos(3,3)
+    d ctor Pos(4,4)
+
+fun print(this: MyData)
+    write(a.x); write(' '); writeLn(a.y)
+    write(b.x); write(' '); writeLn(b.y)
+    write(c.x); write(' '); writeLn(c.y)
+    write(d.x); write(' '); writeLn(d.y)
+
+fun changeWhileConst(this: MyData)
+    //a = Pos(5, 5) // should fail
+    b = Pos(5, 5) // ok, b is mutable
+    //c = Pos(5, 5) // should fail
+    //d = Pos(5, 5) // should fail
+
+    //a.x = 10 // should fail
+    b.x = 10 // ok, b is mutable
+    //c.x = 10 // should fail
+    //d.x = 10 // should fail
+    
+
+[native("test")] fun test(n: Int)
+    var o1: MyData
+    writeLn(sizeOf(SizeType))
+    writeLn(sizeOf(Pos))
+    writeLn(sizeOf(o1))
+    writeLn('---')
+    o1 changeWhileConst
+    o1 print
+
+/*<<<Running()
+8
+16
+64
+---
+1 1
+10 5
+3 3
+4 4
+>>>*/

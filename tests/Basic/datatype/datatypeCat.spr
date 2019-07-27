@@ -7,6 +7,18 @@ datatype Pos
     x: SizeType
     y: SizeType
 
+fun dtor(this: !Pos)
+    write('dtor ')
+    write(x)
+    write(' ')
+    writeLn(y)
+
+fun mutableOp(this: !Pos)
+    write('mutableOp ')
+    write(x)
+    write(' ')
+    writeLn(y)
+
 datatype MyData
     a: Pos
     b: !Pos
@@ -14,10 +26,16 @@ datatype MyData
     d: Pos tmp
 
 fun ctor(this: !MyData)
-    a ctor Pos(1,1)
-    b ctor Pos(2,2)
-    c ctor Pos(3,3)
-    d ctor Pos(4,4)
+    a.ctor(1,1)
+    b.ctor(2,2)
+    c.ctor(3,3)
+    d.ctor(4,4)
+
+fun dtor(this: !MyData)
+    d.dtor
+    c.dtor
+    b.dtor
+    a.dtor
 
 fun print(this: MyData)
     write(a.x); write(' '); writeLn(a.y)
@@ -44,6 +62,12 @@ fun changeWhileConst(this: MyData)
     writeLn(sizeOf(o1))
     writeLn('---')
     o1 changeWhileConst
+    writeLn('---')
+    o1.a mutableOp
+    o1.b mutableOp
+    //o1.c mutableOp
+    o1.d mutableOp
+    writeLn('---')
     o1 print
 
 /*<<<Running()
@@ -51,8 +75,18 @@ fun changeWhileConst(this: MyData)
 16
 64
 ---
+dtor 5 5
+---
+mutableOp 1 1
+mutableOp 10 5
+mutableOp 4 4
+---
 1 1
 10 5
 3 3
 4 4
+dtor 4 4
+dtor 3 3
+dtor 10 5
+dtor 1 1
 >>>*/

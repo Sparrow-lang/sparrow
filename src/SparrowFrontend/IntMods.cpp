@@ -243,7 +243,9 @@ bool canHaveCtorDtor(Node* field) {
 ///
 /// It will search only the instructions directly inside the given local space, or in a child local
 /// space It will not search inside conditionals, or other instructions
-bool hasCtorCall(Node* inSpace, bool checkThis, Node* forField) {
+/// 
+/// Can also be applied to finding destructors
+bool hasCtorCall(Node* inSpace, bool checkThis, Node* forField, StringRef funName = "ctor") {
     // Check all the items in the local space
     for (Node* n : inSpace->children) {
         if (!Nest_computeType(n))
@@ -263,7 +265,7 @@ bool hasCtorCall(Node* inSpace, bool checkThis, Node* forField) {
         if (n->nodeKind != nkFeatherExpFunCall)
             continue;
         Node* funDecl = at(n->referredNodes, 0);
-        if (Feather_getName(funDecl) != StringRef("ctor"))
+        if (Feather_getName(funDecl) != funName)
             continue;
         if (Nest_nodeArraySize(n->children) == 0)
             continue;
@@ -412,6 +414,8 @@ void IntModDtorMembers_beforeSemanticCheck(Nest_Modifier*, Node* fun) {
         if (!canHaveCtorDtor(field))
             continue;
 
+        if (hasCtorCall(body, false, field, "dtor"))
+            continue;
         if (!fieldIsRef(field)) {
             Node* base = mkCompoundExp(
                     loc, mkIdentifier(loc, StringRef("this")), Feather_getName(field));

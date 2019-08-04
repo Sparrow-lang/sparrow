@@ -343,7 +343,7 @@ NodeHandle GenericFunctionCallable::generateCall(const CCLoc& ccloc) {
             ccloc.loc_, ccloc.context_, resultingFun, NodeRangeT<NodeHandle>(finalArgs));
 
     if (!res)
-        REP_INTERNAL(ccloc.loc_, "Cannot create code that calls generic function");
+        return nullptr;
     res.setContext(ccloc.context_);
 
     // If this callable is a class-ctor, wrap the exiting result in a temp-var construct

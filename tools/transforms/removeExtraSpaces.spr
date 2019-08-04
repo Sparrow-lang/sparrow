@@ -25,10 +25,10 @@ fun _removeMultipleEmptyLines(src: @SourceData)
         var remaining = src.tokens.subrange(i+1)
 
         if tok.type != tkWHITESPACE && tok.type != tkEOL
-            lastLineWithVisible = tok.loc.start.line
+            lastLineWithVisible = Int(tok.loc.start.line)
             numNewlines = 0
         if tok.type == tkEOL
-            if lastLineWithVisible != tok.loc.start.line
+            if lastLineWithVisible != Int(tok.loc.start.line)
                 numNewlines++
 
             if numNewlines >= 3 && tok.canFormat

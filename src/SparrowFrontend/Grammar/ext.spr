@@ -21,7 +21,7 @@ datatype CharSource
     readCharsFn: FunctionPtr(VoidType, UntypedPtr, !String, Int)
 
 concept CharSourceType(x) \
-    if isValid(x.readChars(StringRef(), 0))
+    if isValid(TypeOp.copyVal(x).readChars(tmpToMut(String()), 0))
 
 fun mkCharSource(obj: !CharSourceType): CharSource
     var res: CharSource

@@ -243,7 +243,7 @@ bool canHaveCtorDtor(Node* field) {
 ///
 /// It will search only the instructions directly inside the given local space, or in a child local
 /// space It will not search inside conditionals, or other instructions
-/// 
+///
 /// Can also be applied to finding destructors
 bool hasCtorCall(Node* inSpace, bool checkThis, Node* forField, StringRef funName = "ctor") {
     // Check all the items in the local space

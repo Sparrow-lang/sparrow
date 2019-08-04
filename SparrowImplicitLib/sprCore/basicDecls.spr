@@ -782,9 +782,9 @@ package TypeOp
         fun removeAllRef(t: Type) = changeRefCount(t, 0)
         fun atLeastOneRef(t: Type): Type = ife(isRef(t), t, addRef(t))
 
-    fun copyVal(val: AnyType): typeOf(val)
-    fun copyVal(val: !AnyType): typeOf(val)
-    fun copyVal(val: @AnyType): removeRef(typeOf(val))
+    //! Generate a mutable copy of the given value -- only type manipulation, no body
+    fun copyVal(val: AnyType): !typeOf(val)
+    fun copyVal(val: @AnyType): !removeRef(typeOf(val))
 
 /// Add reference operator
 [ct, native("$typeAddRef")] fun pre_@ (t: Type): Type
@@ -808,6 +808,12 @@ package TypeOp
 [ct, native("$convertsTo")] fun convertsTo(src, dest: Type): Bool
 [ct, native("$staticBuffer")] fun static_buffer(n: SizeType): Type
 [ct, native("$commonType")] fun commonType(t, u: Type): Type
+
+//! Transforms from mutable to temp
+fun move(x: !AnyType): typeOf(x) tmp = reinterpretCast(typeOf(x) tmp, x)
+//! Transform from temp to mutable (for genericity, also accept mut->mut)
+fun tmpToMut(x: AnyType tmp): !typeOf(x) = reinterpretCast(!typeOf(x), x)
+fun tmpToMut(x: !AnyType): !typeOf(x) = x
 
 /// Concept that is satisfied by any type
 concept AnyType(x) // Always true

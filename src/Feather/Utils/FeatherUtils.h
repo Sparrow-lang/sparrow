@@ -62,6 +62,7 @@ extern const char* propEvalMode;
 extern const char* propResultingDecl;
 extern const char* propNoInline;
 extern const char* propEmptyBody; ///< Node will not generate meaningful instructions
+extern const char* propTypeCat;
 
 /// Getter for the class that introduces this data type - can be null
 /// Works for only for storage types (data-like and array)

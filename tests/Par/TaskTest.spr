@@ -50,7 +50,7 @@ import std.compilerInfo
 
         fun parFib(n: Long): Long
             var res: Long
-            spawnRootAndWait(FibTask(n, res))
+            spawnRootAndWait(tmpToMut(FibTask(n, res)))
             return res
 
     package DynSpawnStyle
@@ -88,7 +88,7 @@ import std.compilerInfo
 
         fun parFib(n: Long): Long
             var res: Long
-            spawnRootAndWait(FibTask(n, res))
+            spawnRootAndWait(tmpToMut(FibTask(n, res)))
             return res
 
     package ContStyle
@@ -139,7 +139,7 @@ import std.compilerInfo
 
         fun parFib(n: Long): Long
             var res: Long
-            spawnRootAndWait(FibTask(n, (Long Ptr)(res)))
+            spawnRootAndWait(tmpToMut(FibTask(n, (Long Ptr)(res))))
             return res
 
     fun sprMain

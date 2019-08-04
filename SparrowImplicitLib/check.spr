@@ -8,6 +8,7 @@ import std.function(Function)
 [initCtor]
 datatype Gen(t: Type)
     using ValueType = t
+    using _isGenerator = true
     _generator: Function(t, UInt)
 
 concept _Generator(x) if isValid(x(UInt(0)))
@@ -20,10 +21,7 @@ fun ()(this: !Gen, sizeHint: UInt): ValueType = _generator(sizeHint)
 
 fun isValid(this: Gen): Bool = _generator isSet
 
-concept GenType(x)                  \
-    if typeOf(x.ValueType) == Type  \
-    && typeOf(x.isValid) == Bool  \
-    && typeOf(x(0)) == x.ValueType
+concept GenType(x) if x._isGenerator
 
 //! Arbitrary prototype
 //fun arbitrary(t: Type): t Gen
@@ -140,7 +138,7 @@ concept FreqGenType(x) if(
     )
 
 //! Returns a generator that generates elements from the range
-fun elements(r: Range): r.RetType Gen = _Impl.ElementsGen(typeOf(r))(r).gen
+fun elements(r: Range): r.RetType Gen = tmpToMut(_Impl.ElementsGen(typeOf(r))(r)).gen
 
 //! Given a set of generators, this will randomly chose one of them
 fun oneOf(gens: Range): gens.RetType if GenType(#$gens.RetType)

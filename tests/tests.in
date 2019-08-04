@@ -119,7 +119,6 @@ Basic/IfClause.spr:                     Basic features - If clause
 Basic/Auto.spr:                         Basic features - Auto
 Basic/String.spr:                       Basic features - String
 Basic/ValueToRef.spr:                   Basic features - Value to reference
-Basic/TypeTraits.spr:                   Basic features - Type traits
 Basic/Concepts.spr:                     Basic features - Concepts
 Basic/CtToRt.spr:                       Basic features - CT to RT for basic types
 Basic/CtToRtErr.spr:                    Basic features - CT to RT for basic types - errors
@@ -147,9 +146,12 @@ Basic/fun/convert.spr:                  Basic features - fun - Conversions
 Basic/fun/callCtorDtor.spr:             Basic features - fun - Call ctor & dtor
 Basic/fun/callOperator.spr:             Basic features - fun - Call operator
 Basic/fun/defaultParam.spr:             Basic features - fun - Default parameters
-Basic/fun/funExp.spr:                       Basic features - fun - Expression functions
-Basic/fun/funSyntax.spr:                    Basic features - fun - Function syntax
-Basic/fun/operators.spr:                    Basic features - fun - Operators
+Basic/fun/funExp.spr:                   Basic features - fun - Expression functions
+Basic/fun/funSyntax.spr:                Basic features - fun - Function syntax
+Basic/fun/operators.spr:                Basic features - fun - Operators
+Basic/types/typeTraits.spr:             Basic features - types - Type traits
+Basic/types/temp.spr:                   Basic features - types - temp types
+Basic/types/returnsTemp.spr:            Basic features - types - Functions return temp types
 
 Imports/ImportTwice.spr:                Import twice the same file
 Imports/ImportComplex.spr:              Import a complex hierarchy of files, some of them twice

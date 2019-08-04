@@ -534,10 +534,15 @@ Type VariableDecl::computeTypeImpl(VariableDecl node) {
         // Create a var-ref object to refer to the variable to be initialized/destructed.
         NodeHandle varRef = Feather::VarRefExp::create(loc, resultingVar);
 
-        // If the variable is const, cast the constness away for initialization & destruction
-        if (resultingVar.type().kind() == Feather_getConstTypeKind()) {
-            TypeWithStorage t = Feather::ConstType(resultingVar.type()).base();
-            t = Feather::MutableType::get(t);
+        // If the variable is const/temp, convert to mutable for initialization & destruction
+        auto varType = resultingVar.type();
+        if (varType.kind() == typeKindConst || varType.kind() == typeKindTemp) {
+            TypeWithStorage base;
+            if (varType.kind() == typeKindConst)
+                base = Feather::ConstType(varType).base();
+            else if (varType.kind() == typeKindTemp)
+                base = Feather::TempType(varType).base();
+            auto t = Feather::MutableType::get(base);
             auto typeNode = Feather::TypeNode::create(loc, t);
             varRef = Feather::BitcastExp::create(loc, typeNode, varRef);
         }

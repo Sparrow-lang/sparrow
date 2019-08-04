@@ -25,12 +25,12 @@ fun sprMain
     else if n == 5; test5
 
 fun test1
-    if ( male("zeus")() )
+    if ( male(tmpToMut(LStr("zeus")))() )
         cout << "Zeus is male\n";
     else
         cout << "Zeus is not male\n";
 
-    if ( female("zeus")() )
+    if ( female(tmpToMut(LStr("zeus")))() )
         cout << "Zeus is female\n";
     else
         cout << "Zeus is not female\n";

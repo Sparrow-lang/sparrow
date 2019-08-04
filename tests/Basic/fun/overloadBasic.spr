@@ -78,7 +78,7 @@ fun getDoubleRef(): !Double { return rc; }
     //f3(c,10);
     writeLn("---")
 
-    f3(a,Short(1))
+    //f3(a,Short(1))
     //f3(b,Short(1));
     //f3(c,Short(1));
 
@@ -113,5 +113,4 @@ f2(AnyType, AnyType)
 ---
 f3(Int, Int)
 ---
-f3(!AnyType, !AnyType)
 >>>*/

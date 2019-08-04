@@ -7,6 +7,7 @@
 #include "SparrowFrontend/Helpers/CommonCode.h"
 #include "SparrowFrontend/Helpers/Impl/Intrinsics.h"
 #include "SparrowFrontend/Nodes/Exp.hpp"
+#include "SparrowFrontend/SprDebug.h"
 
 #include "Nest/Utils/cppif/SmallVector.hpp"
 
@@ -183,7 +184,7 @@ NodeHandle FunctionCallable::generateCall(const CCLoc& ccloc) {
     res = createFunctionCall(ccloc.loc_, ccloc.context_, decl_, argsRange);
 
     // If this callable is a class-ctor, wrap the exiting result in a temp-var construct
-    if (tmpVar_)
+    if (res && tmpVar_)
         res = createTempVarConstruct(ccloc.loc_, ccloc.context_, res, tmpVar_);
 
     return res;

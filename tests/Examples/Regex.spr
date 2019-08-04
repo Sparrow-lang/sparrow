@@ -181,7 +181,7 @@ datatype NfaFragment
     start: Ptr(NfaState)                   ///< Start state of the NFA frament
     outPtrChain: OutPtrList  ///< Chain of out-pointers for this fragment that need to be set to the next state
 
-fun ctor(this: !NfaFragment, start: Ptr(NfaState), outPtrChain: !OutPtrList)
+fun ctor(this: !NfaFragment, start: Ptr(NfaState), outPtrChain: OutPtrList)
     this.start ctor start
     this.outPtrChain ctor outPtrChain
 

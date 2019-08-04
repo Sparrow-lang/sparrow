@@ -604,10 +604,14 @@ struct VarRefExp : NodeHandle {
      *
      * @param[in]  loc      The location of the node
      * @param[in]  varDecl  The declaration of the variable we are referring to
+     * @param[in]  typeCat  The category to apply to the type (optional)
+     *
+     * If the category type is given, it needs to be a type kind value.
+     * If it's not given, mutable will be assumed.
      *
      * @return     The desired variable ref node
      */
-    static VarRefExp create(const Location& loc, VarDecl varDecl);
+    static VarRefExp create(const Location& loc, VarDecl varDecl, int typeCat = 0);
 
     //! Get the variable declaration that this wants to access
     VarDecl varDecl() const;

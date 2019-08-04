@@ -11,7 +11,7 @@ concept Partitioner(x) \
     && isValid(x.partition(valueOfType(x.RangeType), 0))
 
 fun parFor(r: Range, f: AnyType) if isValid(f(r.front()))
-    Impl.parFor(r, f, DefaultPartitioner(typeOf(r))())
+    Impl.parFor(r, f, tmpToMut(DefaultPartitioner(typeOf(r))()))
 
 fun parFor(r: Range, f: AnyType, part: !Partitioner) if isValid(f(r.front()))
     Impl.parFor(r, f, part)

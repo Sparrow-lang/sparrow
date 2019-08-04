@@ -330,7 +330,7 @@ fun isSorted(range: Range, pred: AnyType): Bool if typeOf(pred(*range, *range)) 
 
 /// Applies the given functor in a fold fashion, from left, starting from the given seed
 fun foldLeft(range: Range, function: AnyType, seed: AnyType): TypeOp.removeCat(typeOf(seed)) \
-        if isValid(seed = function(seed, #$range.RetType))
+        if isValid(TypeOp.copyVal(seed) = TypeOp.copyVal(function)(seed, #$range.RetType))
     var t = seed
     for v: range.RetType = range
         t = function(t, v)
@@ -338,7 +338,7 @@ fun foldLeft(range: Range, function: AnyType, seed: AnyType): TypeOp.removeCat(t
 
 /// Applies the given functor in a fold fashion, from right, starting from the given seed
 fun foldRight(range: BidirRange, function: AnyType, seed: AnyType): TypeOp.removeCat(typeOf(seed)) \
-        if isValid(seed = function(seed, *range))
+        if isValid(TypeOp.copyVal(seed) = TypeOp.copyVal(function)(seed, *range))
     return foldLeft(retro(range), function, seed)
 
 /// Copies the content of r1 over the content of r2

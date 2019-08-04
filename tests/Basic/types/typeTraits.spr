@@ -1,4 +1,6 @@
-//!! -t "SparrowImplicitLib.spr" -fno-main
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+
+// Test purpose: Ensure we can detect the difference between types
 
 concept AnyType(x) // Always true
 

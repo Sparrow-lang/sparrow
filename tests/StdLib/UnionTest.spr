@@ -3,13 +3,13 @@ import std.union
 
 datatype myType
     a: Int
-    b: StaticArray(UByte, 100)
+    b: StaticArray(UInt8, 100)
 
 datatype innerType
-    a: StaticArray(UInt, 25)
+    a: StaticArray(UInt32, 25)
 
 datatype outerType
-    a: StaticArray(UByte, 9)
+    a: StaticArray(UInt8, 9)
     b: innerType
 
 /*<<<UnionSameType(1)
@@ -28,7 +28,7 @@ fun test2
     var union: Union(Int, Char)
     union.get1 = 7963
 
-    cout << Byte(union.get2) << endl
+    cout << Int8(union.get2) << endl
 
 /*<<<UnionArray(3)
 27
@@ -37,7 +37,7 @@ fun test2
 0
 >>>*/
 fun test3
-    var union: Union(Int, StaticArray(Byte,4))
+    var union: Union(Int, StaticArray(Int8,4))
     union.get1 = 7963
 
     cout << (union.get2).at(0) << endl
@@ -49,7 +49,7 @@ fun test3
 20
 >>>*/
 fun test4
-    var union: Union(Int, StaticArray(Byte, 20), Float)
+    var union: Union(Int, StaticArray(Int8, 20), Float32)
 
     cout << sizeOf(union) << endl
 
@@ -59,11 +59,11 @@ fun test4
 fun test5
     var union: Union(Int, \
                      StaticArray(Int, 100), \
-                     Float, \
-                     StaticArray(Byte, 100), \
+                     Float32, \
+                     StaticArray(Int8, 100), \
                      Char, \
-                     Long, \
-                     StaticArray(Long, 100))
+                     Int64, \
+                     StaticArray(Int64, 100))
 
     cout << sizeOf(union) << endl
 
@@ -75,32 +75,32 @@ fun test5
 73
 >>>*/
 fun test6
-    var union: Union(Int, \
-                     StaticArray(UInt, 100), \
-                     Float, \
-                     StaticArray(UByte, 100), \
-                     Char, \
-                     Long, \
-                     StaticArray(Int, 100), \
-                     StaticArray(Float, 100), \
-                     StaticArray(Char, 100), \
-                     StaticArray(Long, 100), \
-                     StaticArray(ULong, 200))
+    var union: Union(Int,
+                     StaticArray(UInt32, 100),
+                     Float32,
+                     StaticArray(UInt8, 100),
+                     Char,
+                     Int64,
+                     StaticArray(Int, 100),
+                     StaticArray(Float32, 100),
+                     StaticArray(Char, 100),
+                     StaticArray(Int64, 100),
+                     StaticArray(UInt64, 200))
 
-    (union.get6) = 1234567890
+    (union.get6) = Int64(1234567890)
 
     cout << sizeOf(union) << endl
 
-    cout << (union.get4).at(0) << endl
-    cout << (union.get4).at(1) << endl
-    cout << (union.get4).at(2) << endl
-    cout << (union.get4).at(3) << endl
+    cout << Int(union.get4()(0)) << endl
+    cout << Int(union.get4()(1)) << endl
+    cout << Int(union.get4()(2)) << endl
+    cout << Int(union.get4()(3)) << endl
 
 /*<<<UnionStruct(7)
 104
 >>>*/
 fun test7
-    var union: Union(Int, StaticArray(Byte, 20), myType)
+    var union: Union(Int, StaticArray(Int8, 20), myType)
     cout << sizeOf(union) << endl
 
 /*<<<UnionComplexStruct(8)
@@ -111,10 +111,10 @@ fun test7
 16777216
 >>>*/
 fun test8
-    var union: Union(myType, innerType, StaticArray(Byte, 20), outerType, ULong, UInt)
+    var union: Union(myType, innerType, StaticArray(Int8, 20), outerType, UInt64, UInt32)
     (union.get1).a = 12345
-    ((union.get1).b).at(2) = UByte(1)
-    (union.get3).at(19) = Byte(1)
+    ((union.get1).b).at(2) = UInt8(1)
+    (union.get3).at(19) = Int8(1)
 
     cout << sizeOf(union) << endl
     cout << union.get6 << endl

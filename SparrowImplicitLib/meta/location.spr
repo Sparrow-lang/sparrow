@@ -3,7 +3,7 @@ module meta.location
 /// A line + column pair, indicating a position in a file
 [bitcopiable]
 datatype LineCol
-    line, col: UInt
+    line, col: Int
 
 /// Type describing a source code; for now we just use an untyped Ptr
 [bitcopiable]
@@ -22,7 +22,7 @@ datatype Location
 //fun ctor(this: @Location)
 //    setOne(this)
 
-fun mkLineCol(line, col: UInt): LineCol
+fun mkLineCol(line, col: Int): LineCol
     let res: !LineCol
     res.line = line
     res.col = col
@@ -58,11 +58,11 @@ fun stepOver(l: !Location)
     l.start = l.end
 
 /// Add the given number of columns to the end position; start position remains unchanged
-fun addColumns(l: !Location, count: UInt)
+fun addColumns(l: !Location, count: Int)
     l.end.col += count
 
 /// Add the given number of lines to the end position; start position remains unchanged
-fun addLines(l: !Location, count: UInt)
+fun addLines(l: !Location, count: Int)
     l.end.line += count
     l.end.col = 1
 

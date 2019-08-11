@@ -11,24 +11,28 @@
     [native("_Type_copy_ctor")] fun ctor(this: !Type, other: Type)
 
 [noDefault, bitcopiable]
-    datatype Uninitialized {}
+    datatype Uninitialized
 
-    [native("Null")]            datatype Null {}
+    [native("Null")]    datatype Null
 
-    [native("i1")]              datatype Bool {}
-    [native("i8")]              datatype Byte {}
-    [convert, native("u8")]     datatype UByte {}
-    [convert, native("i16")]    datatype Short {}
-    [convert, native("u16")]    datatype UShort {}
-    [convert, native("i32")]    datatype Int {}
-    [convert, native("u32")]    datatype UInt {}
-    [convert, native("i64")]    datatype Long {}
-    [convert, native("u64")]    datatype ULong {}
-    [convert, native("u64")]    datatype SizeType {}
-    [convert, native("i64")]    datatype DiffType {}
-    [convert, native("float")]  datatype Float {}
-    [convert, native("double")] datatype Double {}
-    [native("i8")]              datatype Char {}
+    [native("i1")]      datatype Bool
+
+    [native("i8")]      datatype Int8
+    [native("u8")]      datatype UInt8
+    [native("i16")]     datatype Int16
+    [native("u16")]     datatype UInt16
+    [native("i32")]     datatype Int
+    [native("u32")]     datatype UInt32
+    [native("i64")]     datatype Int64
+    [native("u64")]     datatype UInt64
+
+    [native("float")]   datatype Float32
+    [native("double")]  datatype Float
+
+    [native("i8")]      datatype Char
+
+using Int32 = Int
+using Float64 = Float
 
 [protected]
     fun ctor(this: Uninitialized) {}
@@ -49,245 +53,181 @@
     fun dtor(this: Bool) {}
     [autoCt, native("_ass_1_1")] fun = (this: !Bool, other: Bool): Bool
 
-    [native("_zero_init_8")] fun ctor(this: !Byte)
-    [native("_ass_8_8")] fun ctor(this: !Byte, src: Byte)
-    [native("_ass_8_8")] fun ctor(this: !Byte, src: Char)
-    [native("_ass_8_8")] fun ctor(this: !Byte, src: UByte)
-    [native("_ass_8_16")] fun ctor(this: !Byte, src: Short)
-    [native("_ass_8_16")] fun ctor(this: !Byte, src: UShort)
-    [native("_ass_8_32")] fun ctor(this: !Byte, src: Int)
-    [native("_ass_8_32")] fun ctor(this: !Byte, src: UInt)
-    [native("_ass_8_64")] fun ctor(this: !Byte, src: Long)
-    [native("_ass_8_64")] fun ctor(this: !Byte, src: ULong)
-    [native("_ass_8_64")] fun ctor(this: !Byte, src: SizeType)
-    [native("_ass_8_64")] fun ctor(this: !Byte, src: DiffType)
-    [native("_ass_i8_f")] fun ctor(this: !Byte, src: Float)
-    [native("_ass_i8_d")] fun ctor(this: !Byte, src: Double)
-    fun dtor(this: Byte) {}
-    [native("_ass_8_8")] fun = (this: !Byte, other: Byte)
+    [native("_zero_init_8")] fun ctor(this: !Int8)
+    [native("_ass_8_8")] fun ctor(this: !Int8, src: Int8)
+    [native("_ass_8_8")] fun ctor(this: !Int8, src: Char)
+    [native("_ass_8_8")] fun ctor(this: !Int8, src: UInt8)
+    [native("_ass_8_16")] fun ctor(this: !Int8, src: Int16)
+    [native("_ass_8_16")] fun ctor(this: !Int8, src: UInt16)
+    [native("_ass_8_32")] fun ctor(this: !Int8, src: Int32)
+    [native("_ass_8_32")] fun ctor(this: !Int8, src: UInt32)
+    [native("_ass_8_64")] fun ctor(this: !Int8, src: Int64)
+    [native("_ass_8_64")] fun ctor(this: !Int8, src: UInt64)
+    [native("_ass_i8_f")] fun ctor(this: !Int8, src: Float32)
+    [native("_ass_i8_d")] fun ctor(this: !Int8, src: Float64)
+    fun dtor(this: Int8) {}
+    [native("_ass_8_8")] fun = (this: !Int8, other: Int8)
 
-    [native("_zero_init_8")] fun ctor(this: !UByte)
-    [native("_ass_8_8"), convert] fun ctor(this: !UByte, src: Byte)
-    [native("_ass_8_8")] fun ctor(this: !UByte, src: UByte)
-    [native("_ass_8_16")] fun ctor(this: !UByte, src: Short)
-    [native("_ass_8_16")] fun ctor(this: !UByte, src: UShort)
-    [native("_ass_8_32")] fun ctor(this: !UByte, src: Int)
-    [native("_ass_8_32")] fun ctor(this: !UByte, src: UInt)
-    [native("_ass_8_64")] fun ctor(this: !UByte, src: Long)
-    [native("_ass_8_64")] fun ctor(this: !UByte, src: ULong)
-    [native("_ass_8_64")] fun ctor(this: !UByte, src: SizeType)
-    [native("_ass_8_64")] fun ctor(this: !UByte, src: DiffType)
-    [native("_ass_u8_f")] fun ctor(this: !UByte, src: Float)
-    [native("_ass_u8_d")] fun ctor(this: !UByte, src: Double)
-    fun dtor(this: UByte) {}
-    [native("_ass_8_8")] fun = (this: !UByte, other: UByte)
+    [native("_zero_init_8")] fun ctor(this: !UInt8)
+    [native("_ass_8_8")] fun ctor(this: !UInt8, src: Int8)
+    [native("_ass_8_8")] fun ctor(this: !UInt8, src: UInt8)
+    [native("_ass_8_16")] fun ctor(this: !UInt8, src: Int16)
+    [native("_ass_8_16")] fun ctor(this: !UInt8, src: UInt16)
+    [native("_ass_8_32")] fun ctor(this: !UInt8, src: Int32)
+    [native("_ass_8_32")] fun ctor(this: !UInt8, src: UInt32)
+    [native("_ass_8_64")] fun ctor(this: !UInt8, src: Int64)
+    [native("_ass_8_64")] fun ctor(this: !UInt8, src: UInt64)
+    [native("_ass_u8_f")] fun ctor(this: !UInt8, src: Float32)
+    [native("_ass_u8_d")] fun ctor(this: !UInt8, src: Float64)
+    fun dtor(this: UInt8) {}
+    [native("_ass_8_8")] fun = (this: !UInt8, other: UInt8)
 
-    [native("_zero_init_16")] fun ctor(this: !Short)
-    [native("_ass_16_8s"), convert] fun ctor(this: !Short, src: Byte)
-    [native("_ass_16_8z"), convert] fun ctor(this: !Short, src: UByte)
-    [native("_ass_16_16")] fun ctor(this: !Short, src: Short)
-    [native("_ass_16_16")] fun ctor(this: !Short, src: UShort)
-    [native("_ass_16_32")] fun ctor(this: !Short, src: Int)
-    [native("_ass_16_32")] fun ctor(this: !Short, src: UInt)
-    [native("_ass_16_64")] fun ctor(this: !Short, src: Long)
-    [native("_ass_16_64")] fun ctor(this: !Short, src: ULong)
-    [native("_ass_16_64")] fun ctor(this: !Short, src: SizeType)
-    [native("_ass_16_64")] fun ctor(this: !Short, src: DiffType)
-    [native("_ass_i16_f")] fun ctor(this: !Short, src: Float)
-    [native("_ass_i16_d")] fun ctor(this: !Short, src: Double)
-    fun dtor(this: Short) {}
-    [native("_ass_16_16")] fun = (this: !Short, other: Short)
+    [native("_zero_init_16")] fun ctor(this: !Int16)
+    [native("_ass_16_8s")] fun ctor(this: !Int16, src: Int8)
+    [native("_ass_16_8z")] fun ctor(this: !Int16, src: UInt8)
+    [native("_ass_16_16")] fun ctor(this: !Int16, src: Int16)
+    [native("_ass_16_16")] fun ctor(this: !Int16, src: UInt16)
+    [native("_ass_16_32")] fun ctor(this: !Int16, src: Int32)
+    [native("_ass_16_32")] fun ctor(this: !Int16, src: UInt32)
+    [native("_ass_16_64")] fun ctor(this: !Int16, src: Int64)
+    [native("_ass_16_64")] fun ctor(this: !Int16, src: UInt64)
+    [native("_ass_i16_f")] fun ctor(this: !Int16, src: Float32)
+    [native("_ass_i16_d")] fun ctor(this: !Int16, src: Float64)
+    fun dtor(this: Int16) {}
+    [native("_ass_16_16")] fun = (this: !Int16, other: Int16)
 
-    [native("_zero_init_16")] fun ctor(this: !UShort)
-    [native("_ass_16_8z"), convert] fun ctor(this: !UShort, src: Byte)
-    [native("_ass_16_8z"), convert] fun ctor(this: !UShort, src: UByte)
-    [native("_ass_16_16"), convert] fun ctor(this: !UShort, src: Short)
-    [native("_ass_16_16")] fun ctor(this: !UShort, src: UShort)
-    [native("_ass_16_32")] fun ctor(this: !UShort, src: Int)
-    [native("_ass_16_32")] fun ctor(this: !UShort, src: UInt)
-    [native("_ass_16_64")] fun ctor(this: !UShort, src: Long)
-    [native("_ass_16_64")] fun ctor(this: !UShort, src: ULong)
-    [native("_ass_16_64")] fun ctor(this: !UShort, src: SizeType)
-    [native("_ass_16_64")] fun ctor(this: !UShort, src: DiffType)
-    [native("_ass_u16_f")] fun ctor(this: !UShort, src: Float)
-    [native("_ass_u16_d")] fun ctor(this: !UShort, src: Double)
-    fun dtor(this: UShort) {}
-    [native("_ass_16_16")] fun = (this: !UShort, other: UShort)
+    [native("_zero_init_16")] fun ctor(this: !UInt16)
+    [native("_ass_16_8z")] fun ctor(this: !UInt16, src: Int8)
+    [native("_ass_16_8z")] fun ctor(this: !UInt16, src: UInt8)
+    [native("_ass_16_16")] fun ctor(this: !UInt16, src: Int16)
+    [native("_ass_16_16")] fun ctor(this: !UInt16, src: UInt16)
+    [native("_ass_16_32")] fun ctor(this: !UInt16, src: Int32)
+    [native("_ass_16_32")] fun ctor(this: !UInt16, src: UInt32)
+    [native("_ass_16_64")] fun ctor(this: !UInt16, src: Int64)
+    [native("_ass_16_64")] fun ctor(this: !UInt16, src: UInt64)
+    [native("_ass_u16_f")] fun ctor(this: !UInt16, src: Float32)
+    [native("_ass_u16_d")] fun ctor(this: !UInt16, src: Float64)
+    fun dtor(this: UInt16) {}
+    [native("_ass_16_16")] fun = (this: !UInt16, other: UInt16)
 
-    [native("_zero_init_32")] fun ctor(this: !Int)
-    [native("_ass_32_8s"), convert] fun ctor(this: !Int, src: Byte)
-    [native("_ass_32_8z"), convert] fun ctor(this: !Int, src: UByte)
-    [native("_ass_32_16s"), convert] fun ctor(this: !Int, src: Short)
-    [native("_ass_32_16z"), convert] fun ctor(this: !Int, src: UShort)
-    [native("_ass_32_32")] fun ctor(this: !Int, src: Int)
-    [native("_ass_32_32")] fun ctor(this: !Int, src: UInt)
-    [native("_ass_32_64")] fun ctor(this: !Int, src: Long)
-    [native("_ass_32_64")] fun ctor(this: !Int, src: ULong)
-    [native("_ass_32_64")] fun ctor(this: !Int, src: SizeType)
-    [native("_ass_32_64")] fun ctor(this: !Int, src: DiffType)
-    [native("_ass_i32_f")] fun ctor(this: !Int, src: Float)
-    [native("_ass_i32_d")] fun ctor(this: !Int, src: Double)
-    [native("_ass_32_8z")] fun ctor(this: !Int, src: Char)
-    fun dtor(this: Int) {}
-    [native("_ass_32_32")] fun = (this: !Int, other: Int)
+    [native("_zero_init_32")] fun ctor(this: !Int32)
+    [native("_ass_32_8s")] fun ctor(this: !Int32, src: Int8)
+    [native("_ass_32_8z")] fun ctor(this: !Int32, src: UInt8)
+    [native("_ass_32_16s")] fun ctor(this: !Int32, src: Int16)
+    [native("_ass_32_16z")] fun ctor(this: !Int32, src: UInt16)
+    [native("_ass_32_32")] fun ctor(this: !Int32, src: Int32)
+    [native("_ass_32_32")] fun ctor(this: !Int32, src: UInt32)
+    [native("_ass_32_64")] fun ctor(this: !Int32, src: Int64)
+    [native("_ass_32_64")] fun ctor(this: !Int32, src: UInt64)
+    [native("_ass_i32_f")] fun ctor(this: !Int32, src: Float32)
+    [native("_ass_i32_d")] fun ctor(this: !Int32, src: Float64)
+    [native("_ass_32_8z")] fun ctor(this: !Int32, src: Char)
+    fun dtor(this: Int32) {}
+    [native("_ass_32_32")] fun = (this: !Int32, other: Int32)
 
-    [native("_zero_init_32")] fun ctor(this: !UInt)
-    [native("_ass_32_8z"), convert] fun ctor(this: !UInt, src: Byte)
-    [native("_ass_32_8z"), convert] fun ctor(this: !UInt, src: UByte)
-    [native("_ass_32_16z"), convert] fun ctor(this: !UInt, src: Short)
-    [native("_ass_32_16z"), convert] fun ctor(this: !UInt, src: UShort)
-    [native("_ass_32_32"), convert] fun ctor(this: !UInt, src: Int)
-    [native("_ass_32_32")] fun ctor(this: !UInt, src: UInt)
-    [native("_ass_32_64")] fun ctor(this: !UInt, src: Long)
-    [native("_ass_32_64")] fun ctor(this: !UInt, src: ULong)
-    [native("_ass_32_64")] fun ctor(this: !UInt, src: SizeType)
-    [native("_ass_32_64")] fun ctor(this: !UInt, src: DiffType)
-    [native("_ass_u32_f")] fun ctor(this: !UInt, src: Float)
-    [native("_ass_u32_d")] fun ctor(this: !UInt, src: Double)
-    fun dtor(this: UInt) {}
-    [native("_ass_32_32")] fun = (this: !UInt, other: UInt)
+    [native("_zero_init_32")] fun ctor(this: !UInt32)
+    [native("_ass_32_8z")] fun ctor(this: !UInt32, src: Int8)
+    [native("_ass_32_8z")] fun ctor(this: !UInt32, src: UInt8)
+    [native("_ass_32_16z")] fun ctor(this: !UInt32, src: Int16)
+    [native("_ass_32_16z")] fun ctor(this: !UInt32, src: UInt16)
+    [native("_ass_32_32")] fun ctor(this: !UInt32, src: Int32)
+    [native("_ass_32_32")] fun ctor(this: !UInt32, src: UInt32)
+    [native("_ass_32_64")] fun ctor(this: !UInt32, src: Int64)
+    [native("_ass_32_64")] fun ctor(this: !UInt32, src: UInt64)
+    [native("_ass_u32_f")] fun ctor(this: !UInt32, src: Float32)
+    [native("_ass_u32_d")] fun ctor(this: !UInt32, src: Float64)
+    fun dtor(this: UInt32) {}
+    [native("_ass_32_32")] fun = (this: !UInt32, other: UInt32)
 
-    [native("_zero_init_64")] fun ctor(this: !Long)
-    [native("_ass_64_8s"), convert] fun ctor(this: !Long, src: Byte)
-    [native("_ass_64_8z"), convert] fun ctor(this: !Long, src: UByte)
-    [native("_ass_64_16s"), convert] fun ctor(this: !Long, src: Short)
-    [native("_ass_64_16z"), convert] fun ctor(this: !Long, src: UShort)
-    [native("_ass_64_32s"), convert] fun ctor(this: !Long, src: Int)
-    [native("_ass_64_32z"), convert] fun ctor(this: !Long, src: UInt)
-    [native("_ass_64_64")] fun ctor(this: !Long, src: Long)
-    [native("_ass_64_64")] fun ctor(this: !Long, src: ULong)
-    [native("_ass_64_64"), convert] fun ctor(this: !Long, src: SizeType)
-    [native("_ass_64_64"), convert] fun ctor(this: !Long, src: DiffType)
-    [native("_ass_i64_f")] fun ctor(this: !Long, src: Float)
-    [native("_ass_i64_d")] fun ctor(this: !Long, src: Double)
-    fun dtor(this: Long) {}
-    [native("_ass_64_64")] fun = (this: !Long, other: Long)
+    [native("_zero_init_64")] fun ctor(this: !Int64)
+    [native("_ass_64_8s")] fun ctor(this: !Int64, src: Int8)
+    [native("_ass_64_8z")] fun ctor(this: !Int64, src: UInt8)
+    [native("_ass_64_16s")] fun ctor(this: !Int64, src: Int16)
+    [native("_ass_64_16z")] fun ctor(this: !Int64, src: UInt16)
+    [native("_ass_64_32s")] fun ctor(this: !Int64, src: Int32)
+    [native("_ass_64_32z")] fun ctor(this: !Int64, src: UInt32)
+    [native("_ass_64_64")] fun ctor(this: !Int64, src: Int64)
+    [native("_ass_64_64")] fun ctor(this: !Int64, src: UInt64)
+    [native("_ass_i64_f")] fun ctor(this: !Int64, src: Float32)
+    [native("_ass_i64_d")] fun ctor(this: !Int64, src: Float64)
+    fun dtor(this: Int64) {}
+    [native("_ass_64_64")] fun = (this: !Int64, other: Int64)
 
-    [native("_zero_init_64")] fun ctor(this: !ULong)
-    [native("_ass_64_8z"), convert] fun ctor(this: !ULong, src: Byte)
-    [native("_ass_64_8z"), convert] fun ctor(this: !ULong, src: UByte)
-    [native("_ass_64_16z"), convert] fun ctor(this: !ULong, src: Short)
-    [native("_ass_64_16z"), convert] fun ctor(this: !ULong, src: UShort)
-    [native("_ass_64_32z"), convert] fun ctor(this: !ULong, src: Int)
-    [native("_ass_64_32z"), convert] fun ctor(this: !ULong, src: UInt)
-    [native("_ass_64_64"), convert] fun ctor(this: !ULong, src: Long)
-    [native("_ass_64_64")] fun ctor(this: !ULong, src: ULong)
-    [native("_ass_64_64"), convert] fun ctor(this: !ULong, src: SizeType)
-    [native("_ass_64_64"), convert] fun ctor(this: !ULong, src: DiffType)
-    [native("_ass_u64_f")] fun ctor(this: !ULong, src: Float)
-    [native("_ass_u64_d")] fun ctor(this: !ULong, src: Double)
-    fun dtor(this: ULong) {}
-    [native("_ass_64_64")] fun = (this: !ULong, other: ULong)
+    [native("_zero_init_64")] fun ctor(this: !UInt64)
+    [native("_ass_64_8z")] fun ctor(this: !UInt64, src: Int8)
+    [native("_ass_64_8z")] fun ctor(this: !UInt64, src: UInt8)
+    [native("_ass_64_16z")] fun ctor(this: !UInt64, src: Int16)
+    [native("_ass_64_16z")] fun ctor(this: !UInt64, src: UInt16)
+    [native("_ass_64_32z")] fun ctor(this: !UInt64, src: Int32)
+    [native("_ass_64_32z")] fun ctor(this: !UInt64, src: UInt32)
+    [native("_ass_64_64")] fun ctor(this: !UInt64, src: Int64)
+    [native("_ass_64_64")] fun ctor(this: !UInt64, src: UInt64)
+    [native("_ass_u64_f")] fun ctor(this: !UInt64, src: Float32)
+    [native("_ass_u64_d")] fun ctor(this: !UInt64, src: Float64)
+    fun dtor(this: UInt64) {}
+    [native("_ass_64_64")] fun = (this: !UInt64, other: UInt64)
 
-    [native("_zero_init_64")] fun ctor(this: !SizeType)
-    [native("_ass_64_8z"), convert] fun ctor(this: !SizeType, src: Byte)
-    [native("_ass_64_8z"), convert] fun ctor(this: !SizeType, src: UByte)
-    [native("_ass_64_16z"), convert] fun ctor(this: !SizeType, src: Short)
-    [native("_ass_64_16z"), convert] fun ctor(this: !SizeType, src: UShort)
-    [native("_ass_64_32z"), convert] fun ctor(this: !SizeType, src: Int)
-    [native("_ass_64_32z"), convert] fun ctor(this: !SizeType, src: UInt)
-    [native("_ass_64_64")] fun ctor(this: !SizeType, src: Long)
-    [native("_ass_64_64")] fun ctor(this: !SizeType, src: ULong)
-    [native("_ass_64_64")] fun ctor(this: !SizeType, src: SizeType)
-    [native("_ass_64_64"), convert] fun ctor(this: !SizeType, src: DiffType)
-    [native("_ass_u64_f")] fun ctor(this: !SizeType, src: Float)
-    [native("_ass_u64_d")] fun ctor(this: !SizeType, src: Double)
-    fun dtor(this: SizeType) {}
-    [native("_ass_64_64")] fun = (this: !SizeType, other: SizeType)
+    [native("_zero_init_f")] fun ctor(this: !Float32)
+    [native("_ass_f_i8")] fun ctor(this: !Float32, src: Int8)
+    [native("_ass_f_u8")] fun ctor(this: !Float32, src: UInt8)
+    [native("_ass_f_i16")] fun ctor(this: !Float32, src: Int16)
+    [native("_ass_f_u16")] fun ctor(this: !Float32, src: UInt16)
+    [native("_ass_f_i32")] fun ctor(this: !Float32, src: Int32)
+    [native("_ass_f_u32")] fun ctor(this: !Float32, src: UInt32)
+    [native("_ass_f_i64")] fun ctor(this: !Float32, src: Int64)
+    [native("_ass_f_u64")] fun ctor(this: !Float32, src: UInt64)
+    [native("_ass_f_f")] fun ctor(this: !Float32, src: Float32)
+    [native("_ass_f_d")] fun ctor(this: !Float32, src: Float64)
+    fun dtor(this: Float32) {}
+    [native("_ass_f_f")] fun = (this: !Float32, other: Float32)
 
-    [native("_zero_init_64")] fun ctor(this: !DiffType)
-    [native("_ass_64_8s"), convert] fun ctor(this: !DiffType, src: Byte)
-    [native("_ass_64_8z"), convert] fun ctor(this: !DiffType, src: UByte)
-    [native("_ass_64_16s"), convert] fun ctor(this: !DiffType, src: Short)
-    [native("_ass_64_16z"), convert] fun ctor(this: !DiffType, src: UShort)
-    [native("_ass_64_32s"), convert] fun ctor(this: !DiffType, src: Int)
-    [native("_ass_64_32z"), convert] fun ctor(this: !DiffType, src: UInt)
-    [native("_ass_64_64")] fun ctor(this: !DiffType, src: Long)
-    [native("_ass_64_64")] fun ctor(this: !DiffType, src: ULong)
-    [native("_ass_64_64")] fun ctor(this: !DiffType, src: SizeType)
-    [native("_ass_64_64")] fun ctor(this: !DiffType, src: DiffType)
-    [native("_ass_i64_f")] fun ctor(this: !DiffType, src: Float)
-    [native("_ass_i64_d")] fun ctor(this: !DiffType, src: Double)
-    fun dtor(this: DiffType) {}
-    [native("_ass_64_64")] fun = (this: !DiffType, other: DiffType)
-
-    [native("_zero_init_f")] fun ctor(this: !Float)
-    [native("_ass_f_i8"), convert] fun ctor(this: !Float, src: Byte)
-    [native("_ass_f_u8"), convert] fun ctor(this: !Float, src: UByte)
-    [native("_ass_f_i16"), convert] fun ctor(this: !Float, src: Short)
-    [native("_ass_f_u16"), convert] fun ctor(this: !Float, src: UShort)
-    [native("_ass_f_i32"), convert] fun ctor(this: !Float, src: Int)
-    [native("_ass_f_u32"), convert] fun ctor(this: !Float, src: UInt)
-    [native("_ass_f_i64"), convert] fun ctor(this: !Float, src: Long)
-    [native("_ass_f_u64"), convert] fun ctor(this: !Float, src: ULong)
-    [native("_ass_f_i64"), convert] fun ctor(this: !Float, src: SizeType)
-    [native("_ass_f_u64"), convert] fun ctor(this: !Float, src: DiffType)
-    [native("_ass_f_f")] fun ctor(this: !Float, src: Float)
-    [native("_ass_f_d")] fun ctor(this: !Float, src: Double)
-    fun dtor(this: Float) {}
-    [native("_ass_f_f")] fun = (this: !Float, other: Float)
-
-    [native("_zero_init_d")] fun ctor(this: !Double)
-    [native("_ass_d_i8"), convert] fun ctor(this: !Double, src: Byte)
-    [native("_ass_d_u8"), convert] fun ctor(this: !Double, src: UByte)
-    [native("_ass_d_i16"), convert] fun ctor(this: !Double, src: Short)
-    [native("_ass_d_u16"), convert] fun ctor(this: !Double, src: UShort)
-    [native("_ass_d_i32"), convert] fun ctor(this: !Double, src: Int)
-    [native("_ass_d_u32"), convert] fun ctor(this: !Double, src: UInt)
-    [native("_ass_d_i64"), convert] fun ctor(this: !Double, src: Long)
-    [native("_ass_d_u64"), convert] fun ctor(this: !Double, src: ULong)
-    [native("_ass_d_i64"), convert] fun ctor(this: !Double, src: SizeType)
-    [native("_ass_d_u64"), convert] fun ctor(this: !Double, src: DiffType)
-    [native("_ass_d_f"), convert] fun ctor(this: !Double, src: Float)
-    [native("_ass_d_d")] fun ctor(this: !Double, src: Double)
-    fun dtor(this: Double) {}
-    [native("_ass_d_d")] fun = (this: !Double, other: Double)
+    [native("_zero_init_d")] fun ctor(this: !Float64)
+    [native("_ass_d_i8")] fun ctor(this: !Float64, src: Int8)
+    [native("_ass_d_u8")] fun ctor(this: !Float64, src: UInt8)
+    [native("_ass_d_i16")] fun ctor(this: !Float64, src: Int16)
+    [native("_ass_d_u16")] fun ctor(this: !Float64, src: UInt16)
+    [native("_ass_d_i32")] fun ctor(this: !Float64, src: Int32)
+    [native("_ass_d_u32")] fun ctor(this: !Float64, src: UInt32)
+    [native("_ass_d_i64")] fun ctor(this: !Float64, src: Int64)
+    [native("_ass_d_u64")] fun ctor(this: !Float64, src: UInt64)
+    [native("_ass_d_f")] fun ctor(this: !Float64, src: Float32)
+    [native("_ass_d_d")] fun ctor(this: !Float64, src: Float64)
+    fun dtor(this: Float64) {}
+    [native("_ass_d_d")] fun = (this: !Float64, other: Float64)
 
     [native("_zero_init_8")] fun ctor(this: !Char)
     [native("_ass_8_8")] fun ctor(this: !Char, src: Char)
-    [native("_ass_8_8")] fun ctor(this: !Char, src: Byte)
-    [native("_ass_8_8")] fun ctor(this: !Char, src: UByte)
-    [native("_ass_8_16")] fun ctor(this: !Char, src: Short)
-    [native("_ass_8_16")] fun ctor(this: !Char, src: UShort)
-    [native("_ass_8_32")] fun ctor(this: !Char, src: Int)
-    [native("_ass_8_32")] fun ctor(this: !Char, src: UInt)
-    [native("_ass_8_64")] fun ctor(this: !Char, src: Long)
-    [native("_ass_8_64")] fun ctor(this: !Char, src: ULong)
-    [native("_ass_8_64")] fun ctor(this: !Char, src: SizeType)
-    [native("_ass_8_64")] fun ctor(this: !Char, src: DiffType)
+    [native("_ass_8_8")] fun ctor(this: !Char, src: Int8)
+    [native("_ass_8_32")] fun ctor(this: !Char, src: Int32)
     fun dtor(this: Char) {}
     [native("_ass_8_8")] fun = (this: !Char, other: Char)
 
 concept SmallInteger(x)             \
-    if typeOf(x) == Byte            \
-    || typeOf(x) == UByte           \
-    || typeOf(x) == Short           \
-    || typeOf(x) == UShort          \
+    if typeOf(x) == Int8            \
+    || typeOf(x) == UInt8           \
+    || typeOf(x) == Int16           \
+    || typeOf(x) == UInt16          \
 
 
 concept BigInteger(x)               \
-    if typeOf(x) == Int             \
-    || typeOf(x) == UInt            \
-    || typeOf(x) == Long            \
-    || typeOf(x) == ULong           \
-    || typeOf(x) == SizeType        \
-    || typeOf(x) == DiffType        \
+    if typeOf(x) == Int32           \
+    || typeOf(x) == UInt32          \
+    || typeOf(x) == Int64           \
+    || typeOf(x) == UInt64          \
 
 
 concept SignedInteger(x)            \
-    if typeOf(x) == Byte            \
-    || typeOf(x) == Short           \
-    || typeOf(x) == Int             \
-    || typeOf(x) == Long            \
-    || typeOf(x) == DiffType        \
+    if typeOf(x) == Int8            \
+    || typeOf(x) == Int16           \
+    || typeOf(x) == Int32           \
+    || typeOf(x) == Int64           \
 
 
 concept UnsignedInteger(x)          \
-    if typeOf(x) == UByte           \
-    || typeOf(x) == UShort          \
-    || typeOf(x) == UInt            \
-    || typeOf(x) == ULong           \
-    || typeOf(x) == SizeType        \
+    if typeOf(x) == UInt8           \
+    || typeOf(x) == UInt16          \
+    || typeOf(x) == UInt32          \
+    || typeOf(x) == UInt64          \
 
 
 concept Integer(x)                  \
@@ -296,8 +236,8 @@ concept Integer(x)                  \
 
 
 concept FloatingPointNumber(x)      \
-    if typeOf(x) == Float           \
-    || typeOf(x) == Double          \
+    if typeOf(x) == Float32         \
+    || typeOf(x) == Float64         \
 
 
 concept Number(x)                   \
@@ -305,33 +245,33 @@ concept Number(x)                   \
     || FloatingPointNumber(x)       \
 
 
-datatype NumericLimits(t: Type) if t == Byte
-    using maxValue = Byte(0x7f)
-    using minValue = Byte(0x80)
-datatype NumericLimits(t: Type) if t == UByte
-    using maxValue = UByte(0xff)
-    using minValue = UByte(0x00)
+datatype NumericLimits(t: Type) if t == Int8
+    using maxValue = Int8(0x7f)
+    using minValue = Int8(0x80)
+datatype NumericLimits(t: Type) if t == UInt8
+    using maxValue = UInt8(0xff)
+    using minValue = UInt8(0x00)
 
-datatype NumericLimits(t: Type) if t == Short
-    using maxValue = Short(0x7fff)
-    using minValue = Short(0x8000)
-datatype NumericLimits(t: Type) if t == UShort
-    using maxValue = UShort(0xfff)
-    using minValue = UShort(0x000)
+datatype NumericLimits(t: Type) if t == Int16
+    using maxValue = Int16(0x7fff)
+    using minValue = Int16(0x8000)
+datatype NumericLimits(t: Type) if t == UInt16
+    using maxValue = UInt16(0xfff)
+    using minValue = UInt16(0x000)
 
-datatype NumericLimits(t: Type) if t == Int
-    using maxValue = Int(0x7fffffff)
-    using minValue = Int(0x80000000)
-datatype NumericLimits(t: Type) if t == UInt
-    using maxValue = UInt(0xffffffff)
-    using minValue = UInt(0x00000000)
+datatype NumericLimits(t: Type) if t == Int32
+    using maxValue = Int32(0x7fffffff)
+    using minValue = Int32(0x80000000)
+datatype NumericLimits(t: Type) if t == UInt32
+    using maxValue = UInt32(0xffffffff)
+    using minValue = UInt32(0x00000000)
 
-datatype NumericLimits(t: Type) if t == Long
-    using maxValue = Long(0x7fffffffffffffffL)
-    using minValue = Long(0x8000000000000000L)
-datatype NumericLimits(t: Type) if t == ULong
-    using maxValue = ULong(0xffffffffffffffffL)
-    using minValue = ULong(0x0000000000000000L)
+datatype NumericLimits(t: Type) if t == Int64
+    using maxValue = Int64(0x7fffffffffffffffL)
+    using minValue = Int64(0x8000000000000000L)
+datatype NumericLimits(t: Type) if t == UInt64
+    using maxValue = UInt64(0xffffffffffffffffL)
+    using minValue = UInt64(0x0000000000000000L)
 
 ////////////////////////////////////////////////////////////////////////////////
 /// operator precedence
@@ -402,215 +342,182 @@ using oper_assoc_:=         = -1
 ///
 
 [autoCt, protected]
-    [native("_Byte_opEQ")] fun == (x, y: Byte): Bool
-    [native("_UByte_opEQ")] fun == (x, y: UByte): Bool
-    [native("_Short_opEQ")] fun == (x, y: Short): Bool
-    [native("_UShort_opEQ")] fun == (x, y: UShort): Bool
-    [native("_Int_opEQ")] fun == (x, y: Int): Bool
-    [native("_UInt_opEQ")] fun == (x, y: UInt): Bool
-    [native("_Long_opEQ")] fun == (x, y: Long): Bool
-    [native("_ULong_opEQ")] fun == (x, y: ULong): Bool
-    [native("_SizeType_opEQ")] fun == (x, y: SizeType): Bool
-    [native("_DiffType_opEQ")] fun == (x, y: DiffType): Bool
-    [native("_Float_opEQ")] fun == (x, y: Float): Bool
-    [native("_Double_opEQ")] fun == (x, y: Double): Bool
+    [native("_Int8_opEQ")] fun == (x, y: Int8): Bool
+    [native("_UInt8_opEQ")] fun == (x, y: UInt8): Bool
+    [native("_Int16_opEQ")] fun == (x, y: Int16): Bool
+    [native("_UInt16_opEQ")] fun == (x, y: UInt16): Bool
+    [native("_Int32_opEQ")] fun == (x, y: Int32): Bool
+    [native("_UInt32_opEQ")] fun == (x, y: UInt32): Bool
+    [native("_Int64_opEQ")] fun == (x, y: Int64): Bool
+    [native("_UInt64_opEQ")] fun == (x, y: UInt64): Bool
+    [native("_Float32_opEQ")] fun == (x, y: Float32): Bool
+    [native("_Float64_opEQ")] fun == (x, y: Float64): Bool
 
-    [native("_Byte_opNE")] fun != (x, y: Byte): Bool
-    [native("_UByte_opNE")] fun != (x, y: UByte): Bool
-    [native("_Short_opNE")] fun != (x, y: Short): Bool
-    [native("_UShort_opNE")] fun != (x, y: UShort): Bool
-    [native("_Int_opNE")] fun != (x, y: Int): Bool
-    [native("_UInt_opNE")] fun != (x, y: UInt): Bool
-    [native("_Long_opNE")] fun != (x, y: Long): Bool
-    [native("_ULong_opNE")] fun != (x, y: ULong): Bool
-    [native("_SizeType_opNE")] fun != (x, y: SizeType): Bool
-    [native("_DiffType_opNE")] fun != (x, y: DiffType): Bool
-    [native("_Float_opNE")] fun != (x, y: Float): Bool
-    [native("_Double_opNE")] fun != (x, y: Double): Bool
+    [native("_Int8_opNE")] fun != (x, y: Int8): Bool
+    [native("_UInt8_opNE")] fun != (x, y: UInt8): Bool
+    [native("_Int16_opNE")] fun != (x, y: Int16): Bool
+    [native("_UInt16_opNE")] fun != (x, y: UInt16): Bool
+    [native("_Int32_opNE")] fun != (x, y: Int32): Bool
+    [native("_UInt32_opNE")] fun != (x, y: UInt32): Bool
+    [native("_Int64_opNE")] fun != (x, y: Int64): Bool
+    [native("_UInt64_opNE")] fun != (x, y: UInt64): Bool
+    [native("_Float32_opNE")] fun != (x, y: Float32): Bool
+    [native("_Float64_opNE")] fun != (x, y: Float64): Bool
 
-    [native("_Byte_opLT")] fun < (x, y: Byte): Bool
-    [native("_UByte_opLT")] fun < (x, y: UByte): Bool
-    [native("_Short_opLT")] fun < (x, y: Short): Bool
-    [native("_UShort_opLT")] fun < (x, y: UShort): Bool
-    [native("_Int_opLT")] fun < (x, y: Int): Bool
-    [native("_UInt_opLT")] fun < (x, y: UInt): Bool
-    [native("_Long_opLT")] fun < (x, y: Long): Bool
-    [native("_ULong_opLT")] fun < (x, y: ULong): Bool
-    [native("_SizeType_opLT")] fun < (x, y: SizeType): Bool
-    [native("_DiffType_opLT")] fun < (x, y: DiffType): Bool
-    [native("_Float_opLT")] fun < (x, y: Float): Bool
-    [native("_Double_opLT")] fun < (x, y: Double): Bool
+    [native("_Int8_opLT")] fun < (x, y: Int8): Bool
+    [native("_UInt8_opLT")] fun < (x, y: UInt8): Bool
+    [native("_Int16_opLT")] fun < (x, y: Int16): Bool
+    [native("_UInt16_opLT")] fun < (x, y: UInt16): Bool
+    [native("_Int32_opLT")] fun < (x, y: Int32): Bool
+    [native("_UInt32_opLT")] fun < (x, y: UInt32): Bool
+    [native("_Int64_opLT")] fun < (x, y: Int64): Bool
+    [native("_UInt64_opLT")] fun < (x, y: UInt64): Bool
+    [native("_Float32_opLT")] fun < (x, y: Float32): Bool
+    [native("_Float64_opLT")] fun < (x, y: Float64): Bool
 
-    [native("_Byte_opGT")] fun > (x, y: Byte): Bool
-    [native("_UByte_opGT")] fun > (x, y: UByte): Bool
-    [native("_Short_opGT")] fun > (x, y: Short): Bool
-    [native("_UShort_opGT")] fun > (x, y: UShort): Bool
-    [native("_Int_opGT")] fun > (x, y: Int): Bool
-    [native("_UInt_opGT")] fun > (x, y: UInt): Bool
-    [native("_Long_opGT")] fun > (x, y: Long): Bool
-    [native("_ULong_opGT")] fun > (x, y: ULong): Bool
-    [native("_SizeType_opGT")] fun > (x, y: SizeType): Bool
-    [native("_DiffType_opGT")] fun > (x, y: DiffType): Bool
-    [native("_Float_opGT")] fun > (x, y: Float): Bool
-    [native("_Double_opGT")] fun > (x, y: Double): Bool
+    [native("_Int8_opGT")] fun > (x, y: Int8): Bool
+    [native("_UInt8_opGT")] fun > (x, y: UInt8): Bool
+    [native("_Int16_opGT")] fun > (x, y: Int16): Bool
+    [native("_UInt16_opGT")] fun > (x, y: UInt16): Bool
+    [native("_Int32_opGT")] fun > (x, y: Int32): Bool
+    [native("_UInt32_opGT")] fun > (x, y: UInt32): Bool
+    [native("_Int64_opGT")] fun > (x, y: Int64): Bool
+    [native("_UInt64_opGT")] fun > (x, y: UInt64): Bool
+    [native("_Float32_opGT")] fun > (x, y: Float32): Bool
+    [native("_Float64_opGT")] fun > (x, y: Float64): Bool
 
-    [native("_Byte_opLE")] fun <= (x, y: Byte): Bool
-    [native("_UByte_opLE")] fun <= (x, y: UByte): Bool
-    [native("_Short_opLE")] fun <= (x, y: Short): Bool
-    [native("_UShort_opLE")] fun <= (x, y: UShort): Bool
-    [native("_Int_opLE")] fun <= (x, y: Int): Bool
-    [native("_UInt_opLE")] fun <= (x, y: UInt): Bool
-    [native("_Long_opLE")] fun <= (x, y: Long): Bool
-    [native("_ULong_opLE")] fun <= (x, y: ULong): Bool
-    [native("_SizeType_opLE")] fun <= (x, y: SizeType): Bool
-    [native("_DiffType_opLE")] fun <= (x, y: DiffType): Bool
-    [native("_Float_opLE")] fun <= (x, y: Float): Bool
-    [native("_Double_opLE")] fun <= (x, y: Double): Bool
+    [native("_Int8_opLE")] fun <= (x, y: Int8): Bool
+    [native("_UInt8_opLE")] fun <= (x, y: UInt8): Bool
+    [native("_Int16_opLE")] fun <= (x, y: Int16): Bool
+    [native("_UInt16_opLE")] fun <= (x, y: UInt16): Bool
+    [native("_Int32_opLE")] fun <= (x, y: Int32): Bool
+    [native("_UInt32_opLE")] fun <= (x, y: UInt32): Bool
+    [native("_Int64_opLE")] fun <= (x, y: Int64): Bool
+    [native("_UInt64_opLE")] fun <= (x, y: UInt64): Bool
+    [native("_Float32_opLE")] fun <= (x, y: Float32): Bool
+    [native("_Float64_opLE")] fun <= (x, y: Float64): Bool
 
-    [native("_Byte_opGE")] fun >= (x, y: Byte): Bool
-    [native("_UByte_opGE")] fun >= (x, y: UByte): Bool
-    [native("_Short_opGE")] fun >= (x, y: Short): Bool
-    [native("_UShort_opGE")] fun >= (x, y: UShort): Bool
-    [native("_Int_opGE")] fun >= (x, y: Int): Bool
-    [native("_UInt_opGE")] fun >= (x, y: UInt): Bool
-    [native("_Long_opGE")] fun >= (x, y: Long): Bool
-    [native("_ULong_opGE")] fun >= (x, y: ULong): Bool
-    [native("_SizeType_opGE")] fun >= (x, y: SizeType): Bool
-    [native("_DiffType_opGE")] fun >= (x, y: DiffType): Bool
-    [native("_Float_opGE")] fun >= (x, y: Float): Bool
-    [native("_Double_opGE")] fun >= (x, y: Double): Bool
+    [native("_Int8_opGE")] fun >= (x, y: Int8): Bool
+    [native("_UInt8_opGE")] fun >= (x, y: UInt8): Bool
+    [native("_Int16_opGE")] fun >= (x, y: Int16): Bool
+    [native("_UInt16_opGE")] fun >= (x, y: UInt16): Bool
+    [native("_Int32_opGE")] fun >= (x, y: Int32): Bool
+    [native("_UInt32_opGE")] fun >= (x, y: UInt32): Bool
+    [native("_Int64_opGE")] fun >= (x, y: Int64): Bool
+    [native("_UInt64_opGE")] fun >= (x, y: UInt64): Bool
+    [native("_Float32_opGE")] fun >= (x, y: Float32): Bool
+    [native("_Float64_opGE")] fun >= (x, y: Float64): Bool
 
-    [native("_Byte_opPlus")] fun + (x, y: Byte): Byte
-    [native("_UByte_opPlus")] fun + (x, y: UByte): UByte
-    [native("_Short_opPlus")] fun + (x, y: Short): Short
-    [native("_UShort_opPlus")] fun + (x, y: UShort): UShort
-    [native("_Int_opPlus")] fun + (x, y: Int): Int
-    [native("_UInt_opPlus")] fun + (x, y: UInt): UInt
-    [native("_Long_opPlus")] fun + (x, y: Long): Long
-    [native("_ULong_opPlus")] fun + (x, y: ULong): ULong
-    [native("_SizeType_opPlus")] fun + (x, y: SizeType): SizeType
-    [native("_DiffType_opPlus")] fun + (x, y: DiffType): DiffType
-    [native("_Float_opPlus")] fun + (x, y: Float): Float
-    [native("_Double_opPlus")] fun + (x, y: Double): Double
+    [native("_Int8_opPlus")] fun + (x, y: Int8): Int8
+    [native("_UInt8_opPlus")] fun + (x, y: UInt8): UInt8
+    [native("_Int16_opPlus")] fun + (x, y: Int16): Int16
+    [native("_UInt16_opPlus")] fun + (x, y: UInt16): UInt16
+    [native("_Int32_opPlus")] fun + (x, y: Int32): Int32
+    [native("_UInt32_opPlus")] fun + (x, y: UInt32): UInt32
+    [native("_Int64_opPlus")] fun + (x, y: Int64): Int64
+    [native("_UInt64_opPlus")] fun + (x, y: UInt64): UInt64
+    [native("_Float32_opPlus")] fun + (x, y: Float32): Float32
+    [native("_Float64_opPlus")] fun + (x, y: Float64): Float64
 
-    [native("_Byte_opMinus")] fun - (x, y: Byte): Byte
-    [native("_UByte_opMinus")] fun - (x, y: UByte): UByte
-    [native("_Short_opMinus")] fun - (x, y: Short): Short
-    [native("_UShort_opMinus")] fun - (x, y: UShort): UShort
-    [native("_Int_opMinus")] fun - (x, y: Int): Int
-    [native("_UInt_opMinus")] fun - (x, y: UInt): UInt
-    [native("_Long_opMinus")] fun - (x, y: Long): Long
-    [native("_ULong_opMinus")] fun - (x, y: ULong): ULong
-    [native("_SizeType_opMinus")] fun - (x, y: SizeType): SizeType
-    [native("_DiffType_opMinus")] fun - (x, y: DiffType): DiffType
-    [native("_Float_opMinus")] fun - (x, y: Float): Float
-    [native("_Double_opMinus")] fun - (x, y: Double): Double
+    [native("_Int8_opMinus")] fun - (x, y: Int8): Int8
+    [native("_UInt8_opMinus")] fun - (x, y: UInt8): UInt8
+    [native("_Int16_opMinus")] fun - (x, y: Int16): Int16
+    [native("_UInt16_opMinus")] fun - (x, y: UInt16): UInt16
+    [native("_Int32_opMinus")] fun - (x, y: Int32): Int32
+    [native("_UInt32_opMinus")] fun - (x, y: UInt32): UInt32
+    [native("_Int64_opMinus")] fun - (x, y: Int64): Int64
+    [native("_UInt64_opMinus")] fun - (x, y: UInt64): UInt64
+    [native("_Float32_opMinus")] fun - (x, y: Float32): Float32
+    [native("_Float64_opMinus")] fun - (x, y: Float64): Float64
 
-    [native("_Byte_opMul")] fun * (x, y: Byte): Byte
-    [native("_UByte_opMul")] fun * (x, y: UByte): UByte
-    [native("_Short_opMul")] fun * (x, y: Short): Short
-    [native("_UShort_opMul")] fun * (x, y: UShort): UShort
-    [native("_Int_opMul")] fun * (x, y: Int): Int
-    [native("_UInt_opMul")] fun * (x, y: UInt): UInt
-    [native("_Long_opMul")] fun * (x, y: Long): Long
-    [native("_ULong_opMul")] fun * (x, y: ULong): ULong
-    [native("_SizeType_opMul")] fun * (x, y: SizeType): SizeType
-    [native("_DiffType_opMul")] fun * (x, y: DiffType): DiffType
-    [native("_Float_opMul")] fun * (x, y: Float): Float
-    [native("_Double_opMul")] fun * (x, y: Double): Double
+    [native("_Int8_opMul")] fun * (x, y: Int8): Int8
+    [native("_UInt8_opMul")] fun * (x, y: UInt8): UInt8
+    [native("_Int16_opMul")] fun * (x, y: Int16): Int16
+    [native("_UInt16_opMul")] fun * (x, y: UInt16): UInt16
+    [native("_Int32_opMul")] fun * (x, y: Int32): Int32
+    [native("_UInt32_opMul")] fun * (x, y: UInt32): UInt32
+    [native("_Int64_opMul")] fun * (x, y: Int64): Int64
+    [native("_UInt64_opMul")] fun * (x, y: UInt64): UInt64
+    [native("_Float32_opMul")] fun * (x, y: Float32): Float32
+    [native("_Float64_opMul")] fun * (x, y: Float64): Float64
 
-    [native("_Byte_opDiv")] fun / (x, y: Byte): Byte
-    [native("_UByte_opDiv")] fun / (x, y: UByte): UByte
-    [native("_Short_opDiv")] fun / (x, y: Short): Short
-    [native("_UShort_opDiv")] fun / (x, y: UShort): UShort
-    [native("_Int_opDiv")] fun / (x, y: Int): Int
-    [native("_UInt_opDiv")] fun / (x, y: UInt): UInt
-    [native("_Long_opDiv")] fun / (x, y: Long): Long
-    [native("_ULong_opDiv")] fun / (x, y: ULong): ULong
-    [native("_SizeType_opDiv")] fun / (x, y: SizeType): SizeType
-    [native("_DiffType_opDiv")] fun / (x, y: DiffType): DiffType
-    [native("_Float_opDiv")] fun / (x, y: Float): Float
-    [native("_Double_opDiv")] fun / (x, y: Double): Double
+    [native("_Int8_opDiv")] fun / (x, y: Int8): Int8
+    [native("_UInt8_opDiv")] fun / (x, y: UInt8): UInt8
+    [native("_Int16_opDiv")] fun / (x, y: Int16): Int16
+    [native("_UInt16_opDiv")] fun / (x, y: UInt16): UInt16
+    [native("_Int32_opDiv")] fun / (x, y: Int32): Int32
+    [native("_UInt32_opDiv")] fun / (x, y: UInt32): UInt32
+    [native("_Int64_opDiv")] fun / (x, y: Int64): Int64
+    [native("_UInt64_opDiv")] fun / (x, y: UInt64): UInt64
+    [native("_Float32_opDiv")] fun / (x, y: Float32): Float32
+    [native("_Float64_opDiv")] fun / (x, y: Float64): Float64
 
-    [native("_Byte_opMod")] fun % (x, y: Byte): Byte
-    [native("_UByte_opMod")] fun % (x, y: UByte): UByte
-    [native("_Short_opMod")] fun % (x, y: Short): Short
-    [native("_UShort_opMod")] fun % (x, y: UShort): UShort
-    [native("_Int_opMod")] fun % (x, y: Int): Int
-    [native("_UInt_opMod")] fun % (x, y: UInt): UInt
-    [native("_Long_opMod")] fun % (x, y: Long): Long
-    [native("_ULong_opMod")] fun % (x, y: ULong): ULong
-    [native("_SizeType_opMod")] fun % (x, y: SizeType): SizeType
-    [native("_DiffType_opMod")] fun % (x, y: DiffType): DiffType
-    [native("_Float_opMod")] fun % (x, y: Float): Float
-    [native("_Double_opMod")] fun % (x, y: Double): Double
+    [native("_Int8_opMod")] fun % (x, y: Int8): Int8
+    [native("_UInt8_opMod")] fun % (x, y: UInt8): UInt8
+    [native("_Int16_opMod")] fun % (x, y: Int16): Int16
+    [native("_UInt16_opMod")] fun % (x, y: UInt16): UInt16
+    [native("_Int32_opMod")] fun % (x, y: Int32): Int32
+    [native("_UInt32_opMod")] fun % (x, y: UInt32): UInt32
+    [native("_Int64_opMod")] fun % (x, y: Int64): Int64
+    [native("_UInt64_opMod")] fun % (x, y: UInt64): UInt64
+    [native("_Float32_opMod")] fun % (x, y: Float32): Float32
+    [native("_Float64_opMod")] fun % (x, y: Float64): Float64
 
     // Unary +
-    [native("_Byte_opPlus1")] fun + (x: Byte): Byte
-    [native("_UByte_opPlus1")] fun + (x: UByte): UByte
-    [native("_Short_opPlus1")] fun + (x: Short): Short
-    [native("_UShort_opPlus1")] fun + (x: UShort): UShort
-    [native("_Int_opPlus1")] fun + (x: Int): Int
-    [native("_UInt_opPlus1")] fun + (x: UInt): UInt
-    [native("_Long_opPlus1")] fun + (x: Long): Long
-    [native("_ULong_opPlus1")] fun + (x: ULong): ULong
-    [native("_SizeType_opPlus1")] fun + (x: SizeType): SizeType
-    [native("_DiffType_opPlus1")] fun + (x: DiffType): DiffType
-    [native("_Float_opPlus1")] fun + (x: Float): Float
-    [native("_Double_opPlus1")] fun + (x: Double): Double
+    [native("_Int8_opPlus1")] fun + (x: Int8): Int8
+    [native("_UInt8_opPlus1")] fun + (x: UInt8): UInt8
+    [native("_Int16_opPlus1")] fun + (x: Int16): Int16
+    [native("_UInt16_opPlus1")] fun + (x: UInt16): UInt16
+    [native("_Int32_opPlus1")] fun + (x: Int32): Int32
+    [native("_UInt32_opPlus1")] fun + (x: UInt32): UInt32
+    [native("_Int64_opPlus1")] fun + (x: Int64): Int64
+    [native("_UInt64_opPlus1")] fun + (x: UInt64): UInt64
+    [native("_Float32_opPlus1")] fun + (x: Float32): Float32
+    [native("_Float64_opPlus1")] fun + (x: Float64): Float64
 
     // Unary - (only for signed types)
-    [native("_Byte_opMinus1")] fun - (x: Byte): Byte
-    [native("_Short_opMinus1")] fun - (x: Short): Short
-    [native("_Int_opMinus1")] fun - (x: Int): Int
-    [native("_Long_opMinus1")] fun - (x: Long): Long
-    [native("_DiffType_opMinus1")] fun - (x: DiffType): DiffType
-    [native("_Float_opMinus1")] fun - (x: Float): Float
-    [native("_Double_opMinus1")] fun - (x: Double): Double
+    [native("_Int8_opMinus1")] fun - (x: Int8): Int8
+    [native("_Int16_opMinus1")] fun - (x: Int16): Int16
+    [native("_Int32_opMinus1")] fun - (x: Int32): Int32
+    [native("_Int64_opMinus1")] fun - (x: Int64): Int64
+    [native("_Float32_opMinus1")] fun - (x: Float32): Float32
+    [native("_Float64_opMinus1")] fun - (x: Float64): Float64
 
-    fun pre_++(n: !Byte): Byte { n+=Byte(1); return n; }
-    fun pre_++(n: !UByte): UByte { n+=UByte(1); return n; }
-    fun pre_++(n: !Short): Short { n+=Short(1); return n; }
-    fun pre_++(n: !UShort): UShort { n+=UShort(1); return n; }
-    fun pre_++(n: !Int): Int { n+=1; return n; }
-    fun pre_++(n: !UInt): UInt { n+=UInt(1); return n; }
-    fun pre_++(n: !Long): Long { n+=Long(1); return n; }
-    fun pre_++(n: !ULong): ULong { n+=ULong(1); return n; }
-    fun pre_++(n: !SizeType): SizeType { n+=SizeType(1); return n; }
-    fun pre_++(n: !DiffType): DiffType { n+=DiffType(1); return n; }
+    fun pre_++(n: !Int8): Int8 { n+=Int8(1); return n; }
+    fun pre_++(n: !UInt8): UInt8 { n+=UInt8(1); return n; }
+    fun pre_++(n: !Int16): Int16 { n+=Int16(1); return n; }
+    fun pre_++(n: !UInt16): UInt16 { n+=UInt16(1); return n; }
+    fun pre_++(n: !Int32): Int32 { n+=1; return n; }
+    fun pre_++(n: !UInt32): UInt32 { n+=UInt32(1); return n; }
+    fun pre_++(n: !Int64): Int64 { n+=Int64(1); return n; }
+    fun pre_++(n: !UInt64): UInt64 { n+=UInt64(1); return n; }
 
-    fun pre_--(n: !Byte): Byte { n-=Byte(1); return n; }
-    fun pre_--(n: !UByte): UByte { n-=UByte(1); return n; }
-    fun pre_--(n: !Short): Short { n-=Short(1); return n; }
-    fun pre_--(n: !UShort): UShort { n-=UShort(1); return n; }
-    fun pre_--(n: !Int): Int { n-=1; return n; }
-    fun pre_--(n: !UInt): UInt { n-=UInt(1); return n; }
-    fun pre_--(n: !Long): Long { n-=Long(1); return n; }
-    fun pre_--(n: !ULong): ULong { n-=ULong(1); return n; }
-    fun pre_--(n: !SizeType): SizeType { n-=SizeType(1); return n; }
-    fun pre_--(n: !DiffType): DiffType { n-=DiffType(1); return n; }
+    fun pre_--(n: !Int8): Int8 { n-=Int8(1); return n; }
+    fun pre_--(n: !UInt8): UInt8 { n-=UInt8(1); return n; }
+    fun pre_--(n: !Int16): Int16 { n-=Int16(1); return n; }
+    fun pre_--(n: !UInt16): UInt16 { n-=UInt16(1); return n; }
+    fun pre_--(n: !Int32): Int32 { n-=1; return n; }
+    fun pre_--(n: !UInt32): UInt32 { n-=UInt32(1); return n; }
+    fun pre_--(n: !Int64): Int64 { n-=Int64(1); return n; }
+    fun pre_--(n: !UInt64): UInt64 { n-=UInt64(1); return n; }
 
-    fun post_++(n: !Byte): Byte { let old = n; n+=Byte(1); return old; }
-    fun post_++(n: !UByte): UByte { let old = n; n+=UByte(1); return old; }
-    fun post_++(n: !Short): Short { let old = n; n+=Short(1); return old; }
-    fun post_++(n: !UShort): UShort { let old = n; n+=UShort(1); return old; }
-    fun post_++(n: !Int): Int { let old = n; n+=1; return old; }
-    fun post_++(n: !UInt): UInt { let old = n; n+=UInt(1); return old; }
-    fun post_++(n: !Long): Long { let old = n; n+=Long(1); return old; }
-    fun post_++(n: !ULong): ULong { let old = n; n+=ULong(1); return old; }
-    fun post_++(n: !SizeType): SizeType { let old = n; n+=SizeType(1); return old; }
-    fun post_++(n: !DiffType): DiffType { let old = n; n+=DiffType(1); return old; }
+    fun post_++(n: !Int8): Int8 { let old = n; n+=Int8(1); return old; }
+    fun post_++(n: !UInt8): UInt8 { let old = n; n+=UInt8(1); return old; }
+    fun post_++(n: !Int16): Int16 { let old = n; n+=Int16(1); return old; }
+    fun post_++(n: !UInt16): UInt16 { let old = n; n+=UInt16(1); return old; }
+    fun post_++(n: !Int32): Int32 { let old = n; n+=1; return old; }
+    fun post_++(n: !UInt32): UInt32 { let old = n; n+=UInt32(1); return old; }
+    fun post_++(n: !Int64): Int64 { let old = n; n+=Int64(1); return old; }
+    fun post_++(n: !UInt64): UInt64 { let old = n; n+=UInt64(1); return old; }
 
-    fun post_--(n: !Byte): Byte { let old = n; n-=Byte(1); return old; }
-    fun post_--(n: !UByte): UByte { let old = n; n-=UByte(1); return old; }
-    fun post_--(n: !Short): Short { let old = n; n-=Short(1); return old; }
-    fun post_--(n: !UShort): UShort { let old = n; n-=UShort(1); return old; }
-    fun post_--(n: !Int): Int { let old = n; n-=1; return old; }
-    fun post_--(n: !UInt): UInt { let old = n; n-=UInt(1); return old; }
-    fun post_--(n: !Long): Long { let old = n; n-=Long(1); return old; }
-    fun post_--(n: !ULong): ULong { let old = n; n-=ULong(1); return old; }
-    fun post_--(n: !SizeType): SizeType { let old = n; n-=SizeType(1); return old; }
-    fun post_--(n: !DiffType): DiffType { let old = n; n-=DiffType(1); return old; }
+    fun post_--(n: !Int8): Int8 { let old = n; n-=Int8(1); return old; }
+    fun post_--(n: !UInt8): UInt8 { let old = n; n-=UInt8(1); return old; }
+    fun post_--(n: !Int16): Int16 { let old = n; n-=Int16(1); return old; }
+    fun post_--(n: !UInt16): UInt16 { let old = n; n-=UInt16(1); return old; }
+    fun post_--(n: !Int32): Int32 { let old = n; n-=1; return old; }
+    fun post_--(n: !UInt32): UInt32 { let old = n; n-=UInt32(1); return old; }
+    fun post_--(n: !Int64): Int64 { let old = n; n-=Int64(1); return old; }
+    fun post_--(n: !UInt64): UInt64 { let old = n; n-=UInt64(1); return old; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// StringRef
@@ -628,10 +535,10 @@ datatype StringRef
         begin ctor UntypedPtr()
         end ctor UntypedPtr()
 
-    fun ctor(this: !StringRef, size: SizeType)
+    fun ctor(this: !StringRef, size: Int)
         begin = malloc(size + 1)
         end = (begin ptrAdd size)
-        (end asRefOf Byte) = Byte(0)
+        (end asRefOf Int8) = Int8(0)
     fun ctor(this: !StringRef, other: StringRef)
         begin = other.begin
         end = other.end
@@ -641,20 +548,20 @@ datatype StringRef
     fun dtor(this: StringRef) {}
 
     fun isEmpty(this: StringRef)            = (end ptrDiff begin) == 0
-    fun size(this: StringRef): SizeType     = (end ptrDiff begin)
+    fun size(this: StringRef): Int     = (end ptrDiff begin)
 
     fun front(this: StringRef): @Char                 = begin asRefOf Char
     fun back(this: StringRef): @Char                  = end ptrSub 1 asRefOf Char
     fun ()(this: StringRef) : @Char                   = begin asRefOf Char
-    fun ()(this: StringRef, index: SizeType): @Char   = begin ptrAdd index asRefOf Char
-    fun at(this: StringRef, index: SizeType): @Char   = begin ptrAdd index asRefOf Char
+    fun ()(this: StringRef, index: Int): @Char   = begin ptrAdd index asRefOf Char
+    fun at(this: StringRef, index: Int): @Char   = begin ptrAdd index asRefOf Char
 
     fun popFront(this: !StringRef)                { begin = (begin ptrAdd 1); }
     fun popBack(this: !StringRef)                 { end = (begin ptrSub 1); }
-    fun popFront(this: !StringRef, n: SizeType)   { begin = (begin ptrAdd n); }
-    fun popBack(this: !StringRef, n: SizeType)    { end = (begin ptrAdd n); }
+    fun popFront(this: !StringRef, n: Int)   { begin = (begin ptrAdd n); }
+    fun popBack(this: !StringRef, n: Int)    { end = (begin ptrAdd n); }
 
-    fun subrange(this: StringRef, index: SizeType, num: SizeType): StringRef
+    fun subrange(this: StringRef, index: Int, num: Int): StringRef
         return StringRef(begin ptrAdd index, begin ptrAdd (index+num))
 
     fun cStr(this: StringRef): @Char = begin asRefOf Char
@@ -669,7 +576,7 @@ fun == (this, other: StringRef): Bool
     let s = this.size
     if s != other.size
         return false
-    var i: SizeType = 0
+    var i: Int = 0
     while i<s ; i+=1
         if this.at(i) != other.at(i) return false
     return true
@@ -682,10 +589,10 @@ fun fromCString(s: @Char): StringRef
     res.end = (res.begin ptrAdd len)
     return res
 
-fun cStringLen(s: @Char): SizeType
-    var len: SizeType = 0
+fun cStringLen(s: @Char): Int
+    var len: Int = 0
     var p: UntypedPtr = s
-    while p.asRefOf(Byte) != Byte(0) ; p = (p ptrAdd 1)
+    while p.asRefOf(Int8) != Int8(0) ; p = (p ptrAdd 1)
         len++
     return len
 
@@ -719,7 +626,7 @@ fun cast()
 fun reinterpretCast()
 fun construct()
 [ct]
-    fun sizeOf(): SizeType
+    fun sizeOf(): Int
     fun typeOf(): Type
     fun isValid(): Bool
     fun isValidAndTrue(): Bool
@@ -730,7 +637,7 @@ fun construct()
 
 /// Type used to represent an untyped pointer
 [bitcopiable]
-datatype UntypedPtr = @Byte
+datatype UntypedPtr = @Int8
 
 [protected]
     fun ctor(this: !UntypedPtr)
@@ -738,19 +645,19 @@ datatype UntypedPtr = @Byte
     fun ctor(this: !UntypedPtr, other: UntypedPtr)
         this.data := other.data
     fun ctor(this: !UntypedPtr, val: @AnyType)
-        this.data := reinterpretCast(@Byte, val)
+        this.data := reinterpretCast(@Int8, val)
     fun ctor(this: !UntypedPtr, nullptr: Null)
         this.data := null
     fun asRefOf(this: UntypedPtr, t: Type): @t = reinterpretCast(@t, this.data)
 
-    [native("ptrAdd"), autoCt] fun ptrAdd(p: UntypedPtr, n: SizeType): UntypedPtr
-    [native("ptrSub"), autoCt] fun ptrSub(p: UntypedPtr, n: SizeType): UntypedPtr
-    [native("ptrDiff"), autoCt] fun ptrDiff(p1, p2: UntypedPtr): DiffType
+    [native("ptrAdd"), autoCt] fun ptrAdd(p: UntypedPtr, n: Int): UntypedPtr
+    [native("ptrSub"), autoCt] fun ptrSub(p: UntypedPtr, n: Int): UntypedPtr
+    [native("ptrDiff"), autoCt] fun ptrDiff(p1, p2: UntypedPtr): Int
 
 [autoCt]
-    [native("implOpRefEQ")] fun implOpRefEQ(x,y: @Byte): Bool
-    [native("implOpRefNE")] fun implOpRefNE(x,y: @Byte): Bool
-    [native("isNullRef")] fun isNullRef(x: @Byte): Bool
+    [native("implOpRefEQ")] fun implOpRefEQ(x,y: @Int8): Bool
+    [native("implOpRefNE")] fun implOpRefNE(x,y: @Int8): Bool
+    [native("isNullRef")] fun isNullRef(x: @Int8): Bool
 
     [native("implOpRefEQ")] fun implOpRefEQ(x,y: UntypedPtr): Bool
     [native("implOpRefNE")] fun implOpRefNE(x,y: UntypedPtr): Bool
@@ -806,7 +713,7 @@ package TypeOp
 [ct, native('$mut')] fun pre_!(t: Type): Type
 
 [ct, native("$convertsTo")] fun convertsTo(src, dest: Type): Bool
-[ct, native("$staticBuffer")] fun static_buffer(n: SizeType): Type
+[ct, native("$staticBuffer")] fun static_buffer(n: Int): Type
 [ct, native("$commonType")] fun commonType(t, u: Type): Type
 
 //! Transforms from mutable to temp
@@ -826,13 +733,13 @@ fun #$(t: Type): t
 /// Some low-level helper functions
 ///
 
-[native("malloc")] fun malloc(size: SizeType): UntypedPtr
-[native("calloc")] fun calloc(size, count: SizeType): UntypedPtr
-[native("realloc"), autoCt] fun realloc(p: UntypedPtr, size: SizeType): UntypedPtr
+[native("malloc")] fun malloc(size: Int): UntypedPtr
+[native("calloc")] fun calloc(size, count: Int): UntypedPtr
+[native("realloc"), autoCt] fun realloc(p: UntypedPtr, size: Int): UntypedPtr
 [native("free"), autoCt] fun free(p: UntypedPtr)
-[native("_spr_memcpy"), autoCt] fun memcpy(dest, src: UntypedPtr, size: SizeType)
-[native("_spr_memmove"), autoCt] fun memmove(dest, src: UntypedPtr, size: SizeType)
-[native("_spr_memset"), autoCt] fun memset(dest: UntypedPtr, val: Byte, count: SizeType)
+[native("_spr_memcpy"), autoCt] fun memcpy(dest, src: UntypedPtr, size: Int)
+[native("_spr_memmove"), autoCt] fun memmove(dest, src: UntypedPtr, size: Int)
+[native("_spr_memset"), autoCt] fun memset(dest: UntypedPtr, val: Int8, count: Int)
 [native("system")] fun systemNative(x: @Char)
 [native("sleep")] fun sleep(x: Int)
 

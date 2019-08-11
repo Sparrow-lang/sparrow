@@ -41,7 +41,7 @@ fun partition(this: !DefaultPartitioner, r: Range, depth: Int) : RangeType * Ran
 
 datatype BoundedRange(baseRangeType: Type)
     _baseRange: baseRangeType
-    _count: SizeType
+    _count: Int
 
     using RetType = baseRangeType.RetType
     using _RangeType = baseRangeType
@@ -50,7 +50,7 @@ fun ctor(this: !BoundedRange, r: this._RangeType)
     _baseRange ctor r
     _count = (_baseRange rangeSize)
 
-fun ctor(this: !BoundedRange, r: typeOf(this), nSkip, nTake: SizeType)
+fun ctor(this: !BoundedRange, r: typeOf(this), nSkip, nTake: Int)
     _baseRange ctor r._baseRange
     _baseRange advance nSkip
     _count ctor nTake

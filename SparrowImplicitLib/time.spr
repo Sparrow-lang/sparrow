@@ -1,11 +1,11 @@
 module time
 
-[native("clock")] fun clock: Int
+[native("clock")] fun clock: Int32
 
 datatype Timer
-    _startTime: Int
+    _startTime: Int32
 
 fun ctor(this: !Timer) { _startTime = clock }
 
-fun elapsed(this: Timer) = Double(clock - _startTime) / 1000.0
+fun elapsed(this: Timer) = Float(clock - _startTime) / 1000.0
 fun restart(this: !Timer) { _startTime = clock }

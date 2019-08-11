@@ -1,4 +1,4 @@
-import basicDecls(Char, Byte, Int, SizeType, DiffType, StringRef, Null, typeOf, reinterpretCast, sizeOf, UntypedPtr, ptrAdd, ptrSub, ptrDiff, fromCString, *)
+import basicDecls(Char, Int8, Int, StringRef, Null, typeOf, reinterpretCast, sizeOf, UntypedPtr, ptrAdd, ptrSub, ptrDiff, fromCString, *)
 
 /// Range type that returns StringRef objects referring to program arguments
 datatype MainParameters
@@ -12,17 +12,17 @@ datatype MainParameters
         this._end = (this._begin + argc)
 
     fun isEmpty(this: MainParameters)                      = this.size == 0
-    fun size(this: MainParameters): SizeType               = _end - _begin
+    fun size(this: MainParameters): Int               = _end - _begin
 
     fun front(this: MainParameters): RetType               = _begin toStringRef
     fun back(this: MainParameters): RetType                = _end - 1 toStringRef
     fun ()(this: MainParameters) : RetType                 = _begin toStringRef
-    fun ()(this: MainParameters, n: SizeType): RetType     = _begin + n toStringRef
+    fun ()(this: MainParameters, n: Int): RetType     = _begin + n toStringRef
 
     fun popFront(this: @MainParameters)                    { _begin = (_begin + 1); }
     fun popBack(this: @MainParameters)                     { _end = (_end - 1); }
-    fun popFront(this: @MainParameters, n: SizeType)       { _begin = (_begin + n); }
-    fun popBack(this: @MainParameters, n: SizeType)        { _end = (_end - n); }
+    fun popFront(this: @MainParameters, n: Int)       { _begin = (_begin + n); }
+    fun popBack(this: @MainParameters, n: Int)        { _end = (_end - n); }
 
 package _Impl
     [bitcopiable]
@@ -33,9 +33,9 @@ package _Impl
     fun fromArgvPtr(argv: @ @Char): CStrPtr = CStrPtr(reinterpretCast(@CStr, argv))
     fun toCStrPtr(p: UntypedPtr): CStrPtr = CStrPtr(p.asRefOf(CStr))
     fun toUntypedPtr(p: CStrPtr) = UntypedPtr(p.ptr)
-    fun +(p: CStrPtr, n: SizeType): CStrPtr = toUntypedPtr(p) ptrAdd (n*sizeOf(CStrPtr)) toCStrPtr
-    fun -(p: CStrPtr, n: SizeType): CStrPtr = toUntypedPtr(p) ptrSub (n*sizeOf(CStrPtr)) toCStrPtr
-    fun -(p, q: CStrPtr): SizeType = ptrDiff(toUntypedPtr(p), toUntypedPtr(q)) / (sizeOf(CStrPtr))
+    fun +(p: CStrPtr, n: Int): CStrPtr = toUntypedPtr(p) ptrAdd (n*sizeOf(CStrPtr)) toCStrPtr
+    fun -(p: CStrPtr, n: Int): CStrPtr = toUntypedPtr(p) ptrSub (n*sizeOf(CStrPtr)) toCStrPtr
+    fun -(p, q: CStrPtr): Int = ptrDiff(toUntypedPtr(p), toUntypedPtr(q)) / (sizeOf(CStrPtr))
 
     fun toStringRef(p: CStrPtr): StringRef = fromCString(p.ptr.cstr)
 

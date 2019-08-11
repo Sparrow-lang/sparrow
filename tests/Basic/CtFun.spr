@@ -1,6 +1,6 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-[rt] fun pow1(x: Double, n: Int): Double
+[rt] fun pow1(x: Float, n: Int): Float
     if ( equal(n, 0) )
         return 1.0
     else if ( equal(n, 1) )
@@ -9,7 +9,7 @@
         //return mul(x, pow1(x, sub(n,1)));
         return mul(pow1(mul(x,x), div(n,2)), pow1(x, mod(n,2)))
 
-[ct] fun pow2(x: Double, n: Int): Double
+[ct] fun pow2(x: Float, n: Int): Float
     if ( equal(n, 0) )
         return 1.0
     else if ( equal(n, 1) )
@@ -17,35 +17,35 @@
     else
         return mul(pow2(mul(x,x), div(n,2)), pow2(x, mod(n,2)))
 
-[autoCt] fun pow3(x: Double, n: Int): Double
+[autoCt] fun pow3(x: Float, n: Int): Float
     if ( equal(n, 0) )
         return 1.0
     else
         return mul(x, pow3(x, sub(n,1)))
     return x
 
-[native("writeLnDouble"), autoCt] fun writeLnDoubleCt(x: Double)
+[native("writeLnFloat64"), autoCt] fun writeLnFloatCt(x: Float)
 
 // Function that can be called only with compile-time arguments
-[ct] fun ctTest(x: Double)
-    writeLnDoubleCt(x)
+[ct] fun ctTest(x: Float)
+    writeLnFloatCt(x)
 
 [native("test")] fun test(n: Int)
-    writeLnDouble(pow1(2.0, 0))
-    writeLnDouble(pow1(2.0, 1))
-    writeLnDouble(pow1(2.0, 2))
-    writeLnDouble(pow1(2.0, 3))
-    writeLnDouble(pow1(2.0, 4))
-    writeLnDouble(pow1(2.0, 5))
-    writeLnDouble(pow1(2.0, 6))
-    writeLnDouble(pow1(2.0, 7))
-    writeLnDouble(pow1(2.0, 8))
+    writeLnFloat(pow1(2.0, 0))
+    writeLnFloat(pow1(2.0, 1))
+    writeLnFloat(pow1(2.0, 2))
+    writeLnFloat(pow1(2.0, 3))
+    writeLnFloat(pow1(2.0, 4))
+    writeLnFloat(pow1(2.0, 5))
+    writeLnFloat(pow1(2.0, 6))
+    writeLnFloat(pow1(2.0, 7))
+    writeLnFloat(pow1(2.0, 8))
 
-    writeLnDouble(mathPow(3.0, 4.0))
-    writeLnDouble(pow1(3.0, 4))
-    writeLnDouble(pow2(3.0, 4))
+    writeLnFloat(mathPow(3.0, 4.0))
+    writeLnFloat(pow1(3.0, 4))
+    writeLnFloat(pow2(3.0, 4))
     pow3(3.0, 4)
-    writeLnDouble(pow3(3.0, 4))
+    writeLnFloat(pow3(3.0, 4))
 
     //ctTest(pow1(4.0, 4));
     ctTest(pow2(4.0, 4))

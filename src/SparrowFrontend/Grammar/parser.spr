@@ -571,15 +571,15 @@ package _Impl
         else if this accept tkINT_LITERAL
             res = _astBuilder.mkIntLiteral(_lastToken.loc, Int(_lastToken.intData))
         else if this accept tkUINT_LITERAL
-            res = _astBuilder.mkUIntLiteral(_lastToken.loc, UInt(_lastToken.intData))
+            res = _astBuilder.mkUIntLiteral(_lastToken.loc, UInt32(_lastToken.intData))
         else if this accept tkLONG_LITERAL
-            res = _astBuilder.mkLongLiteral(_lastToken.loc, Long(_lastToken.intData))
+            res = _astBuilder.mkLongLiteral(_lastToken.loc, Int64(_lastToken.intData))
         else if this accept tkULONG_LITERAL
-            res = _astBuilder.mkULongLiteral(_lastToken.loc, ULong(_lastToken.intData))
+            res = _astBuilder.mkULongLiteral(_lastToken.loc, UInt64(_lastToken.intData))
         else if this accept tkFLOAT_LITERAL
-            res = _astBuilder.mkFloatLiteral(_lastToken.loc, Float(_lastToken.floatData))
+            res = _astBuilder.mkFloatLiteral(_lastToken.loc, Float32(_lastToken.floatData))
         else if this accept tkDOUBLE_LITERAL
-            res = _astBuilder.mkDoubleLiteral(_lastToken.loc, Double(_lastToken.floatData))
+            res = _astBuilder.mkDoubleLiteral(_lastToken.loc, Float64(_lastToken.floatData))
         else if this accept tkCHAR_LITERAL
             res = _astBuilder.mkCharLiteral(_lastToken.loc, _lastToken.data(0))
         else if this accept tkSTRING_LITERAL

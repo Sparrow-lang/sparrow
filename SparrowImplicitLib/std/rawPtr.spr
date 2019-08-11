@@ -10,21 +10,20 @@ fun ctor(this: !RawPtr, p: UntypedPtr)
     _ptr := p asRefOf ValueType
 
 [protected]
-    fun < (this, other: RawPtr)       = (UntypedPtr(_ptr) ptrDiff UntypedPtr(other._ptr)) < DiffType(0)
+    fun < (this, other: RawPtr)       = (UntypedPtr(_ptr) ptrDiff UntypedPtr(other._ptr)) < 0
 
-    fun value(this: RawPtr): @ValueType                     = _ptr
+    fun value(this: RawPtr): @ValueType                = _ptr
 
-    fun advance(this: RawPtr): typeOf(this)                 = typeOf(this)( UntypedPtr(_ptr) ptrAdd sizeOf(ValueType) )
-    fun advance(this: RawPtr, n: SizeType): typeOf(this)    = typeOf(this)( UntypedPtr(_ptr) ptrAdd (n * sizeOf(ValueType)) )
-    fun advance(this: RawPtr, n: DiffType): typeOf(this)    = typeOf(this)( UntypedPtr(_ptr) ptrAdd (n * DiffType(sizeOf(ValueType))) )
-    fun diff(this: RawPtr, other: typeOf(this)): DiffType   = (UntypedPtr(_ptr) ptrDiff UntypedPtr(other._ptr)) / DiffType(sizeOf(ValueType))
+    fun advance(this: RawPtr): typeOf(this)            = typeOf(this)( UntypedPtr(_ptr) ptrAdd sizeOf(ValueType) )
+    fun advance(this: RawPtr, n: Int): typeOf(this)    = typeOf(this)( UntypedPtr(_ptr) ptrAdd (n * sizeOf(ValueType)) )
+    fun diff(this: RawPtr, other: typeOf(this)): Int   = (UntypedPtr(_ptr) ptrDiff UntypedPtr(other._ptr)) / sizeOf(ValueType)
 
     fun isNull(this: RawPtr): Bool            = _ptr === null
     fun isSet(this: RawPtr)                   = _ptr !== null
 
     fun untypedPtr(this: RawPtr): UntypedPtr  = UntypedPtr(_ptr)
 
-    fun reallocPtr(this: !RawPtr, n: SizeType)
+    fun reallocPtr(this: !RawPtr, n: Int)
         _ptr := realloc(UntypedPtr(_ptr), n * sizeOf(ValueType)).asRefOf(ValueType)
 
     fun freePtr(this: RawPtr)
@@ -40,5 +39,5 @@ fun ctor(this: !RawPtr, p: UntypedPtr)
         os << "RawPtr(" << UntypedPtr(_ptr) << ")"
 
 fun mkRawPtr(ref: !AnyType) = RawPtr(-@typeOf(ref))(ref)
-fun allocRawPtr(t: Type, num: SizeType) = RawPtr(t)(reinterpretCast(@t, malloc(num * sizeOf(t)).data))
+fun allocRawPtr(t: Type, num: Int) = RawPtr(t)(reinterpretCast(@t, malloc(num * sizeOf(t)).data))
 

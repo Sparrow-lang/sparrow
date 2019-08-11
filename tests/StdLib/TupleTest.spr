@@ -24,17 +24,17 @@ fun arbitrary(t: Type): T4 Gen if t == T4
     return mkGen(T4, \generateT4);
 
 //! Generate an arbitrary tuple 2
-fun generateT2(sizeHint: UInt): T2
+fun generateT2(sizeHint: Int): T2
     var res: T2
-    let h: Int = sizeHint + 5
+    let h= sizeHint + 5
     res.v1.x = randBetween(-h, h+1)
     res.v2.x = randBetween(-h, h+1)
     res.v2.y = randBetween(-h, h+1)
     return res
 //! Generate an arbitrary tuple 4
-fun generateT4(sizeHint: UInt): T4
+fun generateT4(sizeHint: Int): T4
     var res: T4
-    let h: Int = sizeHint + 5
+    let h= sizeHint + 5
     res.v1.x = randBetween(-h, h+1)
     res.v2.x = randBetween(-h, h+1)
     res.v2.y = randBetween(-h, h+1)

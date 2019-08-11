@@ -19,7 +19,7 @@ import std.compilerInfo
         //cout << (numUsers load) << ' '
         assertLe(numUsers load, numResources, "numUsers should be less or equal to the number of resources")
         ++numExecutions
-        sleep(waitTime)
+        sleepMs(waitTime)
         --numUsers
         sem release
 

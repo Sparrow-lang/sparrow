@@ -4,7 +4,7 @@ import std.algorithms
 fun f(a: Int, b: Int)
     cout << "f a b " << a << " " << b << endl
 
-fun f(x: Double)
+fun f(x: Float)
     cout << "f x " << x << endl
 
 fun f(p: Int*Int)

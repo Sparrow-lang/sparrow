@@ -22,7 +22,7 @@ fun _printLocation(this: !ConsoleErrorReporter, os: !OutStream, loc: Location)
     os << '>'
     var endCol = loc.end.col
     if ( loc.start.line != loc.end.line )
-        endCol = UInt(line.size()+1);
+        endCol = line.size()+1;
     if ( loc.start.col == endCol )
         ++endCol;
     for i = 1..loc.start.col

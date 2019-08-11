@@ -12,7 +12,7 @@ datatype List(valueType: Type)
     using _NodeTypePtr = RawPtr(_MyNodeType)
 
     _head: _NodeLinks(valueType)
-    _listSize: SizeType
+    _listSize: Int
 
 [protected]
     fun ctor(this: !List)
@@ -65,7 +65,7 @@ datatype List(valueType: Type)
 
         return true
 
-    fun size(this: List): SizeType          = _listSize
+    fun size(this: List): Int          = _listSize
     fun isEmpty(this: List)                 = _listSize == 0
 
     fun front(this: List): RetType          = _head.next.value().data
@@ -211,7 +211,7 @@ datatype List(valueType: Type)
         left.value().next = rc._end
         rc._end.value().prev = left
 
-    fun resize(this: !List, n: SizeType)
+    fun resize(this: !List, n: Int)
         if n == _listSize
             return
 

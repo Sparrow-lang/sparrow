@@ -1,4 +1,4 @@
-import basicDecls(Type, Byte, Int, AnyType, UntypedPtr)
+import basicDecls(Type, Int8, Int, AnyType, UntypedPtr)
 
 package _Impl0
     [bitcopiable]

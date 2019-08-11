@@ -9,15 +9,15 @@ import std.function(Function)
 datatype Gen(t: Type)
     using ValueType = t
     using _isGenerator = true
-    _generator: Function(t, UInt)
+    _generator: Function(t, Int)
 
-concept _Generator(x) if isValid(x(UInt(0)))
+concept _Generator(x) if isValid(x(0))
 
 fun mkGen(t: Type, generator: _Generator): Gen(t)
-    using FunType = Function(t, UInt)
+    using FunType = Function(t, Int)
     return Gen(t)(FunType(generator))
 
-fun ()(this: !Gen, sizeHint: UInt): ValueType = _generator(sizeHint)
+fun ()(this: !Gen, sizeHint: Int): ValueType = _generator(sizeHint)
 
 fun isValid(this: Gen): Bool = _generator isSet
 
@@ -33,7 +33,7 @@ fun arbitrary(t: Type): t Gen if Integer(#$t)
 //! Configuration options for our check function
 [initCtor]
 datatype CheckConfig
-    numTests, maxAttempts: UInt
+    numTests, maxAttempts: Int
     isVerbose: Bool
 fun ctor(this: !CheckConfig)
     numTests = 100
@@ -74,7 +74,7 @@ fun check(values: TestableValuesRange, predMsg: AnyType): Bool \
     if isValid(predMsg.v1)
 fun check(values: TestableValuesRange, pred: AnyType, msg: StringRef, config: CheckConfig = CheckConfig()): Bool
     cout << "* Checking " << msg << endl
-    var classes: Map(String, UInt)
+    var classes: Map(String, Int)
 
     var numTrivial = 0
     var n = 0
@@ -169,19 +169,19 @@ fun frequency(gens: Range): typeOf((#$gens.RetType).v2) if FreqGenType(#$gens.Re
 
 fun randBetween(min, max: Integer): commonType(typeOf(min), typeOf(max))
     using T = commonType(typeOf(min), typeOf(max))
-    using RAND_MAX = 0x7fffffff
-    let offset: T = T(Double(_Impl.rand()) / RAND_MAX * Double(max - min))
+    using RAND_MAX = Float(0x7fffffff)
+    let offset: T = T(Float(_Impl.rand()) / RAND_MAX * Float(max - min))
     return T(min) + offset
 
 package _Impl
     [native("rand")]
-    fun rand(): UInt
+    fun rand(): UInt32
 
     package NumericGen(t: Type) if UnsignedInteger(#$t)
-        fun gen(sizeHint: UInt) = t(randBetween(0, 6 + sizeHint))
+        fun gen(sizeHint: Int) = t(randBetween(0, 6 + sizeHint))
 
     package NumericGen(t: Type) if SignedInteger(#$t)
-        fun gen(sizeHint: UInt): t
+        fun gen(sizeHint: Int): t
             let h: Int = sizeHint + 3
             return t(randBetween(-h, h+1))
 
@@ -190,7 +190,7 @@ package _Impl
         using _T = t
 
         _gen: Gen(t)
-        _count: UInt
+        _count: Int
 
     fun ctor(this, other: !ForAllGenerator)
         this._gen ctor other._gen
@@ -276,13 +276,13 @@ package _Impl
         using _RangeType = rangeType
 
         _range: rangeType
-        _count: SizeType
+        _count: Int
 
     fun ctor(this: !ElementsGen, range: this._RangeType)
         this._range ctor range
         this._count ctor (range rangeSize)
 
-    fun ()(this: !ElementsGen, sizeHint: UInt): ElementType
+    fun ()(this: !ElementsGen, sizeHint: Int): ElementType
         let r = _range
         r advance randBetween(0, Int(_count))
         return r.front

@@ -41,7 +41,7 @@ datatype Vector(valueType: Type)
                 dst = dst.advance()
                 src = src.advance()
 
-    fun ctor(this: !Vector, size: SizeType)
+    fun ctor(this: !Vector, size: Int)
         // Allocate the buffer
         _begin = allocRawPtr(ValueType, size)
         _end = _begin.advance(size)
@@ -107,11 +107,11 @@ datatype Vector(valueType: Type)
         _endOfStore = other._endOfStore
         other._endOfStore = tmp
 
-    fun size(this: Vector): SizeType = _end.diff(_begin)
+    fun size(this: Vector): Int = _end.diff(_begin)
     fun isEmpty(this: Vector) = _begin == _end
-    fun capacity(this: Vector): SizeType = _endOfStore.diff(_begin)
+    fun capacity(this: Vector): Int = _endOfStore.diff(_begin)
 
-    fun reserve(this: !Vector, n: SizeType)
+    fun reserve(this: !Vector, n: Int)
         let curCapacity = this.capacity()
 
         if n <= curCapacity
@@ -119,8 +119,8 @@ datatype Vector(valueType: Type)
 
         if n < _initialCapacity
             n = _initialCapacity
-        if n < _growthFactor*curCapacity
-            n = SizeType(_growthFactor*curCapacity)
+        if n < Int(_growthFactor*Float(curCapacity))
+            n = Int(_growthFactor*Float(curCapacity))
 
         let curSize = this.size()
 
@@ -128,13 +128,13 @@ datatype Vector(valueType: Type)
         _end = _begin.advance(curSize)
         _endOfStore = _begin.advance(n)
 
-    fun at(this: Vector, index: SizeType)    = _begin.advance(index).value()
-    fun ()(this: Vector, index: SizeType)    = _begin.advance(index).value()
+    fun at(this: Vector, index: Int)    = _begin.advance(index).value()
+    fun ()(this: Vector, index: Int)    = _begin.advance(index).value()
     fun front(this: Vector)                   = _begin.value()
     fun back(this: Vector)                    = _end.advance(-1).value()
     fun all(this: Vector)                     = RangeType(_begin, _end)
-    fun subrange(this: Vector, index: SizeType, num: SizeType): RangeType = RangeType(_begin.advance(index), _begin.advance(index + num))
-    fun subrange(this: Vector, index: SizeType): RangeType = RangeType(_begin.advance(index), _end)
+    fun subrange(this: Vector, index: Int, num: Int): RangeType = RangeType(_begin.advance(index), _begin.advance(index + num))
+    fun subrange(this: Vector, index: Int): RangeType = RangeType(_begin.advance(index), _end)
 
     fun insertBefore(this: !Vector, value: this.ValueType, pos: this.RangeType)
         let posCount = pos.frontPtr().diff(_begin)
@@ -209,14 +209,14 @@ datatype Vector(valueType: Type)
             rEnd = rEnd.advance()
         _end = rBegin
 
-    fun remove(this: !Vector, index: SizeType)
+    fun remove(this: !Vector, index: Int)
         var r = this.all()
 
         r.popFront(index)
         r.popBack(this.size() - index - 1)
         this.remove(r)
 
-    fun resize(this: !Vector, n: SizeType)
+    fun resize(this: !Vector, n: Int)
         let oldSize = this.size()
 
         if n == oldSize

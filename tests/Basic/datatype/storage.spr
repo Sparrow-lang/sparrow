@@ -8,7 +8,7 @@ datatype MyType
 
 datatype MyType2
     x: MyType
-    y: Double
+    y: Float
 
 var i: Int
 var a: MyType

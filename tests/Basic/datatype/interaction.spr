@@ -12,7 +12,7 @@ datatype Book2 = StringRef * StringRef
 datatype Book3 { author, name, isbn: StringRef}
 datatype Book4 = Book
 
-datatype Opaque = @Byte
+datatype Opaque = @Int8
 
 fun Book(author, name, isbn: StringRef): Book
     var res: Book = Uninitialized()
@@ -81,7 +81,7 @@ fun CollectionBook(author, name, isbn, collection: StringRef): CollectionBook
     let b4_1 = Book4(b)
     writeLn(b4_1.data.name)
 
-    let o: Opaque = reinterpretCast(@Byte, b)
+    let o: Opaque = reinterpretCast(@Int8, b)
 
 /*<<<Running()
 LucTeo

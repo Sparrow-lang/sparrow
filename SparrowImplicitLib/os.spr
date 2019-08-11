@@ -53,13 +53,13 @@ fun readLine(this: !File): String
     return res
 
 fun write(this: !File, data: StringRef): Int
-    var res: Int = CApi.fwrite(UntypedPtr(data.begin), 1, UInt(data.size), this)
+    var res: Int = CApi.fwrite(UntypedPtr(data.begin), 1U, UInt32(data.size), this)
     return res
 
 //! Returns the file size.
 //! Note: as a side effect, seeks the file to the beginning
 fun size(this: !File): Int
-    CApi.fseek(this, 0, CApi.SEEK_END)
+    CApi.fseek(this, 0L, CApi.SEEK_END)
     var res: Int = CApi.ftell(this)
     CApi.rewind(this)
     return res
@@ -99,11 +99,11 @@ package CApi
     [native("feof")]    fun feof(file: File): Int
     [native("fgetc")]   fun fgetc(file: File): Int
     [native("fgets")]   fun fgets(buffer: UntypedPtr, bufSize: Int, file: File): @Char
-    [native("fread")]   fun fread(buffer: UntypedPtr, size, count: UInt, file: File): UInt
-    [native("fwrite")]  fun fwrite(buffer: UntypedPtr, size, count: UInt, file: File): UInt
-    [native("fseek")]   fun fseek(file: File, offset: Long, origin: Int)
+    [native("fread")]   fun fread(buffer: UntypedPtr, size, count: UInt32, file: File): UInt32
+    [native("fwrite")]  fun fwrite(buffer: UntypedPtr, size, count: UInt32, file: File): UInt32
+    [native("fseek")]   fun fseek(file: File, offset: Int64, origin: Int)
     [native("rewind")]  fun rewind(file: File)
-    [native("ftell")]   fun ftell(file: File): Long
+    [native("ftell")]   fun ftell(file: File): Int64
 
     using SEEK_SET = 0
     using SEEK_CUR = 1

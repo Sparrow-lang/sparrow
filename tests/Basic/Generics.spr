@@ -31,17 +31,17 @@ fun print(this: !MyVector)
     write(' ')
     writeLn(end)
 
-fun valSize(x: AnyType): SizeType
+fun valSize(x: AnyType): Int
     return sizeOf(x);
 
 [native("test")] fun test(n: Int)
     writeLn(f1(Int, 4))
-    //writeLn(f1(Double, 4));
+    //writeLn(f1(Float, 4));
     f2(Int)
-    f2(Double)
-    f2(Byte)
+    f2(Float)
+    f2(Int8)
 
-    if ( Int == Double )
+    if ( Int == Float )
         writeLn('F');
     if ( Int == Int )
         write('O'); writeLn('K');
@@ -53,12 +53,12 @@ fun valSize(x: AnyType): SizeType
     v1.glob = 100
     writeLn(MyVector(Int).glob)
 
-    var v2: MyVector(Double)
+    var v2: MyVector(Float)
     v2.start = 10.0
     v2.end = 15.2
     v2.print()
     v2.glob = 3.14
-    writeLn(MyVector(Double).glob)
+    writeLn(MyVector(Float).glob)
 
     writeLn('-')
     writeLn(valSize(10))

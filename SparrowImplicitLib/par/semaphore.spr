@@ -8,7 +8,7 @@ import config
 datatype Semaphore
     _handle: _Impl.SemaphoreT
 
-fun ctor(this: !Semaphore, startValue: UInt = 0)
+fun ctor(this: !Semaphore, startValue: Int = 0)
     _handle ctor
     let res = _Impl.semaphore_create(_Impl.mach_task_self(), _handle, _Impl.SYNC_POLICY_FIFO, Int(startValue))
 
@@ -38,7 +38,7 @@ package _Impl
 
     //using SemType = Int;
 
-    //[native("sem_init")] fun sem_init(s: !SemType, pshared: Int, value: UInt): Int;
+    //[native("sem_init")] fun sem_init(s: !SemType, pshared: Int, value: Int): Int;
     //[native("sem_destroy")] fun sem_destroy(s: !SemType): Int;
     //[native("sem_wait")] fun sem_wait(s: !SemType): Int;
     //[native("sem_post")] fun sem_post(s: !SemType): Int;

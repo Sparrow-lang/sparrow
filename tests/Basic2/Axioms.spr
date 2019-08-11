@@ -48,7 +48,7 @@ fun sprMain
     testOrdered(o2)
 /*<<<Running()
 Int is Ordered
-Double is Ordered
+Float is Ordered
 MyType is Ordered
 EmptyType is not Ordered
 >>>*/

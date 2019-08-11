@@ -53,10 +53,10 @@ fun ctor(this: !MyType, i,j: Int)
     b.ctor(j)
     writeLn("MyType.ctor(Int, Int)")
 
-fun ctor(this: !MyType, x,y: Double)
+fun ctor(this: !MyType, x,y: Float)
     this.ctor(Int(x), Int(y))
     //ctor(this, Int(x), Int(y))
-    writeLn("MyType.ctor(Double, Double)")
+    writeLn("MyType.ctor(Float, Float)")
 
 fun dtor(this: !MyType)
     writeLn("MyType.dtor")
@@ -122,7 +122,7 @@ A.dtor
 A.ctor(20)
 B.ctor(21)
 MyType.ctor(Int, Int)
-MyType.ctor(Double, Double)
+MyType.ctor(Float, Float)
 MyType.dtor
 B.dtor
 A.dtor

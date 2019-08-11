@@ -5,7 +5,7 @@ import rawPtr(RawPtr)
 import ranges
 
 [noDefault]
-datatype StaticArray(valueType: Type, arraySize: SizeType ct)
+datatype StaticArray(valueType: Type, arraySize: Int ct)
     using ValueType = valueType
     using RangeType = ContiguousMemoryRange(valueType)
     using _arraySize = arraySize
@@ -112,7 +112,7 @@ datatype StaticArray(valueType: Type, arraySize: SizeType ct)
                 return false
         return true
 
-    fun size(this: StaticArray): SizeType
+    fun size(this: StaticArray): Int
         return _arraySize
 
     fun isEmpty(this: StaticArray): Bool
@@ -132,13 +132,13 @@ datatype StaticArray(valueType: Type, arraySize: SizeType ct)
             this(i) = other(i)
             other(i) = tmp
 
-    fun at(this: StaticArray, index: SizeType): @ValueType = this._asPtr().advance(DiffType(index)).value
-    fun ()(this: StaticArray, index: SizeType): @ValueType = this._asPtr().advance(DiffType(index)).value
+    fun at(this: StaticArray, index: Int): @ValueType = this._asPtr().advance(index).value
+    fun ()(this: StaticArray, index: Int): @ValueType = this._asPtr().advance(index).value
 
-    fun all(this: StaticArray) = RangeType(this._asPtr, this._asPtr().advance(DiffType(_arraySize)))
+    fun all(this: StaticArray) = RangeType(this._asPtr, this._asPtr().advance(_arraySize))
 
-    fun subrange(this: StaticArray, index: SizeType, num: SizeType) \
-        = RangeType(this._asPtr().advance(DiffType(index)), this._asPtr().advance(DiffType(index + num)))
+    fun subrange(this: StaticArray, index: Int, num: Int) \
+        = RangeType(this._asPtr().advance(index), this._asPtr().advance(index + num))
 
     fun _asPtr(this: StaticArray) = RawPtr(ValueType)(UntypedPtr(_buf))
 
@@ -153,14 +153,14 @@ fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8: AnyType) = StaticArray(typeOf(v0), 9)(v
 fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: AnyType) = StaticArray(typeOf(v0), 10)(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9)
 
 [ctGeneric]
-fun StaticArray2d(baseType: Type, d1, d2: SizeType ct) \
+fun StaticArray2d(baseType: Type, d1, d2: Int ct) \
     = StaticArray(StaticArray(baseType, d2), d1)
 
 [ctGeneric]
-fun StaticArray3d(baseType: Type, d1, d2, d3: SizeType ct) \
+fun StaticArray3d(baseType: Type, d1, d2, d3: Int ct) \
     = StaticArray(StaticArray(StaticArray(baseType, d3), d2), d1)
 
 [ctGeneric]
-fun StaticArray4d(baseType: Type, d1, d2, d3, d4: SizeType ct) \
+fun StaticArray4d(baseType: Type, d1, d2, d3, d4: Int ct) \
     = StaticArray(StaticArray(StaticArray(StaticArray(baseType, d4), d3), d2), d1)
 

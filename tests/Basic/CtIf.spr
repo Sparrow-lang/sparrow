@@ -1,10 +1,10 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-[native("writeLnDouble"), autoCt] fun writeLnDoubleCt(x: Double)
+[native("writeLnFloat64"), autoCt] fun writeLnFloatCt(x: Float)
 
 // Function that can be called only with compile-time arguments
-[ct] fun ctTest(x: Double)
-    writeLnDoubleCt(x)
+[ct] fun ctTest(x: Float)
+    writeLnFloatCt(x)
 
 [ct] if ( true )
     fun my_f { writeLn("f.1"); }

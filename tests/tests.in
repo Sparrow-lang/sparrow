@@ -142,7 +142,6 @@ Basic/vars/typeCatVarsErr.spr:          Basic features - vars - type cat variabl
 Basic/vars/typeCatFieldsErr.spr:        Basic features - vars - type cat fields (err)
 Basic/fun/overloadBasic.spr:            Basic features - fun - Overload (basic)
 Basic/fun/overloadCat.spr:              Basic features - fun - Overload on type categories
-Basic/fun/convert.spr:                  Basic features - fun - Conversions
 Basic/fun/callCtorDtor.spr:             Basic features - fun - Call ctor & dtor
 Basic/fun/callOperator.spr:             Basic features - fun - Call operator
 Basic/fun/defaultParam.spr:             Basic features - fun - Default parameters

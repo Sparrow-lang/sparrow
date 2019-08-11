@@ -8,7 +8,7 @@ datatype SharedPtr(type: Type)
     using _MyAllocData = _AllocData(type)
 
     _ref: @ValueType
-    _count: @UInt
+    _count: @Int
 
 [protected]
     fun ctor(this: !SharedPtr)
@@ -48,7 +48,7 @@ datatype SharedPtr(type: Type)
     fun get(this: SharedPtr): @ValueType          = _ref
 
     fun isUnique(this: SharedPtr)                 = _count !== null && _count == 1
-    fun useCount(this: SharedPtr): UInt           = ife(_count !== null, UInt(_count), UInt(0))
+    fun useCount(this: SharedPtr): Int            = ife(_count !== null, Int(_count), 0)
 
     fun isNull(this: SharedPtr)                   = _ref === null
     fun isSet(this: SharedPtr)                    = _ref !== null
@@ -62,7 +62,7 @@ datatype SharedPtr(type: Type)
         other._ref := _ref
         _ref := tmpr
 
-        let tmpc: @UInt = other._count
+        let tmpc: @Int = other._count
         other._count := _count
         _count := tmpc
 
@@ -73,7 +73,7 @@ datatype SharedPtr(type: Type)
             os << "SharedPtr(null)"
 
 datatype _AllocData(type: Type)
-    _count: UInt
+    _count: Int
     data: type
 
 fun ctor(this: !_AllocData)

@@ -19,15 +19,15 @@ fun write(r: Range, length: Int) if isValid(Char(#$r.RetType))
     ;
 
 var seed: Int = 42
-fun nextRandom: Double
+fun nextRandom: Float
     using IM = 139968
     seed = (seed * 3877 + 29573) % IM
-    return seed * 1.0/IM
+    return Float(seed) * 1.0/Float(IM)
 
 datatype RandTableRange
     using RetType   = Char
     using numEntries = 4095
-    lookup: Array((Float rt)*(Char rt))
+    lookup: Array((Float32 rt)*(Char rt))
 
 fun ctor(this: !RandTableRange, other: RandTableRange)
     this.lookup ctor other.lookup
@@ -36,7 +36,7 @@ fun ctor(this: !RandTableRange, data: Range)
     var datac = data
     lookup.ctor(numEntries+1)
     for i = 0...numEntries
-        while i > datac.front().v1*numEntries
+        while i > Int(Float(datac.front().v1)*Float(numEntries))
             datac.popFront()
         lookup(i) = datac.front
 
@@ -44,9 +44,9 @@ fun isEmpty(this: !RandTableRange)     = false
 fun popFront(this: !RandTableRange)    {}
 fun front(this: !RandTableRange): Char
     let r = nextRandom
-    var idx: SizeType = r*numEntries
-    while lookup(idx).v1 < r
-        ++idx;
+    var idx = Int(r*Float(numEntries))
+    while Float(lookup(idx).v1) < r
+        ++idx
     return lookup(idx).v2;
 
 fun sprMain

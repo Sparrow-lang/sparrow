@@ -56,23 +56,23 @@ Node* SprFrontend::buildIntLiteral(const Location& loc, int value) {
 }
 
 Node* SprFrontend::buildUIntLiteral(const Location& loc, unsigned int value) {
-    return mkLiteral(loc, StringRef("UInt"), toStrData(value));
+    return mkLiteral(loc, StringRef("UInt32"), toStrData(value));
 }
 
 Node* SprFrontend::buildLongLiteral(const Location& loc, long value) {
-    return mkLiteral(loc, StringRef("Long"), toStrData(value));
+    return mkLiteral(loc, StringRef("Int64"), toStrData(value));
 }
 
 Node* SprFrontend::buildULongLiteral(const Location& loc, unsigned long value) {
-    return mkLiteral(loc, StringRef("ULong"), toStrData(value));
+    return mkLiteral(loc, StringRef("UInt64"), toStrData(value));
 }
 
 Node* SprFrontend::buildFloatLiteral(const Location& loc, float value) {
-    return mkLiteral(loc, StringRef("Float"), toStrData(value));
+    return mkLiteral(loc, StringRef("Float32"), toStrData(value));
 }
 
 Node* SprFrontend::buildDoubleLiteral(const Location& loc, double value) {
-    return mkLiteral(loc, StringRef("Double"), toStrData(value));
+    return mkLiteral(loc, StringRef("Float"), toStrData(value));
 }
 
 Node* SprFrontend::buildCharLiteral(const Location& loc, char value) {

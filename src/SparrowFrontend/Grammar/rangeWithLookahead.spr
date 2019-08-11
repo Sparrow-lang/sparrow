@@ -33,7 +33,7 @@ fun popFront(this: !RangeWithLookahead)
     if (buffer.isEmpty) && !!source
         buffer += (source++)
 
-fun peek(this: !RangeWithLookahead, n: UInt): RetType
+fun peek(this: !RangeWithLookahead, n: Int): RetType
     // If not enough elements in the buffer, add them now
     while n >= buffer.size && !!source
         buffer += (source++)
@@ -42,7 +42,7 @@ fun peek(this: !RangeWithLookahead, n: UInt): RetType
     else
         return RetType() // not enough elements in the source
 
-fun hasLessThan(this: !RangeWithLookahead, n: UInt): Bool
+fun hasLessThan(this: !RangeWithLookahead, n: Int): Bool
     // Try to fill the buffer with the amount of elements
     while n >= buffer.size && !!source
         buffer += (source++)

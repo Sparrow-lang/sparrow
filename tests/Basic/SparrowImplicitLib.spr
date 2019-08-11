@@ -532,149 +532,149 @@ define i1 @_Bool_opEQ(i1 %x, i1 %y)             {\n  %1 = icmp eq i1 %x, %y\n  r
 define i1 @_Bool_opNE(i1 %x, i1 %y)             {\n  %1 = icmp ne i1 %x, %y\n  ret i1 %1\n}
 define i1 @_Bool_opNeg(i1 %x)                   {\n  %1 = xor i1 %x, 1\n  ret i1 %1\n}
 
-define i8 @_Byte_opAssign(i8* %x, i8 %y)        {\n  store i8 %y, i8* %x\n  ret i8 %y\n}
-define i1 @_Byte_opEQ(i8 %x, i8 %y)             {\n  %1 = icmp eq i8 %x, %y\n  ret i1 %1\n}
-define i1 @_Byte_opNE(i8 %x, i8 %y)             {\n  %1 = icmp ne i8 %x, %y\n  ret i1 %1\n}
-define i1 @_Byte_opLT(i8 %x, i8 %y)             {\n  %1 = icmp slt i8 %x, %y\n  ret i1 %1\n}
-define i1 @_Byte_opGT(i8 %x, i8 %y)             {\n  %1 = icmp sgt i8 %x, %y\n  ret i1 %1\n}
-define i1 @_Byte_opLE(i8 %x, i8 %y)             {\n  %1 = icmp sle i8 %x, %y\n  ret i1 %1\n}
-define i1 @_Byte_opGE(i8 %x, i8 %y)             {\n  %1 = icmp sge i8 %x, %y\n  ret i1 %1\n}
-define i8 @_Byte_opPlus(i8 %x, i8 %y)           {\n  %1 = add i8 %x, %y\n  ret i8 %1\n}
-define i8 @_Byte_opMinus(i8 %x, i8 %y)          {\n  %1 = sub i8 %x, %y\n  ret i8 %1\n}
-define i8 @_Byte_opMul(i8 %x, i8 %y)            {\n  %1 = mul i8 %x, %y\n  ret i8 %1\n}
-define i8 @_Byte_opDiv(i8 %x, i8 %y)            {\n  %1 = sdiv i8 %x, %y\n  ret i8 %1\n}
-define i8 @_Byte_opMod(i8 %x, i8 %y)            {\n  %1 = srem i8 %x, %y\n  ret i8 %1\n}
-define i8 @_Byte_opPlus1(i8 %x)                 {\n  ret i8 %x\n}
-define i8 @_Byte_opMinus1(i8 %x)                {\n  %1 = sub i8 0, %x\n  ret i8 %1\n}
+define i8 @_Int8_opAssign(i8* %x, i8 %y)        {\n  store i8 %y, i8* %x\n  ret i8 %y\n}
+define i1 @_Int8_opEQ(i8 %x, i8 %y)             {\n  %1 = icmp eq i8 %x, %y\n  ret i1 %1\n}
+define i1 @_Int8_opNE(i8 %x, i8 %y)             {\n  %1 = icmp ne i8 %x, %y\n  ret i1 %1\n}
+define i1 @_Int8_opLT(i8 %x, i8 %y)             {\n  %1 = icmp slt i8 %x, %y\n  ret i1 %1\n}
+define i1 @_Int8_opGT(i8 %x, i8 %y)             {\n  %1 = icmp sgt i8 %x, %y\n  ret i1 %1\n}
+define i1 @_Int8_opLE(i8 %x, i8 %y)             {\n  %1 = icmp sle i8 %x, %y\n  ret i1 %1\n}
+define i1 @_Int8_opGE(i8 %x, i8 %y)             {\n  %1 = icmp sge i8 %x, %y\n  ret i1 %1\n}
+define i8 @_Int8_opPlus(i8 %x, i8 %y)           {\n  %1 = add i8 %x, %y\n  ret i8 %1\n}
+define i8 @_Int8_opMinus(i8 %x, i8 %y)          {\n  %1 = sub i8 %x, %y\n  ret i8 %1\n}
+define i8 @_Int8_opMul(i8 %x, i8 %y)            {\n  %1 = mul i8 %x, %y\n  ret i8 %1\n}
+define i8 @_Int8_opDiv(i8 %x, i8 %y)            {\n  %1 = sdiv i8 %x, %y\n  ret i8 %1\n}
+define i8 @_Int8_opMod(i8 %x, i8 %y)            {\n  %1 = srem i8 %x, %y\n  ret i8 %1\n}
+define i8 @_Int8_opPlus1(i8 %x)                 {\n  ret i8 %x\n}
+define i8 @_Int8_opMinus1(i8 %x)                {\n  %1 = sub i8 0, %x\n  ret i8 %1\n}
 
-define i8 @_UByte_opAssign(i8* %x, i8 %y)       {\n  store i8 %y, i8* %x\n  ret i8 %y\n}
-define i1 @_UByte_opEQ(i8 %x, i8 %y)            {\n  %1 = icmp eq i8 %x, %y\n  ret i1 %1\n}
-define i1 @_UByte_opNE(i8 %x, i8 %y)            {\n  %1 = icmp ne i8 %x, %y\n  ret i1 %1\n}
-define i1 @_UByte_opLT(i8 %x, i8 %y)            {\n  %1 = icmp ult i8 %x, %y\n  ret i1 %1\n}
-define i1 @_UByte_opGT(i8 %x, i8 %y)            {\n  %1 = icmp ugt i8 %x, %y\n  ret i1 %1\n}
-define i1 @_UByte_opLE(i8 %x, i8 %y)            {\n  %1 = icmp ule i8 %x, %y\n  ret i1 %1\n}
-define i1 @_UByte_opGE(i8 %x, i8 %y)            {\n  %1 = icmp uge i8 %x, %y\n  ret i1 %1\n}
-define i8 @_UByte_opPlus(i8 %x, i8 %y)          {\n  %1 = add i8 %x, %y\n  ret i8 %1\n}
-define i8 @_UByte_opMinus(i8 %x, i8 %y)         {\n  %1 = sub i8 %x, %y\n  ret i8 %1\n}
-define i8 @_UByte_opMul(i8 %x, i8 %y)           {\n  %1 = mul i8 %x, %y\n  ret i8 %1\n}
-define i8 @_UByte_opDiv(i8 %x, i8 %y)           {\n  %1 = sdiv i8 %x, %y\n  ret i8 %1\n}
-define i8 @_UByte_opMod(i8 %x, i8 %y)           {\n  %1 = srem i8 %x, %y\n  ret i8 %1\n}
-define i8 @_UByte_opPlus1(i8 %x)                {\n  ret i8 %x\n}
+define i8 @_UInt8_opAssign(i8* %x, i8 %y)       {\n  store i8 %y, i8* %x\n  ret i8 %y\n}
+define i1 @_UInt8_opEQ(i8 %x, i8 %y)            {\n  %1 = icmp eq i8 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt8_opNE(i8 %x, i8 %y)            {\n  %1 = icmp ne i8 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt8_opLT(i8 %x, i8 %y)            {\n  %1 = icmp ult i8 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt8_opGT(i8 %x, i8 %y)            {\n  %1 = icmp ugt i8 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt8_opLE(i8 %x, i8 %y)            {\n  %1 = icmp ule i8 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt8_opGE(i8 %x, i8 %y)            {\n  %1 = icmp uge i8 %x, %y\n  ret i1 %1\n}
+define i8 @_UInt8_opPlus(i8 %x, i8 %y)          {\n  %1 = add i8 %x, %y\n  ret i8 %1\n}
+define i8 @_UInt8_opMinus(i8 %x, i8 %y)         {\n  %1 = sub i8 %x, %y\n  ret i8 %1\n}
+define i8 @_UInt8_opMul(i8 %x, i8 %y)           {\n  %1 = mul i8 %x, %y\n  ret i8 %1\n}
+define i8 @_UInt8_opDiv(i8 %x, i8 %y)           {\n  %1 = sdiv i8 %x, %y\n  ret i8 %1\n}
+define i8 @_UInt8_opMod(i8 %x, i8 %y)           {\n  %1 = srem i8 %x, %y\n  ret i8 %1\n}
+define i8 @_UInt8_opPlus1(i8 %x)                {\n  ret i8 %x\n}
 
-define i16 @_Short_opAssign(i16* %x, i16 %y)    {\n  store i16 %y, i16* %x\n  ret i16 %y\n}
-define i1 @_Short_opEQ(i16 %x, i16 %y)          {\n  %1 = icmp eq i16 %x, %y\n  ret i1 %1\n}
-define i1 @_Short_opNE(i16 %x, i16 %y)          {\n  %1 = icmp ne i16 %x, %y\n  ret i1 %1\n}
-define i1 @_Short_opLT(i16 %x, i16 %y)          {\n  %1 = icmp slt i16 %x, %y\n  ret i1 %1\n}
-define i1 @_Short_opGT(i16 %x, i16 %y)          {\n  %1 = icmp sgt i16 %x, %y\n  ret i1 %1\n}
-define i1 @_Short_opLE(i16 %x, i16 %y)          {\n  %1 = icmp sle i16 %x, %y\n  ret i1 %1\n}
-define i1 @_Short_opGE(i16 %x, i16 %y)          {\n  %1 = icmp sge i16 %x, %y\n  ret i1 %1\n}
-define i16 @_Short_opPlus(i16 %x, i16 %y)       {\n  %1 = add i16 %x, %y\n  ret i16 %1\n}
-define i16 @_Short_opMinus(i16 %x, i16 %y)      {\n  %1 = sub i16 %x, %y\n  ret i16 %1\n}
-define i16 @_Short_opMul(i16 %x, i16 %y)        {\n  %1 = mul i16 %x, %y\n  ret i16 %1\n}
-define i16 @_Short_opDiv(i16 %x, i16 %y)        {\n  %1 = sdiv i16 %x, %y\n  ret i16 %1\n}
-define i16 @_Short_opMod(i16 %x, i16 %y)        {\n  %1 = srem i16 %x, %y\n  ret i16 %1\n}
-define i16 @_Short_opPlus1(i16 %x)              {\n  ret i16 %x\n}
-define i16 @_Short_opMinus1(i16 %x)             {\n  %1 = sub i16 0, %x\n  ret i16 %1\n}
+define i16 @_Int16_opAssign(i16* %x, i16 %y)    {\n  store i16 %y, i16* %x\n  ret i16 %y\n}
+define i1 @_Int16_opEQ(i16 %x, i16 %y)          {\n  %1 = icmp eq i16 %x, %y\n  ret i1 %1\n}
+define i1 @_Int16_opNE(i16 %x, i16 %y)          {\n  %1 = icmp ne i16 %x, %y\n  ret i1 %1\n}
+define i1 @_Int16_opLT(i16 %x, i16 %y)          {\n  %1 = icmp slt i16 %x, %y\n  ret i1 %1\n}
+define i1 @_Int16_opGT(i16 %x, i16 %y)          {\n  %1 = icmp sgt i16 %x, %y\n  ret i1 %1\n}
+define i1 @_Int16_opLE(i16 %x, i16 %y)          {\n  %1 = icmp sle i16 %x, %y\n  ret i1 %1\n}
+define i1 @_Int16_opGE(i16 %x, i16 %y)          {\n  %1 = icmp sge i16 %x, %y\n  ret i1 %1\n}
+define i16 @_Int16_opPlus(i16 %x, i16 %y)       {\n  %1 = add i16 %x, %y\n  ret i16 %1\n}
+define i16 @_Int16_opMinus(i16 %x, i16 %y)      {\n  %1 = sub i16 %x, %y\n  ret i16 %1\n}
+define i16 @_Int16_opMul(i16 %x, i16 %y)        {\n  %1 = mul i16 %x, %y\n  ret i16 %1\n}
+define i16 @_Int16_opDiv(i16 %x, i16 %y)        {\n  %1 = sdiv i16 %x, %y\n  ret i16 %1\n}
+define i16 @_Int16_opMod(i16 %x, i16 %y)        {\n  %1 = srem i16 %x, %y\n  ret i16 %1\n}
+define i16 @_Int16_opPlus1(i16 %x)              {\n  ret i16 %x\n}
+define i16 @_Int16_opMinus1(i16 %x)             {\n  %1 = sub i16 0, %x\n  ret i16 %1\n}
 
-define i16 @_UShort_opAssign(i16* %x, i16 %y)   {\n  store i16 %y, i16* %x\n  ret i16 %y\n}
-define i1 @_UShort_opEQ(i16 %x, i16 %y)         {\n  %1 = icmp eq i16 %x, %y\n  ret i1 %1\n}
-define i1 @_UShort_opNE(i16 %x, i16 %y)         {\n  %1 = icmp ne i16 %x, %y\n  ret i1 %1\n}
-define i1 @_UShort_opLT(i16 %x, i16 %y)         {\n  %1 = icmp ult i16 %x, %y\n  ret i1 %1\n}
-define i1 @_UShort_opGT(i16 %x, i16 %y)         {\n  %1 = icmp ugt i16 %x, %y\n  ret i1 %1\n}
-define i1 @_UShort_opLE(i16 %x, i16 %y)         {\n  %1 = icmp ule i16 %x, %y\n  ret i1 %1\n}
-define i1 @_UShort_opGE(i16 %x, i16 %y)         {\n  %1 = icmp uge i16 %x, %y\n  ret i1 %1\n}
-define i16 @_UShort_opPlus(i16 %x, i16 %y)      {\n  %1 = add i16 %x, %y\n  ret i16 %1\n}
-define i16 @_UShort_opMinus(i16 %x, i16 %y)     {\n  %1 = sub i16 %x, %y\n  ret i16 %1\n}
-define i16 @_UShort_opMul(i16 %x, i16 %y)       {\n  %1 = mul i16 %x, %y\n  ret i16 %1\n}
-define i16 @_UShort_opDiv(i16 %x, i16 %y)       {\n  %1 = sdiv i16 %x, %y\n  ret i16 %1\n}
-define i16 @_UShort_opMod(i16 %x, i16 %y)       {\n  %1 = srem i16 %x, %y\n  ret i16 %1\n}
-define i16 @_UShort_opPlus1(i16 %x)             {\n  ret i16 %x\n}
+define i16 @_UInt16_opAssign(i16* %x, i16 %y)   {\n  store i16 %y, i16* %x\n  ret i16 %y\n}
+define i1 @_UInt16_opEQ(i16 %x, i16 %y)         {\n  %1 = icmp eq i16 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt16_opNE(i16 %x, i16 %y)         {\n  %1 = icmp ne i16 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt16_opLT(i16 %x, i16 %y)         {\n  %1 = icmp ult i16 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt16_opGT(i16 %x, i16 %y)         {\n  %1 = icmp ugt i16 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt16_opLE(i16 %x, i16 %y)         {\n  %1 = icmp ule i16 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt16_opGE(i16 %x, i16 %y)         {\n  %1 = icmp uge i16 %x, %y\n  ret i1 %1\n}
+define i16 @_UInt16_opPlus(i16 %x, i16 %y)      {\n  %1 = add i16 %x, %y\n  ret i16 %1\n}
+define i16 @_UInt16_opMinus(i16 %x, i16 %y)     {\n  %1 = sub i16 %x, %y\n  ret i16 %1\n}
+define i16 @_UInt16_opMul(i16 %x, i16 %y)       {\n  %1 = mul i16 %x, %y\n  ret i16 %1\n}
+define i16 @_UInt16_opDiv(i16 %x, i16 %y)       {\n  %1 = sdiv i16 %x, %y\n  ret i16 %1\n}
+define i16 @_UInt16_opMod(i16 %x, i16 %y)       {\n  %1 = srem i16 %x, %y\n  ret i16 %1\n}
+define i16 @_UInt16_opPlus1(i16 %x)             {\n  ret i16 %x\n}
 
-define i32 @_Int_opAssign(i32* %x, i32 %y)      {\n  store i32 %y, i32* %x\n  ret i32 %y\n}
-define i1 @_Int_opEQ(i32 %x, i32 %y)            {\n  %1 = icmp eq i32 %x, %y\n  ret i1 %1\n}
-define i1 @_Int_opNE(i32 %x, i32 %y)            {\n  %1 = icmp ne i32 %x, %y\n  ret i1 %1\n}
-define i1 @_Int_opLT(i32 %x, i32 %y)            {\n  %1 = icmp slt i32 %x, %y\n  ret i1 %1\n}
-define i1 @_Int_opGT(i32 %x, i32 %y)            {\n  %1 = icmp sgt i32 %x, %y\n  ret i1 %1\n}
-define i1 @_Int_opLE(i32 %x, i32 %y)            {\n  %1 = icmp sle i32 %x, %y\n  ret i1 %1\n}
-define i1 @_Int_opGE(i32 %x, i32 %y)            {\n  %1 = icmp sge i32 %x, %y\n  ret i1 %1\n}
-define i32 @_Int_opPlus(i32 %x, i32 %y)         {\n  %1 = add i32 %x, %y\n  ret i32 %1\n}
-define i32 @_Int_opMinus(i32 %x, i32 %y)        {\n  %1 = sub i32 %x, %y\n  ret i32 %1\n}
-define i32 @_Int_opMul(i32 %x, i32 %y)          {\n  %1 = mul i32 %x, %y\n  ret i32 %1\n}
-define i32 @_Int_opDiv(i32 %x, i32 %y)          {\n  %1 = sdiv i32 %x, %y\n  ret i32 %1\n}
-define i32 @_Int_opMod(i32 %x, i32 %y)          {\n  %1 = srem i32 %x, %y\n  ret i32 %1\n}
-define i32 @_Int_opPlus1(i32 %x)                {\n  ret i32 %x\n}
-define i32 @_Int_opMinus1(i32 %x)               {\n  %1 = sub i32 0, %x\n  ret i32 %1\n}
+define i32 @_Int32_opAssign(i32* %x, i32 %y)      {\n  store i32 %y, i32* %x\n  ret i32 %y\n}
+define i1 @_Int32_opEQ(i32 %x, i32 %y)            {\n  %1 = icmp eq i32 %x, %y\n  ret i1 %1\n}
+define i1 @_Int32_opNE(i32 %x, i32 %y)            {\n  %1 = icmp ne i32 %x, %y\n  ret i1 %1\n}
+define i1 @_Int32_opLT(i32 %x, i32 %y)            {\n  %1 = icmp slt i32 %x, %y\n  ret i1 %1\n}
+define i1 @_Int32_opGT(i32 %x, i32 %y)            {\n  %1 = icmp sgt i32 %x, %y\n  ret i1 %1\n}
+define i1 @_Int32_opLE(i32 %x, i32 %y)            {\n  %1 = icmp sle i32 %x, %y\n  ret i1 %1\n}
+define i1 @_Int32_opGE(i32 %x, i32 %y)            {\n  %1 = icmp sge i32 %x, %y\n  ret i1 %1\n}
+define i32 @_Int32_opPlus(i32 %x, i32 %y)         {\n  %1 = add i32 %x, %y\n  ret i32 %1\n}
+define i32 @_Int32_opMinus(i32 %x, i32 %y)        {\n  %1 = sub i32 %x, %y\n  ret i32 %1\n}
+define i32 @_Int32_opMul(i32 %x, i32 %y)          {\n  %1 = mul i32 %x, %y\n  ret i32 %1\n}
+define i32 @_Int32_opDiv(i32 %x, i32 %y)          {\n  %1 = sdiv i32 %x, %y\n  ret i32 %1\n}
+define i32 @_Int32_opMod(i32 %x, i32 %y)          {\n  %1 = srem i32 %x, %y\n  ret i32 %1\n}
+define i32 @_Int32_opPlus1(i32 %x)                {\n  ret i32 %x\n}
+define i32 @_Int32_opMinus1(i32 %x)               {\n  %1 = sub i32 0, %x\n  ret i32 %1\n}
 
-define i32 @_UInt_opAssign(i32* %x, i32 %y)     {\n  store i32 %y, i32* %x\n  ret i32 %y\n}
-define i1 @_UInt_opEQ(i32 %x, i32 %y)           {\n  %1 = icmp eq i32 %x, %y\n  ret i1 %1\n}
-define i1 @_UInt_opNE(i32 %x, i32 %y)           {\n  %1 = icmp ne i32 %x, %y\n  ret i1 %1\n}
-define i1 @_UInt_opLT(i32 %x, i32 %y)           {\n  %1 = icmp ult i32 %x, %y\n  ret i1 %1\n}
-define i1 @_UInt_opGT(i32 %x, i32 %y)           {\n  %1 = icmp ugt i32 %x, %y\n  ret i1 %1\n}
-define i1 @_UInt_opLE(i32 %x, i32 %y)           {\n  %1 = icmp ule i32 %x, %y\n  ret i1 %1\n}
-define i1 @_UInt_opGE(i32 %x, i32 %y)           {\n  %1 = icmp uge i32 %x, %y\n  ret i1 %1\n}
-define i32 @_UInt_opPlus(i32 %x, i32 %y)        {\n  %1 = add i32 %x, %y\n  ret i32 %1\n}
-define i32 @_UInt_opMinus(i32 %x, i32 %y)       {\n  %1 = sub i32 %x, %y\n  ret i32 %1\n}
-define i32 @_UInt_opMul(i32 %x, i32 %y)         {\n  %1 = mul i32 %x, %y\n  ret i32 %1\n}
-define i32 @_UInt_opDiv(i32 %x, i32 %y)         {\n  %1 = sdiv i32 %x, %y\n  ret i32 %1\n}
-define i32 @_UInt_opMod(i32 %x, i32 %y)         {\n  %1 = srem i32 %x, %y\n  ret i32 %1\n}
-define i32 @_UInt_opPlus1(i32 %x)               {\n  ret i32 %x\n}
+define i32 @_UInt32_opAssign(i32* %x, i32 %y)     {\n  store i32 %y, i32* %x\n  ret i32 %y\n}
+define i1 @_UInt32_opEQ(i32 %x, i32 %y)           {\n  %1 = icmp eq i32 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt32_opNE(i32 %x, i32 %y)           {\n  %1 = icmp ne i32 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt32_opLT(i32 %x, i32 %y)           {\n  %1 = icmp ult i32 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt32_opGT(i32 %x, i32 %y)           {\n  %1 = icmp ugt i32 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt32_opLE(i32 %x, i32 %y)           {\n  %1 = icmp ule i32 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt32_opGE(i32 %x, i32 %y)           {\n  %1 = icmp uge i32 %x, %y\n  ret i1 %1\n}
+define i32 @_UInt32_opPlus(i32 %x, i32 %y)        {\n  %1 = add i32 %x, %y\n  ret i32 %1\n}
+define i32 @_UInt32_opMinus(i32 %x, i32 %y)       {\n  %1 = sub i32 %x, %y\n  ret i32 %1\n}
+define i32 @_UInt32_opMul(i32 %x, i32 %y)         {\n  %1 = mul i32 %x, %y\n  ret i32 %1\n}
+define i32 @_UInt32_opDiv(i32 %x, i32 %y)         {\n  %1 = sdiv i32 %x, %y\n  ret i32 %1\n}
+define i32 @_UInt32_opMod(i32 %x, i32 %y)         {\n  %1 = srem i32 %x, %y\n  ret i32 %1\n}
+define i32 @_UInt32_opPlus1(i32 %x)               {\n  ret i32 %x\n}
 
-define i64 @_Long_opAssign(i64* %x, i64 %y)     {\n  store i64 %y, i64* %x\n  ret i64 %y\n}
-define i1 @_Long_opEQ(i64 %x, i64 %y)           {\n  %1 = icmp eq i64 %x, %y\n  ret i1 %1\n}
-define i1 @_Long_opNE(i64 %x, i64 %y)           {\n  %1 = icmp ne i64 %x, %y\n  ret i1 %1\n}
-define i1 @_Long_opLT(i64 %x, i64 %y)           {\n  %1 = icmp slt i64 %x, %y\n  ret i1 %1\n}
-define i1 @_Long_opGT(i64 %x, i64 %y)           {\n  %1 = icmp sgt i64 %x, %y\n  ret i1 %1\n}
-define i1 @_Long_opLE(i64 %x, i64 %y)           {\n  %1 = icmp sle i64 %x, %y\n  ret i1 %1\n}
-define i1 @_Long_opGE(i64 %x, i64 %y)           {\n  %1 = icmp sge i64 %x, %y\n  ret i1 %1\n}
-define i64 @_Long_opPlus(i64 %x, i64 %y)        {\n  %1 = add i64 %x, %y\n  ret i64 %1\n}
-define i64 @_Long_opMinus(i64 %x, i64 %y)       {\n  %1 = sub i64 %x, %y\n  ret i64 %1\n}
-define i64 @_Long_opMul(i64 %x, i64 %y)         {\n  %1 = mul i64 %x, %y\n  ret i64 %1\n}
-define i64 @_Long_opDiv(i64 %x, i64 %y)         {\n  %1 = sdiv i64 %x, %y\n  ret i64 %1\n}
-define i64 @_Long_opMod(i64 %x, i64 %y)         {\n  %1 = srem i64 %x, %y\n  ret i64 %1\n}
-define i64 @_Long_opPlus1(i64 %x)               {\n  ret i64 %x\n}
-define i64 @_Long_opMinus1(i64 %x)              {\n  %1 = sub i64 0, %x\n  ret i64 %1\n}
+define i64 @_Int64_opAssign(i64* %x, i64 %y)     {\n  store i64 %y, i64* %x\n  ret i64 %y\n}
+define i1 @_Int64_opEQ(i64 %x, i64 %y)           {\n  %1 = icmp eq i64 %x, %y\n  ret i1 %1\n}
+define i1 @_Int64_opNE(i64 %x, i64 %y)           {\n  %1 = icmp ne i64 %x, %y\n  ret i1 %1\n}
+define i1 @_Int64_opLT(i64 %x, i64 %y)           {\n  %1 = icmp slt i64 %x, %y\n  ret i1 %1\n}
+define i1 @_Int64_opGT(i64 %x, i64 %y)           {\n  %1 = icmp sgt i64 %x, %y\n  ret i1 %1\n}
+define i1 @_Int64_opLE(i64 %x, i64 %y)           {\n  %1 = icmp sle i64 %x, %y\n  ret i1 %1\n}
+define i1 @_Int64_opGE(i64 %x, i64 %y)           {\n  %1 = icmp sge i64 %x, %y\n  ret i1 %1\n}
+define i64 @_Int64_opPlus(i64 %x, i64 %y)        {\n  %1 = add i64 %x, %y\n  ret i64 %1\n}
+define i64 @_Int64_opMinus(i64 %x, i64 %y)       {\n  %1 = sub i64 %x, %y\n  ret i64 %1\n}
+define i64 @_Int64_opMul(i64 %x, i64 %y)         {\n  %1 = mul i64 %x, %y\n  ret i64 %1\n}
+define i64 @_Int64_opDiv(i64 %x, i64 %y)         {\n  %1 = sdiv i64 %x, %y\n  ret i64 %1\n}
+define i64 @_Int64_opMod(i64 %x, i64 %y)         {\n  %1 = srem i64 %x, %y\n  ret i64 %1\n}
+define i64 @_Int64_opPlus1(i64 %x)               {\n  ret i64 %x\n}
+define i64 @_Int64_opMinus1(i64 %x)              {\n  %1 = sub i64 0, %x\n  ret i64 %1\n}
 
-define i64 @_ULong_opAssign(i64* %x, i64 %y)    {\n  store i64 %y, i64* %x\n  ret i64 %y\n}
-define i1 @_ULong_opEQ(i64 %x, i64 %y)          {\n  %1 = icmp eq i64 %x, %y\n  ret i1 %1\n}
-define i1 @_ULong_opNE(i64 %x, i64 %y)          {\n  %1 = icmp ne i64 %x, %y\n  ret i1 %1\n}
-define i1 @_ULong_opLT(i64 %x, i64 %y)          {\n  %1 = icmp ult i64 %x, %y\n  ret i1 %1\n}
-define i1 @_ULong_opGT(i64 %x, i64 %y)          {\n  %1 = icmp ugt i64 %x, %y\n  ret i1 %1\n}
-define i1 @_ULong_opLE(i64 %x, i64 %y)          {\n  %1 = icmp ule i64 %x, %y\n  ret i1 %1\n}
-define i1 @_ULong_opGE(i64 %x, i64 %y)          {\n  %1 = icmp uge i64 %x, %y\n  ret i1 %1\n}
-define i64 @_ULong_opPlus(i64 %x, i64 %y)       {\n  %1 = add i64 %x, %y\n  ret i64 %1\n}
-define i64 @_ULong_opMinus(i64 %x, i64 %y)      {\n  %1 = sub i64 %x, %y\n  ret i64 %1\n}
-define i64 @_ULong_opMul(i64 %x, i64 %y)        {\n  %1 = mul i64 %x, %y\n  ret i64 %1\n}
-define i64 @_ULong_opDiv(i64 %x, i64 %y)        {\n  %1 = sdiv i64 %x, %y\n  ret i64 %1\n}
-define i64 @_ULong_opMod(i64 %x, i64 %y)        {\n  %1 = srem i64 %x, %y\n  ret i64 %1\n}
-define i64 @_ULong_opPlus1(i64 %x)              {\n  ret i64 %x\n}
+define i64 @_UInt64_opAssign(i64* %x, i64 %y)    {\n  store i64 %y, i64* %x\n  ret i64 %y\n}
+define i1 @_UInt64_opEQ(i64 %x, i64 %y)          {\n  %1 = icmp eq i64 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt64_opNE(i64 %x, i64 %y)          {\n  %1 = icmp ne i64 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt64_opLT(i64 %x, i64 %y)          {\n  %1 = icmp ult i64 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt64_opGT(i64 %x, i64 %y)          {\n  %1 = icmp ugt i64 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt64_opLE(i64 %x, i64 %y)          {\n  %1 = icmp ule i64 %x, %y\n  ret i1 %1\n}
+define i1 @_UInt64_opGE(i64 %x, i64 %y)          {\n  %1 = icmp uge i64 %x, %y\n  ret i1 %1\n}
+define i64 @_UInt64_opPlus(i64 %x, i64 %y)       {\n  %1 = add i64 %x, %y\n  ret i64 %1\n}
+define i64 @_UInt64_opMinus(i64 %x, i64 %y)      {\n  %1 = sub i64 %x, %y\n  ret i64 %1\n}
+define i64 @_UInt64_opMul(i64 %x, i64 %y)        {\n  %1 = mul i64 %x, %y\n  ret i64 %1\n}
+define i64 @_UInt64_opDiv(i64 %x, i64 %y)        {\n  %1 = sdiv i64 %x, %y\n  ret i64 %1\n}
+define i64 @_UInt64_opMod(i64 %x, i64 %y)        {\n  %1 = srem i64 %x, %y\n  ret i64 %1\n}
+define i64 @_UInt64_opPlus1(i64 %x)              {\n  ret i64 %x\n}
 
-define float @_Float_opAssign(float* %x, float %y)      {\n  store float %y, float* %x\n  ret float %y\n}
-define i1 @_Float_opEQ(float %x, float %y)              {\n  %1 = fcmp oeq float %x, %y\n  ret i1 %1\n}
-define i1 @_Float_opNE(float %x, float %y)              {\n  %1 = fcmp one float %x, %y\n  ret i1 %1\n}
-define i1 @_Float_opLT(float %x, float %y)              {\n  %1 = fcmp olt float %x, %y\n  ret i1 %1\n}
-define i1 @_Float_opGT(float %x, float %y)              {\n  %1 = fcmp ogt float %x, %y\n  ret i1 %1\n}
-define i1 @_Float_opLE(float %x, float %y)              {\n  %1 = fcmp ole float %x, %y\n  ret i1 %1\n}
-define i1 @_Float_opGE(float %x, float %y)              {\n  %1 = fcmp oge float %x, %y\n  ret i1 %1\n}
-define float @_Float_opPlus(float %x, float %y)         {\n  %1 = fadd float %x, %y\n  ret float %1\n}
-define float @_Float_opMinus(float %x, float %y)        {\n  %1 = fsub float %x, %y\n  ret float %1\n}
-define float @_Float_opMul(float %x, float %y)          {\n  %1 = fmul float %x, %y\n  ret float %1\n}
-define float @_Float_opDiv(float %x, float %y)          {\n  %1 = fdiv float %x, %y\n  ret float %1\n}
-define float @_Float_opPlus1(float %x)                  {\n  ret float %x\n}
-define float @_Float_opMinus1(float %x)                 {\n  %1 = fsub float 0.0, %x\n  ret float %1\n}
+define float @_Float32_opAssign(float* %x, float %y)      {\n  store float %y, float* %x\n  ret float %y\n}
+define i1 @_Float32_opEQ(float %x, float %y)              {\n  %1 = fcmp oeq float %x, %y\n  ret i1 %1\n}
+define i1 @_Float32_opNE(float %x, float %y)              {\n  %1 = fcmp one float %x, %y\n  ret i1 %1\n}
+define i1 @_Float32_opLT(float %x, float %y)              {\n  %1 = fcmp olt float %x, %y\n  ret i1 %1\n}
+define i1 @_Float32_opGT(float %x, float %y)              {\n  %1 = fcmp ogt float %x, %y\n  ret i1 %1\n}
+define i1 @_Float32_opLE(float %x, float %y)              {\n  %1 = fcmp ole float %x, %y\n  ret i1 %1\n}
+define i1 @_Float32_opGE(float %x, float %y)              {\n  %1 = fcmp oge float %x, %y\n  ret i1 %1\n}
+define float @_Float32_opPlus(float %x, float %y)         {\n  %1 = fadd float %x, %y\n  ret float %1\n}
+define float @_Float32_opMinus(float %x, float %y)        {\n  %1 = fsub float %x, %y\n  ret float %1\n}
+define float @_Float32_opMul(float %x, float %y)          {\n  %1 = fmul float %x, %y\n  ret float %1\n}
+define float @_Float32_opDiv(float %x, float %y)          {\n  %1 = fdiv float %x, %y\n  ret float %1\n}
+define float @_Float32_opPlus1(float %x)                  {\n  ret float %x\n}
+define float @_Float32_opMinus1(float %x)                 {\n  %1 = fsub float 0.0, %x\n  ret float %1\n}
 
-define double @_Double_opAssign(double* %x, double %y)  {\n  store double %y, double* %x\n  ret double %y\n}
-define i1 @_Double_opEQ(double %x, double %y)           {\n  %1 = fcmp oeq double %x, %y\n  ret i1 %1\n}
-define i1 @_Double_opNE(double %x, double %y)           {\n  %1 = fcmp one double %x, %y\n  ret i1 %1\n}
-define i1 @_Double_opLT(double %x, double %y)           {\n  %1 = fcmp olt double %x, %y\n  ret i1 %1\n}
-define i1 @_Double_opGT(double %x, double %y)           {\n  %1 = fcmp ogt double %x, %y\n  ret i1 %1\n}
-define i1 @_Double_opLE(double %x, double %y)           {\n  %1 = fcmp ole double %x, %y\n  ret i1 %1\n}
-define i1 @_Double_opGE(double %x, double %y)           {\n  %1 = fcmp oge double %x, %y\n  ret i1 %1\n}
-define double @_Double_opPlus(double %x, double %y)     {\n  %1 = fadd double %x, %y\n  ret double %1\n}
-define double @_Double_opMinus(double %x, double %y)    {\n  %1 = fsub double %x, %y\n  ret double %1\n}
-define double @_Double_opMul(double %x, double %y)      {\n  %1 = fmul double %x, %y\n  ret double %1\n}
-define double @_Double_opDiv(double %x, double %y)      {\n  %1 = fdiv double %x, %y\n  ret double %1\n}
-define double @_Double_opPlus1(double %x)               {\n  ret double %x\n}
-define double @_Double_opMinus1(double %x)              {\n  %1 = fsub double 0.0, %x\n  ret double %1\n}
+define double @_Float64_opAssign(double* %x, double %y)  {\n  store double %y, double* %x\n  ret double %y\n}
+define i1 @_Float64_opEQ(double %x, double %y)           {\n  %1 = fcmp oeq double %x, %y\n  ret i1 %1\n}
+define i1 @_Float64_opNE(double %x, double %y)           {\n  %1 = fcmp one double %x, %y\n  ret i1 %1\n}
+define i1 @_Float64_opLT(double %x, double %y)           {\n  %1 = fcmp olt double %x, %y\n  ret i1 %1\n}
+define i1 @_Float64_opGT(double %x, double %y)           {\n  %1 = fcmp ogt double %x, %y\n  ret i1 %1\n}
+define i1 @_Float64_opLE(double %x, double %y)           {\n  %1 = fcmp ole double %x, %y\n  ret i1 %1\n}
+define i1 @_Float64_opGE(double %x, double %y)           {\n  %1 = fcmp oge double %x, %y\n  ret i1 %1\n}
+define double @_Float64_opPlus(double %x, double %y)     {\n  %1 = fadd double %x, %y\n  ret double %1\n}
+define double @_Float64_opMinus(double %x, double %y)    {\n  %1 = fsub double %x, %y\n  ret double %1\n}
+define double @_Float64_opMul(double %x, double %y)      {\n  %1 = fmul double %x, %y\n  ret double %1\n}
+define double @_Float64_opDiv(double %x, double %y)      {\n  %1 = fdiv double %x, %y\n  ret double %1\n}
+define double @_Float64_opPlus1(double %x)               {\n  ret double %x\n}
+define double @_Float64_opMinus1(double %x)              {\n  %1 = fsub double 0.0, %x\n  ret double %1\n}
 
 define i8 @_Char_opAssign(i8* %x, i8 %y)        {\n  store i8 %y, i8* %x\n  ret i8 %y\n}
 define i1 @_Char_opEQ(i8 %x, i8 %y)             {\n  %1 = icmp eq i8 %x, %y\n  ret i1 %1\n}
@@ -686,32 +686,6 @@ define i1 @_Char_opGE(i8 %x, i8 %y)             {\n  %1 = icmp sge i8 %x, %y\n  
 
 define i1 @implOpRefEQ(i8* %x, i8* %y)             {\n  %1 = icmp eq i8* %x, %y\n  ret i1 %1\n}
 define i1 @implOpRefNE(i8* %x, i8* %y)              {\n  %1 = icmp ne i8* %x, %y\n  ret i1 %1\n}
-
-define i64 @_SizeType_opAssign(i64* %x, i64 %y)     {\n  store i64 %y, i64* %x\n  ret i64 %y\n}
-define i1 @_SizeType_opEQ(i64 %x, i64 %y)           {\n  %1 = icmp eq i64 %x, %y\n  ret i1 %1\n}
-define i1 @_SizeType_opNE(i64 %x, i64 %y)           {\n  %1 = icmp ne i64 %x, %y\n  ret i1 %1\n}
-define i1 @_SizeType_opLT(i64 %x, i64 %y)           {\n  %1 = icmp ult i64 %x, %y\n  ret i1 %1\n}
-define i1 @_SizeType_opGT(i64 %x, i64 %y)           {\n  %1 = icmp ugt i64 %x, %y\n  ret i1 %1\n}
-define i1 @_SizeType_opLE(i64 %x, i64 %y)           {\n  %1 = icmp ule i64 %x, %y\n  ret i1 %1\n}
-define i1 @_SizeType_opGE(i64 %x, i64 %y)           {\n  %1 = icmp uge i64 %x, %y\n  ret i1 %1\n}
-define i64 @_SizeType_opPlus(i64 %x, i64 %y)        {\n  %1 = add i64 %x, %y\n  ret i64 %1\n}
-define i64 @_SizeType_opMinus(i64 %x, i64 %y)       {\n  %1 = sub i64 %x, %y\n  ret i64 %1\n}
-define i64 @_SizeType_opMul(i64 %x, i64 %y)         {\n  %1 = mul i64 %x, %y\n  ret i64 %1\n}
-define i64 @_SizeType_opDiv(i64 %x, i64 %y)         {\n  %1 = sdiv i64 %x, %y\n  ret i64 %1\n}
-define i64 @_SizeType_opMod(i64 %x, i64 %y)         {\n  %1 = srem i64 %x, %y\n  ret i64 %1\n}
-define i64 @_SizeType_opPlus1(i64 %x)               {\n  ret i64 %x\n}
-
-
-define i64 @intToSizeType(i32 %n) {
-    %1 = sext i32 %n to i64
-    ret i64 %1
-}
-
-define i8 @intToByte(i32 %n) {
-    %1 = trunc i32 %n to i8
-    ret i8 %1
-}
-
 
 define void @writeLnByte(i8 %val) {
   %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtIntN, i32 0, i32 0), i8 %val)
@@ -738,12 +712,12 @@ define void @writeLnSizeType(i64 %val) {
   ret void
 }
 
-define void @writeLnFloat(float %val) {
+define void @writeLnFloat32(float %val) {
   %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtDoubleN, i32 0, i32 0), float %val)
   ret void
 }
 
-define void @writeLnDouble(double %val) {
+define void @writeLnFloat64(double %val) {
   %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtDoubleN, i32 0, i32 0), double %val)
   ret void
 }
@@ -778,7 +752,7 @@ define void @writeInt(i32 %val) {
   ret void
 }
 
-define void @writeSizeType(i64 %val) {
+define void @writeLong(i64 %val) {
   %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtInt, i32 0, i32 0), i64 %val)
   ret void
 }
@@ -824,27 +798,30 @@ define void @_Type_copy_ctor(i8** %$this, i8* %other)
 [ct, protected]
     [native("_Type_ctor")] fun ctor(this: !Type)
     [native("_Type_copy_ctor")] fun ctor(this: !Type, other: Type)
-    //fun dtor(this: !Type) {}
 
-[noDefault]
-    datatype Uninitialized {}
+[noDefault, bitcopiable]
+    datatype Uninitialized
 
-    [bitcopiable, native("Null")]            datatype Null {}
+    [native("Null")]    datatype Null
 
-    [bitcopiable, native("i1")]              datatype Bool {}
-    [bitcopiable, native("i8")]              datatype Byte {}
-    [bitcopiable, convert, native("u8")]     datatype UByte {}
-    [bitcopiable, convert, native("i16")]    datatype Short {}
-    [bitcopiable, convert, native("u16")]    datatype UShort {}
-    [bitcopiable, convert, native("i32")]    datatype Int {}
-    [bitcopiable, convert, native("u32")]    datatype UInt {}
-    [bitcopiable, convert, native("i64")]    datatype Long {}
-    [bitcopiable, convert, native("u64")]    datatype ULong {}
-    [bitcopiable, convert, native("u64")]    datatype SizeType {}
-    [bitcopiable, convert, native("i64")]    datatype DiffType {}
-    [bitcopiable, convert, native("float")]  datatype Float {}
-    [bitcopiable, convert, native("double")] datatype Double {}
-    [bitcopiable, native("i8")]              datatype Char {}
+    [native("i1")]      datatype Bool
+
+    [native("i8")]      datatype Int8
+    [native("u8")]      datatype UInt8
+    [native("i16")]     datatype Int16
+    [native("u16")]     datatype UInt16
+    [native("i32")]     datatype Int
+    [native("u32")]     datatype UInt32
+    [native("i64")]     datatype Int64
+    [native("u64")]     datatype UInt64
+
+    [native("float")]   datatype Float32
+    [native("double")]  datatype Float
+
+    [native("i8")]      datatype Char
+
+using Int32 = Int
+using Float64 = Float
 
 [protected]
     fun ctor(this: Uninitialized) {}
@@ -861,244 +838,184 @@ define void @_Type_copy_ctor(i8** %$this, i8* %other)
     fun dtor(this: !Bool) {}
     [autoCt, native("_ass_1_1")] fun = (this: !Bool, other: Bool): Bool
 
-    [native("_zero_init_8")] fun ctor(this: !Byte)
-    [native("_ass_8_8")] fun ctor(this: !Byte, src: Byte)
-    [native("_ass_8_8")] fun ctor(this: !Byte, src: Char)
-    [native("_ass_8_8")] fun ctor(this: !Byte, src: UByte)
-    [native("_ass_8_16")] fun ctor(this: !Byte, src: Short)
-    [native("_ass_8_16")] fun ctor(this: !Byte, src: UShort)
-    [native("_ass_8_32")] fun ctor(this: !Byte, src: Int)
-    [native("_ass_8_32")] fun ctor(this: !Byte, src: UInt)
-    [native("_ass_8_64")] fun ctor(this: !Byte, src: Long)
-    [native("_ass_8_64")] fun ctor(this: !Byte, src: ULong)
-    [native("_ass_8_64")] fun ctor(this: !Byte, src: SizeType)
-    [native("_ass_8_64")] fun ctor(this: !Byte, src: DiffType)
-    [native("_ass_i8_f")] fun ctor(this: !Byte, src: Float)
-    [native("_ass_i8_d")] fun ctor(this: !Byte, src: Double)
-    fun dtor(this: Byte) {}
-    [native("_ass_8_8")] fun = (this: !Byte, other: Byte)
+    [native("_zero_init_8")] fun ctor(this: !Int8)
+    [native("_ass_8_8")] fun ctor(this: !Int8, src: Int8)
+    [native("_ass_8_8")] fun ctor(this: !Int8, src: Char)
+    [native("_ass_8_8")] fun ctor(this: !Int8, src: UInt8)
+    [native("_ass_8_16")] fun ctor(this: !Int8, src: Int16)
+    [native("_ass_8_16")] fun ctor(this: !Int8, src: UInt16)
+    [native("_ass_8_32")] fun ctor(this: !Int8, src: Int32)
+    [native("_ass_8_32")] fun ctor(this: !Int8, src: UInt32)
+    [native("_ass_8_64")] fun ctor(this: !Int8, src: Int64)
+    [native("_ass_8_64")] fun ctor(this: !Int8, src: UInt64)
+    [native("_ass_i8_f")] fun ctor(this: !Int8, src: Float32)
+    [native("_ass_i8_d")] fun ctor(this: !Int8, src: Float64)
+    fun dtor(this: Int8) {}
+    [native("_ass_8_8")] fun = (this: !Int8, other: Int8)
 
-    [native("_zero_init_8")] fun ctor(this: !UByte)
-    [native("_ass_8_8"), convert] fun ctor(this: !UByte, src: Byte)
-    [native("_ass_8_8")] fun ctor(this: !UByte, src: UByte)
-    [native("_ass_8_16")] fun ctor(this: !UByte, src: Short)
-    [native("_ass_8_16")] fun ctor(this: !UByte, src: UShort)
-    [native("_ass_8_32")] fun ctor(this: !UByte, src: Int)
-    [native("_ass_8_32")] fun ctor(this: !UByte, src: UInt)
-    [native("_ass_8_64")] fun ctor(this: !UByte, src: Long)
-    [native("_ass_8_64")] fun ctor(this: !UByte, src: ULong)
-    [native("_ass_8_64")] fun ctor(this: !UByte, src: SizeType)
-    [native("_ass_8_64")] fun ctor(this: !UByte, src: DiffType)
-    [native("_ass_u8_f")] fun ctor(this: !UByte, src: Float)
-    [native("_ass_u8_d")] fun ctor(this: !UByte, src: Double)
-    fun dtor(this: UByte) {}
-    [native("_ass_8_8")] fun = (this: !UByte, other: UByte)
+    [native("_zero_init_8")] fun ctor(this: !UInt8)
+    [native("_ass_8_8")] fun ctor(this: !UInt8, src: Int8)
+    [native("_ass_8_8")] fun ctor(this: !UInt8, src: UInt8)
+    [native("_ass_8_16")] fun ctor(this: !UInt8, src: Int16)
+    [native("_ass_8_16")] fun ctor(this: !UInt8, src: UInt16)
+    [native("_ass_8_32")] fun ctor(this: !UInt8, src: Int32)
+    [native("_ass_8_32")] fun ctor(this: !UInt8, src: UInt32)
+    [native("_ass_8_64")] fun ctor(this: !UInt8, src: Int64)
+    [native("_ass_8_64")] fun ctor(this: !UInt8, src: UInt64)
+    [native("_ass_u8_f")] fun ctor(this: !UInt8, src: Float32)
+    [native("_ass_u8_d")] fun ctor(this: !UInt8, src: Float64)
+    fun dtor(this: UInt8) {}
+    [native("_ass_8_8")] fun = (this: !UInt8, other: UInt8)
 
-    [native("_zero_init_16")] fun ctor(this: !Short)
-    [native("_ass_16_8s"), convert] fun ctor(this: !Short, src: Byte)
-    [native("_ass_16_8z"), convert] fun ctor(this: !Short, src: UByte)
-    [native("_ass_16_16")] fun ctor(this: !Short, src: Short)
-    [native("_ass_16_16")] fun ctor(this: !Short, src: UShort)
-    [native("_ass_16_32")] fun ctor(this: !Short, src: Int)
-    [native("_ass_16_32")] fun ctor(this: !Short, src: UInt)
-    [native("_ass_16_64")] fun ctor(this: !Short, src: Long)
-    [native("_ass_16_64")] fun ctor(this: !Short, src: ULong)
-    [native("_ass_16_64")] fun ctor(this: !Short, src: SizeType)
-    [native("_ass_16_64")] fun ctor(this: !Short, src: DiffType)
-    [native("_ass_i16_f")] fun ctor(this: !Short, src: Float)
-    [native("_ass_i16_d")] fun ctor(this: !Short, src: Double)
-    fun dtor(this: Short) {}
-    [native("_ass_16_16")] fun = (this: !Short, other: Short)
+    [native("_zero_init_16")] fun ctor(this: !Int16)
+    [native("_ass_16_8s")] fun ctor(this: !Int16, src: Int8)
+    [native("_ass_16_8z")] fun ctor(this: !Int16, src: UInt8)
+    [native("_ass_16_16")] fun ctor(this: !Int16, src: Int16)
+    [native("_ass_16_16")] fun ctor(this: !Int16, src: UInt16)
+    [native("_ass_16_32")] fun ctor(this: !Int16, src: Int32)
+    [native("_ass_16_32")] fun ctor(this: !Int16, src: UInt32)
+    [native("_ass_16_64")] fun ctor(this: !Int16, src: Int64)
+    [native("_ass_16_64")] fun ctor(this: !Int16, src: UInt64)
+    [native("_ass_i16_f")] fun ctor(this: !Int16, src: Float32)
+    [native("_ass_i16_d")] fun ctor(this: !Int16, src: Float64)
+    fun dtor(this: Int16) {}
+    [native("_ass_16_16")] fun = (this: !Int16, other: Int16)
 
-    [native("_zero_init_16")] fun ctor(this: !UShort)
-    [native("_ass_16_8z"), convert] fun ctor(this: !UShort, src: Byte)
-    [native("_ass_16_8z"), convert] fun ctor(this: !UShort, src: UByte)
-    [native("_ass_16_16"), convert] fun ctor(this: !UShort, src: Short)
-    [native("_ass_16_16")] fun ctor(this: !UShort, src: UShort)
-    [native("_ass_16_32")] fun ctor(this: !UShort, src: Int)
-    [native("_ass_16_32")] fun ctor(this: !UShort, src: UInt)
-    [native("_ass_16_64")] fun ctor(this: !UShort, src: Long)
-    [native("_ass_16_64")] fun ctor(this: !UShort, src: ULong)
-    [native("_ass_16_64")] fun ctor(this: !UShort, src: SizeType)
-    [native("_ass_16_64")] fun ctor(this: !UShort, src: DiffType)
-    [native("_ass_u16_f")] fun ctor(this: !UShort, src: Float)
-    [native("_ass_u16_d")] fun ctor(this: !UShort, src: Double)
-    fun dtor(this: UShort) {}
-    [native("_ass_16_16")] fun = (this: !UShort, other: UShort)
+    [native("_zero_init_16")] fun ctor(this: !UInt16)
+    [native("_ass_16_8z")] fun ctor(this: !UInt16, src: Int8)
+    [native("_ass_16_8z")] fun ctor(this: !UInt16, src: UInt8)
+    [native("_ass_16_16")] fun ctor(this: !UInt16, src: Int16)
+    [native("_ass_16_16")] fun ctor(this: !UInt16, src: UInt16)
+    [native("_ass_16_32")] fun ctor(this: !UInt16, src: Int32)
+    [native("_ass_16_32")] fun ctor(this: !UInt16, src: UInt32)
+    [native("_ass_16_64")] fun ctor(this: !UInt16, src: Int64)
+    [native("_ass_16_64")] fun ctor(this: !UInt16, src: UInt64)
+    [native("_ass_u16_f")] fun ctor(this: !UInt16, src: Float32)
+    [native("_ass_u16_d")] fun ctor(this: !UInt16, src: Float64)
+    fun dtor(this: UInt16) {}
+    [native("_ass_16_16")] fun = (this: !UInt16, other: UInt16)
 
-    [native("_zero_init_32")] fun ctor(this: !Int)
-    [native("_ass_32_8s"), convert] fun ctor(this: !Int, src: Byte)
-    [native("_ass_32_8z"), convert] fun ctor(this: !Int, src: UByte)
-    [native("_ass_32_16s"), convert] fun ctor(this: !Int, src: Short)
-    [native("_ass_32_16z"), convert] fun ctor(this: !Int, src: UShort)
-    [native("_ass_32_32")] fun ctor(this: !Int, src: Int)
-    [native("_ass_32_32")] fun ctor(this: !Int, src: UInt)
-    [native("_ass_32_64")] fun ctor(this: !Int, src: Long)
-    [native("_ass_32_64")] fun ctor(this: !Int, src: ULong)
-    [native("_ass_32_64")] fun ctor(this: !Int, src: SizeType)
-    [native("_ass_32_64")] fun ctor(this: !Int, src: DiffType)
-    [native("_ass_i32_f")] fun ctor(this: !Int, src: Float)
-    [native("_ass_i32_d")] fun ctor(this: !Int, src: Double)
-    [native("_ass_32_8z")] fun ctor(this: !Int, src: Char)
-    fun dtor(this: Int) {}
-    [native("_ass_32_32")] fun = (this: !Int, other: Int)
+    [native("_zero_init_32")] fun ctor(this: !Int32)
+    [native("_ass_32_8s")] fun ctor(this: !Int32, src: Int8)
+    [native("_ass_32_8z")] fun ctor(this: !Int32, src: UInt8)
+    [native("_ass_32_16s")] fun ctor(this: !Int32, src: Int16)
+    [native("_ass_32_16z")] fun ctor(this: !Int32, src: UInt16)
+    [native("_ass_32_32")] fun ctor(this: !Int32, src: Int32)
+    [native("_ass_32_32")] fun ctor(this: !Int32, src: UInt32)
+    [native("_ass_32_64")] fun ctor(this: !Int32, src: Int64)
+    [native("_ass_32_64")] fun ctor(this: !Int32, src: UInt64)
+    [native("_ass_i32_f")] fun ctor(this: !Int32, src: Float32)
+    [native("_ass_i32_d")] fun ctor(this: !Int32, src: Float64)
+    [native("_ass_32_8z")] fun ctor(this: !Int32, src: Char)
+    fun dtor(this: Int32) {}
+    [native("_ass_32_32")] fun = (this: !Int32, other: Int32)
 
-    [native("_zero_init_32")] fun ctor(this: !UInt)
-    [native("_ass_32_8z"), convert] fun ctor(this: !UInt, src: Byte)
-    [native("_ass_32_8z"), convert] fun ctor(this: !UInt, src: UByte)
-    [native("_ass_32_16z"), convert] fun ctor(this: !UInt, src: Short)
-    [native("_ass_32_16z"), convert] fun ctor(this: !UInt, src: UShort)
-    [native("_ass_32_32"), convert] fun ctor(this: !UInt, src: Int)
-    [native("_ass_32_32")] fun ctor(this: !UInt, src: UInt)
-    [native("_ass_32_64")] fun ctor(this: !UInt, src: Long)
-    [native("_ass_32_64")] fun ctor(this: !UInt, src: ULong)
-    [native("_ass_32_64")] fun ctor(this: !UInt, src: SizeType)
-    [native("_ass_32_64")] fun ctor(this: !UInt, src: DiffType)
-    [native("_ass_u32_f")] fun ctor(this: !UInt, src: Float)
-    [native("_ass_u32_d")] fun ctor(this: !UInt, src: Double)
-    fun dtor(this: UInt) {}
-    [native("_ass_32_32")] fun = (this: !UInt, other: UInt)
+    [native("_zero_init_32")] fun ctor(this: !UInt32)
+    [native("_ass_32_8z")] fun ctor(this: !UInt32, src: Int8)
+    [native("_ass_32_8z")] fun ctor(this: !UInt32, src: UInt8)
+    [native("_ass_32_16z")] fun ctor(this: !UInt32, src: Int16)
+    [native("_ass_32_16z")] fun ctor(this: !UInt32, src: UInt16)
+    [native("_ass_32_32")] fun ctor(this: !UInt32, src: Int32)
+    [native("_ass_32_32")] fun ctor(this: !UInt32, src: UInt32)
+    [native("_ass_32_64")] fun ctor(this: !UInt32, src: Int64)
+    [native("_ass_32_64")] fun ctor(this: !UInt32, src: UInt64)
+    [native("_ass_u32_f")] fun ctor(this: !UInt32, src: Float32)
+    [native("_ass_u32_d")] fun ctor(this: !UInt32, src: Float64)
+    fun dtor(this: UInt32) {}
+    [native("_ass_32_32")] fun = (this: !UInt32, other: UInt32)
 
-    [native("_zero_init_64")] fun ctor(this: !Long)
-    [native("_ass_64_8s"), convert] fun ctor(this: !Long, src: Byte)
-    [native("_ass_64_8z"), convert] fun ctor(this: !Long, src: UByte)
-    [native("_ass_64_16s"), convert] fun ctor(this: !Long, src: Short)
-    [native("_ass_64_16z"), convert] fun ctor(this: !Long, src: UShort)
-    [native("_ass_64_32s"), convert] fun ctor(this: !Long, src: Int)
-    [native("_ass_64_32z"), convert] fun ctor(this: !Long, src: UInt)
-    [native("_ass_64_64")] fun ctor(this: !Long, src: Long)
-    [native("_ass_64_64")] fun ctor(this: !Long, src: ULong)
-    [native("_ass_64_64"), convert] fun ctor(this: !Long, src: SizeType)
-    [native("_ass_64_64"), convert] fun ctor(this: !Long, src: DiffType)
-    [native("_ass_i64_f")] fun ctor(this: !Long, src: Float)
-    [native("_ass_i64_d")] fun ctor(this: !Long, src: Double)
-    fun dtor(this: Long) {}
-    [native("_ass_64_64")] fun = (this: !Long, other: Long)
+    [native("_zero_init_64")] fun ctor(this: !Int64)
+    [native("_ass_64_8s")] fun ctor(this: !Int64, src: Int8)
+    [native("_ass_64_8z")] fun ctor(this: !Int64, src: UInt8)
+    [native("_ass_64_16s")] fun ctor(this: !Int64, src: Int16)
+    [native("_ass_64_16z")] fun ctor(this: !Int64, src: UInt16)
+    [native("_ass_64_32s")] fun ctor(this: !Int64, src: Int32)
+    [native("_ass_64_32z")] fun ctor(this: !Int64, src: UInt32)
+    [native("_ass_64_64")] fun ctor(this: !Int64, src: Int64)
+    [native("_ass_64_64")] fun ctor(this: !Int64, src: UInt64)
+    [native("_ass_i64_f")] fun ctor(this: !Int64, src: Float32)
+    [native("_ass_i64_d")] fun ctor(this: !Int64, src: Float64)
+    fun dtor(this: Int64) {}
+    [native("_ass_64_64")] fun = (this: !Int64, other: Int64)
 
-    [native("_zero_init_64")] fun ctor(this: !ULong)
-    [native("_ass_64_8z"), convert] fun ctor(this: !ULong, src: Byte)
-    [native("_ass_64_8z"), convert] fun ctor(this: !ULong, src: UByte)
-    [native("_ass_64_16z"), convert] fun ctor(this: !ULong, src: Short)
-    [native("_ass_64_16z"), convert] fun ctor(this: !ULong, src: UShort)
-    [native("_ass_64_32z"), convert] fun ctor(this: !ULong, src: Int)
-    [native("_ass_64_32z"), convert] fun ctor(this: !ULong, src: UInt)
-    [native("_ass_64_64"), convert] fun ctor(this: !ULong, src: Long)
-    [native("_ass_64_64")] fun ctor(this: !ULong, src: ULong)
-    [native("_ass_64_64"), convert] fun ctor(this: !ULong, src: SizeType)
-    [native("_ass_64_64"), convert] fun ctor(this: !ULong, src: DiffType)
-    [native("_ass_u64_f")] fun ctor(this: !ULong, src: Float)
-    [native("_ass_u64_d")] fun ctor(this: !ULong, src: Double)
-    fun dtor(this: !ULong) {}
-    [native("_ass_64_64")] fun = (this: !ULong, other: ULong)
+    [native("_zero_init_64")] fun ctor(this: !UInt64)
+    [native("_ass_64_8z")] fun ctor(this: !UInt64, src: Int8)
+    [native("_ass_64_8z")] fun ctor(this: !UInt64, src: UInt8)
+    [native("_ass_64_16z")] fun ctor(this: !UInt64, src: Int16)
+    [native("_ass_64_16z")] fun ctor(this: !UInt64, src: UInt16)
+    [native("_ass_64_32z")] fun ctor(this: !UInt64, src: Int32)
+    [native("_ass_64_32z")] fun ctor(this: !UInt64, src: UInt32)
+    [native("_ass_64_64")] fun ctor(this: !UInt64, src: Int64)
+    [native("_ass_64_64")] fun ctor(this: !UInt64, src: UInt64)
+    [native("_ass_u64_f")] fun ctor(this: !UInt64, src: Float32)
+    [native("_ass_u64_d")] fun ctor(this: !UInt64, src: Float64)
+    fun dtor(this: UInt64) {}
+    [native("_ass_64_64")] fun = (this: !UInt64, other: UInt64)
 
-    [native("_zero_init_64")] fun ctor(this: !SizeType)
-    [native("_ass_64_8z"), convert] fun ctor(this: !SizeType, src: Byte)
-    [native("_ass_64_8z"), convert] fun ctor(this: !SizeType, src: UByte)
-    [native("_ass_64_16z"), convert] fun ctor(this: !SizeType, src: Short)
-    [native("_ass_64_16z"), convert] fun ctor(this: !SizeType, src: UShort)
-    [native("_ass_64_32z"), convert] fun ctor(this: !SizeType, src: Int)
-    [native("_ass_64_32z"), convert] fun ctor(this: !SizeType, src: UInt)
-    [native("_ass_64_64")] fun ctor(this: !SizeType, src: Long)
-    [native("_ass_64_64")] fun ctor(this: !SizeType, src: ULong)
-    [native("_ass_64_64")] fun ctor(this: !SizeType, src: SizeType)
-    [native("_ass_64_64"), convert] fun ctor(this: !SizeType, src: DiffType)
-    [native("_ass_u64_f")] fun ctor(this: !SizeType, src: Float)
-    [native("_ass_u64_d")] fun ctor(this: !SizeType, src: Double)
-    fun dtor(this: SizeType) {}
-    [native("_ass_64_64")] fun = (this: !SizeType, other: SizeType)
+    [native("_zero_init_f")] fun ctor(this: !Float32)
+    [native("_ass_f_i8")] fun ctor(this: !Float32, src: Int8)
+    [native("_ass_f_u8")] fun ctor(this: !Float32, src: UInt8)
+    [native("_ass_f_i16")] fun ctor(this: !Float32, src: Int16)
+    [native("_ass_f_u16")] fun ctor(this: !Float32, src: UInt16)
+    [native("_ass_f_i32")] fun ctor(this: !Float32, src: Int32)
+    [native("_ass_f_u32")] fun ctor(this: !Float32, src: UInt32)
+    [native("_ass_f_i64")] fun ctor(this: !Float32, src: Int64)
+    [native("_ass_f_u64")] fun ctor(this: !Float32, src: UInt64)
+    [native("_ass_f_f")] fun ctor(this: !Float32, src: Float32)
+    [native("_ass_f_d")] fun ctor(this: !Float32, src: Float64)
+    fun dtor(this: Float32) {}
+    [native("_ass_f_f")] fun = (this: !Float32, other: Float32)
 
-    [native("_zero_init_64")] fun ctor(this: !DiffType)
-    [native("_ass_64_8s"), convert] fun ctor(this: !DiffType, src: Byte)
-    [native("_ass_64_8z"), convert] fun ctor(this: !DiffType, src: UByte)
-    [native("_ass_64_16s"), convert] fun ctor(this: !DiffType, src: Short)
-    [native("_ass_64_16z"), convert] fun ctor(this: !DiffType, src: UShort)
-    [native("_ass_64_32s"), convert] fun ctor(this: !DiffType, src: Int)
-    [native("_ass_64_32z"), convert] fun ctor(this: !DiffType, src: UInt)
-    [native("_ass_64_64")] fun ctor(this: !DiffType, src: Long)
-    [native("_ass_64_64")] fun ctor(this: !DiffType, src: ULong)
-    [native("_ass_64_64")] fun ctor(this: !DiffType, src: SizeType)
-    [native("_ass_64_64")] fun ctor(this: !DiffType, src: DiffType)
-    [native("_ass_i64_f")] fun ctor(this: !DiffType, src: Float)
-    [native("_ass_i64_d")] fun ctor(this: !DiffType, src: Double)
-    fun dtor(this: DiffType) {}
-    [native("_ass_64_64")] fun = (this: !DiffType, other: DiffType)
-
-    [native("_zero_init_f")] fun ctor(this: !Float)
-    [native("_ass_f_i8"), convert] fun ctor(this: !Float, src: Byte)
-    [native("_ass_f_u8"), convert] fun ctor(this: !Float, src: UByte)
-    [native("_ass_f_i16"), convert] fun ctor(this: !Float, src: Short)
-    [native("_ass_f_u16"), convert] fun ctor(this: !Float, src: UShort)
-    [native("_ass_f_i32"), convert] fun ctor(this: !Float, src: Int)
-    [native("_ass_f_u32"), convert] fun ctor(this: !Float, src: UInt)
-    [native("_ass_f_i64"), convert] fun ctor(this: !Float, src: Long)
-    [native("_ass_f_u64"), convert] fun ctor(this: !Float, src: ULong)
-    [native("_ass_f_i64"), convert] fun ctor(this: !Float, src: SizeType)
-    [native("_ass_f_u64"), convert] fun ctor(this: !Float, src: DiffType)
-    [native("_ass_f_f")] fun ctor(this: !Float, src: Float)
-    [native("_ass_f_d")] fun ctor(this: !Float, src: Double)
-    fun dtor(this: Float) {}
-    [native("_ass_f_f")] fun = (this: !Float, other: Float)
-
-    [native("_zero_init_d")] fun ctor(this: !Double)
-    [native("_ass_d_i8"), convert] fun ctor(this: !Double, src: Byte)
-    [native("_ass_d_u8"), convert] fun ctor(this: !Double, src: UByte)
-    [native("_ass_d_i16"), convert] fun ctor(this: !Double, src: Short)
-    [native("_ass_d_u16"), convert] fun ctor(this: !Double, src: UShort)
-    [native("_ass_d_i32"), convert] fun ctor(this: !Double, src: Int)
-    [native("_ass_d_u32"), convert] fun ctor(this: !Double, src: UInt)
-    [native("_ass_d_i64"), convert] fun ctor(this: !Double, src: Long)
-    [native("_ass_d_u64"), convert] fun ctor(this: !Double, src: ULong)
-    [native("_ass_d_i64"), convert] fun ctor(this: !Double, src: SizeType)
-    [native("_ass_d_u64"), convert] fun ctor(this: !Double, src: DiffType)
-    [native("_ass_d_f"), convert] fun ctor(this: !Double, src: Float)
-    [native("_ass_d_d")] fun ctor(this: !Double, src: Double)
-    fun dtor(this: Double) {}
-    [native("_ass_d_d")] fun = (this: !Double, other: Double)
+    [native("_zero_init_d")] fun ctor(this: !Float64)
+    [native("_ass_d_i8")] fun ctor(this: !Float64, src: Int8)
+    [native("_ass_d_u8")] fun ctor(this: !Float64, src: UInt8)
+    [native("_ass_d_i16")] fun ctor(this: !Float64, src: Int16)
+    [native("_ass_d_u16")] fun ctor(this: !Float64, src: UInt16)
+    [native("_ass_d_i32")] fun ctor(this: !Float64, src: Int32)
+    [native("_ass_d_u32")] fun ctor(this: !Float64, src: UInt32)
+    [native("_ass_d_i64")] fun ctor(this: !Float64, src: Int64)
+    [native("_ass_d_u64")] fun ctor(this: !Float64, src: UInt64)
+    [native("_ass_d_f")] fun ctor(this: !Float64, src: Float32)
+    [native("_ass_d_d")] fun ctor(this: !Float64, src: Float64)
+    fun dtor(this: Float64) {}
+    [native("_ass_d_d")] fun = (this: !Float64, other: Float64)
 
     [native("_zero_init_8")] fun ctor(this: !Char)
     [native("_ass_8_8")] fun ctor(this: !Char, src: Char)
-    [native("_ass_8_8")] fun ctor(this: !Char, src: Byte)
-    [native("_ass_8_8")] fun ctor(this: !Char, src: UByte)
-    [native("_ass_8_16")] fun ctor(this: !Char, src: Short)
-    [native("_ass_8_16")] fun ctor(this: !Char, src: UShort)
-    [native("_ass_8_32")] fun ctor(this: !Char, src: Int)
-    [native("_ass_8_32")] fun ctor(this: !Char, src: UInt)
-    [native("_ass_8_64")] fun ctor(this: !Char, src: Long)
-    [native("_ass_8_64")] fun ctor(this: !Char, src: ULong)
-    [native("_ass_8_64")] fun ctor(this: !Char, src: SizeType)
-    [native("_ass_8_64")] fun ctor(this: !Char, src: DiffType)
+    [native("_ass_8_8")] fun ctor(this: !Char, src: Int8)
+    [native("_ass_8_32")] fun ctor(this: !Char, src: Int32)
     fun dtor(this: Char) {}
     [native("_ass_8_8")] fun = (this: !Char, other: Char)
 
 [noDefault, bitcopiable, native("StringRef")]
 datatype StringRef
-    begin: @Byte
-    end: @Byte
+    begin: @Int8
+    end: @Int8
 
 [protected]
     fun ctor(this: !StringRef)
         begin := null
         end := null
-    fun ctor(this: !StringRef, size: SizeType)
-        begin := malloc(size + intToSizeType(1))
+    fun ctor(this: !StringRef, size: Int)
+        begin := malloc(size + 1)
         end := ptrAdd(begin, size)
-        end = intToByte(0)
+        end = Int8(0)
     fun ctor(this: !StringRef, other: StringRef)
         begin := other.begin
         end := other.end
     fun dtor(this: StringRef) {}
 
-fun size(this: StringRef): SizeType
+fun size(this: StringRef): Int
     return ptrDiff(end, begin);
 
-fun getChar(this: StringRef, i: SizeType): Char
+fun getChar(this: StringRef, i: Int): Char
     return reinterpretCast(@Char, ptrAdd(begin, i));
 
 fun == (this, other: StringRef): Bool
     let s = this.size()
     if ( s != other.size() ) return false
-    var i: SizeType = 0
-    while i<s ; i+=SizeType(1)
+    var i = 0
+    while i<s ; i+=1
         if this.getChar(i) != other.getChar(i)
           return false
     return true
@@ -1115,166 +1032,162 @@ fun + (x,y: StringRef): StringRef
     memcpy(ptrAdd(res.begin, sz1), y.begin, sz2)
     return res
 
-[autoCt, native("_Bool_opOr")] fun || (x, y: Bool): Bool
-[autoCt, native("_Bool_opXor")] fun ^^ (x, y: Bool): Bool
-[autoCt, native("_Bool_opAnd")] fun && (x, y: Bool): Bool
-[autoCt, native("_Bool_opEQ")] fun == (x, y: Bool): Bool
-[autoCt, native("_Bool_opNE")] fun != (x, y: Bool): Bool
-[autoCt, native("_Bool_opNeg")] fun ! (x: Bool): Bool
+[autoCt, protected]
+    [native("$logicalOr")] fun || (x, y: Bool): Bool
+    [native("$logicalAnd")] fun && (x, y: Bool): Bool
+    [native("_Bool_opXor")] fun ^^ (x, y: Bool): Bool
+    [native("_Bool_opEQ")] fun == (x, y: Bool): Bool
+    [native("_Bool_opNE")] fun != (x, y: Bool): Bool
+    [native("_Bool_opNeg")] fun ! (x: Bool): Bool
 
-[autoCt, native("_Byte_opEQ")] fun == (x, y: Byte): Bool
-[autoCt, native("_Byte_opNE")] fun != (x, y: Byte): Bool
-[autoCt, native("_Byte_opLT")] fun < (x, y: Byte): Bool
-[autoCt, native("_Byte_opGT")] fun > (x, y: Byte): Bool
-[autoCt, native("_Byte_opLE")] fun <= (x, y: Byte): Bool
-[autoCt, native("_Byte_opGE")] fun >= (x, y: Byte): Bool
-[autoCt, native("_Byte_opPlus")] fun + (x, y: Byte): Byte
-[autoCt, native("_Byte_opMinus")] fun - (x, y: Byte): Byte
-[autoCt, native("_Byte_opMul")] fun * (x, y: Byte): Byte
-[autoCt, native("_Byte_opDiv")] fun / (x, y: Byte): Byte
-[autoCt, native("_Byte_opMod")] fun % (x, y: Byte): Byte
-[autoCt, native("_Byte_opPlus1")] fun + (x: Byte): Byte
-[autoCt, native("_Byte_opMinus1")] fun - (x: Byte): Byte
+    [native("_Char_opEQ")] fun == (x, y: Char): Bool
+    [native("_Char_opNE")] fun != (x, y: Char): Bool
+    [native("_Char_opLT")] fun < (x, y: Char): Bool
+    [native("_Char_opGT")] fun > (x, y: Char): Bool
+    [native("_Char_opLE")] fun <= (x, y: Char): Bool
+    [native("_Char_opGE")] fun >= (x, y: Char): Bool
 
-[autoCt, native("_UByte_opEQ")] fun == (x, y: UByte): Bool
-[autoCt, native("_UByte_opNE")] fun != (x, y: UByte): Bool
-[autoCt, native("_UByte_opLT")] fun < (x, y: UByte): Bool
-[autoCt, native("_UByte_opGT")] fun > (x, y: UByte): Bool
-[autoCt, native("_UByte_opLE")] fun <= (x, y: UByte): Bool
-[autoCt, native("_UByte_opGE")] fun >= (x, y: UByte): Bool
-[autoCt, native("_UByte_opPlus")] fun + (x, y: UByte): UByte
-[autoCt, native("_UByte_opMinus")] fun - (x, y: UByte): UByte
-[autoCt, native("_UByte_opMul")] fun * (x, y: UByte): UByte
-[autoCt, native("_UByte_opDiv")] fun / (x, y: UByte): UByte
-[autoCt, native("_UByte_opMod")] fun % (x, y: UByte): UByte
-[autoCt, native("_UByte_opPlus1")] fun + (x: UByte): UByte
+[autoCt, protected]
+    [native("_Int8_opEQ")] fun == (x, y: Int8): Bool
+    [native("_UInt8_opEQ")] fun == (x, y: UInt8): Bool
+    [native("_Int16_opEQ")] fun == (x, y: Int16): Bool
+    [native("_UInt16_opEQ")] fun == (x, y: UInt16): Bool
+    [native("_Int32_opEQ")] fun == (x, y: Int32): Bool
+    [native("_UInt32_opEQ")] fun == (x, y: UInt32): Bool
+    [native("_Int64_opEQ")] fun == (x, y: Int64): Bool
+    [native("_UInt64_opEQ")] fun == (x, y: UInt64): Bool
+    [native("_Float32_opEQ")] fun == (x, y: Float32): Bool
+    [native("_Float64_opEQ")] fun == (x, y: Float64): Bool
 
-[autoCt, native("_Short_opEQ")] fun == (x, y: Short): Bool
-[autoCt, native("_Short_opNE")] fun != (x, y: Short): Bool
-[autoCt, native("_Short_opLT")] fun < (x, y: Short): Bool
-[autoCt, native("_Short_opGT")] fun > (x, y: Short): Bool
-[autoCt, native("_Short_opLE")] fun <= (x, y: Short): Bool
-[autoCt, native("_Short_opGE")] fun >= (x, y: Short): Bool
-[autoCt, native("_Short_opPlus")] fun + (x, y: Short): Short
-[autoCt, native("_Short_opMinus")] fun - (x, y: Short): Short
-[autoCt, native("_Short_opMul")] fun * (x, y: Short): Short
-[autoCt, native("_Short_opDiv")] fun / (x, y: Short): Short
-[autoCt, native("_Short_opMod")] fun % (x, y: Short): Short
-[autoCt, native("_Short_opPlus1")] fun + (x: Short): Short
-[autoCt, native("_Short_opMinus1")] fun - (x: Short): Short
+    [native("_Int8_opNE")] fun != (x, y: Int8): Bool
+    [native("_UInt8_opNE")] fun != (x, y: UInt8): Bool
+    [native("_Int16_opNE")] fun != (x, y: Int16): Bool
+    [native("_UInt16_opNE")] fun != (x, y: UInt16): Bool
+    [native("_Int32_opNE")] fun != (x, y: Int32): Bool
+    [native("_UInt32_opNE")] fun != (x, y: UInt32): Bool
+    [native("_Int64_opNE")] fun != (x, y: Int64): Bool
+    [native("_UInt64_opNE")] fun != (x, y: UInt64): Bool
+    [native("_Float32_opNE")] fun != (x, y: Float32): Bool
+    [native("_Float64_opNE")] fun != (x, y: Float64): Bool
 
-[autoCt, native("_UShort_opEQ")] fun == (x, y: UShort): Bool
-[autoCt, native("_UShort_opNE")] fun != (x, y: UShort): Bool
-[autoCt, native("_UShort_opLT")] fun < (x, y: UShort): Bool
-[autoCt, native("_UShort_opGT")] fun > (x, y: UShort): Bool
-[autoCt, native("_UShort_opLE")] fun <= (x, y: UShort): Bool
-[autoCt, native("_UShort_opGE")] fun >= (x, y: UShort): Bool
-[autoCt, native("_UShort_opPlus")] fun + (x, y: UShort): UShort
-[autoCt, native("_UShort_opMinus")] fun - (x, y: UShort): UShort
-[autoCt, native("_UShort_opMul")] fun * (x, y: UShort): UShort
-[autoCt, native("_UShort_opDiv")] fun / (x, y: UShort): UShort
-[autoCt, native("_UShort_opMod")] fun % (x, y: UShort): UShort
-[autoCt, native("_UShort_opPlus1")] fun + (x: UShort): UShort
+    [native("_Int8_opLT")] fun < (x, y: Int8): Bool
+    [native("_UInt8_opLT")] fun < (x, y: UInt8): Bool
+    [native("_Int16_opLT")] fun < (x, y: Int16): Bool
+    [native("_UInt16_opLT")] fun < (x, y: UInt16): Bool
+    [native("_Int32_opLT")] fun < (x, y: Int32): Bool
+    [native("_UInt32_opLT")] fun < (x, y: UInt32): Bool
+    [native("_Int64_opLT")] fun < (x, y: Int64): Bool
+    [native("_UInt64_opLT")] fun < (x, y: UInt64): Bool
+    [native("_Float32_opLT")] fun < (x, y: Float32): Bool
+    [native("_Float64_opLT")] fun < (x, y: Float64): Bool
 
-[autoCt, native("_Int_opEQ")] fun == (x, y: Int): Bool
-[autoCt, native("_Int_opNE")] fun != (x, y: Int): Bool
-[autoCt, native("_Int_opLT")] fun < (x, y: Int): Bool
-[autoCt, native("_Int_opGT")] fun > (x, y: Int): Bool
-[autoCt, native("_Int_opLE")] fun <= (x, y: Int): Bool
-[autoCt, native("_Int_opGE")] fun >= (x, y: Int): Bool
-[autoCt, native("_Int_opPlus")] fun + (x, y: Int): Int
-[autoCt, native("_Int_opMinus")] fun - (x, y: Int): Int
-[autoCt, native("_Int_opMul")] fun * (x, y: Int): Int
-[autoCt, native("_Int_opDiv")] fun / (x, y: Int): Int
-[autoCt, native("_Int_opMod")] fun % (x, y: Int): Int
-[autoCt, native("_Int_opPlus1")] fun + (x: Int): Int
-[autoCt, native("_Int_opMinus1")] fun - (x: Int): Int
+    [native("_Int8_opGT")] fun > (x, y: Int8): Bool
+    [native("_UInt8_opGT")] fun > (x, y: UInt8): Bool
+    [native("_Int16_opGT")] fun > (x, y: Int16): Bool
+    [native("_UInt16_opGT")] fun > (x, y: UInt16): Bool
+    [native("_Int32_opGT")] fun > (x, y: Int32): Bool
+    [native("_UInt32_opGT")] fun > (x, y: UInt32): Bool
+    [native("_Int64_opGT")] fun > (x, y: Int64): Bool
+    [native("_UInt64_opGT")] fun > (x, y: UInt64): Bool
+    [native("_Float32_opGT")] fun > (x, y: Float32): Bool
+    [native("_Float64_opGT")] fun > (x, y: Float64): Bool
 
-[autoCt, native("_UInt_opEQ")] fun == (x, y: UInt): Bool
-[autoCt, native("_UInt_opNE")] fun != (x, y: UInt): Bool
-[autoCt, native("_UInt_opLT")] fun < (x, y: UInt): Bool
-[autoCt, native("_UInt_opGT")] fun > (x, y: UInt): Bool
-[autoCt, native("_UInt_opLE")] fun <= (x, y: UInt): Bool
-[autoCt, native("_UInt_opGE")] fun >= (x, y: UInt): Bool
-[autoCt, native("_UInt_opPlus")] fun + (x, y: UInt): UInt
-[autoCt, native("_UInt_opMinus")] fun - (x, y: UInt): UInt
-[autoCt, native("_UInt_opMul")] fun * (x, y: UInt): UInt
-[autoCt, native("_UInt_opDiv")] fun / (x, y: UInt): UInt
-[autoCt, native("_UInt_opMod")] fun % (x, y: UInt): UInt
-[autoCt, native("_UInt_opPlus1")] fun + (x: UInt): UInt
+    [native("_Int8_opLE")] fun <= (x, y: Int8): Bool
+    [native("_UInt8_opLE")] fun <= (x, y: UInt8): Bool
+    [native("_Int16_opLE")] fun <= (x, y: Int16): Bool
+    [native("_UInt16_opLE")] fun <= (x, y: UInt16): Bool
+    [native("_Int32_opLE")] fun <= (x, y: Int32): Bool
+    [native("_UInt32_opLE")] fun <= (x, y: UInt32): Bool
+    [native("_Int64_opLE")] fun <= (x, y: Int64): Bool
+    [native("_UInt64_opLE")] fun <= (x, y: UInt64): Bool
+    [native("_Float32_opLE")] fun <= (x, y: Float32): Bool
+    [native("_Float64_opLE")] fun <= (x, y: Float64): Bool
 
-[autoCt, native("_Long_opEQ")] fun == (x, y: Long): Bool
-[autoCt, native("_Long_opNE")] fun != (x, y: Long): Bool
-[autoCt, native("_Long_opLT")] fun < (x, y: Long): Bool
-[autoCt, native("_Long_opGT")] fun > (x, y: Long): Bool
-[autoCt, native("_Long_opLE")] fun <= (x, y: Long): Bool
-[autoCt, native("_Long_opGE")] fun >= (x, y: Long): Bool
-[autoCt, native("_Long_opPlus")] fun + (x, y: Long): Long
-[autoCt, native("_Long_opMinus")] fun - (x, y: Long): Long
-[autoCt, native("_Long_opMul")] fun * (x, y: Long): Long
-[autoCt, native("_Long_opDiv")] fun / (x, y: Long): Long
-[autoCt, native("_Long_opMod")] fun % (x, y: Long): Long
-[autoCt, native("_Long_opPlus1")] fun + (x: Long): Long
-[autoCt, native("_Long_opMinus1")] fun - (x: Long): Long
+    [native("_Int8_opGE")] fun >= (x, y: Int8): Bool
+    [native("_UInt8_opGE")] fun >= (x, y: UInt8): Bool
+    [native("_Int16_opGE")] fun >= (x, y: Int16): Bool
+    [native("_UInt16_opGE")] fun >= (x, y: UInt16): Bool
+    [native("_Int32_opGE")] fun >= (x, y: Int32): Bool
+    [native("_UInt32_opGE")] fun >= (x, y: UInt32): Bool
+    [native("_Int64_opGE")] fun >= (x, y: Int64): Bool
+    [native("_UInt64_opGE")] fun >= (x, y: UInt64): Bool
+    [native("_Float32_opGE")] fun >= (x, y: Float32): Bool
+    [native("_Float64_opGE")] fun >= (x, y: Float64): Bool
 
-[autoCt, native("_ULong_opEQ")] fun == (x, y: ULong): Bool
-[autoCt, native("_ULong_opNE")] fun != (x, y: ULong): Bool
-[autoCt, native("_ULong_opLT")] fun < (x, y: ULong): Bool
-[autoCt, native("_ULong_opGT")] fun > (x, y: ULong): Bool
-[autoCt, native("_ULong_opLE")] fun <= (x, y: ULong): Bool
-[autoCt, native("_ULong_opGE")] fun >= (x, y: ULong): Bool
-[autoCt, native("_ULong_opPlus")] fun + (x, y: ULong): ULong
-[autoCt, native("_ULong_opMinus")] fun - (x, y: ULong): ULong
-[autoCt, native("_ULong_opMul")] fun * (x, y: ULong): ULong
-[autoCt, native("_ULong_opDiv")] fun / (x, y: ULong): ULong
-[autoCt, native("_ULong_opMod")] fun % (x, y: ULong): ULong
-[autoCt, native("_ULong_opPlus1")] fun + (x: ULong): ULong
+    [native("_Int8_opPlus")] fun + (x, y: Int8): Int8
+    [native("_UInt8_opPlus")] fun + (x, y: UInt8): UInt8
+    [native("_Int16_opPlus")] fun + (x, y: Int16): Int16
+    [native("_UInt16_opPlus")] fun + (x, y: UInt16): UInt16
+    [native("_Int32_opPlus")] fun + (x, y: Int32): Int32
+    [native("_UInt32_opPlus")] fun + (x, y: UInt32): UInt32
+    [native("_Int64_opPlus")] fun + (x, y: Int64): Int64
+    [native("_UInt64_opPlus")] fun + (x, y: UInt64): UInt64
+    [native("_Float32_opPlus")] fun + (x, y: Float32): Float32
+    [native("_Float64_opPlus")] fun + (x, y: Float64): Float64
 
-[autoCt, native("_Float_opEQ")] fun == (x, y: Float): Bool
-[autoCt, native("_Float_opNE")] fun != (x, y: Float): Bool
-[autoCt, native("_Float_opLT")] fun < (x, y: Float): Bool
-[autoCt, native("_Float_opGT")] fun > (x, y: Float): Bool
-[autoCt, native("_Float_opLE")] fun <= (x, y: Float): Bool
-[autoCt, native("_Float_opGE")] fun >= (x, y: Float): Bool
-[autoCt, native("_Float_opPlus")] fun + (x, y: Float): Float
-[autoCt, native("_Float_opMinus")] fun - (x, y: Float): Float
-[autoCt, native("_Float_opMul")] fun * (x, y: Float): Float
-[autoCt, native("_Float_opDiv")] fun / (x, y: Float): Float
-[autoCt, native("_Float_opPlus1")] fun + (x: Float): Float
-[autoCt, native("_Float_opMinus1")] fun - (x: Float): Float
+    [native("_Int8_opMinus")] fun - (x, y: Int8): Int8
+    [native("_UInt8_opMinus")] fun - (x, y: UInt8): UInt8
+    [native("_Int16_opMinus")] fun - (x, y: Int16): Int16
+    [native("_UInt16_opMinus")] fun - (x, y: UInt16): UInt16
+    [native("_Int32_opMinus")] fun - (x, y: Int32): Int32
+    [native("_UInt32_opMinus")] fun - (x, y: UInt32): UInt32
+    [native("_Int64_opMinus")] fun - (x, y: Int64): Int64
+    [native("_UInt64_opMinus")] fun - (x, y: UInt64): UInt64
+    [native("_Float32_opMinus")] fun - (x, y: Float32): Float32
+    [native("_Float64_opMinus")] fun - (x, y: Float64): Float64
 
-[autoCt, native("_Double_opEQ")] fun == (x, y: Double): Bool
-[autoCt, native("_Double_opNE")] fun != (x, y: Double): Bool
-[autoCt, native("_Double_opLT")] fun < (x, y: Double): Bool
-[autoCt, native("_Double_opGT")] fun > (x, y: Double): Bool
-[autoCt, native("_Double_opLE")] fun <= (x, y: Double): Bool
-[autoCt, native("_Double_opGE")] fun >= (x, y: Double): Bool
-[autoCt, native("_Double_opPlus")] fun + (x, y: Double): Double
-[autoCt, native("_Double_opMinus")] fun - (x, y: Double): Double
-[autoCt, native("_Double_opMul")] fun * (x, y: Double): Double
-[autoCt, native("_Double_opDiv")] fun / (x, y: Double): Double
-[autoCt, native("_Double_opPlus1")] fun + (x: Double): Double
-[autoCt, native("_Double_opMinus1")] fun - (x: Double): Double
+    [native("_Int8_opMul")] fun * (x, y: Int8): Int8
+    [native("_UInt8_opMul")] fun * (x, y: UInt8): UInt8
+    [native("_Int16_opMul")] fun * (x, y: Int16): Int16
+    [native("_UInt16_opMul")] fun * (x, y: UInt16): UInt16
+    [native("_Int32_opMul")] fun * (x, y: Int32): Int32
+    [native("_UInt32_opMul")] fun * (x, y: UInt32): UInt32
+    [native("_Int64_opMul")] fun * (x, y: Int64): Int64
+    [native("_UInt64_opMul")] fun * (x, y: UInt64): UInt64
+    [native("_Float32_opMul")] fun * (x, y: Float32): Float32
+    [native("_Float64_opMul")] fun * (x, y: Float64): Float64
 
-[autoCt, native("_Char_opEQ")] fun == (x, y: Char): Bool
-[autoCt, native("_Char_opNE")] fun != (x, y: Char): Bool
-[autoCt, native("_Char_opLT")] fun < (x, y: Char): Bool
-[autoCt, native("_Char_opGT")] fun > (x, y: Char): Bool
-[autoCt, native("_Char_opLE")] fun <= (x, y: Char): Bool
-[autoCt, native("_Char_opGE")] fun >= (x, y: Char): Bool
+    [native("_Int8_opDiv")] fun / (x, y: Int8): Int8
+    [native("_UInt8_opDiv")] fun / (x, y: UInt8): UInt8
+    [native("_Int16_opDiv")] fun / (x, y: Int16): Int16
+    [native("_UInt16_opDiv")] fun / (x, y: UInt16): UInt16
+    [native("_Int32_opDiv")] fun / (x, y: Int32): Int32
+    [native("_UInt32_opDiv")] fun / (x, y: UInt32): UInt32
+    [native("_Int64_opDiv")] fun / (x, y: Int64): Int64
+    [native("_UInt64_opDiv")] fun / (x, y: UInt64): UInt64
+    [native("_Float32_opDiv")] fun / (x, y: Float32): Float32
+    [native("_Float64_opDiv")] fun / (x, y: Float64): Float64
 
-[autoCt, native("_SizeType_opEQ")] fun == (x, y: SizeType): Bool
-[autoCt, native("_SizeType_opNE")] fun != (x, y: SizeType): Bool
-[autoCt, native("_SizeType_opLT")] fun < (x, y: SizeType): Bool
-[autoCt, native("_SizeType_opGT")] fun > (x, y: SizeType): Bool
-[autoCt, native("_SizeType_opLE")] fun <= (x, y: SizeType): Bool
-[autoCt, native("_SizeType_opGE")] fun >= (x, y: SizeType): Bool
-[autoCt, native("_SizeType_opPlus")] fun + (x, y: SizeType): SizeType
-[autoCt, native("_SizeType_opMinus")] fun - (x, y: SizeType): SizeType
-[autoCt, native("_SizeType_opMul")] fun * (x, y: SizeType): SizeType
-[autoCt, native("_SizeType_opDiv")] fun / (x, y: SizeType): SizeType
-[autoCt, native("_SizeType_opMod")] fun % (x, y: SizeType): SizeType
-[autoCt, native("_SizeType_opPlus1")] fun + (x: SizeType): SizeType
+    [native("_Int8_opMod")] fun % (x, y: Int8): Int8
+    [native("_UInt8_opMod")] fun % (x, y: UInt8): UInt8
+    [native("_Int16_opMod")] fun % (x, y: Int16): Int16
+    [native("_UInt16_opMod")] fun % (x, y: UInt16): UInt16
+    [native("_Int32_opMod")] fun % (x, y: Int32): Int32
+    [native("_UInt32_opMod")] fun % (x, y: UInt32): UInt32
+    [native("_Int64_opMod")] fun % (x, y: Int64): Int64
+    [native("_UInt64_opMod")] fun % (x, y: UInt64): UInt64
+    [native("_Float32_opMod")] fun % (x, y: Float32): Float32
+    [native("_Float64_opMod")] fun % (x, y: Float64): Float64
+
+    // Unary +
+    [native("_Int8_opPlus1")] fun + (x: Int8): Int8
+    [native("_UInt8_opPlus1")] fun + (x: UInt8): UInt8
+    [native("_Int16_opPlus1")] fun + (x: Int16): Int16
+    [native("_UInt16_opPlus1")] fun + (x: UInt16): UInt16
+    [native("_Int32_opPlus1")] fun + (x: Int32): Int32
+    [native("_UInt32_opPlus1")] fun + (x: UInt32): UInt32
+    [native("_Int64_opPlus1")] fun + (x: Int64): Int64
+    [native("_UInt64_opPlus1")] fun + (x: UInt64): UInt64
+    [native("_Float32_opPlus1")] fun + (x: Float32): Float32
+    [native("_Float64_opPlus1")] fun + (x: Float64): Float64
+
+    // Unary - (only for signed types)
+    [native("_Int8_opMinus1")] fun - (x: Int8): Int8
+    [native("_Int16_opMinus1")] fun - (x: Int16): Int16
+    [native("_Int32_opMinus1")] fun - (x: Int32): Int32
+    [native("_Int64_opMinus1")] fun - (x: Int64): Int64
+    [native("_Float32_opMinus1")] fun - (x: Float32): Float32
+    [native("_Float64_opMinus1")] fun - (x: Float64): Float64
 
 [ct, native("$ct")] fun ct(t: Type): Type
 [ct, native("$rt")] fun rt(t: Type): Type
@@ -1284,88 +1197,83 @@ fun + (x,y: StringRef): StringRef
 [ct, native('$tmp')] fun tmp(t: Type): Type
 [ct, native('$mut')] fun pre_!(t: Type): Type
 
-[autoCt, native("implOpRefEQ")] fun implOpRefEQ(x,y: @Byte): Bool
-[autoCt, native("implOpRefNE")] fun implOpRefNE(x,y: @Byte): Bool
+[autoCt, native("implOpRefEQ")] fun implOpRefEQ(x,y: @Int8): Bool
+[autoCt, native("implOpRefNE")] fun implOpRefNE(x,y: @Int8): Bool
 
 [ct, native("$typeEQ")] fun == (x, y: Type): Bool
 [ct, native("$typeAddRef")] fun @ (t: Type): Type
 
-[native("writeLnByte")] fun writeLn(x: Byte)
-[native("writeLnByte")] fun writeLn(x: UByte)
-[native("writeLnShort")] fun writeLn(x: Short)
-[native("writeLnShort")] fun writeLn(x: UShort)
-[native("writeLnInt")] fun writeLn(x: Int)
-[native("writeLnUInt")] fun writeLn(x: UInt)
-[native("writeLnSizeType")] fun writeLn(x: Long)
-[native("writeLnSizeType")] fun writeLn(x: ULong)
-[native("writeLnFloat")] fun writeLn(x: Float)
-[native("writeLnDouble")] fun writeLn(x: Double)
+[native("writeLnByte")] fun writeLn(x: Int8)
+[native("writeLnByte")] fun writeLn(x: UInt8)
+[native("writeLnShort")] fun writeLn(x: Int16)
+[native("writeLnShort")] fun writeLn(x: UInt16)
+[native("writeLnInt")] fun writeLn(x: Int32)
+[native("writeLnUInt")] fun writeLn(x: UInt32)
+[native("writeLnSizeType")] fun writeLn(x: Int64)
+[native("writeLnSizeType")] fun writeLn(x: UInt64)
+[native("writeLnFloat32")] fun writeLn(x: Float32)
+[native("writeLnFloat64")] fun writeLn(x: Float64)
 [native("writeLnChar")] fun writeLn(x: Char)
-[native("writeLnSizeType")] fun writeLn(x: SizeType)
 
-[native("writeByte")] fun write(x: Byte)
-[native("writeByte")] fun write(x: UByte)
-[native("writeShort")] fun write(x: Short)
-[native("writeShort")] fun write(x: UShort)
-[native("writeInt")] fun write(x: Int)
-[native("writeUInt")] fun write(x: UInt)
-[native("writeLong")] fun write(x: Long)
-[native("writeULong")] fun write(x: ULong)
-[native("writeFloat")] fun write(x: Float)
-[native("writeDouble")] fun write(x: Double)
+[native("writeByte")] fun write(x: Int8)
+[native("writeByte")] fun write(x: UInt8)
+[native("writeShort")] fun write(x: Int16)
+[native("writeShort")] fun write(x: UInt16)
+[native("writeInt")] fun write(x: Int32)
+[native("writeUInt")] fun write(x: UInt32)
+[native("writeLong")] fun write(x: Int64)
+[native("writeULong")] fun write(x: UInt64)
+[native("writeFloat")] fun write(x: Float32)
+[native("writeDouble")] fun write(x: Float64)
 [native("writeChar")] fun write(x: Char)
-[native("writeSizeType")] fun write(x: SizeType)
 
 fun writeLn(x: StringRef) { writeLnStringImpl(reinterpretCast(@Char, x.begin)); }
 fun write(x: StringRef) { writeStringImpl(reinterpretCast(@Char, x.begin)); }
 [native("writeLnStringImpl")] fun writeLnStringImpl(x: @Char)
 [native("writeStringImpl")] fun writeStringImpl(x: @Char)
 
-[native("writeLnPointer")] fun writeLnRef(x: @Byte)
-[native("writePointer")] fun writeRef(x: @Byte)
+[native("writeLnPointer")] fun writeLnRef(x: @Int8)
+[native("writePointer")] fun writeRef(x: @Int8)
 
 [native("writeLnInt"), rt] fun writeLnInt(x: Int)
-[native("writeLnDouble"), rt] fun writeLnDouble(x: Double)
-
-[native("intToSizeType"), autoCt] fun intToSizeType(n: Int): SizeType
-[native("intToByte"), autoCt] fun intToByte(n: Int): Byte
+[native("writeLnFloat64"), rt] fun writeLnFloat(x: Float)
 
 [native("mulInt"), autoCt] fun mul(x,y: Int): Int
-[native("mulDouble"), autoCt] fun mul(x,y: Double): Double
+[native("mulDouble"), autoCt] fun mul(x,y: Float): Float
 [native("divInt"), autoCt] fun div(x,y: Int): Int
 [native("modInt"), autoCt] fun mod(x,y: Int): Int
 [native("addInt"), autoCt] fun add(x,y: Int): Int
 [native("subInt"), autoCt] fun sub(x,y: Int): Int
-[native("addDouble"), autoCt] fun add(x,y: Double): Double
-[native("subDouble"), autoCt] fun sub(x,y: Double): Double
+[native("addDouble"), autoCt] fun add(x,y: Float): Float
+[native("subDouble"), autoCt] fun sub(x,y: Float): Float
 [native("equalInt"), autoCt] fun equal(x,y: Int): Bool
 [native("leInt"), autoCt] fun le(x,y: Int): Bool
 [native("assignInt"), autoCt] fun assignInt(x: !Int, y: Int)
-[native("assignRefByte"), autoCt] fun assignRef(x: !(@Byte), y: @Byte)
+[native("assignRefByte"), autoCt] fun assignRef(x: !(@Int8), y: @Int8)
 
-[native("llvm.pow.f64"), rt] fun mathPow(x,y: Double): Double
+[native("llvm.pow.f64"), rt] fun mathPow(x,y: Float): Float
 
-[native("malloc")] fun malloc(size: SizeType): @Byte
-[native("malloc")] fun mallocRt(size: SizeType): @Byte
-[native("realloc")] fun realloc(p: @Byte, size: SizeType): @Byte
-[native("free")] fun free(p: @Byte)
-[native("ptrAdd"), autoCt] fun ptrAdd(p: @Byte, n: SizeType): @Byte
-[native("ptrSub"), autoCt] fun ptrSub(p: @Byte, n: SizeType): @Byte
-[native("ptrDiff"), autoCt] fun ptrDiff(p1, p2: @Byte): SizeType
-[native("memcpyimpl"), autoCt] fun memcpy(dest, src: @Byte, size: SizeType)
+[native("malloc")] fun malloc(size: Int): @Int8
+[native("malloc")] fun mallocRt(size: Int): @Int8
+[native("realloc")] fun realloc(p: @Int8, size: Int): @Int8
+[native("free")] fun free(p: @Int8)
+[native("ptrAdd"), autoCt] fun ptrAdd(p: @Int8, n: Int): @Int8
+[native("ptrSub"), autoCt] fun ptrSub(p: @Int8, n: Int): @Int8
+[native("ptrDiff"), autoCt] fun ptrDiff(p1, p2: @Int8): Int
+[native("memcpyimpl"), autoCt] fun memcpy(dest, src: @Int8, size: Int)
 [native("flushOutput")] fun flushOutput()
 
 [ct, native("$typeNumRef")] fun typeNumRef(t: Type): Int
 
 fun cast()
 fun reinterpretCast()
-[ct] fun sizeOf(): SizeType
+[ct] fun sizeOf(): Int
 [ct] fun typeOf(): Type
 [ct] fun isValid(): Bool
 fun construct()
 
 [ct, native("$convertsTo")] fun convertsTo(src, dest: Type): Bool
-[ct, native("$staticBuffer")] fun static_buffer(n: SizeType): Type
+[ct, native("$staticBuffer")] fun static_buffer(n: Int): Type
 [ct, native("$commonType")] fun commonType(t, u: Type): Type
 
 using oper_precedence_default   = 100
@@ -1416,9 +1324,9 @@ datatype _CStr { cstr: @Char; }
 [initCtor, bitcopiable]
 datatype _CStrPtr { ptr: @_CStr; }
 
-fun _fromBytePtr(p: @Byte): _CStrPtr = _CStrPtr(reinterpretCast(@_CStr, p))
-fun _toBytePtr(p: _CStrPtr): @Byte = reinterpretCast(@Byte, p.ptr)
-fun _offset(p: _CStrPtr, n: Int): _CStrPtr = _fromBytePtr( ptrAdd(_toBytePtr(p), n*(sizeOf(_CStrPtr))) )
+fun _fromInt8Ptr(p: @Int8): _CStrPtr = _CStrPtr(reinterpretCast(@_CStr, p))
+fun _toBytePtr(p: _CStrPtr): @Int8 = reinterpretCast(@Int8, p.ptr)
+fun _offset(p: _CStrPtr, n: Int): _CStrPtr = _fromInt8Ptr( ptrAdd(_toBytePtr(p), n*(sizeOf(_CStrPtr))) )
 
 // To be defined by the application:
 fun test(n: Int)

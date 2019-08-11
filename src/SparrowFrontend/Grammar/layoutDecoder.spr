@@ -29,7 +29,7 @@ datatype SparrowLayoutDecoder(tokensRangeType: Type) \
     /// Object used to report errors
     _errorReporter: ErrorReporter
     /// The vector containing the current indents levels
-    _indents: UInt Vector
+    _indents: Int Vector
     /// The vector of currently open parenthesis and brackets
     _parens: Char Vector
     /// Indicates what and how many tokens we should inject in the stream

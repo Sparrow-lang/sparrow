@@ -58,7 +58,7 @@ fun test(n: Int)
         let o1: WithUsing
         writeLn(sizeOf(o1))
     writeLn('---')
-        let o1: Generic(Double)
+        let o1: Generic(Float)
         let o2: Generic2(Char)
         writeLn(sizeOf(o1))
         writeLn(sizeOf(o2))

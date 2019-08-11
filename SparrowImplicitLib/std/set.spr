@@ -12,11 +12,11 @@ datatype Set(keyType: Type, traitsType: Type = DefaultTypeTraits)
 
     _hashTable: _ImplTable
 
-fun ctor(this: !Set, n: SizeType)                                       { _hashTable.ctor(n, TraitsType()) }
-fun ctor(this: !Set, n: SizeType, traits: this.TraitsType)              { _hashTable.ctor(n, traits) }
+fun ctor(this: !Set, n: Int)                                       { _hashTable.ctor(n, TraitsType()) }
+fun ctor(this: !Set, n: Int, traits: this.TraitsType)              { _hashTable.ctor(n, traits) }
 fun ctor(this: !Set, range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()) }
-fun ctor(this: !Set, range: Range, n: SizeType)                         { _hashTable.ctor(range, n, HashType(), CompareType()) }
-fun ctor(this: !Set, range: Range, n: SizeType, traits: this.TraitsType){ _hashTable.ctor(range, n, traits) }
+fun ctor(this: !Set, range: Range, n: Int)                         { _hashTable.ctor(range, n, HashType(), CompareType()) }
+fun ctor(this: !Set, range: Range, n: Int, traits: this.TraitsType){ _hashTable.ctor(range, n, traits) }
 
 [protected]
     fun traits(this: Set)                             = _hashTable.traits
@@ -24,7 +24,7 @@ fun ctor(this: !Set, range: Range, n: SizeType, traits: this.TraitsType){ _hashT
     fun size(this: Set)                               = _hashTable.size
     fun isEmpty(this: Set)                            = (_hashTable.size == 0)
     fun bucketCount(this: Set)                        = _hashTable.bucketCount
-    fun reserve(this: !Set, n: SizeType)                    { _hashTable.reserve(n); }
+    fun reserve(this: !Set, n: Int)                    { _hashTable.reserve(n); }
 
     fun all(this: Set)                                = _hashTable.all
 

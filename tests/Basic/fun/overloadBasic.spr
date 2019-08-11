@@ -3,42 +3,42 @@
 concept AnyType(x) // Always true
 
 fun f1(x: Int)         { writeLn("f1(Int)"); }
-fun f1(x: Double)      { writeLn("f1(Double)"); }
+fun f1(x: Float)      { writeLn("f1(Float)"); }
 fun f1(x: !Int)        { writeLn("f1(!Int)"); }
-fun f1(x: !Double)     { writeLn("f1(!Double)"); }
+fun f1(x: !Float)     { writeLn("f1(!Float)"); }
 fun f1(x: @Int)        { writeLn("f1(@Int)"); }
-fun f1(x: @Double)     { writeLn("f1(@Double)"); }
+fun f1(x: @Float)     { writeLn("f1(@Float)"); }
 //fun f1(x: AnyType)        { writeLn("f1(AnyType)"); }
 fun f1(x: !AnyType)       { writeLn("f1(!AnyType)"); }
 fun f1(x: @AnyType)       { writeLn("f1(@AnyType)"); }
 
 fun f2(x: Int, y: Int)            { writeLn("f2(Int, Int)"); }
-fun f2(x: Double, y: Double)      { writeLn("f2(Double, Double)"); }
+fun f2(x: Float, y: Float)      { writeLn("f2(Float, Float)"); }
 fun f2(x: AnyType, y: AnyType)          { writeLn("f2(AnyType, AnyType)"); }
 fun f2(x: !Int, y: !Int)          { writeLn("f2(!Int, !Int)"); }
-fun f2(x: !Double, y: !Double)    { writeLn("f2(!Double, !Double)"); }
+fun f2(x: !Float, y: !Float)    { writeLn("f2(!Float, !Float)"); }
 //fun f2(x: !AnyType, y: !AnyType)        { writeLn("f2(!AnyType, !AnyType)"); }
 
 fun f3(x: Int, y: Int)                            { writeLn("f3(Int, Int)"); }
-fun f3(x: Double, y: Double)                      { writeLn("f3(Double, Double)"); }
+fun f3(x: Float, y: Float)                      { writeLn("f3(Float, Float)"); }
 //fun f3(x: AnyType, y: AnyType) if typeOf(x)==typeOf(y)  { writeLn("f3(AnyType, AnyType)"); }
 fun f3(x: !Int, y: !Int)                          { writeLn("f3(!Int, !Int)"); }
-fun f3(x: !Double, y: !Double)                    { writeLn("f3(!Double, !Double)"); }
+fun f3(x: !Float, y: !Float)                    { writeLn("f3(!Float, !Float)"); }
 fun f3(x: !AnyType, y: !AnyType) if typeOf(x)==typeOf(y){ writeLn("f3(!AnyType, !AnyType)"); }
 
-let a = Short(1)
+let a = Int16(1)
 let b = 10
 let c = 3.14
-let ra: !Short = a
+let ra: !Int16 = a
 let rb: !Int = b
-let rc: !Double = c
+let rc: !Float = c
 
-fun getShort(): Short { return Short(1); }
+fun getShort(): Int16 { return Int16(1); }
 fun getInt(): Int { return 10; }
-fun getDouble(): Double { return 3.14; }
-fun getShortRef(): !Short { return ra; }
+fun getFloat(): Float { return 3.14; }
+fun getShortRef(): !Int16 { return ra; }
 fun getIntRef(): !Int { return rb; }
-fun getDoubleRef(): !Double { return rc; }
+fun getFloatRef(): !Float { return rc; }
 
 [native("test")] fun test(n: Int)
     f1(a)
@@ -54,10 +54,10 @@ fun getDoubleRef(): !Double { return rc; }
 
     f1(getShort())
     f1(getInt())
-    f1(getDouble())
+    f1(getFloat())
     f1(getShortRef())
     f1(getIntRef())
-    f1(getDoubleRef())
+    f1(getFloatRef())
     writeLn("---")
 
     f2(a,a)
@@ -78,34 +78,34 @@ fun getDoubleRef(): !Double { return rc; }
     //f3(c,10);
     writeLn("---")
 
-    //f3(a,Short(1))
-    //f3(b,Short(1));
-    //f3(c,Short(1));
+    //f3(a,Int16(1))
+    //f3(b,Int16(1));
+    //f3(c,Int16(1));
 
 /*<<<Running()
 f1(!AnyType)
 f1(!Int)
-f1(!Double)
+f1(!Float)
 f1(!AnyType)
 f1(!Int)
-f1(!Double)
+f1(!Float)
 f1(@AnyType)
 f1(Int)
-f1(Double)
+f1(Float)
 ---
 f1(@AnyType)
 f1(Int)
-f1(Double)
+f1(Float)
 f1(!AnyType)
 f1(!Int)
-f1(!Double)
+f1(!Float)
 ---
 f2(AnyType, AnyType)
 f2(!Int, !Int)
-f2(!Double, !Double)
+f2(!Float, !Float)
 f2(AnyType, AnyType)
 f2(!Int, !Int)
-f2(!Double, !Double)
+f2(!Float, !Float)
 ---
 f2(AnyType, AnyType)
 f2(Int, Int)

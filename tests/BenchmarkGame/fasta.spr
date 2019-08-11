@@ -19,10 +19,10 @@ fun write(r: Range, length: Int) if isValid(Char(r.front))
     ;
 
 var seed: Int = 42
-fun nextRandom: Double
+fun nextRandom: Float
     using IM = 139968
     seed = (seed * 3877 + 29573) % IM
-    return seed * 1.0/IM
+    return Float(seed) * 1.0/Float(IM)
 var randomRange = generate(\nextRandom)
 
 [initCtor]
@@ -34,7 +34,7 @@ datatype RandomCharRange(distribValsRangeType: Type)
 fun isEmpty(this: !RandomCharRange) = false
 fun popFront(this: !RandomCharRange) {}
 fun front(this: RandomCharRange): Char
-    let randVal: Float = (randomRange++)
+    let randVal: Float32 = (randomRange++)
     var i = 0
     var r = distribVals
     while !r.isEmpty; r.popFront()

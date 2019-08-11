@@ -13,13 +13,13 @@ datatype SortedSet(keyType, lessType, compareType: Type)
     _sortedTable: _ImplTable
 
 [protected]
-    fun ctor(this: !SortedSet, n: SizeType)                                       { _sortedTable.ctor(n, LessType(), CompareType()) }
-    fun ctor(this: !SortedSet, n: SizeType, less: this.LessType)                  { _sortedTable.ctor(n, less, CompareType()) }
-    fun ctor(this: !SortedSet, n: SizeType, less: this.LessType, comp: this.CompareType)    { _sortedTable.ctor(n, less, comp) }
+    fun ctor(this: !SortedSet, n: Int)                                       { _sortedTable.ctor(n, LessType(), CompareType()) }
+    fun ctor(this: !SortedSet, n: Int, less: this.LessType)                  { _sortedTable.ctor(n, less, CompareType()) }
+    fun ctor(this: !SortedSet, n: Int, less: this.LessType, comp: this.CompareType)    { _sortedTable.ctor(n, less, comp) }
     fun ctor(this: !SortedSet, range: Range)                                      { _sortedTable.ctor(range, 0, LessType(), CompareType()) }
-    fun ctor(this: !SortedSet, range: Range, n: SizeType)                         { _sortedTable.ctor(range, n, LessType(), CompareType()) }
-    fun ctor(this: !SortedSet, range: Range, n: SizeType, less: this.LessType)    { _sortedTable.ctor(range, n, less, CompareType()) }
-    fun ctor(this: !SortedSet, range: Range, n: SizeType, less: this.LessType, comp: this.CompareType)  { _sortedTable.ctor(range, n, less, comp) }
+    fun ctor(this: !SortedSet, range: Range, n: Int)                         { _sortedTable.ctor(range, n, LessType(), CompareType()) }
+    fun ctor(this: !SortedSet, range: Range, n: Int, less: this.LessType)    { _sortedTable.ctor(range, n, less, CompareType()) }
+    fun ctor(this: !SortedSet, range: Range, n: Int, less: this.LessType, comp: this.CompareType)  { _sortedTable.ctor(range, n, less, comp) }
     fun ctor(this: !SortedSet, other: SortedSet)                            { this._sortedTable ctor other._sortedTable }
 
     fun lessFunction(this: SortedSet)         = _sortedTable.lessFunction
@@ -28,7 +28,7 @@ datatype SortedSet(keyType, lessType, compareType: Type)
     fun size(this: SortedSet)                 = _sortedTable.size
     fun isEmpty(this: SortedSet)              = _sortedTable.isEmpty
     fun capacity(this: SortedSet)             = _sortedTable.capacity
-    fun reserve(this: !SortedSet, n: SizeType)      { _sortedTable.reserve(n) }
+    fun reserve(this: !SortedSet, n: Int)      { _sortedTable.reserve(n) }
 
     fun all(this: SortedSet)                  = _sortedTable.all
 

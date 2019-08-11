@@ -10,8 +10,8 @@ fun typeTest(x: AnyType) if typeOf(x) == Char
 fun typeTest(x: AnyType) if typeOf(x) == Int
     writeLn("Int passed");
 
-fun typeTest(x: AnyType) if typeOf(x) == Double
-    writeLn("Double passed");
+fun typeTest(x: AnyType) if typeOf(x) == Float
+    writeLn("Float passed");
 
 fun typeTest(x: @AnyType) if typeOf(x) == @Char
     writeLn("@Char passed");
@@ -19,8 +19,8 @@ fun typeTest(x: @AnyType) if typeOf(x) == @Char
 fun typeTest(x: @AnyType) if typeOf(x) == @Int
     writeLn("Int@ passed");
 
-fun typeTest(x: @AnyType) if typeOf(x) == @Double
-    writeLn("Double@ passed");
+fun typeTest(x: @AnyType) if typeOf(x) == @Float
+    writeLn("Float@ passed");
 
 fun testRef(x: AnyType) //if 0==typeNumRef(typeOf(x))
     writeLn("non-ref");
@@ -34,7 +34,7 @@ fun testRef(x: @AnyType) //if 0!=typeNumRef(typeOf(x))
     let c = 3.14
     let ra: @Char = a
     let rb: Int@ = b
-    let rc: Double@ = c
+    let rc: Float@ = c
 
     writeLn(sizeOf('a'.getChar(0)))
     writeLn(sizeOf(10))
@@ -123,11 +123,11 @@ ref
 ---
 Char passed
 Int passed
-Double passed
+Float passed
 Char passed
 Int passed
-Double passed
+Float passed
 @Char passed
 Int@ passed
-Double@ passed
+Float@ passed
 >>>*/

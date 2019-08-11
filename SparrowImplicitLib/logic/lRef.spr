@@ -109,7 +109,7 @@ fun reset(this: !LRef, value: !this.ValueType)
         cout << "LRef.reset " << this << "\n"
 
 fun isUnique(this: !LRef)                = _pptr.isUnique
-fun useCount(this: !LRef): UInt          = _pptr.useCount
+fun useCount(this: !LRef): Int           = _pptr.useCount
 
 fun isNull(this: !LRef)                  = _pptr.get().isNull
 fun isSet(this: !LRef)                   = _pptr.get().isSet

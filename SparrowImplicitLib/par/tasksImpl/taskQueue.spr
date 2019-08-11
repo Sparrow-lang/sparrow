@@ -26,12 +26,12 @@ fun empty(q: !TaskQueue): Bool
     let lock: ScopedLock(Mutex) = q._mutex
     return q._first isNull
 
-fun size(q: !TaskQueue): SizeType
+fun size(q: !TaskQueue): Int
     let lock: ScopedLock(Mutex) = q._mutex
     return q uncheckedSize
 
-fun uncheckedSize(q: !TaskQueue): SizeType
-    var count: SizeType = 0
+fun uncheckedSize(q: !TaskQueue): Int
+    var count: Int = 0
     var p: TaskPtr = q._first
     while p isSet
         ++count

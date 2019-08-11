@@ -8,11 +8,11 @@ datatype DefaultTypeTraits
 [protected]
     fun equal(this: DefaultTypeTraits, l, r: AnyType) = l == r
     fun less(this: DefaultTypeTraits, l, r: AnyType) = l < r
-    fun hash(this: DefaultTypeTraits, val: AnyType): SizeType
-        [ct] if ( isValid(SizeType(val hash)) )
-            return val hash
-        else [ct] if ( isValid(SizeType(val.get hash)) )
-            return val.get hash
+    fun hash(this: DefaultTypeTraits, val: AnyType): UInt64
+        [ct] if ( isValid(UInt64(val hash)) )
+            return UInt64(val hash)
+        else [ct] if ( isValid(UInt64(val.get hash)) )
+            return UInt64(val.get hash)
         else
             return defaultHash(val)
 

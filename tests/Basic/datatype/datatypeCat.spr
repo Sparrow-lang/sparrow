@@ -4,8 +4,8 @@
 
 [bitcopiable, initCtor]
 datatype Pos
-    x: SizeType
-    y: SizeType
+    x: Int64
+    y: Int64
 
 fun dtor(this: !Pos)
     write('dtor ')
@@ -26,10 +26,10 @@ datatype MyData
     d: Pos tmp
 
 fun ctor(this: !MyData)
-    a.ctor(1,1)
-    b.ctor(2,2)
-    c.ctor(3,3)
-    d.ctor(4,4)
+    a.ctor(1L,1L)
+    b.ctor(2L,2L)
+    c.ctor(3L,3L)
+    d.ctor(4L,4L)
 
 fun dtor(this: !MyData)
     d.dtor
@@ -44,20 +44,20 @@ fun print(this: MyData)
     write(d.x); write(' '); writeLn(d.y)
 
 fun changeWhileConst(this: MyData)
-    //a = Pos(5, 5) // should fail
-    b = Pos(5, 5) // ok, b is mutable
-    //c = Pos(5, 5) // should fail
-    //d = Pos(5, 5) // should fail
+    //a = Pos(5L, 5L) // should fail
+    b = Pos(5L, 5L) // ok, b is mutable
+    //c = Pos(5L, 5L) // should fail
+    //d = Pos(5L, 5L) // should fail
 
     //a.x = 10 // should fail
-    b.x = 10 // ok, b is mutable
+    b.x = 10L // ok, b is mutable
     //c.x = 10 // should fail
     //d.x = 10 // should fail
     
 
 [native("test")] fun test(n: Int)
     var o1: MyData
-    writeLn(sizeOf(SizeType))
+    writeLn(sizeOf(UInt64))
     writeLn(sizeOf(Pos))
     writeLn(sizeOf(o1))
     writeLn('---')

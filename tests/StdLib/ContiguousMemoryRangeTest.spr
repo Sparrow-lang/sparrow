@@ -23,9 +23,9 @@ datatype MyObj
 fun ctor(this: !MyObj, xx: Int)
     x ctor xx
 
-fun createRange(size: SizeType): ContiguousMemoryRange(MyObj)
+fun createRange(size: Int): ContiguousMemoryRange(MyObj)
     var ptr = allocRawPtr(MyObj, size)
-    let ptrEnd = ptr.advance(DiffType(size))
+    let ptrEnd = ptr.advance(size)
     var p = ptr
 
     while (p != ptrEnd) ; p = p.advance()
@@ -33,9 +33,9 @@ fun createRange(size: SizeType): ContiguousMemoryRange(MyObj)
 
     return ContiguousMemoryRange(MyObj)(ptr, ptrEnd);
 
-fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
+fun createRangeAscending(size: Int): ContiguousMemoryRange(MyObj)
     var ptr = allocRawPtr(MyObj, size)
-    let ptrEnd = ptr.advance(DiffType(size))
+    let ptrEnd = ptr.advance(size)
     var i = 0
 
     while i < size ; i = i + 1

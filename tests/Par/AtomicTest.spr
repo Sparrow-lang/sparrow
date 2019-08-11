@@ -11,15 +11,15 @@ import std.compilerInfo
     import test
 
     [native("rand")] fun rand(): Int
-    [native("srand")] fun srand(seed: UInt)
+    [native("srand")] fun srand(seed: Int)
     [native("time")] fun time(timer: !Int): Int
 
     datatype UserDefined
-        lo, hi: Short
+        lo, hi: Int16
 
     fun ctor(this: !UserDefined, val: Int)
-        lo = Short(val % 0xffff)
-        hi = Short(val / 0xffff)
+        lo = Int16(val % 0xffff)
+        hi = Int16(val / 0xffff)
     fun >> (os: OutStream)
         os << "(" << hi << "," << lo << ")"
     fun testOneLoad(t: Type, val: AnyType)
@@ -134,11 +134,11 @@ import std.compilerInfo
 
     fun testAll(count: Int)
         testAll(Int, count)
-        testAll(UInt, count)
-        testAll(Byte, count)
-        testAll(UShort, count)
-        testAll(SizeType, count)
-        testAll(Float, count)
+        testAll(UInt32, count)
+        testAll(Int8, count)
+        testAll(UInt16, count)
+        testAll(UInt64, count)
+        testAll(Float32, count)
         testAll(UserDefined, count)
 
     fun sprMain

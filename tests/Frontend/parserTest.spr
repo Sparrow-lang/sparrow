@@ -117,16 +117,16 @@ fun mkBoolLiteral(this: !MyAstBuilder, loc: !Location, val: Bool) \
     = createNode(loc, "boolLit")
 fun mkIntLiteral(this: !MyAstBuilder, loc: !Location, val: Int) \
     = createNode(loc, "intLit")
-fun mkUIntLiteral(this: !MyAstBuilder, loc: !Location, val: UInt) \
-    = createNode(loc, "uintLit")
-fun mkLongLiteral(this: !MyAstBuilder, loc: !Location, val: Long) \
-    = createNode(loc, "longLit")
-fun mkULongLiteral(this: !MyAstBuilder, loc: !Location, val: ULong) \
-    = createNode(loc, "ulongLit")
-fun mkFloatLiteral(this: !MyAstBuilder, loc: !Location, val: Float) \
-    = createNode(loc, "floatLit")
-fun mkDoubleLiteral(this: !MyAstBuilder, loc: !Location, val: Double) \
-    = createNode(loc, "doubleLit")
+fun mkUIntLiteral(this: !MyAstBuilder, loc: !Location, val: UInt32) \
+    = createNode(loc, "uint32Lit")
+fun mkLongLiteral(this: !MyAstBuilder, loc: !Location, val: Int64) \
+    = createNode(loc, "int64Lit")
+fun mkULongLiteral(this: !MyAstBuilder, loc: !Location, val: UInt64) \
+    = createNode(loc, "uint64Lit")
+fun mkFloatLiteral(this: !MyAstBuilder, loc: !Location, val: Float32) \
+    = createNode(loc, "float32Lit")
+fun mkDoubleLiteral(this: !MyAstBuilder, loc: !Location, val: Float) \
+    = createNode(loc, "float64Lit")
 fun mkCharLiteral(this: !MyAstBuilder, loc: !Location, val: Char) \
     = createNode(loc, "charLit")
 fun mkStringLiteral(this: !MyAstBuilder, loc: !Location, data: StringRef) \

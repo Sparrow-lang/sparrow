@@ -14,8 +14,8 @@ fun f(arg: Int): Int
     cout << 'f(Int) called'
     return arg
 
-fun f(arg: Double): Double
-    cout << 'f(Double) called'
+fun f(arg: Float): Float
+    cout << 'f(Float) called'
     return arg
 
 fun sprMain
@@ -65,7 +65,7 @@ fun test3
     cout << ' => ' << r1 << '\n'
 /*<<< FunctionPtr applied to overloaded function(3)
 f(Int) called => 10
-f(Double) called => 2.71
+f(Float) called => 2.71
 >>>*/
 
 fun test4
@@ -78,6 +78,6 @@ fun test4
     cout << ' => ' << r1 << '\n'
 /*<<< FunctionPtr applied to overloaded function - no parens(4)
 f(Int) called => 10
-f(Double) called => 2.71
+f(Float) called => 2.71
 >>>*/
 

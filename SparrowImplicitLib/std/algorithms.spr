@@ -54,23 +54,23 @@ fun findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(*r)) == Bool
 
 /// Finds the index of the given value in the range
 /// Returns -1 if not found
-fun indexOf(r: Range, value: AnyType): SizeType if isValid(*r == value)
-    let n: !SizeType = 0
+fun indexOf(r: Range, value: AnyType): Int if isValid(*r == value)
+    let n: !Int = 0
     for v: r.RetType = r
         if v == value
             return n
         ++n
-    return SizeType(DiffType(-1))
+    return -1
 
 /// Finds the index of the value that satisfy the given predicate
 /// Returns -1 if not found
-fun indexOfIf(r: Range, pred: AnyType): SizeType if typeOf(pred(*r)) == Bool
-    let n: !SizeType = 0
+fun indexOfIf(r: Range, pred: AnyType): Int if typeOf(pred(*r)) == Bool
+    let n: !Int = 0
     for v: r.RetType = r
         if pred(v)
             return n
         ++n
-    return SizeType(DiffType(-1))
+    return -1
 
 /// Find the first value from r1 that matches any value in r2
 /// Returns the subrange of r1 that starts with that value
@@ -91,16 +91,16 @@ fun findFirstOfIf(r1, r2: Range, pred: AnyType): typeOf(r1) if typeOf(pred(*r1, 
     return r1c
 
 /// Count how many values from the give range has the given value
-fun count(range: Range, value: AnyType): SizeType if isValid(*range == value)
-    let n: !SizeType = 0
+fun count(range: Range, value: AnyType): Int if isValid(*range == value)
+    let n: !Int = 0
     for v: range.RetType = range
         if v == value
             ++n
     return n
 
 /// Count how many values from the given range satisfies the given predicate
-fun countIf(range: Range, pred: AnyType): SizeType if typeOf(pred(*range)) == Bool
-    let n: !SizeType = 0
+fun countIf(range: Range, pred: AnyType): Int if typeOf(pred(*range)) == Bool
+    let n: !Int = 0
     for v: range.RetType = range
         if pred(v)
             ++n
@@ -178,9 +178,9 @@ fun findRangeIf(r1, r2: Range, pred: AnyType): typeOf(r1) if typeOf(pred(*r1, *r
 /// Returns the index of the first occurrence of r2 in r1
 /// Returns -1 if not found
 /// Complexity: O(n^2)
-fun indexOfRange(r1, r2: Range): SizeType if isValid(*r1 == *r2)
+fun indexOfRange(r1, r2: Range): Int if isValid(*r1 == *r2)
     if !r1 || !r2
-        return SizeType(DiffType(-1))
+        return -1
 
     // Special case: r2 has only one value
     var tmp = r2
@@ -196,7 +196,7 @@ fun indexOfRange(r1, r2: Range): SizeType if isValid(*r1 == *r2)
             return idx
         r1c popFront
         ++idx
-    return SizeType(DiffType(-1))
+    return -1
 
 /// Returns the position of the minimum element from the range
 fun minElement(range: Range): typeOf(range) if isValid(*range < *range)
@@ -425,8 +425,8 @@ fun sort(range: RandomAccessRange, pred: AnyType) if typeOf(pred(*range, *range)
         _quickSort(range, 0, rangeSize(range) - 1, pred)
 
 /// Apply quick sort to sort the given range
-fun _quickSort(range: RandomAccessRange, m, n: SizeType)
-    if m >= n || n == SizeType(DiffType(-1))
+fun _quickSort(range: RandomAccessRange, m, n: Int)
+    if m >= n || n == -1
         return
 
     let p = (m + n) / 2
@@ -446,8 +446,8 @@ fun _quickSort(range: RandomAccessRange, m, n: SizeType)
     _quickSort(range, j+1, n)
 
 /// Apply quick sort to sort the given range, according to the given less predicate
-fun _quickSort(range: RandomAccessRange, m, n: SizeType, pred: AnyType)
-    if m >= n || n == SizeType(DiffType(-1))
+fun _quickSort(range: RandomAccessRange, m, n: Int, pred: AnyType)
+    if m >= n || n == -1
         return
 
     let p = (m + n) / 2

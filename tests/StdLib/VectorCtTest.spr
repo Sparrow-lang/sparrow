@@ -15,9 +15,9 @@ fun sprMain
 datatype MyObj
     x: Int
 
-[ct] fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
+[ct] fun createRangeAscending(size: Int): ContiguousMemoryRange(MyObj)
     var ptr = allocRawPtr(MyObj, size)
-    let ptrEnd = ptr.advance(DiffType(size))
+    let ptrEnd = ptr.advance(size)
     var i = 0
 
     while i < size ; i = i + 1
@@ -27,7 +27,7 @@ datatype MyObj
 
     return ContiguousMemoryRange(MyObj)(ptr, ptrEnd)
 
-[ct] fun createVector(size: SizeType): Vector(MyObj)
+[ct] fun createVector(size: Int): Vector(MyObj)
     let v = Vector(MyObj)(createRangeAscending(size))
     return v
 

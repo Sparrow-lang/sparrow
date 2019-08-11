@@ -40,19 +40,19 @@ fun printType(t: Type)
     cout << description(t) << endl
 
 fun test1
-    var x: Double
-    var xr: @Double = x
-    var xrr: @ @Double = xr
+    var x: Float
+    var xr: @Float = x
+    var xrr: @ @Float = xr
 
     printHeader()
     printType(Int)
     printType(Int ct)
     printType(Int rt)
-    printType(Double)
+    printType(Float)
     printType(typeOf(x))
     printType(typeOf(xr))
     printType(typeOf(xrr))
-    printType(Tuple(Int, Double))
+    printType(Tuple(Int, Float))
     printType(Vector(Int))
     printType(typeOf(1 ... 10))
     printType(Number)
@@ -68,11 +68,11 @@ hasStorage  Mode  rt ref  Description
 storage     rt    y  0    Int
 storage     ct    y  0    Int/ct
 storage     rt    y  0    Int
-storage     rt    y  0    Double
-storage     rt    y  0    Double
-storage     rt    y  1    @Double
-storage     rt    y  2    @@Double
-storage     rt    y  0    Tuple[Int, Double]
+storage     rt    y  0    Float
+storage     rt    y  0    Float
+storage     rt    y  1    @Float
+storage     rt    y  2    @@Float
+storage     rt    y  0    Tuple[Int, Float]
 storage     rt    y  0    Vector[Int]
 storage     rt    y  0    NumericRangeInc[Int]
 storage     rt    y  0    #Number
@@ -103,9 +103,9 @@ storage     ct    y  0    Int/ct
 >>>*/
 
 fun test3
-    var x: Double
-    var xr: @Double = x
-    var xrr: @ @Double = xr
+    var x: Float
+    var xr: @Float = x
+    var xrr: @ @Float = xr
 
     printHeader()
     printType(typeOf(x))
@@ -119,19 +119,19 @@ fun test3
 /*<<<Change num references(3)
 hasStorage  Mode  rt ref  Description
 -------------------------------------
-storage     rt    y  0    Double
-storage     rt    y  1    @Double
-storage     rt    y  2    @@Double
+storage     rt    y  0    Float
+storage     rt    y  1    @Float
+storage     rt    y  2    @@Float
 storage     rt    y  0    Int
 storage     rt    y  1    @Int
 storage     rt    y  9    @@@@@@@@@Int
-storage     rt    y  0    Double
+storage     rt    y  0    Float
 >>>*/
 
 fun test4
-    var x: Double
-    var xr: @Double = x
-    var xrr: @ @Double = xr
+    var x: Float
+    var xr: @Float = x
+    var xrr: @ @Float = xr
 
     cout << ife(isRef(Int), "ref", "no ref") << endl
     cout << ife(isRef(@Int), "ref", "no ref") << endl

@@ -9,7 +9,7 @@ using TaskPtr = TaskPrefix Ptr
 datatype TaskPrefix
     //! The function to be called to execute the task (along with its 'this' offset)
     /*private*/ executeFn: FunctionPtr(Null rt, @TaskPrefix)
-    /*private*/ taskOffset: DiffType
+    /*private*/ taskOffset: Int
 
     //! The parent task of this task null for root tasks
     /*private*/ parent: TaskPrefix Ptr

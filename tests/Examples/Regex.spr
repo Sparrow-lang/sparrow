@@ -21,7 +21,7 @@ import precedenceUtils(getOperPrecedence, setOperPrecedence)
 [ct] let testType = 0
 
 fun **(str: StringRef, count: Int): String
-    let sz: SizeType = str.size()
+    let sz = str.size()
     var res: String = sz*count
     for i = 0..count
         memcpy(UntypedPtr(res(i*sz)), UntypedPtr(str.begin), sz);

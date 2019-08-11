@@ -7,25 +7,25 @@ using my_f0 = f0
 
 fun f1(a: Int)
     writeLn('f1(Int)')
-fun f1(a: Double)
-    writeLn('f1(Double)')
+fun f1(a: Float)
+    writeLn('f1(Float)')
 
 using my_f1 = f1
 
 package Inner
     fun g1(a: Int)
         writeLn('Inner.g1(Int)')
-    fun g1(a: Double)
-        writeLn('Inner.g1(Double)')
+    fun g1(a: Float)
+        writeLn('Inner.g1(Float)')
 
 using my_g1 = Inner.g1
 
 using MyInt = Int
 
 package Inner2
-    using MyDouble = Double
+    using MyFloat = Float
 
-using MyDouble = Inner2.MyDouble
+using MyFloat = Inner2.MyFloat
 
 package Inner3
     datatype Gen(t: Type)
@@ -33,9 +33,9 @@ package Inner3
 
     fun print(this: Gen) if this.MyType == Int
         writeLn('Gen(Int)')
-    fun print(this: Gen) if this.MyType == Double
-        writeLn('Gen(Double)')
-    fun print(this: Gen) if this.MyType != Int && this.MyType != Double
+    fun print(this: Gen) if this.MyType == Float
+        writeLn('Gen(Float)')
+    fun print(this: Gen) if this.MyType != Int && this.MyType != Float
         writeLn('Gen(?)')
 
 using MyGen = Inner3.Gen
@@ -71,13 +71,13 @@ fun test(n: Int)
     writeLn('---')
 
     let a: MyInt = 2
-    let b: MyDouble = 3.14
+    let b: MyFloat = 3.14
     my_f1(a)
     my_f1(b)
     writeLn('---')
 
     let g1: MyGen(Int)
-    let g2: MyGen(Double)
+    let g2: MyGen(Float)
     let g3: MyGen(Char)
     g1.print
     g2.print
@@ -85,27 +85,27 @@ fun test(n: Int)
     writeLn('---')
 
     let gg1: MyG(Int)
-    let gg2: MyG(Int, Double)
+    let gg2: MyG(Int, Float)
     gg1.print
     gg2.print
 
 /*<<<Running()
 f0
 f1(Int)
-f1(Double)
+f1(Float)
 Inner.g1(Int)
-Inner.g1(Double)
+Inner.g1(Float)
 ---
 f1(Int)
-f1(Double)
+f1(Float)
 ---
 Gen(Int)
-Gen(Double)
+Gen(Float)
 Gen(?)
 ---
 Gen1
 f1(Int)
 Gen2
 f1(Int)
-f1(Double)
+f1(Float)
 >>>*/

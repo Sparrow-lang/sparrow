@@ -44,7 +44,7 @@ fun sprMain
     testRegular(o2)
 /*<<<Running()
 Int is Regular
-Double is Regular
+Float is Regular
 NullType is Regular
 MyType is Regular
 EmptyType is not Regular

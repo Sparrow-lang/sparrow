@@ -76,13 +76,13 @@ fun allocIntPtr1(): IntPtr
     p.ptr := reinterpretCast(@Int, malloc(sizeOf(Int)))
     return p
 fun freeIntPtr1(p: IntPtr)
-    free(reinterpretCast(@Byte, p.ptr))
+    free(reinterpretCast(@Int8, p.ptr))
 
 package _Impl0
     datatype FunctionPtr0(resT: Type)
         using arity = 0
         using ResT = resT
-        _funPtr: @Byte
+        _funPtr: @Int8
 
     [native("$funptr")] fun _doCall(this: !FunctionPtr0): ResT
     fun ()(this: !FunctionPtr0): ResT = this._doCall()

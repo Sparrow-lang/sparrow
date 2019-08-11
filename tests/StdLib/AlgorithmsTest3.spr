@@ -97,9 +97,9 @@ fun makeList(li: !List(Int))
     // }
 // }
 
-fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
+fun createRangeAscending(size: Int): ContiguousMemoryRange(Int)
     var ptr = allocRawPtr(Int, size)
-    let ptrEnd = ptr.advance(DiffType(size))
+    let ptrEnd = ptr.advance(size)
     var i = 0
 
     while i < size ; i = i + 1

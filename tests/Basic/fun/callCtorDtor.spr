@@ -58,7 +58,7 @@ fun dtor(this: !Pair)
         var p: @MyObj = reinterpretCast(@MyObj, mallocRt(sizeOf(MyObj)))
         p.ctor(10)
         p.dtor()
-        free(reinterpretCast(@Byte, p))
+        free(reinterpretCast(@Int8, p))
     ;
 
 /*<<<Running()

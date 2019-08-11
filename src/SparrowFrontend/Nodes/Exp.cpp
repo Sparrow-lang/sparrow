@@ -305,10 +305,10 @@ NodeHandle checkSizeOf(NodeHandle node) {
     t = Feather::removeCategoryIfPresent(t);
 
     // Get the size of the type of the argument
-    uint64_t size = Nest_sizeOf(t);
+    int size = Nest_sizeOf(t);
 
     // Create a CtValue to hold the size
-    return Feather_mkCtValueT(node.location(), StdDef::typeSizeType, &size);
+    return Feather_mkCtValueT(node.location(), StdDef::typeInt, &size);
 }
 
 NodeHandle checkTypeOf(NodeHandle node) {

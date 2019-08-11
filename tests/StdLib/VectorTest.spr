@@ -49,7 +49,8 @@ fun sprMain
             return true
     }) ~ "vector's copy constructor (Data); no copy ctor"
 
-    forAll(SizeType) check (fun sz: Bool {
+    forAll(UInt16) check (fun szu16: Bool {
+            let sz: Int = szu16
             var vec: Vec = sz
             if ( vec.size != sz ) return false
             for i = 0..sz
@@ -261,9 +262,9 @@ fun arbitrary(t: Type): TestRange Gen if t == TestRange
     return mkGen(t, \generateTestRange)
 
 //! Generate an arbitrary vector
-fun generateVec(sizeHint: UInt): Vec
+fun generateVec(sizeHint: Int): Vec
     var res: Vec
-    var h: Int = sizeHint + 5
+    var h = sizeHint + 5
     var size = randBetween(0, h)
     res.resize(size)
     for i = 0..size
@@ -271,8 +272,8 @@ fun generateVec(sizeHint: UInt): Vec
     return res
 
 //! Generate an arbitrary test range
-fun generateTestRange(sizeHint: UInt): TestRange
-    var h: Int = sizeHint + 3
+fun generateTestRange(sizeHint: Int): TestRange
+    var h = sizeHint + 3
     var size = randBetween(0, h+1)
 
     // Allocate a buffer of memory to hold the values
@@ -288,13 +289,13 @@ fun generateTestRange(sizeHint: UInt): TestRange
 
 datatype SubrangeTestData
     vec: Vec
-    start, count: SizeType
+    start, count: Int
 
 fun >>(this: SubrangeTestData, os: !OutStream)
     os << vec << ", start=" << start << ", count=" << count
 
 fun arbitrary(t: Type): SubrangeTestData Gen if t == SubrangeTestData
-    return mkGen(SubrangeTestData, (fun (sizeHint: UInt): SubrangeTestData {
+    return mkGen(SubrangeTestData, (fun (sizeHint: Int): SubrangeTestData {
         var res: SubrangeTestData
         res.vec = generateVec(sizeHint)
         res.count = randBetween(0, res.vec.size)
@@ -305,14 +306,14 @@ fun arbitrary(t: Type): SubrangeTestData Gen if t == SubrangeTestData
 
 datatype InsertValueTestData
     vec: Vec
-    idx: SizeType
+    idx: Int
     value: Int
 
 fun >>(this: InsertValueTestData, os: !OutStream)
     os << vec << ", idx=" << idx << ", value=" << value
 
 fun arbitrary(t: Type): InsertValueTestData Gen if t == InsertValueTestData
-    return mkGen(InsertValueTestData, (fun (sizeHint: UInt): InsertValueTestData {
+    return mkGen(InsertValueTestData, (fun (sizeHint: Int): InsertValueTestData {
         var res: InsertValueTestData
         res.vec = generateVec(sizeHint)
         res.idx = randBetween(0, res.vec.size)
@@ -322,14 +323,14 @@ fun arbitrary(t: Type): InsertValueTestData Gen if t == InsertValueTestData
 
 datatype InsertRangeTestData
     vec: Vec
-    idx: SizeType
+    idx: Int
     values: Vec
 
 fun >>(this: InsertRangeTestData, os: !OutStream)
     os << vec << ", idx=" << idx << ", values=" << values
 
 fun arbitrary(t: Type): InsertRangeTestData Gen if t == InsertRangeTestData
-    return mkGen(InsertRangeTestData, (fun (sizeHint: UInt): InsertRangeTestData {
+    return mkGen(InsertRangeTestData, (fun (sizeHint: Int): InsertRangeTestData {
         var res: InsertRangeTestData
         res.vec = generateVec(sizeHint)
         res.idx = randBetween(0, res.vec.size)
@@ -354,6 +355,6 @@ var copyCtorCnt = 0
 fun arbitrary(t: Type): DataVec Gen if t == DataVec
     return mkGen(DataVec, \generateDataVec)
 
-fun generateDataVec(sizeHint: UInt): DataVec
+fun generateDataVec(sizeHint: Int): DataVec
     return DataVec(generateVec(sizeHint).all map (fun x = Data(x)))
 

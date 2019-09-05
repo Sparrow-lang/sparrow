@@ -169,6 +169,7 @@ Simple/Ackermann.spr:                   Simple problems - Ackermann function
 
 Frontend/Smoke.spr:                     Frontend - grammar smoke test
 Frontend/Identifiers.spr:               Frontend - identifiers
+Frontend/Numbers.spr:                   Frontend - numbers
 Frontend/Operators.spr:                 Frontend - operators
 Frontend/PrefixPostfix.spr:             Frontend - prefix & postfix operators
 Frontend/StringAndDsl.spr:              Frontend - string and DSL

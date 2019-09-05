@@ -369,7 +369,7 @@ package _Impl
             _src advance 2
             _curToken.intData = consumeDigits(_src, 2, _curToken.data)
         else if ch == '0'.char && ch2 == 'o'.char
-            _src advance 1
+            _src advance 2
             _curToken.intData = consumeDigits(_src, 8, _curToken.data)
         else
             // At this point we assume we are not parsing a floating point number
@@ -395,6 +395,11 @@ package _Impl
                         ch = toLower(*_src)
                         if ch == 'e'.char
                             this advanceAndCapture1
+                            // exponent sign
+                            ch = *_src
+                            if ch == '+'.char || ch == '-'.char
+                                this advanceAndCapture1
+                            // exponent number
                             this advanceAndCaptureDigit \isDigit
 
                     // Suffix for floats -- don't capture these

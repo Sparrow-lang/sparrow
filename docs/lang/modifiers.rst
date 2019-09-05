@@ -94,10 +94,10 @@ Semantics
         [ct] fun addRef(t: Type): Type // function is available only at compile-time
 
         [ct]
-        if sizeOf(t) <= sizeOf(Int)
-            var storage: Int
+        if sizeOf(t) <= sizeOf(Int32)
+            var storage: Int32
         else
-            var storage: Long
+            var storage: Int64
         // Depending on the size of 't', this will create different 'storage' variables
 
         [ct]

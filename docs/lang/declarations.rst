@@ -119,7 +119,7 @@ There are two main forms of declaring datatypes: an explicit one, and a simple o
 
     datatype MyType
         x: Int
-        y: Double
+        y: Float
         name: String
         using BaseType = Int
 
@@ -129,7 +129,7 @@ The simple form of declaring datatypes is illustrated by the following example:
 ::
 
     datatype Type1 = Int
-    datatype Type2 = Int*Double // Pair of Int & Double
+    datatype Type2 = Int*Float // Pair of Int & Float
 
 This is a shortcut for the following code:
 ::
@@ -137,7 +137,7 @@ This is a shortcut for the following code:
     datatype Type1
         data: Int
     datatype Type2
-        data: Int*Double
+        data: Int*Float
 
 In addition to this, the compiler will also generate a constructor that can covert the type given after ``=`` to the new type.
 

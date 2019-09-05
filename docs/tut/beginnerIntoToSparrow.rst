@@ -64,7 +64,7 @@ An important concept of imperative programming languages is the variable. A vari
     var m: Int = 15
     var f: Float = 0.3
     var greet = "Hello, world!"
-    var k: Long
+    var k: Int64
     var p1, p2, p3: String
 
 When declaring a variable one needs to supply the name of the new variable (or variables), an optional type, and an optional initial value. It is not possible to have a variable definition that lacks both the type and the initial value. If the variable receives an initial value without a type, the type of the value will be taken from the initializer. If the variable does not have an initial value, the variable will be *default constructed* (more precisely, the default constructor will be called for the variable); this assures that the variable is initialized.
@@ -104,36 +104,15 @@ Basic types
 
 In Sparrow, any value, variable, or expression needs to have a well defined type. A type determines the way a value can be encoded in the system's memory and what operations are valid for that variable.
 
-The standard library defines a series of integer types: ``Byte``, ``UByte``, ``Short``, ``UShort``, ``Int``, ``UInt``, ``Long`` and ``ULong`` of sizes 8, 16, 32 and 64 bits, signed and unsigned. Two additional integer types are defined to contain at least as many bits as a pointer:  ``SizeType`` and ``DiffType``; the first one is unsigned and the second one is a signed type. To represent floating point numbers, the language defines the types ``Float`` (32 bits) and ``Double`` (64 bits).
+The standard library defines ``Int`` as the main type to be used for storing signed integers; it has 32 bits. For better control, it also defines ``Int8``, ``UInt8``, ``Int16``, ``UInt16``, ``Int32``, ``UInt32``, ``Int64``, ``UInt64``; as their name implies, these cover both signed and unsigned, of sizez 8, 16, 32 and 64 bit. ``Int`` and ``Int32`` are aliases.
+
+To represent floating point numbers, the language defines the type ``Float``; this is 64 bit. For better control, the language also defines ``Float32`` and ``Float64``. In this case too, ``Float`` is an alias to ``Float64``.
 
 To represent booleans the language defines the ``Bool`` type. To represent characters we have the ``Char`` type. In Sparrow, strings use UTF-8 encoding, so setting the ``Char`` to 8 bits is an obvious choice.
 
 In the most basic form, strings can be represented as a ``StringRef`` type. This just refers to the string, but does not hold ownership of the string data. To use a string with ownership of data, one can use the ``String`` type. String literals have the type ``StringRef``, but there is an implicit conversion between a ``StringRef`` and ``String``.
 
-Certain implicit conversions (called *type coercions*) can be made between these types. An integer type can always be converted into an integer type of a larger size. An unsigned type can be converted into a signed type of the same size, and vice-versa. Any integer type can be implicitly converted into a floating point type.
-
-Here are some implicit conversion examples:
-
-::
-
-    var b: Byte = 1
-    var ub: UByte = 2
-    var i: Int = 3
-    var ui: UInt = 4
-    var l: Long = 5
-    var f: Float = 3.14f
-    var d: Double = 3.14159265359
-
-    i = b      // OK: Byte -> Int
-    i = ub     // OK: UByte -> Int
-    ui = i     // OK: Int -> UInt
-    i = ui     // OK: UInt -> Int
-    // b = i   // ERROR: cannot convert wider to narrower type
-    f = l      // OK: Long -> Float
-    d = b      // OK: Byte -> Double
-
-
-Note that some of these conversions can loose precision (e.g., large integers to floating points), and sometimes can even dramatically change the actual value (negative number to unsigned or large number to signed). The user must be careful when performing such conversions. As the benefits provided by these conversions are typically more significant than the drawbacks, they are allowed.
+Sparrow does not allow implicit conversion (called *type coercions*) between numeric types. However, explicit conversions can be made between any numeric types. With the assumption that most of the times ``Int`` will be used for integers and ``Float`` for floating-points, having implicit conversions has more downsides than positives.
 
 References
 ----------
@@ -291,7 +270,7 @@ So far, we have shown function definitions that operate on concrete data types. 
     fun sum(x, y: Numeric) = x+y;
 
 
-The ``Numeric`` name refers to a *concept* defined in the standard library that accepts any numeric type (e.g., ``Int``, ``ULong``, ``Double``).
+The ``Numeric`` name refers to a *concept* defined in the standard library that accepts any numeric type (e.g., ``Int``, ``UInt64``, ``Float``).
 
 There is a special concept in Sparrow called ``AnyType`` that is compatible with any type. Here is an example of a function that prints to the console the value given as parameter:
 
@@ -301,10 +280,10 @@ There is a special concept in Sparrow called ``AnyType`` that is compatible with
         cout << x << endl
 
     writeLn(10);                    // prints an Int value
-    writeLn(3.14);                  // prints a Double value
+    writeLn(3.14);                  // prints a Float value
     writeLn("Pretty cool, huh?");   // prints a StringRef value
 
-Both the ``sum`` function above and this ``writeLn`` function are generics, template functions, just like C++ template functions. This means, that the compiler will actually generate three ``writeLn`` functions for the three instantiations shown here: one with a ``Int`` parameter, one with a ``Double`` parameter, and one with a ``StringRef`` parameter. All these three functions will be compiled independently of each other.
+Both the ``sum`` function above and this ``writeLn`` function are generics, template functions, just like C++ template functions. This means, that the compiler will actually generate three ``writeLn`` functions for the three instantiations shown here: one with a ``Int`` parameter, one with a ``Float`` parameter, and one with a ``StringRef`` parameter. All these three functions will be compiled independently of each other.
 
 In cases where all parameters are ``AnyType``, the parentheses and the type specifications can be omitted:
 
@@ -378,7 +357,7 @@ Defining an operator is very similar to defining a function. Here is an example 
 
 ::
 
-    fun **(x: Double, p: Int): Double
+    fun **(x: Float, p: Int): Float
         var res = 1.0
         for i = 0..p
             res *= x
@@ -568,15 +547,15 @@ All the parameters to a datatype need to be compile-time. For example, a datatyp
 
 ::
 
-    var p1: Pair(Int, Float)             // call default constructor
-    var p2 = Pair(Int, Double)(1, 3.14)  // call initialization constructor
+    var p1: Pair(Int, Float32)             // call default constructor
+    var p2 = Pair(Int, Float)(1, 3.14)  // call initialization constructor
     p1.first = 10
     p1.second = 2.34
     cout << "(" << p2.first << ", " << p2.second << ")" << endl
 
 On the first line we are telling the compiler that ``t1`` is ``Int`` and ``t2`` is ``Float``, and we ask it to instantiate a ``Pair`` with these two types. This is not a constructor call, it's a generic instantiation.
 
-On the second line, we ask the compiler to generate another type, one that is parameterized with valued ``Int`` and ``Double``. But this, time, after specifying the parameter values for the generic, we are specifying arguments for a constructor call (``1`` and ``3.14``).
+On the second line, we ask the compiler to generate another type, one that is parameterized with valued ``Int`` and ``Float32``. But this, time, after specifying the parameter values for the generic, we are specifying arguments for a constructor call (``1`` and ``3.14``).
 
 In our case, we haven't manually created a constructor associated with our generic datatype. But, we specified the ``[initCtor]`` modifier. This will tell the compiler to generate a constructor withe the right number of parameters to initialize all the fields.
 

@@ -77,7 +77,7 @@ Defining operators
 Defining an operator is identical to defining a regular function. Example:
 ::
 
-    datatype Complex {re, im: Double}
+    datatype Complex {re, im: Float}
     fun + (x, y: Complex) = Complex(x.re+y.re, x.im+y.im)
     fun - (x: Complex) = Complex(-x.re, -x.im)
 
@@ -208,7 +208,7 @@ Whenever the compiler needs to know the associativity of an operator ``<op>`` it
 Example of using precedence and associativity for a new operator:
 ::
 
-    fun **(x, y: Double)     = Math.pow(x, y)
+    fun **(x, y: Float)      = Math.pow(x, y)
     using oper_precedence_** = 1 + oper_precedence_* // higher precedence than multiplication
     using oper_assoc_**      = -1                    // right associativity
 

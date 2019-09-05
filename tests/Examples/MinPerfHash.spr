@@ -37,15 +37,21 @@ package _Impl
 
     [ct] let hashSeed: UInt32 = -1
 
-    /// FNV hash generator
-    fun doHash(key: StringRef, start: UInt32): UInt32
-        var hash = start
-        for i = 0..key.size()
-            hash = (hash !^! UInt32(Int8(key(i)))) * 0x01000193U;
-        //cout << "Hash(" << key << ", " << start << ")=" << hash << "\n";
-        return hash;
-    fun doHash(value, start: UInt32): UInt32
-        return (start !^! value) * 0x01000193U;
+/// FNV hash generator
+fun _doHash(key: StringRef, start: UInt32): UInt32
+    var hash = start
+    for i = 0..key.size()
+        hash = (hash !^! UInt32(Int8(key(i)))) * 0x01000193U;
+    //cout << "Hash(" << key << ", " << start << ")=" << hash << "\n";
+    return hash;
+fun _doHash(value, start: UInt32): UInt32
+    return (start !^! value) * 0x01000193U;
+
+fun _hashMod(key: StringRef, start: UInt32, numBuckets: Int): Int
+    return Int(_doHash(key, start) % UInt32(numBuckets))
+
+fun _hashMod(value, start: UInt32, numBuckets: Int): Int
+    return Int(_doHash(value, start) % UInt32(numBuckets))
 
 datatype MinPerfHash
     displacements: Array(Int)
@@ -71,7 +77,7 @@ fun ctor(this: !MinPerfHash, keys: !Vector(String), extraSpace: Float)
     // Split the keys into buckets
     for key: @AnyType = keys.all()
         //cout << "Key: " << key.asStringRef() << "\n";
-        let pos = Int(_Impl.doHash(key.asStringRef(), _Impl.hashSeed)) % numBuckets
+        let pos = _hashMod(key.asStringRef(), _Impl.hashSeed, numBuckets)
         keysToBuckets(pos).pushBack(key.asStringRef())
 
     // Sort the buckets in failing order according to their size
@@ -95,7 +101,7 @@ fun ctor(this: !MinPerfHash, keys: !Vector(String), extraSpace: Float)
         // keys in this bucket without conflicts with keys from previous buckets.
         var item = 0
         while item < bucket.size()
-            let slot: Int = Int(_Impl.doHash(bucket(item), UInt32(d))) % numValues
+            let slot = _hashMod(bucket(item), UInt32(d),  numValues)
             let slotAlreadyUsed = !find(slots.all(), slot).isEmpty()
             ++numOp
             if ( placedKeys.testBit(slot) || slotAlreadyUsed )
@@ -113,7 +119,7 @@ fun ctor(this: !MinPerfHash, keys: !Vector(String), extraSpace: Float)
         // This is guaranteed to finish quickly
 
         // We found a displacement that works for the current bucket (it doesn't yield overlaps with previous buckets)
-        displacements(Int(_Impl.doHash(bucket(0), _Impl.hashSeed)) % numBuckets) = d
+        displacements(_hashMod(bucket(0), _Impl.hashSeed, numBuckets)) = d
         for i=0..bucket.size()
             placedKeys.setBit(slots(i));
 
@@ -130,7 +136,7 @@ fun ctor(this: !MinPerfHash, keys: !Vector(String), extraSpace: Float)
             ++emptySlot;
 
         // We subtract one to ensure it's negative even if the zero-th slot was used.
-        displacements(Int(_Impl.doHash(bucket(0), _Impl.hashSeed)) % numBuckets) = -emptySlot-1
+        displacements(_hashMod(bucket(0), _Impl.hashSeed, numBuckets)) = -emptySlot-1
         placedKeys.setBit(emptySlot)
 
     //_dumpBuckets("buckets final, ", keysToBuckets);
@@ -146,9 +152,9 @@ fun ctorFromCt(this: !MinPerfHash, src: MinPerfHash ct)
 
 fun search(this: !MinPerfHash, key: StringRef): Int
     // Get the displacement from the table...
-    let d = displacements(Int(_Impl.doHash(key, _Impl.hashSeed)) % displacements.size())
+    let d = displacements(_hashMod(key, _Impl.hashSeed, displacements.size()))
     // If the displacement is negative, directly return; otherwise compute the final hash
-    return ife(d<0, Int(-d-1), Int(_Impl.doHash(key, UInt32(d))) % numValues)
+    return ife(d<0, Int(-d-1), _hashMod(key, UInt32(d), numValues))
 
 fun ()(this: !MinPerfHash, key: StringRef) = this.search(key)
 

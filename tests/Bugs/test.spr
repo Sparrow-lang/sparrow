@@ -1,0 +1,12 @@
+//!!
+
+// Test purpose: make sure we are not using files from std lib
+
+import std.ranges
+
+fun sprMain
+    cout << 'OK\n'
+
+/*<<<Running()
+OK
+>>>*/

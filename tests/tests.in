@@ -56,6 +56,7 @@ Bugs/VectorOfCtClass.spr:               Bugs - vectors of CT-only classes
 Bugs/WhileVarCond.spr:                  Bugs - while condition is a variable or a reference
 Bugs/GenericWithCtConcept.spr:          Bugs - generic with CT concept
 Bugs/CastOnAssignment.spr:              Bugs - cast on assignment
+Bugs/test.spr:                          Bugs - using local files instead of std lib ones
 
 # AlgoProblems/P1_Collatz.spr:            Algo problems - P1. Collatz sequences
 Examples/Power.spr:                     Examples: Powers

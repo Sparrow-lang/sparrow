@@ -178,19 +178,21 @@ Nest_SourceCode* _handleImport(const ImportInfo& import) {
         }
     }
 
-    // Test to see if the file is relative to some of the import paths
-    for (const string& importPath : _settings.importPaths_) {
-        ImportInfo importRel = import;
-        importRel.filename_ = path(importPath) / p;
-        res = _handleImportFile(importRel);
-        if (res.first)
-            return res.second;
-    }
-
     // Test to see if the file is relative to the current path
     ImportInfo importRel = import;
     importRel.filename_ = _curPath / p;
     res = _handleImportFile(importRel);
+
+    // Test to see if the file is relative to some of the import paths
+    if (!res.first) {
+        for (const string& importPath : _settings.importPaths_) {
+            ImportInfo importRel = import;
+            importRel.filename_ = path(importPath) / p;
+            res = _handleImportFile(importRel);
+            if (res.first)
+                return res.second;
+        }
+    }
 
     if (!res.first)
         REP_ERROR(NOLOC, "Cannot find input file: %1%") % import.filename_.string();

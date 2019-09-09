@@ -17,7 +17,7 @@ fun access
 
     assign(a.x, 3) // ERROR
     assign(b.x, 5)
-    assign(c.x, 7)
+    assign(c.x, 7) // ERROR
 
 [native("test")]
 fun test(n: Int)

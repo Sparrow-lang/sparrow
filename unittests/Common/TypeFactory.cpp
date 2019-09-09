@@ -108,14 +108,14 @@ Gen<TypeWithStorage> arbTypeWithStorage(EvalMode mode, int minRef, int maxRef) {
 
 Gen<TypeWithStorage> arbBasicStorageType(EvalMode mode, int minRef, int maxRef) {
     int weightDataType = 5;
-    int weightConstType = minRef == 0 ? 0 : 3;
-    int weightMutableType = minRef == 0 ? 0 : 3;
+    int weightConstType = maxRef == 0 ? 0 : 3;
+    int weightMutableType = maxRef == 0 ? 0 : 3;
     int weightTempType = 1;
     return gen::weightedOneOf<TypeWithStorage>({
             {weightDataType, gen::cast<TypeWithStorage>(arbDataType(mode, minRef, maxRef))},
-            {weightConstType, gen::cast<TypeWithStorage>(arbConstType(mode, minRef, maxRef))},
-            {weightMutableType, gen::cast<TypeWithStorage>(arbMutableType(mode, minRef, maxRef))},
-            {weightTempType, gen::cast<TypeWithStorage>(arbTempType(mode, minRef, maxRef))},
+            {weightConstType, gen::cast<TypeWithStorage>(arbConstType(mode, std::min(minRef, 1), maxRef))},
+            {weightMutableType, gen::cast<TypeWithStorage>(arbMutableType(mode, std::min(minRef, 1), maxRef))},
+            {weightTempType, gen::cast<TypeWithStorage>(arbTempType(mode, std::min(minRef, 1), maxRef))},
     });
 }
 

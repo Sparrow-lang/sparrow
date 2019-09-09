@@ -16,72 +16,58 @@ using oper_precedence_!<<! = bitOperPrecedence+30
 using oper_precedence_!>>! = bitOperPrecedence+30
 
 [autoCt]
-    [native("_bit_neg_8")] fun pre_!~!(n: Byte): Byte
-    [native("_bit_shl_8")] fun !<<!(n, k: Byte): Byte
-    [native("_bit_ashr_8")] fun !>>!(n, k: Byte): Byte
-    [native("_bit_xor_8")] fun !^!(n1, n2: Byte): Byte
-    [native("_bit_or_8")] fun !|!(n1, n2: Byte): Byte
-    [native("_bit_and_8")] fun !&!(n1, n2: Byte): Byte
+    [native("_bit_neg_8")] fun pre_!~!(n: Int8): Int8
+    [native("_bit_shl_8")] fun !<<!(n, k: Int8): Int8
+    [native("_bit_ashr_8")] fun !>>!(n, k: Int8): Int8
+    [native("_bit_xor_8")] fun !^!(n1, n2: Int8): Int8
+    [native("_bit_or_8")] fun !|!(n1, n2: Int8): Int8
+    [native("_bit_and_8")] fun !&!(n1, n2: Int8): Int8
 
-    [native("_bit_neg_8")] fun pre_!~!(n: UByte): UByte
-    [native("_bit_shl_8")] fun !<<!(n, k: UByte): UByte
-    [native("_bit_lshr_8")] fun !>>!(n, k: UByte): UByte
-    [native("_bit_xor_8")] fun !^!(n1, n2: UByte): UByte
-    [native("_bit_or_8")] fun !|!(n1, n2: UByte): UByte
-    [native("_bit_and_8")] fun !&!(n1, n2: UByte): UByte
+    [native("_bit_neg_8")] fun pre_!~!(n: UInt8): UInt8
+    [native("_bit_shl_8")] fun !<<!(n, k: UInt8): UInt8
+    [native("_bit_lshr_8")] fun !>>!(n, k: UInt8): UInt8
+    [native("_bit_xor_8")] fun !^!(n1, n2: UInt8): UInt8
+    [native("_bit_or_8")] fun !|!(n1, n2: UInt8): UInt8
+    [native("_bit_and_8")] fun !&!(n1, n2: UInt8): UInt8
 
-    [native("_bit_neg_16")] fun pre_!~!(n: Short): Short
-    [native("_bit_shl_16")] fun !<<!(n, k: Short): Short
-    [native("_bit_ashr_16")] fun !>>!(n, k: Short): Short
-    [native("_bit_xor_16")] fun !^!(n1, n2: Short): Short
-    [native("_bit_or_16")] fun !|!(n1, n2: Short): Short
-    [native("_bit_and_16")] fun !&!(n1, n2: Short): Short
+    [native("_bit_neg_16")] fun pre_!~!(n: Int16): Int16
+    [native("_bit_shl_16")] fun !<<!(n, k: Int16): Int16
+    [native("_bit_ashr_16")] fun !>>!(n, k: Int16): Int16
+    [native("_bit_xor_16")] fun !^!(n1, n2: Int16): Int16
+    [native("_bit_or_16")] fun !|!(n1, n2: Int16): Int16
+    [native("_bit_and_16")] fun !&!(n1, n2: Int16): Int16
 
-    [native("_bit_neg_16")] fun pre_!~!(n: UShort): UShort
-    [native("_bit_shl_16")] fun !<<!(n, k: UShort): UShort
-    [native("_bit_lshr_16")] fun !>>!(n, k: UShort): UShort
-    [native("_bit_xor_16")] fun !^!(n1, n2: UShort): UShort
-    [native("_bit_or_16")] fun !|!(n1, n2: UShort): UShort
-    [native("_bit_and_16")] fun !&!(n1, n2: UShort): UShort
+    [native("_bit_neg_16")] fun pre_!~!(n: UInt16): UInt16
+    [native("_bit_shl_16")] fun !<<!(n, k: UInt16): UInt16
+    [native("_bit_lshr_16")] fun !>>!(n, k: UInt16): UInt16
+    [native("_bit_xor_16")] fun !^!(n1, n2: UInt16): UInt16
+    [native("_bit_or_16")] fun !|!(n1, n2: UInt16): UInt16
+    [native("_bit_and_16")] fun !&!(n1, n2: UInt16): UInt16
 
-    [native("_bit_neg_32")] fun pre_!~!(n: Int): Int
-    [native("_bit_shl_32")] fun !<<!(n, k: Int): Int
-    [native("_bit_ashr_32")] fun !>>!(n, k: Int): Int
-    [native("_bit_xor_32")] fun !^!(n1, n2: Int): Int
-    [native("_bit_or_32")] fun !|!(n1, n2: Int): Int
-    [native("_bit_and_32")] fun !&!(n1, n2: Int): Int
+    [native("_bit_neg_32")] fun pre_!~!(n: Int32): Int32
+    [native("_bit_shl_32")] fun !<<!(n, k: Int32): Int32
+    [native("_bit_ashr_32")] fun !>>!(n, k: Int32): Int32
+    [native("_bit_xor_32")] fun !^!(n1, n2: Int32): Int32
+    [native("_bit_or_32")] fun !|!(n1, n2: Int32): Int32
+    [native("_bit_and_32")] fun !&!(n1, n2: Int32): Int32
 
-    [native("_bit_neg_32")] fun pre_!~!(n: UInt): UInt
-    [native("_bit_shl_32")] fun !<<!(n, k: UInt): UInt
-    [native("_bit_lshr_32")] fun !>>!(n, k: UInt): UInt
-    [native("_bit_xor_32")] fun !^!(n1, n2: UInt): UInt
-    [native("_bit_or_32")] fun !|!(n1, n2: UInt): UInt
-    [native("_bit_and_32")] fun !&!(n1, n2: UInt): UInt
+    [native("_bit_neg_32")] fun pre_!~!(n: UInt32): UInt32
+    [native("_bit_shl_32")] fun !<<!(n, k: UInt32): UInt32
+    [native("_bit_lshr_32")] fun !>>!(n, k: UInt32): UInt32
+    [native("_bit_xor_32")] fun !^!(n1, n2: UInt32): UInt32
+    [native("_bit_or_32")] fun !|!(n1, n2: UInt32): UInt32
+    [native("_bit_and_32")] fun !&!(n1, n2: UInt32): UInt32
 
-    [native("_bit_neg_64")] fun pre_!~!(n: Long): Long
-    [native("_bit_shl_64")] fun !<<!(n, k: Long): Long
-    [native("_bit_ashr_64")] fun !>>!(n, k: Long): Long
-    [native("_bit_xor_64")] fun !^!(n1, n2: Long): Long
-    [native("_bit_or_64")] fun !|!(n1, n2: Long): Long
-    [native("_bit_and_64")] fun !&!(n1, n2: Long): Long
+    [native("_bit_neg_64")] fun pre_!~!(n: Int64): Int64
+    [native("_bit_shl_64")] fun !<<!(n, k: Int64): Int64
+    [native("_bit_ashr_64")] fun !>>!(n, k: Int64): Int64
+    [native("_bit_xor_64")] fun !^!(n1, n2: Int64): Int64
+    [native("_bit_or_64")] fun !|!(n1, n2: Int64): Int64
+    [native("_bit_and_64")] fun !&!(n1, n2: Int64): Int64
 
-    [native("_bit_neg_64")] fun pre_!~!(n: ULong): ULong
-    [native("_bit_shl_64")] fun !<<!(n, k: ULong): ULong
-    [native("_bit_lshr_64")] fun !>>!(n, k: ULong): ULong
-    [native("_bit_xor_64")] fun !^!(n1, n2: ULong): ULong
-    [native("_bit_or_64")] fun !|!(n1, n2: ULong): ULong
-    [native("_bit_and_64")] fun !&!(n1, n2: ULong): ULong
-
-    [native("_bit_neg_64")] fun pre_!~!(n: SizeType): SizeType
-    [native("_bit_shl_64")] fun !<<!(n, k: SizeType): SizeType
-    [native("_bit_ashr_64")] fun !>>!(n, k: SizeType): SizeType
-    [native("_bit_xor_64")] fun !^!(n1, n2: SizeType): SizeType
-    [native("_bit_or_64")] fun !|!(n1, n2: SizeType): SizeType
-    [native("_bit_and_64")] fun !&!(n1, n2: SizeType): SizeType
-
-    [native("_bit_neg_64")] fun pre_!~!(n: DiffType): DiffType
-    [native("_bit_shl_64")] fun !<<!(n, k: DiffType): DiffType
-    [native("_bit_lshr_64")] fun !>>!(n, k: DiffType): DiffType
-    [native("_bit_xor_64")] fun !^!(n1, n2: DiffType): DiffType
-    [native("_bit_or_64")] fun !|!(n1, n2: DiffType): DiffType
-    [native("_bit_and_64")] fun !&!(n1, n2: DiffType): DiffType
+    [native("_bit_neg_64")] fun pre_!~!(n: UInt64): UInt64
+    [native("_bit_shl_64")] fun !<<!(n, k: UInt64): UInt64
+    [native("_bit_lshr_64")] fun !>>!(n, k: UInt64): UInt64
+    [native("_bit_xor_64")] fun !^!(n1, n2: UInt64): UInt64
+    [native("_bit_or_64")] fun !|!(n1, n2: UInt64): UInt64
+    [native("_bit_and_64")] fun !&!(n1, n2: UInt64): UInt64

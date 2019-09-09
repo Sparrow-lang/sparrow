@@ -331,13 +331,15 @@ bool ConvertServiceImpl::adjustReferences(ConversionResult& res, TypeWithStorage
         removeCat, // category -> plain
     };
 
+    // clang-format off
     constexpr ConvType conversions[4][4] = {
-            {direct, addCat, none, none},         // from plain
-            {removeCat, direct, none, none},      // from const
-            {removeCat, catCast, direct, none},   // from mutable
-            {removeCat, catCast, catCast, direct} // from temp
+            {direct,    addCat,  none,    addCat},  // from plain
+            {removeCat, direct,  none,    none},    // from const
+            {removeCat, catCast, direct,  none},    // from mutable
+            {removeCat, catCast, none,    direct}   // from temp
     };
-    //  to:  plain,     const,  mutable, temp
+    // to:   plain,     const,   mutable, temp
+    // clang-format on
 
     int srcIdx = typeKindToIndex(src.kind());
     int destIdx = typeKindToIndex(destKind);

@@ -56,6 +56,7 @@ Bugs/VectorOfCtClass.spr:               Bugs - vectors of CT-only classes
 Bugs/WhileVarCond.spr:                  Bugs - while condition is a variable or a reference
 Bugs/GenericWithCtConcept.spr:          Bugs - generic with CT concept
 Bugs/CastOnAssignment.spr:              Bugs - cast on assignment
+Bugs/test.spr:                          Bugs - using local files instead of std lib ones
 
 # AlgoProblems/P1_Collatz.spr:            Algo problems - P1. Collatz sequences
 Examples/Power.spr:                     Examples: Powers
@@ -106,8 +107,6 @@ Basic/SameName.spr:                     Basic features - Class, function, var wi
 Basic/CtFun.spr:                        Basic features - CT functions
 Basic/CtFactorial.spr:                  Basic features - CT factorial
 Basic/CtIf.spr:                         Basic features - CT if
-Basic/Operators.spr:                    Basic features - Operators
-Basic/Convert.spr:                      Basic features - Conversions
 Basic/GeneratedCtorDtor.spr:            Basic features - Generated ctor dtor
 Basic/CtorDtor.spr:                     Basic features - Object constructors & destructors
 Basic/StaticCtorDtor.spr:               Basic features - Static constructors & destructors
@@ -121,12 +120,6 @@ Basic/IfClause.spr:                     Basic features - If clause
 Basic/Auto.spr:                         Basic features - Auto
 Basic/String.spr:                       Basic features - String
 Basic/ValueToRef.spr:                   Basic features - Value to reference
-Basic/CallCtorDtor.spr:                 Basic features - Call ctor & dtor
-Basic/TypeTraits.spr:                   Basic features - Type traits
-Basic/Overload.spr:                     Basic features - Overload
-Basic/FunExp.spr:                       Basic features - Expression functions
-Basic/FunSyntax.spr:                    Basic features - Function syntax
-Basic/DefaultParam.spr:                 Basic features - Default parameters
 Basic/Concepts.spr:                     Basic features - Concepts
 Basic/CtToRt.spr:                       Basic features - CT to RT for basic types
 Basic/CtToRtErr.spr:                    Basic features - CT to RT for basic types - errors
@@ -134,7 +127,6 @@ Basic/CtToRtComplex.spr:                Basic features - CT to RT for complex ty
 Basic/ImplicitFunCall.spr:              Basic features - Implicit function call, without parenthesis
 Basic/CompDefines.spr:                  Basic features - Compiler defines
 Basic/This.spr:                         Basic features - This
-Basic/CallOperator.spr:                 Basic features - Call operator
 Basic/DependentTypes.spr:               Basic features - Dependent types
 Basic/Using.spr:                        Basic features - Using directives
 Basic/datatype/syntax.spr:              Basic features - datatype - various syntaxes
@@ -145,9 +137,21 @@ Basic/datatype/initCtor.spr:            Basic features - datatype - initCtor
 Basic/datatype/bitcopiable.spr:         Basic features - datatype - bitcopiable
 Basic/datatype/queryBitcopiable.spr:    Basic features - datatype - query bitcopiable
 Basic/datatype/autoBitcopiable.spr:     Basic features - datatype - auto bitcopiable
+Basic/datatype/datatypeCat.spr:         Basic features - datatype - categories in datatype
 Basic/exp/dotOper.spr:                  Basic features - expressions - dot operator
 Basic/vars/typeCatVarsErr.spr:          Basic features - vars - type cat variables (err)
 Basic/vars/typeCatFieldsErr.spr:        Basic features - vars - type cat fields (err)
+Basic/fun/overloadBasic.spr:            Basic features - fun - Overload (basic)
+Basic/fun/overloadCat.spr:              Basic features - fun - Overload on type categories
+Basic/fun/callCtorDtor.spr:             Basic features - fun - Call ctor & dtor
+Basic/fun/callOperator.spr:             Basic features - fun - Call operator
+Basic/fun/defaultParam.spr:             Basic features - fun - Default parameters
+Basic/fun/funExp.spr:                   Basic features - fun - Expression functions
+Basic/fun/funSyntax.spr:                Basic features - fun - Function syntax
+Basic/fun/operators.spr:                Basic features - fun - Operators
+Basic/types/typeTraits.spr:             Basic features - types - Type traits
+Basic/types/temp.spr:                   Basic features - types - temp types
+Basic/types/returnsTemp.spr:            Basic features - types - Functions return temp types
 
 Imports/ImportTwice.spr:                Import twice the same file
 Imports/ImportComplex.spr:              Import a complex hierarchy of files, some of them twice
@@ -166,6 +170,7 @@ Simple/Ackermann.spr:                   Simple problems - Ackermann function
 
 Frontend/Smoke.spr:                     Frontend - grammar smoke test
 Frontend/Identifiers.spr:               Frontend - identifiers
+Frontend/Numbers.spr:                   Frontend - numbers
 Frontend/Operators.spr:                 Frontend - operators
 Frontend/PrefixPostfix.spr:             Frontend - prefix & postfix operators
 Frontend/StringAndDsl.spr:              Frontend - string and DSL

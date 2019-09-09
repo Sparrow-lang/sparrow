@@ -3,8 +3,8 @@ module par.atomic
 import config
 import "atomic.llvm"
 
-using AtomicInt = Atomic(Int)
-using AtomicLong = Atomic(Long)
+using AtomicInt32 = Atomic(Int32)
+using AtomicInt64 = Atomic(Int64)
 
 concept AtomicType(x) if x._IsAtomicType
 concept AtomicInteger(x) if x._IsAtomicType && Integer(#$x.ValueType)
@@ -27,26 +27,26 @@ datatype Atomic(T: Type) if sizeOf(T) <= 8
     fun =(this: !AtomicType, val: this.ValueType) = this store val
 
     //! Loads the value from an atomic; returns a non-atomic value
-    [native("_Atomic_load32")] fun load(this: AtomicInt const): Int
-    [native("_Atomic_load64")] fun load(this: AtomicLong const): Long
+    [native("_Atomic_load32")] fun load(this: AtomicInt32 const): Int32
+    [native("_Atomic_load64")] fun load(this: AtomicInt64 const): Int64
     fun load(this: NonStdAtomicType): ValueType \
         = this._fromUnderlying(this._baseAtomic load)
 
     //! Stores a value inside the given atomic
-    [native("_Atomic_store32")] fun store(this: !AtomicInt, newVal: Int)
-    [native("_Atomic_store64")] fun store(this: !AtomicLong, newVal: Long)
+    [native("_Atomic_store32")] fun store(this: !AtomicInt32, newVal: Int32)
+    [native("_Atomic_store64")] fun store(this: !AtomicInt64, newVal: Int64)
     fun store(this: !NonStdAtomicType, newVal: AnyType)
         this._baseAtomic store this._toUnderlying(newVal)
 
     //! Fetches the current value of an atomic, and stores a new value in the atomic
-    [native("_Atomic_fetchAndStore32")] fun fetchAndStore(x: !AtomicInt, newVal: Int): Int
-    [native("_Atomic_fetchAndStore64")] fun fetchAndStore(x: !AtomicLong, newVal: Long): Long
+    [native("_Atomic_fetchAndStore32")] fun fetchAndStore(x: !AtomicInt32, newVal: Int32): Int32
+    [native("_Atomic_fetchAndStore64")] fun fetchAndStore(x: !AtomicInt64, newVal: Int64): Int64
     fun fetchAndStore(x: !NonStdAtomicType, newVal: AnyType): x.ValueType \
         = x._fromUnderlying(x._baseAtomic fetchAndStore x._toUnderlying(newVal))
 
     //! Fetch the value of the atomic, and then add the given value to it
-    [native("_Atomic_fetchAndAdd32")] fun fetchAndAdd(x: !AtomicInt, val: Int): Int
-    [native("_Atomic_fetchAndAdd64")] fun fetchAndAdd(x: !AtomicLong, val: Long): Long
+    [native("_Atomic_fetchAndAdd32")] fun fetchAndAdd(x: !AtomicInt32, val: Int32): Int32
+    [native("_Atomic_fetchAndAdd64")] fun fetchAndAdd(x: !AtomicInt64, val: Int64): Int64
     fun fetchAndAdd(x: !NonStdAtomicType, val: AnyType): x.ValueType \
         = x._fromUnderlying(x._baseAtomic fetchAndAdd x._toUnderlying(val)) \
         if Integer(#$x.ValueType)
@@ -82,8 +82,8 @@ datatype Atomic(T: Type) if sizeOf(T) <= 8
     fun _baseAtomic(this: Atomic): @Atomic(_UnderlyingType) = reinterpretCast(@Atomic(_UnderlyingType), this)
 
 //! Compare the atomic value with the given comparand; if equal store 'newVal' and return true; if not equal returns false
-[native("_Atomic_compareAndSwap32")] fun compareAndSwap(x: !AtomicInt, newVal, comparand: Int): Bool
-[native("_Atomic_compareAndSwap64")] fun compareAndSwap(x: !AtomicLong, newVal, comparand: Long): Bool
+[native("_Atomic_compareAndSwap32")] fun compareAndSwap(x: !AtomicInt32, newVal, comparand: Int32): Bool
+[native("_Atomic_compareAndSwap64")] fun compareAndSwap(x: !AtomicInt64, newVal, comparand: Int64): Bool
 fun compareAndSwap(x: !NonStdAtomicType, newVal, comparand: AnyType): Bool \
     = compareAndSwap(x._baseAtomic, x._toUnderlying(newVal), x._toUnderlying(comparand))
 
@@ -95,6 +95,6 @@ fun asAtomic(val: !AnyType): @Atomic(-@typeOf(val)) if sizeOf(val) == sizeOf(Ato
 
 package _Impl
     datatype AtomicTypeTraits(T: Type) if sizeOf(T) <= 4
-        using _UnderlyingType = Int
+        using _UnderlyingType = Int32
     datatype AtomicTypeTraits(T: Type) if sizeOf(T) == 8
-        using _UnderlyingType = Long
+        using _UnderlyingType = Int64

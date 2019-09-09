@@ -3,7 +3,7 @@ module par.config
 import std.ptr
 
 [bitcopiable]
-datatype NativeThreadHandle = Byte Ptr  // Opaque type
+datatype NativeThreadHandle = Int8 Ptr  // Opaque type
 
 fun >>(h: NativeThreadHandle, os: !OutStream)
     if ( h.impl.isSet )
@@ -15,13 +15,13 @@ using InvalidThreadHandle = NativeThreadHandle()
 
 //! Get the number of available logical CPU cores for our process
 //! This dictates how much parallelism we have to be exploit
-fun getAvailableCoresNum(): UInt
-    let maxProcs: Long = _Impl.sysconf(_Impl._SC_NPROCESSORS_ONLN)
-    return ife(maxProcs<1, UInt(1), UInt(maxProcs))
+fun getAvailableCoresNum(): Int
+    let maxProcs: Int = _Impl.sysconf(_Impl._SC_NPROCESSORS_ONLN)
+    return ife(maxProcs<1, 1, maxProcs)
     // TODO: also consider process affinity
 
 package _Impl
     using _SC_NPROCESSORS_ONLN = 58
 
-    [native("sysconf")] fun sysconf(name: Int): Long
+    [native("sysconf")] fun sysconf(name: Int): Int64
 

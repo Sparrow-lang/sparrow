@@ -135,6 +135,10 @@ Type getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
 } // namespace
 
 Type SprFrontend::commonType(CompilationContext* context, Type t1, Type t2) {
+    // Remove categories
+    t1 = removeCategoryIfPresent(t1);
+    t2 = removeCategoryIfPresent(t2);
+
     // Check if the types are the same
     if (t1 == t2)
         return t1;

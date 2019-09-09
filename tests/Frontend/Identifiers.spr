@@ -1,11 +1,11 @@
 module Ids
 
-fun pow(x,y: Double) = 1
-fun **(x,y: Double) = 2
-fun !@#$%^&*(x,y: Double) = 3
-fun <>(x,y: Double) = 4
-fun ::(x,y: Double) = 5
-fun a_::(x,y: Double) = 6
+fun pow(x,y: Int) = 1
+fun **(x,y: Int) = 2
+fun !@#$%^&*(x,y: Int) = 3
+fun <>(x,y: Int) = 4
+fun ::(x,y: Int) = 5
+fun a_::(x,y: Int) = 6
 
 fun sprMain
     cout << pow(1,2) << endl

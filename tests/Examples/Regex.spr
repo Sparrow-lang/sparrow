@@ -21,7 +21,7 @@ import precedenceUtils(getOperPrecedence, setOperPrecedence)
 [ct] let testType = 0
 
 fun **(str: StringRef, count: Int): String
-    let sz: SizeType = str.size()
+    let sz = str.size()
     var res: String = sz*count
     for i = 0..count
         memcpy(UntypedPtr(res(i*sz)), UntypedPtr(str.begin), sz);
@@ -181,7 +181,7 @@ datatype NfaFragment
     start: Ptr(NfaState)                   ///< Start state of the NFA frament
     outPtrChain: OutPtrList  ///< Chain of out-pointers for this fragment that need to be set to the next state
 
-fun ctor(this: !NfaFragment, start: Ptr(NfaState), outPtrChain: !OutPtrList)
+fun ctor(this: !NfaFragment, start: Ptr(NfaState), outPtrChain: OutPtrList)
     this.start ctor start
     this.outPtrChain ctor outPtrChain
 

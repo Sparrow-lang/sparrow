@@ -21,7 +21,7 @@ datatype CharSource
     readCharsFn: FunctionPtr(VoidType, UntypedPtr, !String, Int)
 
 concept CharSourceType(x) \
-    if isValid(x.readChars(StringRef(), 0))
+    if isValid(TypeOp.copyVal(x).readChars(tmpToMut(String()), 0))
 
 fun mkCharSource(obj: !CharSourceType): CharSource
     var res: CharSource
@@ -87,11 +87,11 @@ datatype AstBuilder
     mkNullLiteralFn:    FunctionPtr(Node, UntypedPtr, Location const)
     mkBoolLiteralFn:    FunctionPtr(Node, UntypedPtr, Location const, Bool)
     mkIntLiteralFn:     FunctionPtr(Node, UntypedPtr, Location const, Int)
-    mkUIntLiteralFn:    FunctionPtr(Node, UntypedPtr, Location const, UInt)
-    mkLongLiteralFn:    FunctionPtr(Node, UntypedPtr, Location const, Long)
-    mkULongLiteralFn:   FunctionPtr(Node, UntypedPtr, Location const, ULong)
-    mkFloatLiteralFn:   FunctionPtr(Node, UntypedPtr, Location const, Float)
-    mkDoubleLiteralFn:  FunctionPtr(Node, UntypedPtr, Location const, Double)
+    mkUIntLiteralFn:    FunctionPtr(Node, UntypedPtr, Location const, UInt32)
+    mkLongLiteralFn:    FunctionPtr(Node, UntypedPtr, Location const, Int64)
+    mkULongLiteralFn:   FunctionPtr(Node, UntypedPtr, Location const, UInt64)
+    mkFloatLiteralFn:   FunctionPtr(Node, UntypedPtr, Location const, Float32)
+    mkDoubleLiteralFn:  FunctionPtr(Node, UntypedPtr, Location const, Float)
     mkCharLiteralFn:    FunctionPtr(Node, UntypedPtr, Location const, Char)
     mkStringLiteralFn:  FunctionPtr(Node, UntypedPtr, Location const, StringRef)
 
@@ -207,15 +207,15 @@ fun mkBoolLiteral(obj: !AstBuilder, loc: Location, val: Bool): Node
     return obj.mkBoolLiteralFn(obj.userData, loc, val)
 fun mkIntLiteral(obj: !AstBuilder, loc: Location, val: Int): Node
     return obj.mkIntLiteralFn(obj.userData, loc, val)
-fun mkUIntLiteral(obj: !AstBuilder, loc: Location, val: UInt): Node
+fun mkUIntLiteral(obj: !AstBuilder, loc: Location, val: UInt32): Node
     return obj.mkUIntLiteralFn(obj.userData, loc, val)
-fun mkLongLiteral(obj: !AstBuilder, loc: Location, val: Long): Node
+fun mkLongLiteral(obj: !AstBuilder, loc: Location, val: Int64): Node
     return obj.mkLongLiteralFn(obj.userData, loc, val)
-fun mkULongLiteral(obj: !AstBuilder, loc: Location, val: ULong): Node
+fun mkULongLiteral(obj: !AstBuilder, loc: Location, val: UInt64): Node
     return obj.mkULongLiteralFn(obj.userData, loc, val)
-fun mkFloatLiteral(obj: !AstBuilder, loc: Location, val: Float): Node
+fun mkFloatLiteral(obj: !AstBuilder, loc: Location, val: Float32): Node
     return obj.mkFloatLiteralFn(obj.userData, loc, val)
-fun mkDoubleLiteral(obj: !AstBuilder, loc: Location, val: Double): Node
+fun mkDoubleLiteral(obj: !AstBuilder, loc: Location, val: Float): Node
     return obj.mkDoubleLiteralFn(obj.userData, loc, val)
 fun mkCharLiteral(obj: !AstBuilder, loc: Location, val: Char): Node
     return obj.mkCharLiteralFn(obj.userData, loc, val)

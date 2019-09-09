@@ -21,7 +21,7 @@ fun sprMain
     for val: Int = r2
         cout << ' ' << val;
     cout << endl
-    for val: Byte = r2
+    for val: Int8 = r2
         cout << ' ' << Int(val);
     cout << endl
 

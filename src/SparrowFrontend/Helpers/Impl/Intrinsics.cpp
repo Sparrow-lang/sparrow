@@ -178,10 +178,10 @@ NodeHandle impl_convertsTo(CompilationContext* context, const Location& loc, Nod
 NodeHandle impl_staticBuffer(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
 
-    size_t size = getSizeTypeCtValue(args[0]);
+    int size = getIntCtValue(args[0]);
 
-    if (size > numeric_limits<size_t>::max())
-        REP_ERROR_RET(nullptr, loc, "Size of static buffer is too large");
+    if (size < 0)
+        REP_ERROR_RET(nullptr, loc, "Size of static buffer is negative (%1%)") % size;
 
     Type arrType = Feather_getArrayType(StdDef::typeByte, (size_t)size);
     return createTypeNode(context, loc, arrType);

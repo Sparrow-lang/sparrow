@@ -13,16 +13,16 @@ import std.compilerInfo
     using cutoff = 16
     //using cutoff = 30
 
-    fun serialFib(n: Long): Long
-        return ife(n<2, n, serialFib(n-1)+serialFib(n-2))
+    fun serialFib(n: Int): Int64
+        return ife(n<2, Int64(n), serialFib(n-1)+serialFib(n-2))
 
     package StackSpawnStyle
         datatype FibTask
             prefix: TaskPrefix
-            n: Long
-            result: @Long
+            n: Int
+            result: @Int64
 
-        fun ctor(this: !FibTask, n: Long, result: @Long)
+        fun ctor(this: !FibTask, n: Int, result: @Int64)
             this.n ctor n
             this.result := result
             [ct] if isValidAndTrue(useDescriptions)
@@ -39,7 +39,7 @@ import std.compilerInfo
                 task.result = serialFib(task.n)
             else
                 // Create the children tasks
-                var x, y: Long
+                var x, y: Int64
                 let t1 = FibTask(task.n-1, x)
                 let t2 = FibTask(task.n-2, y)
 
@@ -48,18 +48,18 @@ import std.compilerInfo
                 // Do the sum
                 task.result = x + y
 
-        fun parFib(n: Long): Long
-            var res: Long
-            spawnRootAndWait(FibTask(n, res))
+        fun parFib(n: Int): Int64
+            var res: Int64
+            spawnRootAndWait(tmpToMut(FibTask(n, res)))
             return res
 
     package DynSpawnStyle
         datatype FibTask
             prefix: TaskPrefix
-            n: Long
-            result: @Long
+            n: Int
+            result: @Int64
 
-        fun ctor(this: !FibTask, n: Long, result: @Long)
+        fun ctor(this: !FibTask, n: Int, result: @Int64)
             this.n ctor n
             this.result := result
 
@@ -74,7 +74,7 @@ import std.compilerInfo
                 task.result = serialFib(task.n)
             else
                 // Create the children tasks
-                var x, y: Long
+                var x, y: Int64
                 var t1: @FibTask = new(FibTask, task.n-1, x)
                 var t2: @FibTask = new(FibTask, task.n-2, y)
 
@@ -86,18 +86,18 @@ import std.compilerInfo
                 // Do the sum
                 task.result = x + y
 
-        fun parFib(n: Long): Long
-            var res: Long
-            spawnRootAndWait(FibTask(n, res))
+        fun parFib(n: Int): Int64
+            var res: Int64
+            spawnRootAndWait(tmpToMut(FibTask(n, res)))
             return res
 
     package ContStyle
         datatype FibTask
             prefix: TaskPrefix
-            n: Long
-            result: Long Ptr
+            n: Int
+            result: Int64 Ptr
 
-        fun ctor(this: !FibTask, n: Long, result: Long Ptr)
+        fun ctor(this: !FibTask, n: Int, result: Int64 Ptr)
             this.n ctor n
             this.result ctor result
 
@@ -114,17 +114,17 @@ import std.compilerInfo
                 var cont: @FibContTask = new(FibContTask, task.n, task.result)
                 setContinuation(task, cont)
 
-                var t1: @FibTask = new(FibTask, task.n-1, (Long Ptr)(cont.s1))
-                var t2: @FibTask = new(FibTask, task.n-2, (Long Ptr)(cont.s2))
+                var t1: @FibTask = new(FibTask, task.n-1, (Int64 Ptr)(cont.s1))
+                var t2: @FibTask = new(FibTask, task.n-2, (Int64 Ptr)(cont.s2))
                 spawn(cont, t1, t2)
 
         datatype FibContTask
             prefix: TaskPrefix
-            n: Long
-            s1, s2: Long
-            result: Long Ptr
+            n: Int
+            s1, s2: Int64
+            result: Int64 Ptr
 
-        fun ctor(this: !FibContTask, n: Long, result: Long Ptr)
+        fun ctor(this: !FibContTask, n: Int, result: Int64 Ptr)
             this.n ctor n
             this.result ctor result
 
@@ -137,9 +137,9 @@ import std.compilerInfo
         fun execute(task: !FibContTask)
             task.result.get = task.s1 + task.s2
 
-        fun parFib(n: Long): Long
-            var res: Long
-            spawnRootAndWait(FibTask(n, (Long Ptr)(res)))
+        fun parFib(n: Int): Int64
+            var res: Int64
+            spawnRootAndWait(tmpToMut(FibTask(n, (Int64 Ptr)(res))))
             return res
 
     fun sprMain
@@ -148,7 +148,7 @@ import std.compilerInfo
         var style = programArgs(1) asInt
         var n = programArgs(2) asInt
 
-        var res: Long
+        var res: Int64
 
         if style == 0
             res = serialFib(n)

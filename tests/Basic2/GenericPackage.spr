@@ -22,7 +22,7 @@ package GenPackage(t: Type)
 fun sprMain
     // Instantiate two packages by calling functions from there
     GenPackage(Int).printLine
-    GenPackage(Double).printLine
+    GenPackage(Float).printLine
 
     // Instantiate another one with an using
     using MyCharPackage = GenPackage(Char)
@@ -31,18 +31,18 @@ fun sprMain
     var f: FunctionPtr(StringRef rt)
     f = \(GenPackage(Int).getType)
     cout << f() << endl
-    f = \(GenPackage(Double).getType)
+    f = \(GenPackage(Float).getType)
     cout << f() << endl
     f = \(MyCharPackage.getType)
     cout << f() << endl
 
 /*<<<Ranges of ranges, with generic fun-ptr passed to map()
 TypePrint.ctor Int
-TypePrint.ctor Double
+TypePrint.ctor Float
 TypePrint.ctor Char
 ---
 ---
 Int
-Double
+Float
 Char
 >>>*/

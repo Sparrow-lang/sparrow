@@ -1,0 +1,92 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+
+// Test purpose: datatypes with cat-type fields
+
+[bitcopiable, initCtor]
+datatype Pos
+    x: Int64
+    y: Int64
+
+fun dtor(this: !Pos)
+    write('dtor ')
+    write(x)
+    write(' ')
+    writeLn(y)
+
+fun mutableOp(this: !Pos)
+    write('mutableOp ')
+    write(x)
+    write(' ')
+    writeLn(y)
+
+datatype MyData
+    a: Pos
+    b: !Pos
+    c: Pos const
+    d: Pos tmp
+
+fun ctor(this: !MyData)
+    a.ctor(1L,1L)
+    b.ctor(2L,2L)
+    c.ctor(3L,3L)
+    d.ctor(4L,4L)
+
+fun dtor(this: !MyData)
+    d.dtor
+    c.dtor
+    b.dtor
+    a.dtor
+
+fun print(this: MyData)
+    write(a.x); write(' '); writeLn(a.y)
+    write(b.x); write(' '); writeLn(b.y)
+    write(c.x); write(' '); writeLn(c.y)
+    write(d.x); write(' '); writeLn(d.y)
+
+fun changeWhileConst(this: MyData)
+    //a = Pos(5L, 5L) // should fail
+    b = Pos(5L, 5L) // ok, b is mutable
+    //c = Pos(5L, 5L) // should fail
+    //d = Pos(5L, 5L) // should fail
+
+    //a.x = 10 // should fail
+    b.x = 10L // ok, b is mutable
+    //c.x = 10 // should fail
+    //d.x = 10 // should fail
+    
+
+[native("test")] fun test(n: Int)
+    var o1: MyData
+    writeLn(sizeOf(UInt64))
+    writeLn(sizeOf(Pos))
+    writeLn(sizeOf(o1))
+    writeLn('---')
+    o1 changeWhileConst
+    writeLn('---')
+    o1.a mutableOp
+    o1.b mutableOp
+    //o1.c mutableOp
+    o1.d mutableOp
+    writeLn('---')
+    o1 print
+
+/*<<<Running()
+8
+16
+64
+---
+dtor 5 5
+---
+mutableOp 1 1
+mutableOp 10 5
+mutableOp 4 4
+---
+1 1
+10 5
+3 3
+4 4
+dtor 4 4
+dtor 3 3
+dtor 10 5
+dtor 1 1
+>>>*/

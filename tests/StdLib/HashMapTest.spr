@@ -12,9 +12,9 @@ datatype IntWrapper
 [convert]
 fun ctor(this: !IntWrapper, x: Int) { this.x ctor x; }
 
-fun hash(this: IntWrapper): SizeType
+fun hash(this: IntWrapper): UInt64
     cout << "IntWrapper.hash called for value " << x << endl
-    return x
+    return UInt64(x)
 
 [convert]
 datatype IntWithNoHash
@@ -28,9 +28,9 @@ datatype MyTypeTraits
 
 fun equal(this: MyTypeTraits, l, r: IntWithNoHash) = l == r
 fun less(this: MyTypeTraits, l, r: IntWithNoHash) = l.x < r.x
-fun hash(this: MyTypeTraits, val: IntWithNoHash): SizeType
+fun hash(this: MyTypeTraits, val: IntWithNoHash): UInt64
     cout << "MyTypeTraits.hash called for value " << val.x << endl
-    return val.x
+    return UInt64(val.x)
 
 fun sprMain
     if ( programArgs.size() < 2 )

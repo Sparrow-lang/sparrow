@@ -204,6 +204,7 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
     CHECK(loc, constructAction->nodeKind == nkFeatherExpFunCall);
     Node* funCall = constructAction;
     CHECK(loc, Nest_nodeArraySize(funCall->children) != 0);
+    bool varRefGiven = varRef != nullptr;
     if (!varRef) {
         varRef = Feather_mkVarRef(loc, var);
         Nest_setContext(varRef, context);
@@ -219,8 +220,12 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
             destructAction = Feather_mkTempDestructAction(loc, dtorCall);
     }
 
+    // Make sure the resulting type is temp
+    Node* tmpVarRef = varRefGiven ? varRef
+                                  : static_cast<Nest_Node*>(
+                                            Feather::VarRefExp::create(loc, var, typeKindTemp));
     Node* res =
-            Feather_mkNodeList(loc, fromIniList({var, constructAction, destructAction, varRef}));
+            Feather_mkNodeList(loc, fromIniList({var, constructAction, destructAction, tmpVarRef}));
     Nest_setContext(res, context);
     if (!Nest_computeType(res))
         return nullptr;

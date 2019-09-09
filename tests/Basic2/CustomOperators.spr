@@ -4,7 +4,8 @@ import math = math
 import precedenceUtils(setOperPrecedence, getOperPrecedence, setOperRightAssociativity)
 
 package Pred
-    fun **(base, exp: Float) = math.pow(base, exp)
+    fun **(base, exp: Float32) = math.pow(base, exp)
+    fun **(base, exp: Int) = Int(math.pow(Float32(base), Float32(exp)))
 
     setOperPrecedence("**", getOperPrecedence("*") + 1)
     setOperRightAssociativity("**")

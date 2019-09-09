@@ -1,15 +1,15 @@
 //!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
-fun abs(x: Double): Double
+fun abs(x: Float): Float
     if ( x < 0.0 )
         return -x
     else
         return x
 
-fun poly3(a, b, c, d, x: Double): Double
+fun poly3(a, b, c, d, x: Float): Float
     return a * x * x * x + b * x * x + c * x + d
 
-fun secantMethod(a, b, c, d, x1, x2, err: Double): Double
-    var t, p1, p2: Double
+fun secantMethod(a, b, c, d, x1, x2, err: Float): Float
+    var t, p1, p2: Float
 
     while abs(poly3(a, b, c, d, x2)) > err
         p2 = poly3(a, b, c, d, x2)
@@ -21,8 +21,8 @@ fun secantMethod(a, b, c, d, x1, x2, err: Double): Double
     return t
 
 [native("test")] fun test(n: Int)
-    writeLnDouble(secantMethod(0.0, 1.0, 0.0, -612.0, 10.0, 30.0, 0.001))
-    writeLnDouble(secantMethod(1.0, 2.0, 3.0, 4.0, -10.0, 10.0, 0.00001))
+    writeLnFloat(secantMethod(0.0, 1.0, 0.0, -612.0, 10.0, 30.0, 0.001))
+    writeLnFloat(secantMethod(1.0, 2.0, 3.0, 4.0, -10.0, 10.0, 0.00001))
 
 /*<<<Running()
 24.7386

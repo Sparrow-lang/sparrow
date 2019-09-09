@@ -1,9 +1,9 @@
 //!!
 
 concept Regular(x) if (
-       isValid(TypeOp.removeCat(typeOf(x))())  // Default construction
-    && isValid(TypeOp.removeCat(typeOf(x))(x)) // Copy construction
-    && isValid(TypeOp.removeCat(typeOf(x))().dtor())  // Destruction
+       isValid(TypeOp.copyVal(x).ctor())  // Default construction
+    && isValid(TypeOp.copyVal(x).ctor(x)) // Copy construction
+    && isValid(TypeOp.copyVal(x).dtor())  // Destruction
     && typeOf(x == x) == Bool               // Equality is defined
     )
 
@@ -44,7 +44,7 @@ fun sprMain
     testRegular(o2)
 /*<<<Running()
 Int is Regular
-Double is Regular
+Float is Regular
 NullType is Regular
 MyType is Regular
 EmptyType is not Regular

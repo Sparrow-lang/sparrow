@@ -43,7 +43,7 @@ import std.compilerInfo
                 lastCounter = cnt
             if doPrint
                 cout << message << ": i=" << i << "; cnt=" << cnt << endl
-            sleep(10)
+            sleepMs(10)
 
     fun test1
         cout << getAvailableCoresNum() << endl
@@ -58,7 +58,7 @@ import std.compilerInfo
         var cnt1, cnt2: Int
         var t1 = Thread(TwiddleThumbs("worker 1", count, cnt1, true))
         var t2 = Thread(TwiddleThumbs("worker 2", count, cnt2, true))
-        sleep(50)
+        sleepMs(50)
         cout << "After creating the threads" << endl
         t1 join
         t2 join
@@ -69,7 +69,7 @@ import std.compilerInfo
         var cnt1, cnt2: Int
         var t1 = Thread(TwiddleThumbs("worker 1", count, cnt1))
         var t2 = Thread(TwiddleThumbs("worker 2", count, cnt2))
-        sleep(50)
+        sleepMs(50)
         t1 join
         t2 join
 

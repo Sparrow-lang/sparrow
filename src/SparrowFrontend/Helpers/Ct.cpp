@@ -85,6 +85,3 @@ int SprFrontend::getIntCtValue(Node* val) { return evalValue<int>(val, StdDef::t
 char* SprFrontend::getByteRefCtValue(Node* val) {
     return evalValue<char*>(val, StdDef::typeRefByte);
 }
-size_t SprFrontend::getSizeTypeCtValue(Node* val) {
-    return evalValue<size_t>(val, StdDef::typeSizeType);
-}

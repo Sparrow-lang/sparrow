@@ -17,7 +17,7 @@ import os = os
 // - 3 = perf test
 [ct] let testType = 0
 [ct] let keysFilename = "words-full"
-[ct] let maxKeys: UInt = 1000
+[ct] let maxKeys: Int = 1000
 
 [ct] let startKeysNum = 10000
 [ct] let endKeysNum = 260000
@@ -30,38 +30,44 @@ import os = os
 //      let numbers: Vector(Int) = enum(1,2,3,4,5,6,7);
 // TODO (Vlad): Use this hash function instead of what we're using
 
-[native("rand")] fun rand(): UInt
+[native("rand")] fun rand(): UInt32
 
 package _Impl
-    [ct] let keysPerBucket: UInt = 4
+    [ct] let keysPerBucket: Int = 4
 
-    [ct] let hashSeed: UInt = -1
+    [ct] let hashSeed: UInt32 = -1
 
-    /// FNV hash generator
-    fun doHash(key: StringRef, start: UInt): UInt
-        var hash = start
-        for i = 0..key.size()
-            hash = (hash !^! Byte(key(i))) * 0x01000193;
-        //cout << "Hash(" << key << ", " << start << ")=" << hash << "\n";
-        return hash;
-    fun doHash(value, start: UInt): UInt
-        return (start !^! value) * 0x01000193;
+/// FNV hash generator
+fun _doHash(key: StringRef, start: UInt32): UInt32
+    var hash = start
+    for i = 0..key.size()
+        hash = (hash !^! UInt32(Int8(key(i)))) * 0x01000193U;
+    //cout << "Hash(" << key << ", " << start << ")=" << hash << "\n";
+    return hash;
+fun _doHash(value, start: UInt32): UInt32
+    return (start !^! value) * 0x01000193U;
+
+fun _hashMod(key: StringRef, start: UInt32, numBuckets: Int): Int
+    return Int(_doHash(key, start) % UInt32(numBuckets))
+
+fun _hashMod(value, start: UInt32, numBuckets: Int): Int
+    return Int(_doHash(value, start) % UInt32(numBuckets))
 
 datatype MinPerfHash
     displacements: Array(Int)
-    numKeys: UInt
-    numValues: UInt
+    numKeys: Int
+    numValues: Int
 
 fun ctor(this: !MinPerfHash, keys: !Vector(String))
     this.ctor(keys, defaultHashExtraSpace);
 
-fun ctor(this: !MinPerfHash, keys: !Vector(String), extraSpace: Double)
+fun ctor(this: !MinPerfHash, keys: !Vector(String), extraSpace: Float)
     this.numKeys ctor keys.size()
-    this.numValues ctor numKeys+UInt(numKeys*extraSpace)
+    this.numValues ctor numKeys+Int(Float(numKeys)*extraSpace)
     var keysPerBucket = _Impl.keysPerBucket
     while (keysPerBucket*keysPerBucket) > numKeys
         keysPerBucket /= 2;
-    let numBuckets = (numKeys-1)/keysPerBucket + UInt(1)
+    let numBuckets = (numKeys-1)/keysPerBucket + 1
     this.displacements.ctor(numBuckets, 0)
 
     var numOp = 0
@@ -71,14 +77,14 @@ fun ctor(this: !MinPerfHash, keys: !Vector(String), extraSpace: Double)
     // Split the keys into buckets
     for key: @AnyType = keys.all()
         //cout << "Key: " << key.asStringRef() << "\n";
-        let pos = _Impl.doHash(key.asStringRef(), _Impl.hashSeed) % numBuckets
+        let pos = _hashMod(key.asStringRef(), _Impl.hashSeed, numBuckets)
         keysToBuckets(pos).pushBack(key.asStringRef())
 
     // Sort the buckets in failing order according to their size
     sort(keysToBuckets.all(), (fun (lhs, rhs: !Vector(StringRef)) = lhs.size() > rhs.size()))
 
     var placedKeys: Bitset = numValues // Bitset with the positions in the final array that are occupied
-    var slots: Vector(UInt)            // Local - the slots (in the final array) to be occupied by iterating bucket
+    var slots: Vector(Int)            // Local - the slots (in the final array) to be occupied by iterating bucket
 
     // Process the buckets; start with the ones that contain the most items
     // Here we process buckets that have at least 2 keys in them
@@ -95,7 +101,7 @@ fun ctor(this: !MinPerfHash, keys: !Vector(String), extraSpace: Double)
         // keys in this bucket without conflicts with keys from previous buckets.
         var item = 0
         while item < bucket.size()
-            let slot: UInt = _Impl.doHash(bucket(item), d) % numValues
+            let slot = _hashMod(bucket(item), UInt32(d),  numValues)
             let slotAlreadyUsed = !find(slots.all(), slot).isEmpty()
             ++numOp
             if ( placedKeys.testBit(slot) || slotAlreadyUsed )
@@ -113,7 +119,7 @@ fun ctor(this: !MinPerfHash, keys: !Vector(String), extraSpace: Double)
         // This is guaranteed to finish quickly
 
         // We found a displacement that works for the current bucket (it doesn't yield overlaps with previous buckets)
-        displacements(_Impl.doHash(bucket(0), _Impl.hashSeed) % numBuckets) = d
+        displacements(_hashMod(bucket(0), _Impl.hashSeed, numBuckets)) = d
         for i=0..bucket.size()
             placedKeys.setBit(slots(i));
 
@@ -130,7 +136,7 @@ fun ctor(this: !MinPerfHash, keys: !Vector(String), extraSpace: Double)
             ++emptySlot;
 
         // We subtract one to ensure it's negative even if the zero-th slot was used.
-        displacements(_Impl.doHash(bucket(0), _Impl.hashSeed) % numBuckets) = -emptySlot-1
+        displacements(_hashMod(bucket(0), _Impl.hashSeed, numBuckets)) = -emptySlot-1
         placedKeys.setBit(emptySlot)
 
     //_dumpBuckets("buckets final, ", keysToBuckets);
@@ -142,13 +148,13 @@ fun ctorFromCt(this: !MinPerfHash, src: MinPerfHash ct)
 
     [ct] let dispStrCt = StringRef(src.displacements.begin_.bytePtr(), src.displacements.end_.bytePtr())
     let dispStr = dispStrCt
-    displacements ctor ContiguousMemoryRange(UInt)(RawPtr(UInt).fromBytePtr(dispStr.begin), RawPtr(UInt).fromBytePtr(dispStr.end))
+    displacements ctor ContiguousMemoryRange(Int)(RawPtr(Int).fromBytePtr(dispStr.begin), RawPtr(Int).fromBytePtr(dispStr.end))
 
-fun search(this: !MinPerfHash, key: StringRef): UInt
+fun search(this: !MinPerfHash, key: StringRef): Int
     // Get the displacement from the table...
-    let d = displacements(_Impl.doHash(key, _Impl.hashSeed) % displacements.size())
+    let d = displacements(_hashMod(key, _Impl.hashSeed, displacements.size()))
     // If the displacement is negative, directly return; otherwise compute the final hash
-    return ife(d<0, Int(-d-1), Int(_Impl.doHash(key, d) % numValues))
+    return ife(d<0, Int(-d-1), _hashMod(key, UInt32(d), numValues))
 
 fun ()(this: !MinPerfHash, key: StringRef) = this.search(key)
 
@@ -198,9 +204,9 @@ fun search(this: !MinPerfHashSet, str: StringRef): Int       // Yields -1 if 'st
     return MinPerfHashSet(keys);
 
 fun readFileLines(filename: StringRef): Vector(String)
-    return readFileLines(filename, UInt(-1));
+    return readFileLines(filename, -1)
 
-fun readFileLines(filename: StringRef, maxLines: UInt): Vector(String)
+fun readFileLines(filename: StringRef, maxLines: Int): Vector(String)
     var lines: Vector(String)
 
     var f = os.openFile(filename, "r")
@@ -244,7 +250,7 @@ fun testRt(testRepCount, totalRepCount, keysToLoad: Int)
             checkHashIsOk(hash, keysRt);
 
 [ct] if ( testType == 1 )
-fun testCt(testRepCount, totalRepCount: Int, maxKeys: UInt ct)
+fun testCt(testRepCount, totalRepCount: Int, maxKeys: Int ct)
     cout << "test CT\n"
 
     // Read the keys from the file

@@ -1,13 +1,13 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-// Test purpose: Test anyType
+// Test purpose: Test AnyType as parameter
 
 concept AnyType(x) // Always true
 
 // Takes a non-reference as a parameter
 fun f1(x: AnyType) if typeOf(x) == Int
     writeLn('non-ref')
-    x = 10
+    //x = 10
 
 // Takes a reference as a parameter
 fun f2(x: !AnyType) if typeOf(x) == !Int

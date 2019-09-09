@@ -16,7 +16,7 @@ import std.compilerInfo
         let curIdx = counter++
         if ( curIdx != x )
             outOfOrderCount++
-        sleep(0)
+        sleepMs(0)
 
     fun sprMain
         if ( programArgs.size() < 2 )

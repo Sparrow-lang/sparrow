@@ -1,4 +1,4 @@
-import basicDecls(Number, Char, Bool, StringRef, Byte, UByte, Short, UShort, Int, UInt, Long, ULong, SizeType, DiffType, Double, Range)
+import basicDecls(Number, Char, Bool, StringRef, Int8, UInt8, Int16, UInt16, Int, Int32, UInt32, Int64, UInt64, Float32, Float64, Float, Range)
 import streamBasic(FlushHelperClass)
 
 var cout: ConsoleOutputStream
@@ -16,18 +16,17 @@ fun <<<(this: ConsoleOutputStream, x: StringRef)    { for c = x { _Impl.write(c)
 fun flush(this: ConsoleOutputStream, x: FlushHelperClass) { _Impl.flushOutput }
 
 package _Impl
-    [native("writeByte")] fun write(x: Byte)
-    [native("writeByte")] fun write(x: UByte)
-    [native("writeShort")] fun write(x: Short)
-    [native("writeShort")] fun write(x: UShort)
-    [native("writeInt")] fun write(x: Int)
-    [native("writeUInt")] fun write(x: UInt)
-    [native("writeLong")] fun write(x: Long)
-    [native("writeULong")] fun write(x: ULong)
-    [native("writeDouble")] fun write(x: Double)
+    [native("writeInt8")] fun write(x: Int8)
+    [native("writeInt8")] fun write(x: UInt8)
+    [native("writeInt16")] fun write(x: Int16)
+    [native("writeInt16")] fun write(x: UInt16)
+    [native("writeInt32")] fun write(x: Int32)
+    [native("writeUInt32")] fun write(x: UInt32)
+    [native("writeInt64")] fun write(x: Int64)
+    [native("writeUInt64")] fun write(x: UInt64)
+    [native("writeFloat32")] fun write(x: Float32)
+    [native("writeFloat64")] fun write(x: Float64)
     [native("writeChar")] fun write(x: Char)
-    [native("writeULong")] fun write(x: SizeType)
-    [native("writeLong")] fun write(x: DiffType)
 
     [native("flushOutput")] fun flushOutput
 

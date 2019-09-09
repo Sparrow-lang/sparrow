@@ -21,14 +21,14 @@ datatype HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
 
     _buckets: _BucketsType
     _guard: _MyGuardNode
-    _numElements: SizeType
+    _numElements: Int
     _valToKey: ValueToKeyType
     _tr: traitsType
 
 fun ctor(this: !HashTable)
     this.ctor(0, _TraitsType())
 
-fun ctor(this: !HashTable, n: SizeType, traits: this._TraitsType)
+fun ctor(this: !HashTable, n: Int, traits: this._TraitsType)
     _buckets ctor
     _tr ctor traits
     _guard ctor
@@ -36,7 +36,7 @@ fun ctor(this: !HashTable, n: SizeType, traits: this._TraitsType)
     if n > 0
         this.reserve(n)
 
-fun ctor(this: !HashTable, range: Range, n: SizeType, traits: this._TraitsType)
+fun ctor(this: !HashTable, range: Range, n: Int, traits: this._TraitsType)
     _buckets ctor
     _tr ctor traits
     _guard ctor
@@ -65,9 +65,9 @@ fun swap(this: !HashTable, other: !typeOf(this))
 
     // Update the buckets pointing to the guard node
     if _numElements > 0 && !_buckets.isEmpty
-        _buckets(_guard.next.get().hash % _buckets.size) = this._guardNode
+        _buckets(_guard.next._tableIndex(_buckets.size)) = this._guardNode
     if other._numElements > 0 && !other._buckets.isEmpty
-        other._buckets(other._guard.next.get().hash % other._buckets.size) = other._guardNode
+        other._buckets(other._guard.next._tableIndex(other._buckets.size)) = other._guardNode
 
 [protected]
     fun =(this: !HashTable, other: typeOf(this)): @typeOf(this)
@@ -93,7 +93,7 @@ fun swap(this: !HashTable, other: !typeOf(this))
 
     fun all(this: HashTable)             = RangeType(_guard.next, _NodePtr())
 
-    fun reserve(this: !HashTable, n: SizeType)
+    fun reserve(this: !HashTable, n: Int)
         // Resize only when we are big enough to re-hash
         if n <= _buckets.size * _loadFactor
             return
@@ -117,7 +117,7 @@ fun swap(this: !HashTable, other: !typeOf(this))
         _guard.next.reset
         var next: _NodePtr
         while p.isSet ; p = next
-            next = p.get().next
+            next = p.next
             this._insertNode(p)
 
     fun insert(this: !HashTable, value: this.ValueType): this.RangeType
@@ -149,16 +149,16 @@ fun swap(this: !HashTable, other: !typeOf(this))
 
         var p = range._startElem
         while p != range._endElem
-            let next = p.get().next
+            let next = p.next
             this._removeNode(prev, p)
             p = next
 
     fun contains(this: HashTable, key: this.KeyType): Bool = this._findNode(key).isSet
-    fun count(this: HashTable, key: this.KeyType): SizeType = ife(this._findNode(key).isSet, 1, 0)
+    fun count(this: HashTable, key: this.KeyType): Int = ife(this._findNode(key).isSet, 1, 0)
 
     fun equalRange(this: HashTable, key: this.KeyType): this.RangeType
         let p = this._findNode(key)
-        return ife(p.isSet, RangeType(p, p.get().next), RangeType())
+        return ife(p.isSet, RangeType(p, p.next), RangeType())
 
     fun find(this: HashTable, key: this.KeyType): this.RangeType
         let p = this._findNode(key)
@@ -177,10 +177,10 @@ fun swap(this: !HashTable, other: !typeOf(this))
             return
         let numBuckets = _buckets.size
         var prev = this._guardNode
-        var p = prev.get().next
+        var p = prev.next
         var prevBi = numBuckets+1
-        while p.isSet ; p = p.get().next
-            var bi = ife(numBuckets > 0, p.get().hash % numBuckets, 0)
+        while p.isSet ; p = p.next
+            var bi = ife(numBuckets > 0, p._tableIndex(numBuckets), 0)
             if prev == this._guardNode
                 os << bi << ": <guard> | "
                 prevBi = bi
@@ -199,37 +199,37 @@ fun _guardNode(this: HashTable): this._NodePtr = reinterpretPtr(_MyNode, Ptr(_My
 fun _findNode(this: HashTable, key: this.KeyType): this._NodePtr
     return this._findNodeImpl(_tr.hash(key), key)
 
-fun _findNodeImpl(this: HashTable, hashVal: SizeType, key: this.KeyType): this._NodePtr
+fun _findNodeImpl(this: HashTable, hashVal: UInt64, key: this.KeyType): this._NodePtr
     if _numElements == 0
         return _NodePtr()
 
     let numBuckets = _buckets.size
     if numBuckets > 0
-        let bi = hashVal % numBuckets
+        let bi = _tableIndex(hashVal, numBuckets)
 
         var p: _NodePtr = _buckets(bi)
         if p.isNull
             return _NodePtr()
         // the first element belongs to the previous bucket, skip one element
-        var next = p.get().next
-        while next.isSet && (next.get().hash % numBuckets == bi)
-            if _tr.equal(key, _valToKey(next.get().data))
+        var next = p.next
+        while next.isSet && next._tableIndex(numBuckets) == bi
+            if _tr.equal(key, _valToKey(next.data))
                 return next
             p = next
-            next = p.get().next
+            next = p.next
     else
         var p: _NodePtr = _guard.next
         while p.isSet
-            if _tr.equal(key, _valToKey(p.get().data))
+            if _tr.equal(key, _valToKey(p.data))
                 return p
-            p = p.get().next
+            p = p.next
     return _NodePtr()
 
 fun _findPrev(this: HashTable, node: this._NodePtr): this._NodePtr
     let numBuckets = _buckets.size
-    var p: _NodePtr = ife(numBuckets==0, this._guardNode, _buckets(node.get().hash % numBuckets))
-    while p.get().next != node
-        p = p.get().next
+    var p: _NodePtr = ife(numBuckets==0, this._guardNode, _buckets(node._tableIndex(numBuckets)))
+    while p.next != node
+        p = p.next
     return p
 
 fun _insertPlain(this: !HashTable, value: this.ValueType): this.RangeType
@@ -248,44 +248,44 @@ fun _insertNode(this: !HashTable, node: this._NodePtr)
     let numBuckets = _buckets.size
     if numBuckets == 0
         // If we have no buckets, put this node in front
-        node.get().next = _guard.next
+        node.next = _guard.next
         _guard.next = node
     else
         // If there is no element in the bucket, put this in the bucket, and chain the element at the beginning of the global list
         // Otherwise, put this after the first element in the bucket
-        let bi = node.get().hash % numBuckets
+        let bi = node._tableIndex(numBuckets)
         if _buckets(bi).isNull
-            node.get().next = _guard.next
+            node.next = _guard.next
             _guard.next = node
             _buckets(bi) = this._guardNode
             // fix the bucket of the old start
-            if node.get().next.isSet
-                _buckets(node.get().next.get().hash % numBuckets) = node
+            if node.next.isSet
+                _buckets(node.next._tableIndex(numBuckets)) = node
         else
-            node.get().next = _buckets(bi).get().next
-            _buckets(bi).get().next = node
+            node.next = _buckets(bi).next
+            _buckets(bi).next = node
 
 fun _removeNode(this: !HashTable, prev, node: this._NodePtr)
     let numBuckets = _buckets.size
     if numBuckets == 0
-        prev.get().next = node.get().next
+        prev.next = node.next
     else
-        let bi = node.get().hash % numBuckets
-        let next = node.get().next
+        let bi = node._tableIndex(numBuckets)
+        let next = node.next
 
         // If this is the only proper node for this bucket, clear the bucket
-        if prev == this._guardNode || bi != (prev.get().hash % numBuckets) // this is second
-            if next.isNull || bi != (next.get().hash % numBuckets) // next is not in this bucket
+        if prev == this._guardNode || bi != prev._tableIndex(numBuckets) // this is second
+            if next.isNull || bi != next._tableIndex(numBuckets) // next is not in this bucket
                 _buckets(bi).reset
 
         // If the next node is in another bucket, update the first node from that bucket
         if next.isSet
-            let nextBi = next.get().hash % numBuckets
+            let nextBi = next._tableIndex(numBuckets)
             if bi != nextBi
                 _buckets(nextBi) = prev
 
         // Now remove the node
-        prev.get().next = next
+        prev.next = next
         node.release
         --_numElements
 
@@ -293,18 +293,24 @@ fun _deleteElements(this: !HashTable)
     var p = _guard.next
     var next: _NodePtr
     while p.isSet ; p = next
-        next = p.get().next
+        next = p.next
         p.release
     _guard.next = _NodePtr()
 
 [initCtor]
 datatype _Node(valueType: Type)
     next: Ptr(_Node)
-    hash: SizeType
+    hash: UInt64
     data: valueType
 
 fun >> (this: _Node, os: !OutStream)
     os << data << " <" << UntypedPtr(this) << '>'
+
+fun _tableIndex(this: _Node, tableSize: Int): Int
+    return Int(hash % UInt64(tableSize))
+
+fun _tableIndex(hash: UInt64, tableSize: Int): Int
+    return Int(hash % UInt64(tableSize))
 
 [initCtor]
 datatype _GuardNode(valueType: Type)
@@ -319,10 +325,10 @@ datatype _HashRange(valueType: Type)
 
 [protected]
     fun isEmpty(this: _HashRange)               = _startElem == _endElem
-    fun front(this: _HashRange): this.RetType   = _startElem.get().data
-    fun popFront(this: !_HashRange)             { _startElem = _startElem.get().next; }
+    fun front(this: _HashRange): this.RetType   = _startElem.data
+    fun popFront(this: !_HashRange)             { _startElem = _startElem.next; }
 
-var _bucketCounts: StaticArray(SizeType, 31)
+var _bucketCounts: StaticArray(Int, 31)
 
 using _loadFactor = 1
 using _numElementsForBuckets = 10

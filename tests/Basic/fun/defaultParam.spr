@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr" -fno-main
+//!! -t "../SparrowImplicitLib.spr" -fno-main
 
 concept AnyType(x) if true
 
@@ -21,8 +21,8 @@ fun writeGen(x: AnyType = 1) { writeLn(x); }
 fun printType(t: Type)
     if ( t == Int )
         write("Int");
-    else if ( t == Double )
-        write("Double");
+    else if ( t == Float )
+        write("Float");
     else if ( t == Char )
         write("Char");
 
@@ -67,7 +67,7 @@ fun print(this: Bar)  { printType(T); writeLn(""); }
 
     // Generic classes
     writeLn("---")
-    TypePrinter(Char, Double)().print()
+    TypePrinter(Char, Float)().print()
     TypePrinter(Char)().print()
     Bar(Char)().print
     Bar()().print
@@ -86,7 +86,7 @@ fun print(this: Bar)  { printType(T); writeLn(""); }
 5
 10
 ---
-t1=Char, t2=Double
+t1=Char, t2=Float
 t1=Char, t2=Int
 Char
 Int

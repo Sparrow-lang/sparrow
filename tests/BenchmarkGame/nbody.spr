@@ -9,24 +9,24 @@ using PI = 3.141592653589793
 
 [initCtor]
 datatype Vec
-    x, y, z: Double;
+    x, y, z: Float;
 
-fun len(this: Vec): Double = math.sqrt(this*this)
+fun len(this: Vec): Float = math.sqrt(this*this)
 
 fun + (this, other: Vec)        = Vec(x+other.x, y+other.y, z+other.z)
 fun - (this, other: Vec)        = Vec(x-other.x, y-other.y, z-other.z)
 fun * (this, other: Vec)        = x*other.x + y*other.y + z*other.z
-fun * (this: Vec, k: Double)    = Vec(x*k, y*k, z*k)
-fun / (this: Vec, k: Double)    = Vec(x/k, y/k, z/k)
+fun * (this: Vec, k: Float)     = Vec(x*k, y*k, z*k)
+fun / (this: Vec, k: Float)     = Vec(x/k, y/k, z/k)
 fun - (this: Vec)               = Vec(-x, -y, -z)
 
 datatype Body
     p, v: Vec
-    mass: Double
+    mass: Float
 
-fun speedSq(this: Body)                         = v*v
-fun move(this: !Body, dt: Double)               { p += v*dt; }
-fun advance(this: !Body, d: Vec, delta: Double) { v += d*delta; }
+fun speedSq(this: Body)                        = v*v
+fun move(this: !Body, dt: Float)               { p += v*dt; }
+fun advance(this: !Body, d: Vec, delta: Float) { v += d*delta; }
 
 fun sqr x = x*x
 
@@ -35,7 +35,7 @@ datatype NBodySystem
     bodies: StaticArray(Body, numBodies)
 
 fun ctor(this: !NBodySystem)
-    using solarMass = 4 * PI * PI
+    using solarMass = 4. * PI * PI
     //using daysPerYear = 365.24;
     using daysPerYear = 1.0
 
@@ -47,44 +47,45 @@ fun ctor(this: !NBodySystem)
 
     sun.mass = solarMass
 
-    jupiter.p.x = 4.84143144246472090e+00
-    jupiter.p.y = -1.16032004402742839e+00
-    jupiter.p.z = -1.03622044471123109e-01
-    jupiter.v.x = 1.66007664274403694e-03 * daysPerYear
-    jupiter.v.y = 7.69901118419740425e-03 * daysPerYear
-    jupiter.v.z = -6.90460016972063023e-05 * daysPerYear
-    jupiter.mass = 9.54791938424326609e-04 * solarMass
+    // TODO: fix scanner to be able to read exponents properly
+    jupiter.p.x = 4.84143144246472090
+    jupiter.p.y = -1.16032004402742839
+    jupiter.p.z = -0.103622044471123109
+    jupiter.v.x = 0.00166007664274403694 * daysPerYear
+    jupiter.v.y = 0.00769901118419740425 * daysPerYear
+    jupiter.v.z = -0.00000690460016972063023 * daysPerYear
+    jupiter.mass = 0.000954791938424326609 * solarMass
 
-    saturn.p.x = 8.34336671824457987e+00
-    saturn.p.y = 4.12479856412430479e+00
-    saturn.p.z = -4.03523417114321381e-01
-    saturn.v.x = -2.76742510726862411e-03 * daysPerYear
-    saturn.v.y = 4.99852801234917238e-03 * daysPerYear
-    saturn.v.z = 2.30417297573763929e-05 * daysPerYear
-    saturn.mass = 2.85885980666130812e-04 * solarMass
+    saturn.p.x = 8.34336671824457987
+    saturn.p.y = 4.12479856412430479
+    saturn.p.z = -0.403523417114321381
+    saturn.v.x = -0.00276742510726862411 * daysPerYear
+    saturn.v.y = 0.004.99852801234917238 * daysPerYear
+    saturn.v.z = 0.00000230417297573763929 * daysPerYear
+    saturn.mass = 0.000285885980666130812 * solarMass
 
-    uranus.p.x = 1.28943695621391310e+01
-    uranus.p.y = -1.51111514016986312e+01
-    uranus.p.z = -2.23307578892655734e-01
-    uranus.v.x = 2.96460137564761618e-03 * daysPerYear
-    uranus.v.y = 2.37847173959480950e-03 * daysPerYear
-    uranus.v.z = -2.96589568540237556e-05 * daysPerYear
-    uranus.mass = 4.36624404335156298e-05 * solarMass
+    uranus.p.x = 12.8943695621391310
+    uranus.p.y = -15.1111514016986312
+    uranus.p.z = -0.223307578892655734
+    uranus.v.x = 0.00296460137564761618 * daysPerYear
+    uranus.v.y = 0.00237847173959480950 * daysPerYear
+    uranus.v.z = -0.0000296589568540237556 * daysPerYear
+    uranus.mass = 0.0000436624404335156298 * solarMass
 
-    neptune.p.x = 1.53796971148509165e+01
-    neptune.p.y = -2.59193146099879641e+01
-    neptune.p.z = 1.79258772950371181e-01
-    neptune.v.x = 2.68067772490389322e-03 * daysPerYear
-    neptune.v.y = 1.62824170038242295e-03 * daysPerYear
-    neptune.v.z = -9.51592254519715870e-05 * daysPerYear
-    neptune.mass = 5.15138902046611451e-05 * solarMass
+    neptune.p.x = 15.3796971148509165
+    neptune.p.y = -25.9193146099879641
+    neptune.p.z = 0.179258772950371181
+    neptune.v.x = 0.00268067772490389322 * daysPerYear
+    neptune.v.y = 0.00162824170038242295 * daysPerYear
+    neptune.v.z = -0.0000951592254519715870 * daysPerYear
+    neptune.mass = 0.0000515138902046611451 * solarMass
 
     var p: Vec
     for b = bodies.all
         p += b.v * b.mass;
     sun.v = -p / solarMass;
 
-fun energy(this: !NBodySystem): Double
+fun energy(this: !NBodySystem): Float
     var e = 0.0
     for i = 0..numBodies
         e += 0.5 * bodies(i).mass * bodies(i).speedSq
@@ -95,7 +96,7 @@ fun energy(this: !NBodySystem): Double
 
     return e;
 
-fun advance(this: !NBodySystem, dt: Double)
+fun advance(this: !NBodySystem, dt: Float)
     for i = 0..numBodies
         for j = (i+1)..numBodies
             let pDelta = bodies(i).p - bodies(j).p
@@ -108,10 +109,10 @@ fun advance(this: !NBodySystem, dt: Double)
     for body = bodies.all
         body.move(dt);
 
-[native("printf")] fun printf(fmt: !Char, x: Double)
-[native("printf")] fun printf(fmt: !Char, x,y: Double)
-[native("printf")] fun printf(fmt: !Char, x,y,z: Double)
-[native("printf")] fun printf(fmt: !Char, x,y,z,xx,yy,zz,a: Double)
+[native("printf")] fun printf(fmt: !Char, x: Float)
+[native("printf")] fun printf(fmt: !Char, x,y: Float)
+[native("printf")] fun printf(fmt: !Char, x,y,z: Float)
+[native("printf")] fun printf(fmt: !Char, x,y,z,xx,yy,zz,a: Float)
 
 fun cstr(s: StringRef): @Char = s.cStr()
 

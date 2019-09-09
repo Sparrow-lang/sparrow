@@ -7,9 +7,9 @@ import std.newDelete
 //! Datatype describing a thread ID
 [bitcopiable]
 datatype ThreadId
-    id: ULong
+    id: UInt64
 
-fun ctor(this: !ThreadId, id: ULong)
+fun ctor(this: !ThreadId, id: UInt64)
     this.id ctor id
 fun ctor(this: !ThreadId, h: NativeThreadHandle)
     this.id ctor
@@ -78,9 +78,9 @@ fun curThreadId: ThreadId = ThreadId(NativeThreadHandle())
 fun yield = _Impl.sched_yield()
 
 //! Sleep the given amount of milliseconds
-fun sleep(durMs: UInt)
-    let req = _Impl.TimeSpec(durMs/1000, (durMs%1000)*1000000)
-    let rem = _Impl.TimeSpec(0, 0)
+fun sleepMs(durMs: Int)
+    let req = _Impl.TimeSpec(Int64(durMs/1000), Int64((durMs%1000))*1000000L)
+    let rem = _Impl.TimeSpec(0L, 0L)
     _Impl.nanosleep(req, rem)
 
 package _Impl
@@ -107,14 +107,14 @@ package _Impl
         return handle
 
     [initCtor, bitcopiable] datatype TimeSpec
-        tv_sec, tv_nsec: Long
+        tv_sec, tv_nsec: Int64
 
     [native("pthread_create")] fun pthread_create(handle: !NativeThreadHandle, attr: UntypedPtr, f: ThreadFun, arg: UntypedPtr): Int
     [native("pthread_join")] fun pthread_join(handle: NativeThreadHandle, valPtr: UntypedPtr): Int
     [native("pthread_detach")] fun pthread_detach(handle: NativeThreadHandle): Int
     [native("pthread_self")] fun pthread_self: NativeThreadHandle
 
-    [native("pthread_threadid_np")] fun pthread_threadid_np(t: NativeThreadHandle, res: !ULong): Int
+    [native("pthread_threadid_np")] fun pthread_threadid_np(t: NativeThreadHandle, res: !UInt64): Int
 
     [native("sched_yield")] fun sched_yield
     [native("nanosleep")] fun nanosleep(req, rem: !TimeSpec): Int

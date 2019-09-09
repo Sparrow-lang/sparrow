@@ -18,13 +18,11 @@ TypeWithStorage StdDef::typeNull = nullptr;
 TypeWithStorage StdDef::typeBool = nullptr;
 TypeWithStorage StdDef::typeByte = nullptr;
 TypeWithStorage StdDef::typeInt = nullptr;
-TypeWithStorage StdDef::typeSizeType = nullptr;
 TypeWithStorage StdDef::typeStringRef = nullptr;
 
 TypeWithStorage StdDef::typeRefType = nullptr;
 TypeWithStorage StdDef::typeRefByte = nullptr;
 TypeWithStorage StdDef::typeRefInt = nullptr;
-TypeWithStorage StdDef::typeSizeTypeCt = nullptr;
 
 Node* StdDef::clsType = nullptr;
 Node* StdDef::clsNull = nullptr;
@@ -69,15 +67,12 @@ void SprFrontend::checkStdClass(Node* cls) {
     } else if (clsName == "Bool") {
         StdDef::clsBool = cls;
         StdDef::typeBool = Feather_getDataType(cls, 0, modeRt);
-    } else if (clsName == "Byte") {
+    } else if (clsName == "Int8") {
         StdDef::typeByte = Feather_getDataType(cls, 0, modeRt);
         StdDef::typeRefByte = Feather_getDataType(cls, 1, modeRt);
     } else if (clsName == "Int") {
         StdDef::typeInt = Feather_getDataType(cls, 0, modeRt);
         StdDef::typeRefInt = Feather_getDataType(cls, 1, modeRt);
-    } else if (clsName == "SizeType") {
-        StdDef::typeSizeType = Feather_getDataType(cls, 0, modeRt);
-        StdDef::typeSizeTypeCt = Feather_getDataType(cls, 0, modeCt);
     } else if (clsName == "Type") {
         StdDef::typeType = Feather_getDataType(cls, 0, modeRt);
         StdDef::typeRefType = Feather_getDataType(cls, 1, modeRt);
@@ -86,10 +81,9 @@ void SprFrontend::checkStdClass(Node* cls) {
 
     classesFound = StdDef::typeVoid != nullptr && StdDef::typeNull != nullptr &&
                    StdDef::typeBool != nullptr && StdDef::typeByte != nullptr &&
-                   StdDef::typeInt != nullptr && StdDef::typeSizeType != nullptr &&
-                   StdDef::typeType != nullptr && StdDef::typeStringRef != nullptr &&
-                   StdDef::typeRefByte != nullptr && StdDef::typeRefType != nullptr &&
-                   StdDef::typeSizeTypeCt != nullptr;
+                   StdDef::typeInt != nullptr && StdDef::typeType != nullptr &&
+                   StdDef::typeStringRef != nullptr && StdDef::typeRefByte != nullptr &&
+                   StdDef::typeRefType != nullptr;
 }
 
 void SprFrontend::checkStdFunction(Node* fun) {

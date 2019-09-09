@@ -72,7 +72,7 @@ Gen<NodeHandle> arbValueConvertibleTo(TypeWithStorage t, const SampleTypes* samp
         int weightFromPlain = tk == typeKindConst ? 1 : 0;
         int weightFromConst = tk == typeKindData ? 1 : 0;
         int weightFromMutable = tk != typeKindTemp ? 1 : 0;
-        int weightFromTmp = 1;
+        int weightFromTmp = tk != typeKindMutable ? 1 : 0;
 
         TypeWithStorage newType;
         auto alt = *gen::weightedElement<int>(

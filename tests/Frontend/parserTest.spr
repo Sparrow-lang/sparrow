@@ -117,16 +117,16 @@ fun mkBoolLiteral(this: !MyAstBuilder, loc: !Location, val: Bool) \
     = createNode(loc, "boolLit")
 fun mkIntLiteral(this: !MyAstBuilder, loc: !Location, val: Int) \
     = createNode(loc, "intLit")
-fun mkUIntLiteral(this: !MyAstBuilder, loc: !Location, val: UInt) \
-    = createNode(loc, "uintLit")
-fun mkLongLiteral(this: !MyAstBuilder, loc: !Location, val: Long) \
-    = createNode(loc, "longLit")
-fun mkULongLiteral(this: !MyAstBuilder, loc: !Location, val: ULong) \
-    = createNode(loc, "ulongLit")
-fun mkFloatLiteral(this: !MyAstBuilder, loc: !Location, val: Float) \
-    = createNode(loc, "floatLit")
-fun mkDoubleLiteral(this: !MyAstBuilder, loc: !Location, val: Double) \
-    = createNode(loc, "doubleLit")
+fun mkUIntLiteral(this: !MyAstBuilder, loc: !Location, val: UInt32) \
+    = createNode(loc, "uint32Lit")
+fun mkLongLiteral(this: !MyAstBuilder, loc: !Location, val: Int64) \
+    = createNode(loc, "int64Lit")
+fun mkULongLiteral(this: !MyAstBuilder, loc: !Location, val: UInt64) \
+    = createNode(loc, "uint64Lit")
+fun mkFloatLiteral(this: !MyAstBuilder, loc: !Location, val: Float32) \
+    = createNode(loc, "float32Lit")
+fun mkDoubleLiteral(this: !MyAstBuilder, loc: !Location, val: Float) \
+    = createNode(loc, "float64Lit")
 fun mkCharLiteral(this: !MyAstBuilder, loc: !Location, val: Char) \
     = createNode(loc, "charLit")
 fun mkStringLiteral(this: !MyAstBuilder, loc: !Location, data: StringRef) \
@@ -152,8 +152,8 @@ fun sprMain
         return
     var n = programArgs(1) asInt
 
-    if      n == 0 ; doScan(mkCharSource(FileCharSource(programArgs(2))))
-    else if n == 1 ; doParse(mkCharSource(FileCharSource(programArgs(2))))
+    if      n == 0 ; doScan(mkCharSource(tmpToMut(FileCharSource(programArgs(2)))))
+    else if n == 1 ; doParse(mkCharSource(tmpToMut(FileCharSource(programArgs(2)))))
     else if n == 2 ; test2()
     else if n == 3 ; test3()
     else if n == 4 ; test4()
@@ -186,7 +186,7 @@ fun doParse(charSource: CharSource)
 
 fun test2
     var code = "1 2 3 4 5 0xff, 0b101, 0777, 0789, .123 0.123 1.123 12.34e2f 123_456 1_2.3_4"
-    doScan(mkCharSource(StringCharSource(code)))
+    doScan(mkCharSource(tmpToMut(StringCharSource(code))))
 /*<<<Scan: numbers test(2)
 41 - '1' - 1:1-1:2
 41 - '2' - 1:3-1:4
@@ -212,7 +212,7 @@ fun test2
 
 fun test3
     var code = "a b c d e if then else abc_def _1 _a a1 a@#$ a.b.c ab.bc.cd abc.*"
-    doScan(mkCharSource(StringCharSource(code)))
+    doScan(mkCharSource(tmpToMut(StringCharSource(code))))
 /*<<<Scan: ids test(3)
 37 - 'a' - 1:1-1:2
 37 - 'b' - 1:3-1:4
@@ -246,7 +246,7 @@ fun test3
 
 fun test4
     var code = ". .. ... !!! .* # !@#$%^&*-+="
-    doScan(mkCharSource(StringCharSource(code)))
+    doScan(mkCharSource(tmpToMut(StringCharSource(code))))
 /*<<<Scan: operators test(4)
 34 - '' - 1:1-1:2
 38 - '..' - 1:3-1:5
@@ -261,7 +261,7 @@ fun test4
 
 fun test5
     var code = "\"abcd\" 'a' <{abc\\nop}>"
-    doScan(mkCharSource(StringCharSource(code)))
+    doScan(mkCharSource(tmpToMut(StringCharSource(code))))
 /*<<<Scan: strings test(5)
 40 - 'abcd' - 1:1-1:7
 40 - 'a' - 1:8-1:11
@@ -274,14 +274,14 @@ fun test5
 
 fun test6
     var code = "module a.b.c.d;"
-    doParse(mkCharSource(StringCharSource(code)))
+    doParse(mkCharSource(tmpToMut(StringCharSource(code))))
 /*<<<Parse: module name only(6)
 module(compoundExpr(compoundExpr(compoundExpr(a, b), c), d), <null>)
 >>>*/
 
 fun test7
     var code = "import x.y.z, k, l(a,b,c);"
-    doParse(mkCharSource(StringCharSource(code)))
+    doParse(mkCharSource(tmpToMut(StringCharSource(code))))
 /*<<<Parse: just an import(7)
 module(<null>, nodeList(nodeList(importName(compoundExpr(compoundExpr(x, y), z), <null>), importName(k, <null>), importName(l, nodeList(a, b, c)))))
 >>>*/

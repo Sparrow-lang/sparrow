@@ -1,0 +1,103 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+
+// Test purpose: checks that 'temp' types are working ok in various contexts
+
+concept AnyType(x)
+fun move(x: !AnyType): typeOf(x) tmp = reinterpretCast(typeOf(x) tmp, x)
+[ct, native("$meta.ife")] fun ife()
+
+
+fun createTmp(x: Int): Int tmp = move(x)
+
+fun takesPlain(this: Int)
+    write(this)
+    writeLn(' plain')
+fun takesConst(this: Int const)
+    write(this)
+    writeLn(' const')
+fun takesMut(this: Int mut)
+    write(this)
+    writeLn(' mut')
+fun takesTmp(this: Int tmp)
+    write(this)
+    writeLn(' temp')
+
+fun takesPlainGen(this: AnyType)
+    write(this)
+    writeLn(' plain (concept)')
+fun takesConstGen(this: AnyType const)
+    write(this)
+    writeLn(' const (concept)')
+fun takesMutGen(this: AnyType mut)
+    write(this)
+    writeLn(' mut (concept)')
+fun takesTmpGen(this: AnyType tmp)
+    write(this)
+    writeLn(' temp (concept)')
+
+fun takesPlainGen2(this: AnyType) if typeOf(this) == Int
+    write(this)
+    writeLn(' plain (concept2)')
+fun takesConstGen2(this: AnyType const) if typeOf(this) == Int
+    write(this)
+    writeLn(' const (concept2)')
+fun takesMutGen2(this: AnyType mut) if typeOf(this) == Int
+    write(this)
+    writeLn(' mut (concept2)')
+fun takesTmpGen2(this: AnyType tmp) if typeOf(this) == Int
+    write(this)
+    writeLn(' temp (concept2)')
+
+fun testConstants
+    0 takesPlain
+    0 takesConst
+    //0 takesMut
+    0 takesTmp
+
+fun testFunRet
+    createTmp(1) takesPlain
+    createTmp(1) takesConst
+    //createTmp(1) takesMut
+    createTmp(1) takesTmp
+
+fun testWithGeneric
+    createTmp(2) takesPlainGen
+    createTmp(2) takesConstGen
+    //createTmp(2) takesMutGen
+    createTmp(2) takesTmpGen
+    createTmp(3) takesPlainGen2
+    createTmp(3) takesConstGen2
+    //createTmp(3) takesMutGen2
+    createTmp(3) takesTmpGen2
+
+fun testIfe
+    let x = 10
+    let r1 = ife(false, x, createTmp(4))
+    let r2 = ife(true, x, createTmp(4))
+    write(r1)
+    write(' ')
+    writeLn(r2)
+
+
+[native("test")]
+fun test(n: Int)
+    testConstants
+    testFunRet
+    testWithGeneric
+    testIfe
+
+/*<<<Running()
+0 plain
+0 const
+0 temp
+1 plain
+1 const
+1 temp
+2 plain (concept)
+2 const (concept)
+2 temp (concept)
+3 plain (concept2)
+3 const (concept2)
+3 temp (concept2)
+4 10
+>>>*/

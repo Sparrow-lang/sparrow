@@ -26,7 +26,7 @@ datatype TaskSystem
 
 var globalTaskSystem: TaskSystem Ptr
 
-fun initTaskSystem(numWorkers: UInt = 0)
+fun initTaskSystem(numWorkers: Int = 0)
     // Create the task system object
     //assert(globalTaskSystem isNull)
     globalTaskSystem = new(TaskSystem)
@@ -70,4 +70,4 @@ fun onTaskAvailable(ts: !TaskSystem)
                 return
 
 //! Get the number of currently available workers
-fun numAvailableWorkers(ts: !TaskSystem): SizeType = (ts.workers size) - (ts.idleCounter numIdleWorkers)
+fun numAvailableWorkers(ts: !TaskSystem): Int = (ts.workers size) - (ts.idleCounter numIdleWorkers)

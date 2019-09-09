@@ -51,9 +51,9 @@ datatype Even
     ;
 fun ()(this: Even, x: MyObj): Bool { return x.x % 2 == 0; }
 
-fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
+fun createRangeAscending(size: Int): ContiguousMemoryRange(MyObj)
     var ptr = allocRawPtr(MyObj, size)
-    let ptrEnd = ptr.advance(DiffType(size))
+    let ptrEnd = ptr.advance(size)
     var i = 0
 
     while i < size ; i = i + 1

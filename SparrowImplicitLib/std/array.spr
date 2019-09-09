@@ -21,7 +21,7 @@ datatype Array(valueType: Type)
         let size = other.size
 
         _begin = allocRawPtr(ValueType, size)
-        _end = _begin.advance(DiffType(size))
+        _end = _begin.advance(size)
 
         var dst = _begin
         var src = other._begin
@@ -31,18 +31,18 @@ datatype Array(valueType: Type)
             dst = dst.advance
             src = src.advance
 
-    fun ctor(this: !Array, size: SizeType)
+    fun ctor(this: !Array, size: Int)
         _begin = allocRawPtr(ValueType, size)
-        _end = _begin.advance(DiffType(size))
+        _end = _begin.advance(size)
 
         var p = _begin
 
         while p != _end ; p = p.advance
             p.value ctor
 
-    fun ctor(this: !Array, size: SizeType, value: this.ValueType)
+    fun ctor(this: !Array, size: Int, value: this.ValueType)
         _begin = allocRawPtr(ValueType, size)
-        _end = _begin.advance(DiffType(size))
+        _end = _begin.advance(size)
 
         var p = _begin
 
@@ -54,7 +54,7 @@ datatype Array(valueType: Type)
             let size = rangeSize(range)
 
             _begin = allocRawPtr(ValueType, size)
-            _end = _begin.advance(DiffType(size))
+            _end = _begin.advance(size)
 
             var p = _begin
 
@@ -72,7 +72,7 @@ datatype Array(valueType: Type)
             p.value dtor
         _begin.freePtr
 
-    fun size(this: Array): SizeType
+    fun size(this: Array): Int
         return _end.diff(_begin)
 
     fun isEmpty(this: Array): Bool
@@ -100,16 +100,16 @@ datatype Array(valueType: Type)
         _end = other._end
         other._end = tmp
 
-    fun at(this: Array, index: SizeType): @ValueType
-        return _begin.advance(DiffType(index)).value
-    fun ()(this: Array, index: SizeType): @ValueType
-        return _begin.advance(DiffType(index)).value
+    fun at(this: Array, index: Int): @ValueType
+        return _begin.advance(index).value
+    fun ()(this: Array, index: Int): @ValueType
+        return _begin.advance(index).value
 
     fun all(this: Array): RangeType
         return RangeType(_begin, _end)
 
-    fun subrange(this: Array, index: SizeType, num: SizeType): RangeType
-        return RangeType(_begin.advance(DiffType(index)), _begin.advance(DiffType(index + num)))
+    fun subrange(this: Array, index: Int, num: Int): RangeType
+        return RangeType(_begin.advance(index), _begin.advance(index + num))
 
     fun =(this: !Array, other: typeOf(this)): @typeOf(this)
         var tmp = other

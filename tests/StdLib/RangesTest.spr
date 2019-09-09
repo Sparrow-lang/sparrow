@@ -101,9 +101,9 @@ fun makeList(): List(Int)
 
     return li
 
-fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
+fun createRangeAscending(size: Int): ContiguousMemoryRange(Int)
     var ptr = allocRawPtr(Int, size)
-    let ptrEnd = ptr.advance(DiffType(size))
+    let ptrEnd = ptr.advance(size)
     var i = 0
 
     while i < size ; i++
@@ -438,9 +438,9 @@ fun test17()
 fun test18()
     printRange( (1..) take 10 )
     printRange( (21..) take 10 )
-    printRange( (Byte(1)..) take 10 )
-    printRange( Byte(120).. )
-    printRange( (Long(1)..) take 10 )
+    printRange( (Int8(1)..) take 10 )
+    printRange( Int8(120).. )
+    printRange( (Int64(1)..) take 10 )
 /*<<<Unbound numeric range (18)
 1 2 3 4 5 6 7 8 9 10
 21 22 23 24 25 26 27 28 29 30

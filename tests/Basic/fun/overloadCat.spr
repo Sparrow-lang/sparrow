@@ -1,0 +1,41 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+
+fun f1(x: Int const)    { writeLn('f1(Int const)'); }
+fun f1(x: Int mut)      { writeLn('f1(Int mut)'); }
+fun f1(x: Int tmp)      { writeLn('f1(Int tmp)'); }
+
+datatype MyData = Int
+
+fun method(this: MyData)        { writeLn('method(const)'); }
+fun method(this: !MyData)       { writeLn('method(mut)'); }
+fun method(this: MyData tmp)    { writeLn('method(tmp)'); }
+
+
+[native("test")] fun test(n: Int)
+    let a: Int const
+    let b: Int mut
+    let c: Int tmp
+
+    f1(a)
+    f1(b)
+    f1(c)
+
+    writeLn('---')
+
+    let o1: MyData
+    let o2: !MyData
+    let o3: MyData tmp
+
+    o1 method
+    o2 method
+    o3 method
+
+/*<<<Running()
+f1(Int const)
+f1(Int mut)
+f1(Int tmp)
+---
+method(const)
+method(mut)
+method(tmp)
+>>>*/

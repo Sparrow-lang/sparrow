@@ -96,11 +96,11 @@ package _Impl
     fun peekChar(this: !SparrowScanner): Char
         return _src.source peek 1
 
-    fun peekChar(this: !SparrowScanner, n: UInt): Char
+    fun peekChar(this: !SparrowScanner, n: Int): Char
         return _src.source peek n
 
     /// Check if the source to has less than the given number of characters
-    fun hasLessThan(this: !SparrowScanner, n: UInt): Bool
+    fun hasLessThan(this: !SparrowScanner, n: Int): Bool
         return _src.source hasLessThan n
 
     /// Advances the input stream while the predicate matches
@@ -369,7 +369,7 @@ package _Impl
             _src advance 2
             _curToken.intData = consumeDigits(_src, 2, _curToken.data)
         else if ch == '0'.char && ch2 == 'o'.char
-            _src advance 1
+            _src advance 2
             _curToken.intData = consumeDigits(_src, 8, _curToken.data)
         else
             // At this point we assume we are not parsing a floating point number
@@ -395,6 +395,11 @@ package _Impl
                         ch = toLower(*_src)
                         if ch == 'e'.char
                             this advanceAndCapture1
+                            // exponent sign
+                            ch = *_src
+                            if ch == '+'.char || ch == '-'.char
+                                this advanceAndCapture1
+                            // exponent number
                             this advanceAndCaptureDigit \isDigit
 
                     // Suffix for floats -- don't capture these
@@ -424,7 +429,7 @@ package _Impl
         // Compute the value and return the token type
         if isFloating
             _curToken.data += Char(0)
-            _curToken.floatData = (_curToken.data.asStringRef asDouble)
+            _curToken.floatData = (_curToken.data.asStringRef asFloat)
             _curToken.data popBack
             return ife(isLong, tkDOUBLE_LITERAL, tkFLOAT_LITERAL)
 
@@ -436,20 +441,20 @@ package _Impl
     fun getDigitVal(c: Char) = (Int(c) - Int('0'.char))
     fun getXdigitVal(c: Char) = ife(isDigit(c), Int(c) - Int('0'.char), 10 + Int(toLower(c)) - Int('a'.char))
 
-    fun consumeDigits(r: !Range, base: ULong, capture: !String): ULong
-        var res: ULong = 0
+    fun consumeDigits(r: !Range, base: Int, capture: !String): UInt64
+        var res: UInt64 = 0UL
         if base == 16
             while !!r && (isXdigit(*r) || *r == '_'.char) ; r.popFront
                 if *r != '_'.char
                     capture += *r
-                    res *= base
-                    res += getXdigitVal(*r)
+                    res *= UInt64(base)
+                    res += UInt64(getXdigitVal(*r))
         else
             while !!r && (isXdigit(*r) || *r == '_'.char) ; r.popFront
                 if *r != '_'.char
                     capture += *r
-                    res *= base
-                    res += getDigitVal(*r)
+                    res *= UInt64(base)
+                    res += UInt64(getDigitVal(*r))
         return res
 
     fun checkEscapeChar(this: !SparrowScanner): Bool

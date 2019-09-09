@@ -32,22 +32,6 @@ fun test4(b: Bool)
     ife(b, MyObj(41), MyObj(42)).print()
     cout << "after" << endl
 
-fun testDifferentTypes1(cond: Bool)
-    let s: Short = 11
-    let b: Byte = 13
-    cout << ife(cond, s, b) << endl
-    [ct] if ( typeOf(ife(cond, s, b)) != Int )
-        cout << "FAIL 1" << endl;
-
-    [ct] if ( typeOf(ife(cond, 1.0, 1)) != Double )
-        cout << "FAIL 2" << endl;
-
-    [ct] if ( typeOf(ife(cond, 1.0f, 1)) != Float )
-        cout << "FAIL 3" << endl;
-
-    [ct] if ( typeOf(ife(cond, ULong(1), Long(1))) != ULong )
-        cout << "FAIL 4" << endl;
-
 fun sprMain
     test1(true)
     test1(false)
@@ -60,9 +44,6 @@ fun sprMain
     cout << "---" << endl
     test4(true)
     test4(false)
-
-    cout << "===" << endl
-    testDifferentTypes1(true)
 
 /*<<<Running()
 11
@@ -84,6 +65,4 @@ ctor(42)
 print(42)
 dtor
 after
-===
-11
 >>>*/

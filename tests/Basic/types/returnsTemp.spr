@@ -1,0 +1,73 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+
+// Test purpose: checks that types returned by functions have 'temp' category
+
+datatype MyObj = Int
+
+concept AnyType(x)
+fun move(x: !AnyType): typeOf(x) tmp = reinterpretCast(typeOf(x) tmp, x)
+
+
+fun create1: MyObj = MyObj(1)
+
+fun create2: MyObj tmp = MyObj(2)
+
+fun takesPlain(this: MyObj)
+    write(data)
+    writeLn(' plain')
+fun takesConst(this: MyObj const)
+    write(data)
+    writeLn(' const')
+fun takesMut(this: MyObj mut)
+    write(data)
+    writeLn(' mut')
+fun takesTmp(this: MyObj tmp)
+    write(data)
+    writeLn(' temp')
+
+fun takesPlain(this: Int)
+    write(this)
+    writeLn(' plain')
+fun takesConst(this: Int const)
+    write(this)
+    writeLn(' const')
+fun takesMut(this: Int mut)
+    write(this)
+    writeLn(' mut')
+fun takesTmp(this: Int tmp)
+    write(this)
+    writeLn(' temp')
+
+
+[native("test")]
+fun test(n: Int)
+    // Just to establish the baseline
+    0 takesPlain
+    0 takesConst
+    //0 takesMut
+    0 takesTmp
+
+    // Regular function
+    create1() takesPlain
+    create1() takesConst
+    create1() takesMut      // TODO: this should not be possible
+    move(create1()) takesTmp
+
+    // Function forced to return tmp
+    create2() takesPlain
+    create2() takesConst
+    //create2() takesMut
+    create2() takesTmp
+
+/*<<<Running()
+0 plain
+0 const
+0 temp
+1 plain
+1 const
+1 mut
+1 temp
+2 plain
+2 const
+2 temp
+>>>*/

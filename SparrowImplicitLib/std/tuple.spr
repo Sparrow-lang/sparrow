@@ -152,15 +152,13 @@ datatype PairFirst(pairType: Type)
     using PairType = pairType
 
 [protected]
-    fun ()(this: PairFirst, pair: this.PairType): @typeOf(pair.v1)
-        return pair.v1
+    fun ()(this: PairFirst, pair: this.PairType) = pair.v1
 
 datatype PairSecond(pairType: Type)
     using PairType = pairType
 
 [protected]
-    fun ()(this: PairSecond, pair: this.PairType): @typeOf(pair.v2)
-        return pair.v2
+    fun ()(this: PairSecond, pair: this.PairType) = pair.v2
 
 fun _dumpTail(t: TupleType, os: !OutStream) if t.arity == 2
     os << ',' << t.v2

@@ -20,7 +20,7 @@ using allowNativeCodeGen = true
         for pptr: @PredicateClausePtr = program.get().predicates.all
             let p: @PredicateClause = pptr.get
             let name: @String = p.name
-            let arity: UInt = p.args.size
+            let arity = p.args.size
 
             // Search for an existing predicate with same name and same arity
             let r = findIf(predicates.all,
@@ -45,7 +45,7 @@ using allowNativeCodeGen = true
 
     datatype SparrowPredicate
         name: String
-        arity: UInt
+        arity: Int
         firstClause: PredicateClausePtr
         paramVars: Vector(Parameter)
         localVars: Vector(ExpressionPtr)
@@ -55,7 +55,7 @@ using allowNativeCodeGen = true
 
     fun ctor(this: !SparrowPredicate, firstClause: !PredicateClausePtr)
         this.name ctor firstClause.get().name
-        this.arity ctor UInt(firstClause.get().args.size)
+        this.arity ctor firstClause.get().args.size
         this.firstClause ctor firstClause
         this.paramVars ctor
         this.localVars ctor
@@ -207,7 +207,7 @@ using allowNativeCodeGen = true
 
                     // A name (param / local var) cannot be twice in an 'is' condition
                     let varName: @String = left.data
-                    let idx: DiffType = indexOf(isVars.all, left.data)
+                    let idx = indexOf(isVars.all, left.data)
                     if ( idx >= 0 )
                         canBeNative = false
                         return

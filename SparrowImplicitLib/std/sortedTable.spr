@@ -20,7 +20,7 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
     fun ctor(this: !SortedTable)
         this.ctor(0, LessType(), CompareType())
 
-    fun ctor(this: !SortedTable, n: SizeType, less: this.LessType, comp: this.CompareType)
+    fun ctor(this: !SortedTable, n: Int, less: this.LessType, comp: this.CompareType)
         this._table ctor
         this._valToKey ctor
         this._less ctor less
@@ -28,7 +28,7 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
         if n > 0
             this.reserve(n)
 
-    fun ctor(this: !SortedTable, range: Range, n: SizeType, less: this.LessType, comp: this.CompareType)
+    fun ctor(this: !SortedTable, range: Range, n: Int, less: this.LessType, comp: this.CompareType)
         this._table ctor
         if n > 0
             _table.reserve(n)
@@ -86,7 +86,7 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
 
     fun all(this: SortedTable)          = _table.all
 
-    fun reserve(this: !SortedTable, n: SizeType)
+    fun reserve(this: !SortedTable, n: Int)
         _table.reserve(n)
 
     fun insert(this: !SortedTable, value: this.ValueType): RangeType
@@ -119,10 +119,10 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
             _table.remove(range)
 
     fun contains(this: SortedTable, key: this.KeyType): Bool  = !this.find(key).isEmpty
-    fun count(this: SortedTable, key: this.KeyType): SizeType = ife(this.find(key).isEmpty, 0, 1)
+    fun count(this: SortedTable, key: this.KeyType): Int = ife(this.find(key).isEmpty, 0, 1)
 
     fun lowerBound(this: SortedTable, key: this.KeyType): RangeType
-        var first: SizeType = 0
+        var first = 0
         var len = _table.size
         while len > 0
             let l2 = len / 2
@@ -137,7 +137,7 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
         return r
 
     fun upperBound(this: SortedTable, key: this.KeyType): RangeType
-        var first: SizeType = 0
+        var first = 0
         var len = _table.size
         while len > 0
             let l2 = len / 2

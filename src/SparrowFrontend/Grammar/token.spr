@@ -11,8 +11,8 @@ datatype Token
     loc: Location
     type: TokenType
     data: String
-    intData: ULong
-    floatData: Double
+    intData: UInt64
+    floatData: Float
 
 /// Concept modeling the output of the scanner
 /// It's basically a range of tokens

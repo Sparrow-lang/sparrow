@@ -26,7 +26,7 @@ fun sprMain
 datatype MyObj
     x: Int;
 
-fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
+fun createRangeAscending(size: Int): ContiguousMemoryRange(MyObj)
     var ptr: RawPtr(MyObj) = allocRawPtr(MyObj, size)
     let ptrEnd = ptr.advance(size)
     var i = 0

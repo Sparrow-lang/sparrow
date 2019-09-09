@@ -432,671 +432,671 @@ define i1 @_Bool_opNeg(i1 %x) alwaysinline
   ret i1 %1
 }
 
-define i8 @_Byte_opAssign(i8* %x, i8 %y) alwaysinline
+define i8 @_Int8_opAssign(i8* %x, i8 %y) alwaysinline
 {
   store i8 %y, i8* %x
   ret i8 %y
 }
-define i1 @_Byte_opEQ(i8 %x, i8 %y) alwaysinline
+define i1 @_Int8_opEQ(i8 %x, i8 %y) alwaysinline
 {
   %1 = icmp eq i8 %x, %y
   ret i1 %1
 }
-define i1 @_Byte_opNE(i8 %x, i8 %y) alwaysinline
+define i1 @_Int8_opNE(i8 %x, i8 %y) alwaysinline
 {
   %1 = icmp ne i8 %x, %y
   ret i1 %1
 }
-define i1 @_Byte_opLT(i8 %x, i8 %y) alwaysinline
+define i1 @_Int8_opLT(i8 %x, i8 %y) alwaysinline
 {
   %1 = icmp slt i8 %x, %y
   ret i1 %1
 }
-define i1 @_Byte_opGT(i8 %x, i8 %y) alwaysinline
+define i1 @_Int8_opGT(i8 %x, i8 %y) alwaysinline
 {
   %1 = icmp sgt i8 %x, %y
   ret i1 %1
 }
-define i1 @_Byte_opLE(i8 %x, i8 %y) alwaysinline
+define i1 @_Int8_opLE(i8 %x, i8 %y) alwaysinline
 {
   %1 = icmp sle i8 %x, %y
   ret i1 %1
 }
-define i1 @_Byte_opGE(i8 %x, i8 %y) alwaysinline
+define i1 @_Int8_opGE(i8 %x, i8 %y) alwaysinline
 {
   %1 = icmp sge i8 %x, %y
   ret i1 %1
 }
-define i8 @_Byte_opPlus(i8 %x, i8 %y) alwaysinline
+define i8 @_Int8_opPlus(i8 %x, i8 %y) alwaysinline
 {
   %1 = add i8 %x, %y
   ret i8 %1
 }
-define i8 @_Byte_opMinus(i8 %x, i8 %y) alwaysinline
+define i8 @_Int8_opMinus(i8 %x, i8 %y) alwaysinline
 {
   %1 = sub i8 %x, %y
   ret i8 %1
 }
-define i8 @_Byte_opMul(i8 %x, i8 %y) alwaysinline
+define i8 @_Int8_opMul(i8 %x, i8 %y) alwaysinline
 {
   %1 = mul i8 %x, %y
   ret i8 %1
 }
-define i8 @_Byte_opDiv(i8 %x, i8 %y) alwaysinline
+define i8 @_Int8_opDiv(i8 %x, i8 %y) alwaysinline
 {
   %1 = sdiv i8 %x, %y
   ret i8 %1
 }
-define i8 @_Byte_opMod(i8 %x, i8 %y) alwaysinline
+define i8 @_Int8_opMod(i8 %x, i8 %y) alwaysinline
 {
   %1 = srem i8 %x, %y
   ret i8 %1
 }
-define i8 @_Byte_opPlus1(i8 %x) alwaysinline
+define i8 @_Int8_opPlus1(i8 %x) alwaysinline
 {
   ret i8 %x
 }
-define i8 @_Byte_opMinus1(i8 %x) alwaysinline
+define i8 @_Int8_opMinus1(i8 %x) alwaysinline
 {
   %1 = sub i8 0, %x
   ret i8 %1
 }
 
-define i8 @_UByte_opAssign(i8* %x, i8 %y) alwaysinline
+define i8 @_UInt8_opAssign(i8* %x, i8 %y) alwaysinline
 {
   store i8 %y, i8* %x
   ret i8 %y
 }
-define i1 @_UByte_opEQ(i8 %x, i8 %y) alwaysinline
+define i1 @_UInt8_opEQ(i8 %x, i8 %y) alwaysinline
 {
   %1 = icmp eq i8 %x, %y
   ret i1 %1
 }
-define i1 @_UByte_opNE(i8 %x, i8 %y) alwaysinline
+define i1 @_UInt8_opNE(i8 %x, i8 %y) alwaysinline
 {
   %1 = icmp ne i8 %x, %y
   ret i1 %1
 }
-define i1 @_UByte_opLT(i8 %x, i8 %y) alwaysinline
+define i1 @_UInt8_opLT(i8 %x, i8 %y) alwaysinline
 {
   %1 = icmp ult i8 %x, %y
   ret i1 %1
 }
-define i1 @_UByte_opGT(i8 %x, i8 %y) alwaysinline
+define i1 @_UInt8_opGT(i8 %x, i8 %y) alwaysinline
 {
   %1 = icmp ugt i8 %x, %y
   ret i1 %1
 }
-define i1 @_UByte_opLE(i8 %x, i8 %y) alwaysinline
+define i1 @_UInt8_opLE(i8 %x, i8 %y) alwaysinline
 {
   %1 = icmp ule i8 %x, %y
   ret i1 %1
 }
-define i1 @_UByte_opGE(i8 %x, i8 %y) alwaysinline
+define i1 @_UInt8_opGE(i8 %x, i8 %y) alwaysinline
 {
   %1 = icmp uge i8 %x, %y
   ret i1 %1
 }
-define i8 @_UByte_opPlus(i8 %x, i8 %y) alwaysinline
+define i8 @_UInt8_opPlus(i8 %x, i8 %y) alwaysinline
 {
   %1 = add i8 %x, %y
   ret i8 %1
 }
-define i8 @_UByte_opMinus(i8 %x, i8 %y) alwaysinline
+define i8 @_UInt8_opMinus(i8 %x, i8 %y) alwaysinline
 {
   %1 = sub i8 %x, %y
   ret i8 %1
 }
-define i8 @_UByte_opMul(i8 %x, i8 %y) alwaysinline
+define i8 @_UInt8_opMul(i8 %x, i8 %y) alwaysinline
 {
   %1 = mul i8 %x, %y
   ret i8 %1
 }
-define i8 @_UByte_opDiv(i8 %x, i8 %y) alwaysinline
+define i8 @_UInt8_opDiv(i8 %x, i8 %y) alwaysinline
 {
   %1 = udiv i8 %x, %y
   ret i8 %1
 }
-define i8 @_UByte_opMod(i8 %x, i8 %y) alwaysinline
+define i8 @_UInt8_opMod(i8 %x, i8 %y) alwaysinline
 {
   %1 = urem i8 %x, %y
   ret i8 %1
 }
-define i8 @_UByte_opPlus1(i8 %x) alwaysinline
+define i8 @_UInt8_opPlus1(i8 %x) alwaysinline
 {
   ret i8 %x
 }
 
-define i16 @_Short_opAssign(i16* %x, i16 %y) alwaysinline
+define i16 @_Int16_opAssign(i16* %x, i16 %y) alwaysinline
 {
   store i16 %y, i16* %x
   ret i16 %y
 }
-define i1 @_Short_opEQ(i16 %x, i16 %y) alwaysinline
+define i1 @_Int16_opEQ(i16 %x, i16 %y) alwaysinline
 {
   %1 = icmp eq i16 %x, %y
   ret i1 %1
 }
-define i1 @_Short_opNE(i16 %x, i16 %y) alwaysinline
+define i1 @_Int16_opNE(i16 %x, i16 %y) alwaysinline
 {
   %1 = icmp ne i16 %x, %y
   ret i1 %1
 }
-define i1 @_Short_opLT(i16 %x, i16 %y) alwaysinline
+define i1 @_Int16_opLT(i16 %x, i16 %y) alwaysinline
 {
   %1 = icmp slt i16 %x, %y
   ret i1 %1
 }
-define i1 @_Short_opGT(i16 %x, i16 %y) alwaysinline
+define i1 @_Int16_opGT(i16 %x, i16 %y) alwaysinline
 {
   %1 = icmp sgt i16 %x, %y
   ret i1 %1
 }
-define i1 @_Short_opLE(i16 %x, i16 %y) alwaysinline
+define i1 @_Int16_opLE(i16 %x, i16 %y) alwaysinline
 {
   %1 = icmp sle i16 %x, %y
   ret i1 %1
 }
-define i1 @_Short_opGE(i16 %x, i16 %y) alwaysinline
+define i1 @_Int16_opGE(i16 %x, i16 %y) alwaysinline
 {
   %1 = icmp sge i16 %x, %y
   ret i1 %1
 }
-define i16 @_Short_opPlus(i16 %x, i16 %y) alwaysinline
+define i16 @_Int16_opPlus(i16 %x, i16 %y) alwaysinline
 {
   %1 = add i16 %x, %y
   ret i16 %1
 }
-define i16 @_Short_opMinus(i16 %x, i16 %y) alwaysinline
+define i16 @_Int16_opMinus(i16 %x, i16 %y) alwaysinline
 {
   %1 = sub i16 %x, %y
   ret i16 %1
 }
-define i16 @_Short_opMul(i16 %x, i16 %y) alwaysinline
+define i16 @_Int16_opMul(i16 %x, i16 %y) alwaysinline
 {
   %1 = mul i16 %x, %y
   ret i16 %1
 }
-define i16 @_Short_opDiv(i16 %x, i16 %y) alwaysinline
+define i16 @_Int16_opDiv(i16 %x, i16 %y) alwaysinline
 {
   %1 = sdiv i16 %x, %y
   ret i16 %1
 }
-define i16 @_Short_opMod(i16 %x, i16 %y) alwaysinline
+define i16 @_Int16_opMod(i16 %x, i16 %y) alwaysinline
 {
   %1 = srem i16 %x, %y
   ret i16 %1
 }
-define i16 @_Short_opPlus1(i16 %x) alwaysinline
+define i16 @_Int16_opPlus1(i16 %x) alwaysinline
 {
   ret i16 %x
 }
-define i16 @_Short_opMinus1(i16 %x) alwaysinline
+define i16 @_Int16_opMinus1(i16 %x) alwaysinline
 {
   %1 = sub i16 0, %x
   ret i16 %1
 }
 
-define i16 @_UShort_opAssign(i16* %x, i16 %y) alwaysinline
+define i16 @_UInt16_opAssign(i16* %x, i16 %y) alwaysinline
 {
   store i16 %y, i16* %x
   ret i16 %y
 }
-define i1 @_UShort_opEQ(i16 %x, i16 %y) alwaysinline
+define i1 @_UInt16_opEQ(i16 %x, i16 %y) alwaysinline
 {
   %1 = icmp eq i16 %x, %y
   ret i1 %1
 }
-define i1 @_UShort_opNE(i16 %x, i16 %y) alwaysinline
+define i1 @_UInt16_opNE(i16 %x, i16 %y) alwaysinline
 {
   %1 = icmp ne i16 %x, %y
   ret i1 %1
 }
-define i1 @_UShort_opLT(i16 %x, i16 %y) alwaysinline
+define i1 @_UInt16_opLT(i16 %x, i16 %y) alwaysinline
 {
   %1 = icmp ult i16 %x, %y
   ret i1 %1
 }
-define i1 @_UShort_opGT(i16 %x, i16 %y) alwaysinline
+define i1 @_UInt16_opGT(i16 %x, i16 %y) alwaysinline
 {
   %1 = icmp ugt i16 %x, %y
   ret i1 %1
 }
-define i1 @_UShort_opLE(i16 %x, i16 %y) alwaysinline
+define i1 @_UInt16_opLE(i16 %x, i16 %y) alwaysinline
 {
   %1 = icmp ule i16 %x, %y
   ret i1 %1
 }
-define i1 @_UShort_opGE(i16 %x, i16 %y) alwaysinline
+define i1 @_UInt16_opGE(i16 %x, i16 %y) alwaysinline
 {
   %1 = icmp uge i16 %x, %y
   ret i1 %1
 }
-define i16 @_UShort_opPlus(i16 %x, i16 %y) alwaysinline
+define i16 @_UInt16_opPlus(i16 %x, i16 %y) alwaysinline
 {
   %1 = add i16 %x, %y
   ret i16 %1
 }
-define i16 @_UShort_opMinus(i16 %x, i16 %y) alwaysinline
+define i16 @_UInt16_opMinus(i16 %x, i16 %y) alwaysinline
 {
   %1 = sub i16 %x, %y
   ret i16 %1
 }
-define i16 @_UShort_opMul(i16 %x, i16 %y) alwaysinline
+define i16 @_UInt16_opMul(i16 %x, i16 %y) alwaysinline
 {
   %1 = mul i16 %x, %y
   ret i16 %1
 }
-define i16 @_UShort_opDiv(i16 %x, i16 %y) alwaysinline
+define i16 @_UInt16_opDiv(i16 %x, i16 %y) alwaysinline
 {
   %1 = udiv i16 %x, %y
   ret i16 %1
 }
-define i16 @_UShort_opMod(i16 %x, i16 %y) alwaysinline
+define i16 @_UInt16_opMod(i16 %x, i16 %y) alwaysinline
 {
   %1 = urem i16 %x, %y
   ret i16 %1
 }
-define i16 @_UShort_opPlus1(i16 %x) alwaysinline
+define i16 @_UInt16_opPlus1(i16 %x) alwaysinline
 {
   ret i16 %x
 }
 
-define i32 @_Int_opAssign(i32* %x, i32 %y) alwaysinline
+define i32 @_Int32_opAssign(i32* %x, i32 %y) alwaysinline
 {
   store i32 %y, i32* %x
   ret i32 %y
 }
-define i1 @_Int_opEQ(i32 %x, i32 %y) alwaysinline
+define i1 @_Int32_opEQ(i32 %x, i32 %y) alwaysinline
 {
   %1 = icmp eq i32 %x, %y
   ret i1 %1
 }
-define i1 @_Int_opNE(i32 %x, i32 %y) alwaysinline
+define i1 @_Int32_opNE(i32 %x, i32 %y) alwaysinline
 {
   %1 = icmp ne i32 %x, %y
   ret i1 %1
 }
-define i1 @_Int_opLT(i32 %x, i32 %y) alwaysinline
+define i1 @_Int32_opLT(i32 %x, i32 %y) alwaysinline
 {
   %1 = icmp slt i32 %x, %y
   ret i1 %1
 }
-define i1 @_Int_opGT(i32 %x, i32 %y) alwaysinline
+define i1 @_Int32_opGT(i32 %x, i32 %y) alwaysinline
 {
   %1 = icmp sgt i32 %x, %y
   ret i1 %1
 }
-define i1 @_Int_opLE(i32 %x, i32 %y) alwaysinline
+define i1 @_Int32_opLE(i32 %x, i32 %y) alwaysinline
 {
   %1 = icmp sle i32 %x, %y
   ret i1 %1
 }
-define i1 @_Int_opGE(i32 %x, i32 %y) alwaysinline
+define i1 @_Int32_opGE(i32 %x, i32 %y) alwaysinline
 {
   %1 = icmp sge i32 %x, %y
   ret i1 %1
 }
-define i32 @_Int_opPlus(i32 %x, i32 %y) alwaysinline
+define i32 @_Int32_opPlus(i32 %x, i32 %y) alwaysinline
 {
   %1 = add i32 %x, %y
   ret i32 %1
 }
-define i32 @_Int_opMinus(i32 %x, i32 %y) alwaysinline
+define i32 @_Int32_opMinus(i32 %x, i32 %y) alwaysinline
 {
   %1 = sub i32 %x, %y
   ret i32 %1
 }
-define i32 @_Int_opMul(i32 %x, i32 %y) alwaysinline
+define i32 @_Int32_opMul(i32 %x, i32 %y) alwaysinline
 {
   %1 = mul i32 %x, %y
   ret i32 %1
 }
-define i32 @_Int_opDiv(i32 %x, i32 %y) alwaysinline
+define i32 @_Int32_opDiv(i32 %x, i32 %y) alwaysinline
 {
   %1 = sdiv i32 %x, %y
   ret i32 %1
 }
-define i32 @_Int_opMod(i32 %x, i32 %y) alwaysinline
+define i32 @_Int32_opMod(i32 %x, i32 %y) alwaysinline
 {
   %1 = srem i32 %x, %y
   ret i32 %1
 }
-define i32 @_Int_opPlus1(i32 %x) alwaysinline
+define i32 @_Int32_opPlus1(i32 %x) alwaysinline
 {
   ret i32 %x
 }
-define i32 @_Int_opMinus1(i32 %x) alwaysinline
+define i32 @_Int32_opMinus1(i32 %x) alwaysinline
 {
   %1 = sub i32 0, %x
   ret i32 %1
 }
 
-define i32 @_UInt_opAssign(i32* %x, i32 %y) alwaysinline
+define i32 @_UInt32_opAssign(i32* %x, i32 %y) alwaysinline
 {
   store i32 %y, i32* %x
   ret i32 %y
 }
-define i1 @_UInt_opEQ(i32 %x, i32 %y) alwaysinline
+define i1 @_UInt32_opEQ(i32 %x, i32 %y) alwaysinline
 {
   %1 = icmp eq i32 %x, %y
   ret i1 %1
 }
-define i1 @_UInt_opNE(i32 %x, i32 %y) alwaysinline
+define i1 @_UInt32_opNE(i32 %x, i32 %y) alwaysinline
 {
   %1 = icmp ne i32 %x, %y
   ret i1 %1
 }
-define i1 @_UInt_opLT(i32 %x, i32 %y) alwaysinline
+define i1 @_UInt32_opLT(i32 %x, i32 %y) alwaysinline
 {
   %1 = icmp ult i32 %x, %y
   ret i1 %1
 }
-define i1 @_UInt_opGT(i32 %x, i32 %y) alwaysinline
+define i1 @_UInt32_opGT(i32 %x, i32 %y) alwaysinline
 {
   %1 = icmp ugt i32 %x, %y
   ret i1 %1
 }
-define i1 @_UInt_opLE(i32 %x, i32 %y) alwaysinline
+define i1 @_UInt32_opLE(i32 %x, i32 %y) alwaysinline
 {
   %1 = icmp ule i32 %x, %y
   ret i1 %1
 }
-define i1 @_UInt_opGE(i32 %x, i32 %y) alwaysinline
+define i1 @_UInt32_opGE(i32 %x, i32 %y) alwaysinline
 {
   %1 = icmp uge i32 %x, %y
   ret i1 %1
 }
-define i32 @_UInt_opPlus(i32 %x, i32 %y) alwaysinline
+define i32 @_UInt32_opPlus(i32 %x, i32 %y) alwaysinline
 {
   %1 = add i32 %x, %y
   ret i32 %1
 }
-define i32 @_UInt_opMinus(i32 %x, i32 %y) alwaysinline
+define i32 @_UInt32_opMinus(i32 %x, i32 %y) alwaysinline
 {
   %1 = sub i32 %x, %y
   ret i32 %1
 }
-define i32 @_UInt_opMul(i32 %x, i32 %y) alwaysinline
+define i32 @_UInt32_opMul(i32 %x, i32 %y) alwaysinline
 {
   %1 = mul i32 %x, %y
   ret i32 %1
 }
-define i32 @_UInt_opDiv(i32 %x, i32 %y) alwaysinline
+define i32 @_UInt32_opDiv(i32 %x, i32 %y) alwaysinline
 {
   %1 = udiv i32 %x, %y
   ret i32 %1
 }
-define i32 @_UInt_opMod(i32 %x, i32 %y) alwaysinline
+define i32 @_UInt32_opMod(i32 %x, i32 %y) alwaysinline
 {
   %1 = urem i32 %x, %y
   ret i32 %1
 }
-define i32 @_UInt_opPlus1(i32 %x) alwaysinline
+define i32 @_UInt32_opPlus1(i32 %x) alwaysinline
 {
   ret i32 %x
 }
 
-define i64 @_Long_opAssign(i64* %x, i64 %y) alwaysinline
+define i64 @_Int64_opAssign(i64* %x, i64 %y) alwaysinline
 {
   store i64 %y, i64* %x
   ret i64 %y
 }
-define i1 @_Long_opEQ(i64 %x, i64 %y) alwaysinline
+define i1 @_Int64_opEQ(i64 %x, i64 %y) alwaysinline
 {
   %1 = icmp eq i64 %x, %y
   ret i1 %1
 }
-define i1 @_Long_opNE(i64 %x, i64 %y) alwaysinline
+define i1 @_Int64_opNE(i64 %x, i64 %y) alwaysinline
 {
   %1 = icmp ne i64 %x, %y
   ret i1 %1
 }
-define i1 @_Long_opLT(i64 %x, i64 %y) alwaysinline
+define i1 @_Int64_opLT(i64 %x, i64 %y) alwaysinline
 {
   %1 = icmp slt i64 %x, %y
   ret i1 %1
 }
-define i1 @_Long_opGT(i64 %x, i64 %y) alwaysinline
+define i1 @_Int64_opGT(i64 %x, i64 %y) alwaysinline
 {
   %1 = icmp sgt i64 %x, %y
   ret i1 %1
 }
-define i1 @_Long_opLE(i64 %x, i64 %y) alwaysinline
+define i1 @_Int64_opLE(i64 %x, i64 %y) alwaysinline
 {
   %1 = icmp sle i64 %x, %y
   ret i1 %1
 }
-define i1 @_Long_opGE(i64 %x, i64 %y) alwaysinline
+define i1 @_Int64_opGE(i64 %x, i64 %y) alwaysinline
 {
   %1 = icmp sge i64 %x, %y
   ret i1 %1
 }
-define i64 @_Long_opPlus(i64 %x, i64 %y) alwaysinline
+define i64 @_Int64_opPlus(i64 %x, i64 %y) alwaysinline
 {
   %1 = add i64 %x, %y
   ret i64 %1
 }
-define i64 @_Long_opMinus(i64 %x, i64 %y) alwaysinline
+define i64 @_Int64_opMinus(i64 %x, i64 %y) alwaysinline
 {
   %1 = sub i64 %x, %y
   ret i64 %1
 }
-define i64 @_Long_opMul(i64 %x, i64 %y) alwaysinline
+define i64 @_Int64_opMul(i64 %x, i64 %y) alwaysinline
 {
   %1 = mul i64 %x, %y
   ret i64 %1
 }
-define i64 @_Long_opDiv(i64 %x, i64 %y) alwaysinline
+define i64 @_Int64_opDiv(i64 %x, i64 %y) alwaysinline
 {
   %1 = sdiv i64 %x, %y
   ret i64 %1
 }
-define i64 @_Long_opMod(i64 %x, i64 %y) alwaysinline
+define i64 @_Int64_opMod(i64 %x, i64 %y) alwaysinline
 {
   %1 = srem i64 %x, %y
   ret i64 %1
 }
-define i64 @_Long_opPlus1(i64 %x) alwaysinline
+define i64 @_Int64_opPlus1(i64 %x) alwaysinline
 {
   ret i64 %x
 }
-define i64 @_Long_opMinus1(i64 %x) alwaysinline
+define i64 @_Int64_opMinus1(i64 %x) alwaysinline
 {
   %1 = sub i64 0, %x
   ret i64 %1
 }
 
-define i64 @_ULong_opAssign(i64* %x, i64 %y) alwaysinline
+define i64 @_UInt64_opAssign(i64* %x, i64 %y) alwaysinline
 {
   store i64 %y, i64* %x
   ret i64 %y
 }
-define i1 @_ULong_opEQ(i64 %x, i64 %y) alwaysinline
+define i1 @_UInt64_opEQ(i64 %x, i64 %y) alwaysinline
 {
   %1 = icmp eq i64 %x, %y
   ret i1 %1
 }
-define i1 @_ULong_opNE(i64 %x, i64 %y) alwaysinline
+define i1 @_UInt64_opNE(i64 %x, i64 %y) alwaysinline
 {
   %1 = icmp ne i64 %x, %y
   ret i1 %1
 }
-define i1 @_ULong_opLT(i64 %x, i64 %y) alwaysinline
+define i1 @_UInt64_opLT(i64 %x, i64 %y) alwaysinline
 {
   %1 = icmp ult i64 %x, %y
   ret i1 %1
 }
-define i1 @_ULong_opGT(i64 %x, i64 %y) alwaysinline
+define i1 @_UInt64_opGT(i64 %x, i64 %y) alwaysinline
 {
   %1 = icmp ugt i64 %x, %y
   ret i1 %1
 }
-define i1 @_ULong_opLE(i64 %x, i64 %y) alwaysinline
+define i1 @_UInt64_opLE(i64 %x, i64 %y) alwaysinline
 {
   %1 = icmp ule i64 %x, %y
   ret i1 %1
 }
-define i1 @_ULong_opGE(i64 %x, i64 %y) alwaysinline
+define i1 @_UInt64_opGE(i64 %x, i64 %y) alwaysinline
 {
   %1 = icmp uge i64 %x, %y
   ret i1 %1
 }
-define i64 @_ULong_opPlus(i64 %x, i64 %y) alwaysinline
+define i64 @_UInt64_opPlus(i64 %x, i64 %y) alwaysinline
 {
   %1 = add i64 %x, %y
   ret i64 %1
 }
-define i64 @_ULong_opMinus(i64 %x, i64 %y) alwaysinline
+define i64 @_UInt64_opMinus(i64 %x, i64 %y) alwaysinline
 {
   %1 = sub i64 %x, %y
   ret i64 %1
 }
-define i64 @_ULong_opMul(i64 %x, i64 %y) alwaysinline
+define i64 @_UInt64_opMul(i64 %x, i64 %y) alwaysinline
 {
   %1 = mul i64 %x, %y
   ret i64 %1
 }
-define i64 @_ULong_opDiv(i64 %x, i64 %y) alwaysinline
+define i64 @_UInt64_opDiv(i64 %x, i64 %y) alwaysinline
 {
   %1 = udiv i64 %x, %y
   ret i64 %1
 }
-define i64 @_ULong_opMod(i64 %x, i64 %y) alwaysinline
+define i64 @_UInt64_opMod(i64 %x, i64 %y) alwaysinline
 {
   %1 = urem i64 %x, %y
   ret i64 %1
 }
-define i64 @_ULong_opPlus1(i64 %x) alwaysinline
+define i64 @_UInt64_opPlus1(i64 %x) alwaysinline
 {
   ret i64 %x
 }
 
-define float @_Float_opAssign(float* %x, float %y) alwaysinline
+define float @_Float32_opAssign(float* %x, float %y) alwaysinline
 {
   store float %y, float* %x
   ret float %y
 }
-define i1 @_Float_opEQ(float %x, float %y) alwaysinline
+define i1 @_Float32_opEQ(float %x, float %y) alwaysinline
 {
   %1 = fcmp ueq float %x, %y
   ret i1 %1
 }
-define i1 @_Float_opNE(float %x, float %y) alwaysinline
+define i1 @_Float32_opNE(float %x, float %y) alwaysinline
 {
   %1 = fcmp une float %x, %y
   ret i1 %1
 }
-define i1 @_Float_opLT(float %x, float %y) alwaysinline
+define i1 @_Float32_opLT(float %x, float %y) alwaysinline
 {
   %1 = fcmp ult float %x, %y
   ret i1 %1
 }
-define i1 @_Float_opGT(float %x, float %y) alwaysinline
+define i1 @_Float32_opGT(float %x, float %y) alwaysinline
 {
   %1 = fcmp ugt float %x, %y
   ret i1 %1
 }
-define i1 @_Float_opLE(float %x, float %y) alwaysinline
+define i1 @_Float32_opLE(float %x, float %y) alwaysinline
 {
   %1 = fcmp ule float %x, %y
   ret i1 %1
 }
-define i1 @_Float_opGE(float %x, float %y) alwaysinline
+define i1 @_Float32_opGE(float %x, float %y) alwaysinline
 {
   %1 = fcmp uge float %x, %y
   ret i1 %1
 }
-define float @_Float_opPlus(float %x, float %y) alwaysinline
+define float @_Float32_opPlus(float %x, float %y) alwaysinline
 {
   %1 = fadd float %x, %y
   ret float %1
 }
-define float @_Float_opMinus(float %x, float %y) alwaysinline
+define float @_Float32_opMinus(float %x, float %y) alwaysinline
 {
   %1 = fsub float %x, %y
   ret float %1
 }
-define float @_Float_opMul(float %x, float %y) alwaysinline
+define float @_Float32_opMul(float %x, float %y) alwaysinline
 {
   %1 = fmul float %x, %y
   ret float %1
 }
-define float @_Float_opDiv(float %x, float %y) alwaysinline
+define float @_Float32_opDiv(float %x, float %y) alwaysinline
 {
   %1 = fdiv float %x, %y
   ret float %1
 }
-define float @_Float_opPlus1(float %x) alwaysinline
+define float @_Float32_opPlus1(float %x) alwaysinline
 {
   ret float %x
 }
-define float @_Float_opMinus1(float %x) alwaysinline
+define float @_Float32_opMinus1(float %x) alwaysinline
 {
   %1 = fsub float 0.0, %x
   ret float %1
 }
 
-define double @_Double_opAssign(double* %x, double %y) alwaysinline
+define double @_Float64_opAssign(double* %x, double %y) alwaysinline
 {
   store double %y, double* %x
   ret double %y
 }
-define i1 @_Double_opEQ(double %x, double %y) alwaysinline
+define i1 @_Float64_opEQ(double %x, double %y) alwaysinline
 {
   %1 = fcmp ueq double %x, %y
   ret i1 %1
 }
-define i1 @_Double_opNE(double %x, double %y) alwaysinline
+define i1 @_Float64_opNE(double %x, double %y) alwaysinline
 {
   %1 = fcmp une double %x, %y
   ret i1 %1
 }
-define i1 @_Double_opLT(double %x, double %y) alwaysinline
+define i1 @_Float64_opLT(double %x, double %y) alwaysinline
 {
   %1 = fcmp ult double %x, %y
   ret i1 %1
 }
-define i1 @_Double_opGT(double %x, double %y) alwaysinline
+define i1 @_Float64_opGT(double %x, double %y) alwaysinline
 {
   %1 = fcmp ugt double %x, %y
   ret i1 %1
 }
-define i1 @_Double_opLE(double %x, double %y) alwaysinline
+define i1 @_Float64_opLE(double %x, double %y) alwaysinline
 {
   %1 = fcmp ule double %x, %y
   ret i1 %1
 }
-define i1 @_Double_opGE(double %x, double %y) alwaysinline
+define i1 @_Float64_opGE(double %x, double %y) alwaysinline
 {
   %1 = fcmp uge double %x, %y
   ret i1 %1
 }
-define double @_Double_opPlus(double %x, double %y) alwaysinline
+define double @_Float64_opPlus(double %x, double %y) alwaysinline
 {
   %1 = fadd double %x, %y
   ret double %1
 }
-define double @_Double_opMinus(double %x, double %y) alwaysinline
+define double @_Float64_opMinus(double %x, double %y) alwaysinline
 {
   %1 = fsub double %x, %y
   ret double %1
 }
-define double @_Double_opMul(double %x, double %y) alwaysinline
+define double @_Float64_opMul(double %x, double %y) alwaysinline
 {
   %1 = fmul double %x, %y
   ret double %1
 }
-define double @_Double_opDiv(double %x, double %y) alwaysinline
+define double @_Float64_opDiv(double %x, double %y) alwaysinline
 {
   %1 = fdiv double %x, %y
   ret double %1
 }
-define double @_Double_opPlus1(double %x) alwaysinline
+define double @_Float64_opPlus1(double %x) alwaysinline
 {
   ret double %x
 }
-define double @_Double_opMinus1(double %x) alwaysinline
+define double @_Float64_opMinus1(double %x) alwaysinline
 {
   %1 = fsub double 0.0, %x
   ret double %1

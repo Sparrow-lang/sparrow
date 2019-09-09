@@ -78,12 +78,12 @@ fun unlock(mutex: !RecMutex) { let res = Impl.pthread_mutex_unlock(mutex.handle)
 
 package Impl
     using PTHREAD_MUTEX_SIZE = 56
-    using PTHREAD_MUTEX_SIG_INIT = 0x32AAABA7
-    using PTHREAD_RECURSIVE_MUTEX_SIG_INIT = 0x32AAABA2
+    using PTHREAD_MUTEX_SIG_INIT = 0x32AAABA7L
+    using PTHREAD_RECURSIVE_MUTEX_SIG_INIT = 0x32AAABA2L
 
     datatype PThreadMutex
-        sig: Long
-        opaque: StaticArray(Byte, PTHREAD_MUTEX_SIZE)
+        sig: Int64
+        opaque: StaticArray(Int8, PTHREAD_MUTEX_SIZE)
 
     [native("pthread_mutex_init")] fun pthread_mutex_init(mutex: !PThreadMutex, attr: UntypedPtr): Int
     [native("pthread_mutex_lock")] fun pthread_mutex_lock(mutex: !PThreadMutex): Int

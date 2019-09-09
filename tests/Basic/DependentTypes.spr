@@ -4,10 +4,10 @@ concept AnyType(x)
 
 fun writeType(a: AnyType) if typeOf(a) == Int
     write('Int')
-fun writeType(a: AnyType) if typeOf(a) == Byte
-    write('Byte')
-fun writeType(a: AnyType) if typeOf(a) == Double
-    write('Double')
+fun writeType(a: AnyType) if typeOf(a) == Int8
+    write('Int8')
+fun writeType(a: AnyType) if typeOf(a) == Float
+    write('Float')
 
 fun writeTypes(a, b: AnyType)
     writeType(a)
@@ -39,12 +39,9 @@ fun pushBack2(this: !Vec, val: this.ValueType)
 
 [native("test")] fun test(n: Int)
     normal(1, 2)
-    normal(1, Byte(2))
     writeLn('---')
-    any(3.14, Byte(2))
-    anyIf(3.14, Double(Byte(2)))
-    writeLn('---')
-    deduced(3.14, Byte(2))
+    any(3.14, Int8(2))
+    anyIf(3.14, Float(Int8(2)))
 
     writeLn('---')
     var v: Vec(Int)
@@ -54,17 +51,14 @@ fun pushBack2(this: !Vec, val: this.ValueType)
     writeLn(v.data)
     pushBack2(v, 3)
     writeLn(v.data)
-    pushBack2(v, Byte(4))
+    pushBack2(v, Int(Int8(4)))
     writeLn(v.data)
 
 /*<<<Running()
 Int Int
-Int Int
 ---
-Double Byte
-Double Double
----
-Double Double
+Float Int8
+Float Float
 ---
 1
 2

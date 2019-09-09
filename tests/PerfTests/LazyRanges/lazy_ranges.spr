@@ -4,15 +4,17 @@ import std.algorithms
 import std.ranges
 import std.rMath
 
-fun nextCollatz n = ife(n%2==0, n/2, n*3+1)
-fun collatzSeq(n: ULong) = generate1(n, \nextCollatz) takeUntil (fun n = n==1)
+fun nextCollatz(n: UInt64): UInt64 = ife(n%2UL==0UL, n/2UL, n*3UL+1UL)
+fun collatzSeq(n: Int) = generate1(UInt64(n), \nextCollatz) takeUntil (fun n = n==1UL)
+
+fun toU64 n = UInt64(n)
 
 fun sprMain
     if ( programArgs.size() < 2 )
         return;
     let n = programArgs(1) asInt
 
-    let res = (1..) map \collatzSeq map \rangeSize takeWhile (fun.{n} s = s < n) rootMeanSquare
+    let res = (1..) map \collatzSeq map \rangeSize takeWhile (fun.{n} s = s < n) map \toU64 rootMeanSquare
     cout << res << endl
 
 /*<<<Basic test (100)

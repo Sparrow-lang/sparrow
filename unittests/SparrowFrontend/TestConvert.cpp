@@ -172,25 +172,26 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         ConversionType c1 = getConvType(t, u);
         RC_LOG() << "    " << t << " -> " << u << " = " << int(c1) << endl;
 
-        if (c1)
+        // Allowed exception: T -> U tmp
+        if (c1 && u.kind() != typeKindTemp)
             RC_ASSERT(getConvType(mutT, u) != convNone);
     });
 
-    rc::prop("if @T->U (T=datatype) then lv(T)->U", [=]() {
-        auto t = *TypeFactory::arbDataType();
-        auto u = *TypeFactory::arbBasicStorageType();
-        RC_PRE(t.referredNode() == u.referredNode()); // increase the chance of matching
-        Type mutT = MutableType::get(t);
-        RC_LOG() << mutT << " -> " << u << endl;
+    // rc::prop("if @T->U (T=datatype) then mut(T)->U", [=]() {
+    //     auto t = *TypeFactory::arbDataType();
+    //     auto u = *TypeFactory::arbBasicStorageType();
+    //     RC_PRE(t.referredNode() == u.referredNode()); // increase the chance of matching
+    //     Type mutT = MutableType::get(t);
+    //     RC_LOG() << mutT << " -> " << u << endl;
 
-        Type rt = addRef(DataType(t));
-        ConversionType c1 = getConvType(rt, u);
-        RC_LOG() << "    " << rt << " -> " << u << " = " << int(c1) << endl;
+    //     Type rt = addRef(DataType(t));
+    //     ConversionType c1 = getConvType(rt, u);
+    //     RC_LOG() << "    " << rt << " -> " << u << " = " << int(c1) << endl;
 
-        if (c1) {
-            RC_ASSERT(getConvType(mutT, u) != convNone);
-        }
-    });
+    //     if (c1 && u.kind() != typeKindConst) {
+    //         RC_ASSERT(getConvType(mutT, u) != convNone);
+    //     }
+    // });
 
     SECTION("MutableType examples") {
         Node* decl = TypeFactory::g_dataTypeDecls[0];
@@ -329,9 +330,15 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         TypeWithStorage c2tmp = TempType::get(c2);
 
         CHECK(getConvType(src0, c0) == convConcept);
+        CHECK(getConvType(src0, c0const) == convConcept);
+        CHECK(getConvType(src0, c0tmp) == convConcept);
         CHECK(getConvType(src0const, c0const) == convConcept);
         CHECK(getConvType(src0mut, c0mut) == convConcept);
+        CHECK(getConvType(src0mut, c0const) == convConcept);
         CHECK(getConvType(src0tmp, c0tmp) == convConcept);
+        CHECK(getConvType(src0tmp, c0const) == convConcept);
+        CHECK(getConvType(src0tmp, c0mut) == convNone);
+        CHECK(getConvType(src0tmp, c0) == convConcept);
 
         CHECK(getConvType(src1const, c1) == convConcept);
         CHECK(getConvType(src1const, c1const) == convConcept);
@@ -655,7 +662,7 @@ void ConvertFixture::checkCatConversions(DataType src, DataType dest) {
     // Direct: tmp(T)->const(U), if T->U
     RC_ASSERT(getConvType(tmpSrc, constDest) == baseConv);
     // Direct: tmp(T)->mut(U), if T->U
-    RC_ASSERT(getConvType(tmpSrc, mutDest) == baseConv);
+    RC_ASSERT(getConvType(tmpSrc, mutDest) == convNone);
     // Direct: tmp(T)->plain(U), if T->U
     RC_ASSERT(getConvType(tmpSrc, dest) == baseConv);
 }

@@ -40,9 +40,9 @@ fun getValue(x: Int): MyVal
 
     writeLn("---")
 
-    write("abc".getChar(intToSizeType(0)))
-    write("abc".getChar(intToSizeType(1)))
-    write("abc".getChar(intToSizeType(2)))
+    write("abc".getChar(0))
+    write("abc".getChar(1))
+    write("abc".getChar(2))
     writeLn("abc".size())
 
 /*<<<Running()

@@ -14,13 +14,11 @@ extern TypeWithStorage typeNull;
 extern TypeWithStorage typeBool;
 extern TypeWithStorage typeByte;
 extern TypeWithStorage typeInt;
-extern TypeWithStorage typeSizeType;
 extern TypeWithStorage typeStringRef;
 
 extern TypeWithStorage typeRefType;
 extern TypeWithStorage typeRefByte;
 extern TypeWithStorage typeRefInt;
-extern TypeWithStorage typeSizeTypeCt;
 
 extern Node* clsType;
 extern Node* clsNull;

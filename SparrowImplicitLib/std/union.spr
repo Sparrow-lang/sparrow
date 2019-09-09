@@ -3,7 +3,7 @@ module std.union
 import std.staticArray
 
 [ct]
-fun _max(value1, value2: SizeType): SizeType
+fun _max(value1, value2: Int): Int
     if value1 < value2
         return value2
     return value1

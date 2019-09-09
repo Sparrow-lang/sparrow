@@ -50,13 +50,13 @@ using nRotations = 12
 // TODO: Finish this
 //package P11
 //{
-//var pieces:      StaticArray3d(ULong, nPieces, nPositions, nRotations);
-//var nextCell:    StaticArray3d(Byte, nPieces, nPositions, nRotations);
+//var pieces:      StaticArray3d(UInt64, nPieces, nPositions, nRotations);
+//var nextCell:    StaticArray3d(Int8, nPieces, nPositions, nRotations);
 //var pieceCounts: StaticArray2d(Int, nPieces, nPositions);
 
 //datatype Piece
 //{
-//    using PosType = Byte * Byte;    // y coord then x coord - used for sorting
+//    using PosType = Int8 * Int8;    // y coord then x coord - used for sorting
 //    using PosTypeArr = StaticArray(PosType, 5);
 //    var pos: PosTypeArr;
 
@@ -81,7 +81,7 @@ using nRotations = 12
 //fun rotatePos(p: PosType) = (p._1 + p._2) ~ -p._2;
 
 //// fun posToNum(p: PosType) = p._1 + 5*p._2;
-//// fun posFromNum(p: Byte): PosType = p%5 ~ p/5;
+//// fun posFromNum(p: Int8): PosType = p%5 ~ p/5;
 
 //fun offsetToMin: Piece
 //{
@@ -128,289 +128,290 @@ using nRotations = 12
 //}
 
 package P1
-{
+    datatype Direction
+        id: Int
 
-datatype Direction
-    id: Int
+        using E     = Direction(0)
+        using ESE   = Direction(1)
+        using SE    = Direction(2)
+        using S     = Direction(3)
+        using SW    = Direction(4)
+        using WSW   = Direction(5)
+        using W     = Direction(6)
+        using WNW   = Direction(7)
+        using NW    = Direction(8)
+        using N     = Direction(9)
+        using NE    = Direction(10)
+        using ENE   = Direction(11)
+        using numValues = 12
 
-    using E     = Direction(0)
-    using ESE   = Direction(1)
-    using SE    = Direction(2)
-    using S     = Direction(3)
-    using SW    = Direction(4)
-    using WSW   = Direction(5)
-    using W     = Direction(6)
-    using WNW   = Direction(7)
-    using NW    = Direction(8)
-    using N     = Direction(9)
-    using NE    = Direction(10)
-    using ENE   = Direction(11)
-    using numValues = 12
+    fun ctor(this: !Direction, id: Int)
+        this.id ctor id;
 
-fun ctor(this: !Direction, id: Int)
-    this.id ctor id;
+    var pieceDef: StaticArray2d(Direction, 10, 4)
 
-var pieceDef: StaticArray2d(Direction, 10, 4)
+    fun setPiece(p: !StaticArray(Direction, 4), a, b, c, d: Direction)
+        p(0) = a
+        p(1) = b
+        p(2) = c
+        p(3) = d
 
-fun setPiece(p: !StaticArray(Direction, 4), a, b, c, d: Direction)
-    { p(0) = a; p(1) = b; p(2) = c; p(3) = d; }
+    fun ctor
+        using Direction.*
+        setPiece(pieceDef(0),  E,  E,  E, SE)
+        setPiece(pieceDef(1), SE,  E, NE,  E)
+        setPiece(pieceDef(2),  E,  E, SE, SW)
+        setPiece(pieceDef(3),  E,  E, SW, SE)
+        setPiece(pieceDef(4), SE,  E, NE,  S)
+        setPiece(pieceDef(5),  E,  E, SW,  E)
+        setPiece(pieceDef(6),  E, SE, SE, NE)
+        setPiece(pieceDef(7),  E, SE, SE,  W)
+        setPiece(pieceDef(8),  E, SE,  E,  E)
+        setPiece(pieceDef(9),  E,  E,  E, SW)
 
-fun ctor
-    using Direction.*
-    setPiece(pieceDef(0),  E,  E,  E, SE)
-    setPiece(pieceDef(1), SE,  E, NE,  E)
-    setPiece(pieceDef(2),  E,  E, SE, SW)
-    setPiece(pieceDef(3),  E,  E, SW, SE)
-    setPiece(pieceDef(4), SE,  E, NE,  S)
-    setPiece(pieceDef(5),  E,  E, SW,  E)
-    setPiece(pieceDef(6),  E, SE, SE, NE)
-    setPiece(pieceDef(7),  E, SE, SE,  W)
-    setPiece(pieceDef(8),  E, SE,  E,  E)
-    setPiece(pieceDef(9),  E,  E,  E, SW)
+    /* To minimize the amount of work done in the recursive solve function below,
+     * I'm going to allocate enough space for all legal rotations of each piece
+     * at each position on the board. That's 10 pieces x 50 board positions x
+     * 12 rotations.  However, not all 12 rotations will fit on every cell, so
+     * I'll have to keep count of the actual number that do.
+     * The pieces are going to be unsigned long long ints just like the board so
+     * they can be bitwise-anded with the board to determine if they fit.
+     * I'm also going to record the next possible open cell for each piece and
+     * location to reduce the burden on the solve function.
+     */
+    // the next 3 variables are the result of the first stage
 
-/* To minimize the amount of work done in the recursive solve function below,
- * I'm going to allocate enough space for all legal rotations of each piece
- * at each position on the board. That's 10 pieces x 50 board positions x
- * 12 rotations.  However, not all 12 rotations will fit on every cell, so
- * I'll have to keep count of the actual number that do.
- * The pieces are going to be unsigned long long ints just like the board so
- * they can be bitwise-anded with the board to determine if they fit.
- * I'm also going to record the next possible open cell for each piece and
- * location to reduce the burden on the solve function.
- */
-// the next 3 variables are the result of the first stage
+    // represents the mask of a given piece
+    var pieces:      StaticArray3d(UInt64, nPieces, nPositions, nRotations)
+    // represents the first empty spot after placing the piece
+    var nextCell:    StaticArray3d(Int8, nPieces, nPositions, nRotations)
+    // represents the piece count for pieces (last dimension)
+    var pieceCounts: StaticArray2d(Int, nPieces, nPositions)
 
-// represents the mask of a given piece
-var pieces:      StaticArray3d(ULong, nPieces, nPositions, nRotations)
-// represents the first empty spot after placing the piece
-var nextCell:    StaticArray3d(Byte, nPieces, nPositions, nRotations)
-// represents the piece count for pieces (last dimension)
-var pieceCounts: StaticArray2d(Int, nPieces, nPositions)
+    using CellType = StaticArray(Int8, 5)
 
-/* Returns the direction rotated 60 degrees clockwise */
-fun rotate(dir: Direction) = Direction((dir.id+2) % Direction.numValues)
+    /* Returns the direction rotated 60 degrees clockwise */
+    fun rotate(dir: Direction) = Direction((dir.id+2) % Direction.numValues)
 
-/* Returns the direction flipped on the horizontal axis */
-fun flip(dir: Direction) = Direction((Direction.numValues-dir.id) % Direction.numValues)
+    /* Returns the direction flipped on the horizontal axis */
+    fun flip(dir: Direction) = Direction((Direction.numValues-dir.id) % Direction.numValues)
 
-/* Returns the new cell index from the specified cell in the
- * specified direction.  The index is only valid if the
- * starting cell and direction have been checked by the
- * out_of_bounds function first.
- */
-fun shift(cell: Byte, dir: Direction): Byte
-    let oddRow: Bool = (cell/5) % 2 != 0
+    /* Returns the new cell index from the specified cell in the
+     * specified direction.  The index is only valid if the
+     * starting cell and direction have been checked by the
+     * out_of_bounds function first.
+     */
+    fun shift(cell: Int8, dir: Direction): Int8
+        let oddRow: Bool = (Int(cell)/5) % 2 != 0
 
-    using Direction.*
-    if ( dir == E )                  return cell + Byte(1)
-    else if ( dir == ESE && oddRow ) return cell + Byte(7)
-    else if ( dir == ESE )           return cell + Byte(6)
-    else if ( dir == SE && oddRow )  return cell + Byte(6)
-    else if ( dir == SE )            return cell + Byte(5)
-    else if ( dir == S )             return cell + Byte(10)
-    else if ( dir == SW && oddRow )  return cell + Byte(5)
-    else if ( dir == SW )            return cell + Byte(4)
-    else if ( dir == WSW && oddRow ) return cell + Byte(4)
-    else if ( dir == WSW )           return cell + Byte(3)
-    else if ( dir == W )             return cell - Byte(1)
-    else if ( dir == WNW && oddRow ) return cell - Byte(6)
-    else if ( dir == WNW )           return cell - Byte(7)
-    else if ( dir == NW && oddRow )  return cell - Byte(5)
-    else if ( dir == NW )            return cell - Byte(6)
-    else if ( dir == N )             return cell - Byte(10)
-    else if ( dir == NE && oddRow )  return cell - Byte(4)
-    else if ( dir == NE )            return cell - Byte(5)
-    else if ( dir == ENE && oddRow ) return cell - Byte(3)
-    else if ( dir == ENE )           return cell - Byte(4)
-    else                             return cell
+        using Direction.*
+        if ( dir == E )                  return cell + Int8(1)
+        else if ( dir == ESE && oddRow ) return cell + Int8(7)
+        else if ( dir == ESE )           return cell + Int8(6)
+        else if ( dir == SE && oddRow )  return cell + Int8(6)
+        else if ( dir == SE )            return cell + Int8(5)
+        else if ( dir == S )             return cell + Int8(10)
+        else if ( dir == SW && oddRow )  return cell + Int8(5)
+        else if ( dir == SW )            return cell + Int8(4)
+        else if ( dir == WSW && oddRow ) return cell + Int8(4)
+        else if ( dir == WSW )           return cell + Int8(3)
+        else if ( dir == W )             return cell - Int8(1)
+        else if ( dir == WNW && oddRow ) return cell - Int8(6)
+        else if ( dir == WNW )           return cell - Int8(7)
+        else if ( dir == NW && oddRow )  return cell - Int8(5)
+        else if ( dir == NW )            return cell - Int8(6)
+        else if ( dir == N )             return cell - Int8(10)
+        else if ( dir == NE && oddRow )  return cell - Int8(4)
+        else if ( dir == NE )            return cell - Int8(5)
+        else if ( dir == ENE && oddRow ) return cell - Int8(3)
+        else if ( dir == ENE )           return cell - Int8(4)
+        else                             return cell
 
-/* Returns wether the specified cell and direction will land outside
- * of the board.  Used to determine if a piece is at a legal board
- * location or not.
- */
-fun outOfBounds(cell: Byte, dir: Direction): Bool
-    let col = cell % 5
-    let colEx = cell % 10
-    using Direction.*
-    if ( dir == E )         return col==4
-    else if ( dir == ESE )  return colEx==4 || colEx==8 || colEx==9 || cell>=45
-    else if ( dir == SE )   return colEx==9 || cell>=45
-    else if ( dir == S )    return cell>=40
-    else if ( dir == SW )   return colEx==0 || cell>=45
-    else if ( dir == WSW )  return colEx==0 || colEx==1 || colEx==5 || cell>=45
-    else if ( dir == W )    return col==0
-    else if ( dir == WNW )  return colEx==0 || colEx==1 || colEx==5 || cell<5
-    else if ( dir == NW )   return colEx==0 || cell<5
-    else if ( dir == N )    return cell<10
-    else if ( dir == NE )   return colEx==9 || cell<5
-    else if ( dir == ENE )  return colEx==4 || colEx==8 || colEx==9 || cell<5
-    else                    return false
+    /* Returns wether the specified cell and direction will land outside
+     * of the board.  Used to determine if a piece is at a legal board
+     * location or not.
+     */
+    fun outOfBounds(cell: Int8, dir: Direction): Bool
+        let cellI = Int(cell)
+        let col = cellI % 5
+        let colEx = cellI % 10
+        using Direction.*
+        if ( dir == E )         return col==4
+        else if ( dir == ESE )  return colEx==4 || colEx==8 || colEx==9 || cellI>=45
+        else if ( dir == SE )   return colEx==9 || cellI>=45
+        else if ( dir == S )    return cellI>=40
+        else if ( dir == SW )   return colEx==0 || cellI>=45
+        else if ( dir == WSW )  return colEx==0 || colEx==1 || colEx==5 || cellI>=45
+        else if ( dir == W )    return col==0
+        else if ( dir == WNW )  return colEx==0 || colEx==1 || colEx==5 || cellI<5
+        else if ( dir == NW )   return colEx==0 || cellI<5
+        else if ( dir == N )    return cellI<10
+        else if ( dir == NE )   return colEx==9 || cellI<5
+        else if ( dir == ENE )  return colEx==4 || colEx==8 || colEx==9 || cellI<5
+        else                    return false
 
-/* Rotate a piece 60 degrees clockwise */
-fun rotatePiece(piece: Int)
-    for p: @Direction = pieceDef(piece).all
-        p = rotate(p);
+    /* Rotate a piece 60 degrees clockwise */
+    fun rotatePiece(piece: Int)
+        for p: @Direction = pieceDef(piece).all
+            p = rotate(p);
 
-/* Flip a piece along the horizontal axis */
-fun flipPiece(piece: Int)
-    for p: @Direction = pieceDef(piece).all
-        p = flip(p);
+    /* Flip a piece along the horizontal axis */
+    fun flipPiece(piece: Int)
+        for p: @Direction = pieceDef(piece).all
+            p = flip(p);
 
-/* Convenience function to quickly calculate all of the indices for a piece */
-fun calcCellIndices(cell: !StaticArray(Byte, 5), piece: Int, index: Byte)
-    var hasOddDir = false
-    //for i = 0..4
-    //{
-    //    var dir = pieceDef(piece)(i);
-    //    if ( dir.id % 2 == 1 )
-    //        hasOddDir = true;
-    //}
-    if ( hasOddDir )
-        cout << "Piece: " << piece << ": "
-        for i = 0..4
-            cout << ' ' << pieceDef(piece)(i).id;
-        cout << endl;
-    cell(0) = index
-    cell(1) = shift(cell(0), pieceDef(piece)(0))
-    cell(2) = shift(cell(1), pieceDef(piece)(1))
-    cell(3) = shift(cell(2), pieceDef(piece)(2))
-    cell(4) = shift(cell(3), pieceDef(piece)(3))
+    /* Convenience function to quickly calculate all of the indices for a piece */
+    fun calcCellIndices(cell: !CellType, piece: Int, index: Int8)
+        var hasOddDir = false
+        //for i = 0..4
+        //    var dir = pieceDef(piece)(i);
+        //    if ( dir.id % 2 == 1 )
+        //        hasOddDir = true;
+        if ( hasOddDir )
+            cout << "Piece: " << piece << ": "
+            for i = 0..4
+                cout << ' ' << pieceDef(piece)(i).id;
+            cout << endl;
+        cell(0) = index
+        cell(1) = shift(cell(0), pieceDef(piece)(0))
+        cell(2) = shift(cell(1), pieceDef(piece)(1))
+        cell(3) = shift(cell(2), pieceDef(piece)(2))
+        cell(4) = shift(cell(3), pieceDef(piece)(3))
 
-/* Convenience function to quickly calculate if a piece fits on the board */
-fun cellsFitOnBoard(cell: !StaticArray(Byte, 5), piece: Int): Bool
-    return(!outOfBounds(cell(0), pieceDef(piece)(0))
-        && !outOfBounds(cell(1), pieceDef(piece)(1))
-        && !outOfBounds(cell(2), pieceDef(piece)(2))
-        && !outOfBounds(cell(3), pieceDef(piece)(3))
-    );
+    /* Convenience function to quickly calculate if a piece fits on the board */
+    fun cellsFitOnBoard(cell: !CellType, piece: Int): Bool
+        return(!outOfBounds(cell(0), pieceDef(piece)(0))
+            && !outOfBounds(cell(1), pieceDef(piece)(1))
+            && !outOfBounds(cell(2), pieceDef(piece)(2))
+            && !outOfBounds(cell(3), pieceDef(piece)(3))
+        );
 
-/* Returns the lowest index of the cells of a piece.
- * I use the lowest index that a piece occupies as the index for looking up
- * the piece in the solve function.
- */
-fun minimumOfCells(cell: !StaticArray(Byte, 5)): Byte
-    // TODO: Use algo here
-    var minimum = cell(0)
-    minimum = Byte(ife(cell(1) < minimum, cell(1), minimum))
-    minimum = Byte(ife(cell(2) < minimum, cell(2), minimum))
-    minimum = Byte(ife(cell(3) < minimum, cell(3), minimum))
-    minimum = Byte(ife(cell(4) < minimum, cell(4), minimum))
-    return minimum
+    /* Returns the lowest index of the cells of a piece.
+     * I use the lowest index that a piece occupies as the index for looking up
+     * the piece in the solve function.
+     */
+    fun minimumOfCells(cell: !CellType): Int8
+        // TODO: Use algo here
+        var minimum = cell(0)
+        minimum = Int8(ife(cell(1) < minimum, cell(1) Int8, minimum))
+        minimum = Int8(ife(cell(2) < minimum, cell(2) Int8, minimum))
+        minimum = Int8(ife(cell(3) < minimum, cell(3) Int8, minimum))
+        minimum = Int8(ife(cell(4) < minimum, cell(4) Int8, minimum))
+        return minimum
 
-/* Calculate the lowest possible open cell if the piece is placed on the board.
- * Used to later reduce the amount of time searching for open cells in the
- * solve function.
- */
-fun firstEmptyCell(cell: !StaticArray(Byte, 5), min: Byte): Byte
-    while ( min == cell(0) || min == cell(1) || min == cell(2)
-         || min == cell(3) || min == cell(4) )
-        ++min;
-    return min;
+    /* Calculate the lowest possible open cell if the piece is placed on the board.
+     * Used to later reduce the amount of time searching for open cells in the
+     * solve function.
+     */
+    fun firstEmptyCell(cell: !CellType, min: Int8): Int8
+        while ( min == cell(0) || min == cell(1) || min == cell(2)
+             || min == cell(3) || min == cell(4) )
+            ++min;
+        return min;
 
-/* Generate the unsigned long long int that will later be anded with the
- * board to determine if it fits.
- */
-fun bitmaskFromCells(cell: !StaticArray(Byte, 5)): ULong
-   var pieceMask: ULong
-   for c = cell.all
-      pieceMask !|!= (ULong(1L) !<<! c);
-   return pieceMask;
+    /* Generate the unsigned long long int that will later be anded with the
+     * board to determine if it fits.
+     */
+    fun bitmaskFromCells(cell: !CellType): UInt64
+       var pieceMask: UInt64
+       for c = cell.all
+          pieceMask !|!= (UInt64(1L) !<<! UInt64(c))
+       return pieceMask
 
-/* Record the piece and other important information in arrays that will
- * later be used by the solve function.
- */
-fun recordPiece(piece, min: Int, firstEmpty: Byte, pieceMask: ULong)
-    pieces(piece)(min)(pieceCounts(piece)(min)) = pieceMask
-    nextCell(piece)(min)(pieceCounts(piece)(min)) = firstEmpty
-    ++pieceCounts(piece)(min)
+    /* Record the piece and other important information in arrays that will
+     * later be used by the solve function.
+     */
+    fun recordPiece(piece, min: Int, firstEmpty: Int8, pieceMask: UInt64)
+        pieces(piece)(min)(pieceCounts(piece)(min)) = pieceMask
+        nextCell(piece)(min)(pieceCounts(piece)(min)) = firstEmpty
+        ++pieceCounts(piece)(min)
 
-/* Fill the entire board going cell by cell.  If any cells are "trapped"
- * they will be left alone.
- */
-fun fillContiguousSpace(board: !StaticArray(Byte, nPositions), index: Byte)
-    if ( board(index) == 1 )
-        return;
-    board(index) = Byte(1)
-    using Direction.*
-    if !outOfBounds(index, E)  ; fillContiguousSpace(board, shift(index, E))
-    if !outOfBounds(index, SE) ; fillContiguousSpace(board, shift(index, SE))
-    if !outOfBounds(index, SW) ; fillContiguousSpace(board, shift(index, SW))
-    if !outOfBounds(index, W)  ; fillContiguousSpace(board, shift(index, W))
-    if !outOfBounds(index, NW) ; fillContiguousSpace(board, shift(index, NW))
-    if !outOfBounds(index, NE) ; fillContiguousSpace(board, shift(index, NE))
+    /* Fill the entire board going cell by cell.  If any cells are "trapped"
+     * they will be left alone.
+     */
+    fun fillContiguousSpace(board: !StaticArray(Int8, nPositions), index: Int8)
+        if board(index Int) == Int8(1)
+            return
+        board(index Int) = Int8(1)
+        using Direction.*
+        if !outOfBounds(index, E)  ; fillContiguousSpace(board, shift(index, E))
+        if !outOfBounds(index, SE) ; fillContiguousSpace(board, shift(index, SE))
+        if !outOfBounds(index, SW) ; fillContiguousSpace(board, shift(index, SW))
+        if !outOfBounds(index, W)  ; fillContiguousSpace(board, shift(index, W))
+        if !outOfBounds(index, NW) ; fillContiguousSpace(board, shift(index, NW))
+        if !outOfBounds(index, NE) ; fillContiguousSpace(board, shift(index, NE))
 
-/* To thin the number of pieces, I calculate if any of them trap any empty
- * cells at the edges.  There are only a handful of exceptions where the
- * the board can be solved with the trapped cells.  For example:  piece 8 can
- * trap 5 cells in the corner, but piece 3 can fit in those cells, or piece 0
- * can split the board in half where both halves are viable.
- */
-fun hasIsland(cell: !StaticArray(Byte, 5), piece: Int): Bool
-    var tempBoard: StaticArray(Byte, nPositions)
+    /* To thin the number of pieces, I calculate if any of them trap any empty
+     * cells at the edges.  There are only a handful of exceptions where the
+     * the board can be solved with the trapped cells.  For example:  piece 8 can
+     * trap 5 cells in the corner, but piece 3 can fit in those cells, or piece 0
+     * can split the board in half where both halves are viable.
+     */
+    fun hasIsland(cell: !CellType, piece: Int): Bool
+        var tempBoard: StaticArray(Int8, nPositions)
 
-    for c = cell.all
-        tempBoard(c) = Byte(1);
-    var i: Byte = 49
-    while tempBoard(i) == 1
-        --i;
-    fillContiguousSpace(tempBoard, i)
-    var c: Byte = 0
-    for i = 0..50
-        if ( tempBoard(i) == 0)
-            ++c;
-    return c != 0 && !(c == 5 && piece == 8) && !(c == 40 && piece == 8) \
-        && !(c % 5 == 0 && piece == 0);
+        for c = cell.all
+            tempBoard(c Int) = Int8(1);
+        var i = 49
+        while tempBoard(i) == Int8(1)
+            --i;
+        fillContiguousSpace(tempBoard, Int8(i))
+        var c = 0
+        for i = 0..50
+            if tempBoard(i) == Int8(0)
+                ++c;
+        return c != 0 && !(c == 5 && piece == 8) && !(c == 40 && piece == 8) \
+            && !(c % 5 == 0 && piece == 0);
 
-/* Calculate all six rotations of the specified piece at the specified index.
- * We calculate only half of piece 3's rotations.  This is because any solution
- * found has an identical solution rotated 180 degrees.  Thus we can reduce the
- * number of attempted pieces in the solve algorithm by not including the 180-
- * degree-rotated pieces of ONE of the pieces.  I chose piece 3 because it gave
- * me the best time ;)
- */
-fun calcSixRotations(piece, index: Byte)
-    var cell: StaticArray(Byte, 5)
-    for rot = 0..6
-        if ( piece != 3 || rot < 3 )
-            calcCellIndices(cell, piece, index)
-            if ( cellsFitOnBoard(cell, piece) && !hasIsland(cell, piece) )
-                let min = minimumOfCells(cell)
-                let firstEmpty = firstEmptyCell(cell, min)
-                let pieceMask = bitmaskFromCells(cell)
-                recordPiece(piece, min, firstEmpty, pieceMask)
-            ;
-        rotatePiece(piece)
-    ;
+    /* Calculate all six rotations of the specified piece at the specified index.
+     * We calculate only half of piece 3's rotations.  This is because any solution
+     * found has an identical solution rotated 180 degrees.  Thus we can reduce the
+     * number of attempted pieces in the solve algorithm by not including the 180-
+     * degree-rotated pieces of ONE of the pieces.  I chose piece 3 because it gave
+     * me the best time ;)
+     */
+    fun calcSixRotations(piece, index: Int)
+        var cell: CellType
+        for rot = 0..6
+            if ( piece != 3 || rot < 3 )
+                calcCellIndices(cell, piece, index Int8)
+                if ( cellsFitOnBoard(cell, piece) && !hasIsland(cell, piece) )
+                    let min = minimumOfCells(cell)
+                    let firstEmpty = firstEmptyCell(cell, min)
+                    let pieceMask = bitmaskFromCells(cell)
+                    recordPiece(piece, min Int, firstEmpty, pieceMask)
+                ;
+            rotatePiece(piece)
+        ;
 
-/* Calculate every legal rotation for each piece at each board location. */
-fun calcPieces
-    for piece: Byte = 0..nPieces
-        for index: Byte = 0..nPositions
-            calcSixRotations(piece, index)
-            flipPiece(piece)
-            calcSixRotations(piece, index)
+    /* Calculate every legal rotation for each piece at each board location. */
+    fun calcPieces
+        for piece = 0..nPieces
+            for index = 0..nPositions
+                calcSixRotations(piece, index)
+                flipPiece(piece)
+                calcSixRotations(piece, index)
 
-}
 
 /* Calculate all 32 possible states for a 5-bit row and all rows that will
  * create islands that follow any of the 32 possible rows.  These pre-
  * calculated 5-bit rows will be used to find islands in a partially solved
  * board in the solve function.
  */
-using ROW_MASK = Byte(0x1F)
-using TRIPLE_MASK = 0x7FFF
+using ROW_MASK = 0x1F
+using TRIPLE_MASK = UInt64(0x7FFF)
 
 var badEvenRows, badOddRows: StaticArray2d(Bool, 32, 32)
 var badEvenTriple, badOddTriple: StaticArray(Bool, 32768)
 
-fun rowsBad(row1, row2: Byte, even: Bool): Bool
+fun rowsBad(row1, row2: Int, even: Bool): Bool
     /* even is referring to row1 */
     /* Test for blockages at same index and shifted index */
-    var row2Shift: Byte
-    if ( even )
-        row2Shift = ((row2 !<<! Byte(1)) !&! ROW_MASK) !|! Byte(0x01);
+    var row2Shift: Int
+    if even
+        row2Shift = ((row2 !<<! 1) !&! ROW_MASK) !|! 0x01;
     else
-        row2Shift = (row2 !>>! Byte(1)) !|! Byte(0x10);
+        row2Shift = (row2 !>>! 1) !|! 0x10;
     let block = (row1 !^! row2) !&! row2 !&! ((row1 !^! row2Shift) !&! row2Shift)
     /* Test for groups of 0's */
     var inZeroes = false
@@ -435,7 +436,7 @@ fun rowsBad(row1, row2: Byte, even: Bool): Bool
  * positive.  One scenario is when 5 cells may be surrounded where piece 5
  * or 7 can fit.  The other scenario is when piece 2 creates a hook shape.
  */
-fun tripleIsOkay(row1, row2, row3: Byte, even: Bool): Bool
+fun tripleIsOkay(row1, row2, row3: Int, even: Bool): Bool
     let r1: Int = row1
     let r2: Int = row2
     let r3: Int = row3
@@ -461,13 +462,13 @@ fun tripleIsOkay(row1, row2, row3: Byte, even: Bool): Bool
     ;
 
 fun calcRows
-    for row1: Byte = 0..32
-        for row2: Byte = 0..32
+    for row1 = 0..32
+        for row2 = 0..32
             badEvenRows(row1)(row2) = rowsBad(row1, row2, true)
             badOddRows(row1)(row2) = rowsBad(row1, row2, false)
-    for row1: Byte = 0..32
-        for row2: Byte = 0..32
-            for row3: Byte = 0..32
+    for row1 = 0..32
+        for row2 = 0..32
+            for row3 = 0..32
                 var res1 = badEvenRows(row1)(row2)
                 var res2 = badOddRows(row2)(row3)
                 if ( !res1 && res2 && tripleIsOkay(row1,row2,row3, true) )
@@ -482,16 +483,17 @@ fun calcRows
                 else
                    badOddTriple(row1+(row2*32)+(row3*1024)) = res1 || res2;
 
-let board = ULong(0xFFFC000000000000L)
+let board = UInt64(0xFFFC000000000000L)
 
 /* Calculate islands while solving the board.
  */
-fun boardHasIslands(cell: Byte): Bool
+fun boardHasIslands(cell: Int8): Bool
+    var c: Int = cell
     /* Too low on board, don't bother checking */
-    if ( cell >= 40 )
+    if c >= 40
        return false;
-    let currentTriple: Int = (board !>>! ((cell / 5) * 5)) !&! TRIPLE_MASK
-    if ( (cell / 5 % 2) != 0 )
+    let currentTriple: Int = (board !>>! UInt64((c / 5) * 5)) !&! TRIPLE_MASK
+    if ( (c / 5 % 2) != 0 )
         return badOddTriple(currentTriple);
     else
         return badEvenTriple(currentTriple);
@@ -502,10 +504,10 @@ fun boardHasIslands(cell: Byte): Bool
  * at each successful piece placement.  This data is used to create a 50 char
  * array if a solution is found.
  */
-var avail: Short = 0x03FF
-var solNums: StaticArray(Byte, nPieces)
-var solMasks: StaticArray(ULong, nPieces)
-var solutions: StaticArray2d(Byte, 2100, nPositions)
+var avail: Int16 = 0x03FF
+var solNums: StaticArray(Int8, nPieces)
+var solMasks: StaticArray(UInt64, nPieces)
+var solutions: StaticArray2d(Int8, 2100, nPositions)
 var solutionCount = 0
 let maxSolutions = 2100
 
@@ -513,11 +515,11 @@ fun recordSolution
     for solNo = 0..10
         var solMask = solMasks(solNo)
         for index = 0..nPositions
-            if ( (solMask !&! 1) != 0 )
+            if ( (solMask !&! 1UL) != 0UL )
                 solutions(solutionCount)(index) = solNums(solNo)
                 /* Board rotated 180 degrees is a solution too! */
                 solutions(solutionCount+1)(49-index) = solNums(solNo)
-            solMask = solMask !>>! 1
+            solMask = solMask !>>! 1UL
         ;
     solutionCount += 2
 
@@ -525,18 +527,18 @@ fun solve(depth, cell: Int)
     if ( solutionCount >= maxSolutions )
         return;
 
-    while (board !&! (1L !<<! cell)) != 0
+    while (board !&! (1UL !<<! UInt64(cell))) != 0UL
         cell++;
 
-    for piece: Byte = 0..nPieces
-        let pieceNoMask: Short = Short(1) !<<! piece
-        if ( 0 == (avail !&! pieceNoMask) )
+    for piece: Int8 = 0..nPieces
+        let pieceNoMask: Int16 = Int16(1) !<<! Int16(piece)
+        if ( Int16(0) == (avail !&! pieceNoMask) )
             continue;
         avail !^!= pieceNoMask
-        let maxRots = P1.pieceCounts(piece)(cell)
-        let pieceMask: @StaticArray(ULong, nRotations) = P1.pieces(piece)(cell)
+        let maxRots = P1.pieceCounts(piece Int)(cell)
+        let pieceMask: @StaticArray(UInt64, nRotations) = P1.pieces(piece Int)(cell)
         for rotation = 0..maxRots
-            if ( 0 == (board !&! pieceMask(rotation)) )
+            if ( 0UL == (board !&! pieceMask(rotation)) )
                 solNums(depth) = piece
                 solMasks(depth) = pieceMask(rotation)
                 if ( depth == 9 )
@@ -545,22 +547,22 @@ fun solve(depth, cell: Int)
                    avail !^!= pieceNoMask
                    return
                 board !|!= pieceMask(rotation)
-                if ( !boardHasIslands(P1.nextCell(piece)(cell)(rotation)) )
-                   solve(depth + 1, P1.nextCell(piece)(cell)(rotation));
+                if ( !boardHasIslands(P1.nextCell(piece Int)(cell)(rotation)) )
+                   solve(depth + 1, P1.nextCell(piece Int)(cell)(rotation) Int);
                 board !^!= pieceMask(rotation);
             ;
         avail !^!= pieceNoMask
     ;
 
 /* qsort comparator - used to find first and last solutions */
-fun solutionSort(l,r: !StaticArray(Byte, nPositions)): Bool
+fun solutionSort(l,r: !StaticArray(Int8, nPositions)): Bool
     for i = 0..nPositions
         if ( l(i) != r(i) )
             return l(i) < r(i);
     return false;
 
 /* pretty print a board in the specified hexagonal format */
-fun pretty(s: !StaticArray(Byte, nPositions))
+fun pretty(s: !StaticArray(Int8, nPositions))
     for i = 0..nPositions ../ nPieces
         cout<<s(i+0)<<' '<<s(i+1)<<' '<<s(i+2)<<' '<<s(i+3)<<' '<<s(i+4)
         cout<<endl<<' '

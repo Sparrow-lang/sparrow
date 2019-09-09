@@ -2,9 +2,9 @@
 
 import std.algorithms
 
-fun fib(n: UInt): UInt
-    var a: UInt = 0
-    var b: UInt = 1
+fun fib(n: Int): Int
+    var a: Int = 0
+    var b: Int = 1
     for i = 0..n
         var aOld = a
         a = b
@@ -16,7 +16,7 @@ fun sprMain
         return;
     let n = programArgs(1) asInt
 
-    var res: UInt = 0
+    var res: Int = 0
     for i = 1...n
         let f = fib(i)
         if ( f % 2 != 0 )

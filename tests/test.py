@@ -80,6 +80,11 @@ def getTestFiles(toRun, testsFile):
             filename = m.group(1).strip()
             testName = m.group(2).strip()
 
+            # Filename must exist
+            if not os.path.isfile(filename):
+                print('WARNING: Invalid filename: "%s"' % filename)
+                continue
+
             # Apply filter
             if toRun and toRun not in filename:
                 continue

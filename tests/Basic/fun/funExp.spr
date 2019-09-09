@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr" -fno-main
+//!! -t "../SparrowImplicitLib.spr" -fno-main
 
 concept AnyType(x) // Always true
 
@@ -11,7 +11,7 @@ fun three = 3
 
 fun sum(x,y: AnyType) = x+y if typeOf(x) == typeOf(y)
 
-fun nextAsDouble(x: AnyType): Double = x+1.0
+fun nextAsFloat(x: AnyType): Float = Float(x)+1.0
 
 datatype Test1
     aa: Int
@@ -31,7 +31,7 @@ fun b(this: Test1) = this.bb
     writeLn(three())
     writeLn(sum(5, 6))
     writeLn(sum(3.14, 3.14))
-    writeLn(nextAsDouble(3.14))
+    writeLn(nextAsFloat(3.14))
     writeLn("---")
 
     let t = Test1(3,5)

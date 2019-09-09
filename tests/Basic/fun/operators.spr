@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr" -fno-main
+//!! -t "../SparrowImplicitLib.spr" -fno-main
 
 fun assert(b: Bool)
     if ( !b )
@@ -10,7 +10,7 @@ fun fassert(b: Bool)
         write('F'); write('A'); write('I'); writeLn('L');
     ;
 
-fun pow1(x: Double, n: Int): Double
+fun pow1(x: Float, n: Int): Float
     if ( n == 0 )
         return 1.0;
     else if ( n == 1 )
@@ -18,22 +18,22 @@ fun pow1(x: Double, n: Int): Double
     else
         return pow1(x*x, n/2) * pow1(x, n%2);
 
-fun pow2(x: Double, n: Int): Double
+fun pow2(x: Float, n: Int): Float
     if ( n == 0 )
         return 1.0;
     else
         return x * pow2(x, n-1);
     return x;
 
-fun pow3(x: Double, n: Int): Double
-    var res: Double
+fun pow3(x: Float, n: Int): Float
+    var res: Float
     res = 1.0
     while n>0 ; n=n-1
         res = res * x;
     return res
 
-fun pow4(x: Double, n: Int): Double
-    var res: Double
+fun pow4(x: Float, n: Int): Float
+    var res: Float
     res = 1.0
     while n>0 ; n-=1
         res *= x;

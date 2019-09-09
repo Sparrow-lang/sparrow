@@ -10,20 +10,20 @@ datatype DefaultHashFunction(type: Type)
 [protected]
     fun ()(this: DefaultHashFunction, arg: !this.ValueType) = defaultHash(arg)
 
-fun defaultHash(arg: Char)        = _doHash(Byte(arg), _seed)
+fun defaultHash(arg: Char)        = _doHash(UInt64(Int8(arg)), _seed)
 //fun defaultHash(arg: Integer)     = _doHash(arg, _seed)
-fun defaultHash(arg: Integer)     = SizeType(arg)
+fun defaultHash(arg: Integer)     = UInt64(arg)
 fun defaultHash(arg: StringRef)   = _doHash(arg, _seed)
-fun defaultHash(arg: String)     = _doHash(arg.asStringRef(), _seed)
+fun defaultHash(arg: String)      = _doHash(arg.asStringRef(), _seed)
 
-using _seed = 0xfadef00d
+using _seed = UInt64(0xfadef00d)
 
 /// FNV hash generator
-fun _doHash(key: StringRef, start: SizeType): SizeType
+fun _doHash(key: StringRef, start: UInt64): UInt64
     var hash = start
     for i = 0..key.size
-        hash = (hash !^! SizeType(Byte(key(i)))) * 0x01000193
+        hash = (hash !^! UInt64(Int8(key(i)))) * UInt64(0x01000193)
     return hash
 
-fun _doHash(value, start: SizeType): SizeType
-    return (start !^! value) * 0x01000193
+fun _doHash(value, start: UInt64): UInt64
+    return (start !^! value) * UInt64(0x01000193)

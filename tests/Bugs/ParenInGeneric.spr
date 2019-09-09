@@ -23,10 +23,10 @@ fun test(n: Int)
     v12.start = 4
     v12.end = 4
 
-    var v21: MyVector(Double)
+    var v21: MyVector(Float)
     v21.start = 10.0
     v21.end = 15.2
-    var v22: MyVector(Double)
+    var v22: MyVector(Float)
     v22.start = 10.0
     v22.end = 11.2
 

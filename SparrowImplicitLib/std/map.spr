@@ -16,18 +16,18 @@ datatype Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
     _hashTable: _ImplTable
 
 [protected]
-    fun ctor(this: !Map, n: SizeType)                                       { _hashTable.ctor(n, TraitsType()); }
-    fun ctor(this: !Map, n: SizeType, traits: this.TraitsType)              { _hashTable.ctor(n, traits); }
+    fun ctor(this: !Map, n: Int)                                       { _hashTable.ctor(n, TraitsType()); }
+    fun ctor(this: !Map, n: Int, traits: this.TraitsType)              { _hashTable.ctor(n, traits); }
     fun ctor(this: !Map, range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()); }
-    fun ctor(this: !Map, range: Range, n: SizeType)                         { _hashTable.ctor(range, n, HashType(), CompareType()); }
-    fun ctor(this: !Map, range: Range, n: SizeType, traits: this.TraitsType){ _hashTable.ctor(range, n, traits); }
+    fun ctor(this: !Map, range: Range, n: Int)                         { _hashTable.ctor(range, n, HashType(), CompareType()); }
+    fun ctor(this: !Map, range: Range, n: Int, traits: this.TraitsType){ _hashTable.ctor(range, n, traits); }
 
     fun traits(this: Map)                             = _hashTable.traits
 
     fun size(this: Map)                               = _hashTable.size
     fun isEmpty(this: Map)                            = (_hashTable.size == 0)
     fun bucketCount(this: Map)                        = _hashTable.bucketCount
-    fun reserve(this: !Map, n: SizeType)                    { _hashTable.reserve(n); }
+    fun reserve(this: !Map, n: Int)                    { _hashTable.reserve(n); }
 
     fun all(this: Map)                                = _hashTable.all
     fun keys(this: Map)                               = transform(_hashTable.all, PairFirst(ValueType)())

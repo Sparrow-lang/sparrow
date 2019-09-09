@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr" -fno-main -fno-rvo
+//!! -t "../SparrowImplicitLib.spr" -fno-main -fno-rvo
 
 // Test purpose: Test calling ctor & dtor for objects
 
@@ -58,7 +58,7 @@ fun dtor(this: !Pair)
         var p: @MyObj = reinterpretCast(@MyObj, mallocRt(sizeOf(MyObj)))
         p.ctor(10)
         p.dtor()
-        free(reinterpretCast(@Byte, p))
+        free(reinterpretCast(@Int8, p))
     ;
 
 /*<<<Running()

@@ -15,6 +15,7 @@ const char* propEvalMode = "evalMode";
 const char* propResultingDecl = "resultingDecl";
 const char* propNoInline = "noInline";
 const char* propEmptyBody = "emptyBody";
+const char* propTypeCat = "typeCat";
 
 /// Tests if the given node is a declaration (a node that will expand to a Feather declaration)
 int _isDecl(Nest_Node* node) {

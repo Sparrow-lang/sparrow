@@ -40,7 +40,7 @@ fun sprMain
     else if n == 7; test7
     else if n == 8; test8
 
-[native("malloc")] fun mallocRt(size: SizeType): UntypedPtr
+[native("malloc")] fun mallocRt(size: Int): UntypedPtr
 [native("free")] fun freeRt(p: UntypedPtr)
 
 fun newObj(x: Int): @MyObj
@@ -61,11 +61,11 @@ fun test1()
     var scp: ScopedPtr(MyObj)
     let shp: SharedPtr(MyObj)
 
-    if ( !isNullRef(reinterpretCast(@Byte, p.get())) || !p.isNull() )
+    if ( !isNullRef(reinterpretCast(@Int8, p.get())) || !p.isNull() )
         cout << "test failed" << endl;
-    if ( !isNullRef(reinterpretCast(@Byte, scp.get())) || !scp.isNull() )
+    if ( !isNullRef(reinterpretCast(@Int8, scp.get())) || !scp.isNull() )
         cout << "test failed" << endl;
-    if ( !isNullRef(reinterpretCast(@Byte, shp.get())) || !shp.isNull() )
+    if ( !isNullRef(reinterpretCast(@Int8, shp.get())) || !shp.isNull() )
         cout << "test failed" << endl;
 /*<<<Default constructors(1)
 >>>*/
@@ -78,7 +78,7 @@ fun test2()
 
     cout << p.get().x << endl
     p.reset()
-    if ( !isNullRef(reinterpretCast(@Byte, p.get())) || !p.isNull() )
+    if ( !isNullRef(reinterpretCast(@Int8, p.get())) || !p.isNull() )
         cout << "test failed" << endl;
     p.reset(obj)
     cout << p.get().x << endl
@@ -110,7 +110,7 @@ fun test3()
 
     cout << p.get().x << endl
     p.reset()
-    if ( !isNullRef(reinterpretCast(@Byte, p.get())) || !p.isNull() )
+    if ( !isNullRef(reinterpretCast(@Int8, p.get())) || !p.isNull() )
         cout << "test failed" << endl;
     obj := newObj(42)
     p.reset(obj)
@@ -143,7 +143,7 @@ fun test4()
         cout << "test failed" << endl;
     cout << p.get().x << endl
     p.reset()
-    if ( !isNullRef(reinterpretCast(@Byte, p.get())) || !p.isNull() )
+    if ( !isNullRef(reinterpretCast(@Int8, p.get())) || !p.isNull() )
         cout << "test failed" << endl;
     obj := newObj(42)
     p.reset(obj)

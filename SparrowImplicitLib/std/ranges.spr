@@ -13,7 +13,7 @@ concept BidirRange(x: Range) if (
 
 /// A random access range allows obtaining the size and accessing elements by index
 concept RandomAccessRange(x: BidirRange) if (
-       typeOf(x.size) == SizeType
+       typeOf(x.size) == Int
     && typeOf(x(0)) == x.RetType
 )
 
@@ -54,19 +54,20 @@ fun pre_*(r: Range): r.RetType = r.front
 //
 
 /// Gets the size of the range -- generic case
-fun rangeSize(range: Range): SizeType
+fun rangeSize(range: Range): Int
     var rCopy = range;
-    var n: SizeType = 0
+    var n = 0
     while !rCopy.isEmpty ; rCopy.popFront
         ++n
     return n
 /// Gets the size of the range -- random-access-range case
-fun rangeSize(range: RandomAccessRange): SizeType
+fun rangeSize(range: RandomAccessRange): Int
     return range.size
 
 /// Advances the given number of positions -- does not check for range validity
-fun advance(range: !Range, n: SizeType)
-    while (n--) > 0
+fun advance(range: !Range, n: Int)
+    var nn = n
+    while (nn--) > 0
         range.popFront
 
 /// Advances while the predicate is satisfied; checks the range validity
@@ -75,7 +76,7 @@ fun advanceIf(range: !Range, pred: AnyType) if isValid(pred(range.front))
         range.popFront
 
 /// Removes from back the given number of positions -- does not check for range validity
-fun retract(range: !BidirRange, n: SizeType)
+fun retract(range: !BidirRange, n: Int)
     while (n--) > 0
         range.popBack
 
@@ -91,8 +92,8 @@ fun retractIf(range: !BidirRange, pred: AnyType) if isValid(pred(range.back))
 fun numericRange(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end)
 fun numericRange(start, end, step: Number) = NumericRangeWithStep(commonType(typeOf(start), typeOf(end)))(start, end, step)
 
-fun ..(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end)
-fun ...(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end, true)
+fun ..(start: Number, end: typeOf(start)) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end)
+fun ...(start: Number, end: typeOf(start)) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end, true)
 fun post_..(start: Number) = NumericRangeInc(typeOf(start))(start, NumericLimits(typeOf(start)).maxValue)
 
 fun ../(range: Range, step: Number) = NumericRangeWithStep(range.RetType)(range, step)
@@ -105,21 +106,21 @@ fun ../(range: Range, step: Number) = NumericRangeWithStep(range.RetType)(range,
 fun retro(range: BidirRange) = RetroRange(typeOf(range))(range)
 
 /// Restricts the range to the given number of elements
-fun take(range: Range, count: SizeType) = TakeRange(typeOf(range))(range, count)
+fun take(range: Range, count: Int) = TakeRange(typeOf(range))(range, count)
 
 /// Skip the first 'count' elements from the range
-fun skip(range: Range, count: SizeType): typeOf(range)
+fun skip(range: Range, count: Int): typeOf(range)
     var rc = range
     rc advance count
     return rc
 
 /// Take elements from the range while the given predicate is satisfied
 fun takeWhile(range: Range, pred: AnyType) = TakeWhileRange(typeOf(range), typeOf(pred))(range, pred)
-fun takeWhile(range: Range, pred: AnyType, count: SizeType) = take(takeWhile(range, pred), count)
+fun takeWhile(range: Range, pred: AnyType, count: Int) = take(takeWhile(range, pred), count)
 
 /// Take elements from the range until the predicate is satisfied
 fun takeUntil(range: Range, pred: AnyType) = TakeUntilRange(typeOf(range), typeOf(pred))(range, pred)
-fun takeUntil(range: Range, pred: AnyType, count: SizeType) = take(takeUntil(range, pred), count)
+fun takeUntil(range: Range, pred: AnyType, count: Int) = take(takeUntil(range, pred), count)
 
 /// Apply a predicate filter to the given range
 fun filter(range: Range, pred: AnyType) = FilteredRange(typeOf(range), typeOf(pred))(range, pred)
@@ -132,34 +133,34 @@ fun map(range: Range, function: AnyType) = TransformedRange(typeOf(range), typeO
 //[rt]
 /// Repeats the given value to for a range of the same value
 fun repeat(value: AnyType) = RepeatRange(typeOf(value))(value)
-fun repeat(value: AnyType, count: SizeType) = take(repeat(value), count)
+fun repeat(value: AnyType, count: Int) = take(repeat(value), count)
 
 /// Chain two ranges together to form a concatenated range
 fun chain(range1, range2: Range) = ChainRange(typeOf(range1), typeOf(range2))(range1, range2)
 fun ++(range1, range2: Range) = ChainRange(typeOf(range1), typeOf(range2))(range1, range2)
 
 /// Range that takes elements with a give stride (every step skips some elements)
-fun stride(range: Range, strideStep: SizeType) = StridedRange(typeOf(range))(range, strideStep)
+fun stride(range: Range, strideStep: Int) = StridedRange(typeOf(range))(range, strideStep)
 
 /// Range that takes the elements in a radial fashion: i, i+1, i-1, i+2, i-2, ...
-fun radial(range: Range, index: SizeType) = RadialRange(typeOf(range))(range, index)
+fun radial(range: Range, index: Int) = RadialRange(typeOf(range))(range, index)
 
 // TODO: Fix the error that is causing us to make this RT
 //[rt]
 /// Creates an infinite/counted range by repeating the elements from the given range
 /// as long as it takes
 fun cycle(range: Range) = CyclicRange(typeOf(range))(range)
-fun cycle(range: Range, count: SizeType) = CyclicCountedRange(typeOf(range))(range, count)
+fun cycle(range: Range, count: Int) = CyclicCountedRange(typeOf(range))(range, count)
 
 /// Generate a range by applying the given function to get the values for the range
 fun generate(function: AnyType) = GeneratedRange(typeOf(function))(function)
-fun generate(function: AnyType, count: SizeType) = take(generate(function), count)
+fun generate(function: AnyType, count: Int) = take(generate(function), count)
 
 /// Generate a chain-reaction range
 /// Starts with the given value, then calls the given functor on the value to obtain the next value,
 /// then calls again the functor on the new value, and so on
 fun generate1(start: AnyType, function: AnyType) = Generated1Range(typeOf(start), typeOf(function))(start, function)
-fun generate1(start: AnyType, function: AnyType, count: SizeType) = take(generate1(start, function), count)
+fun generate1(start: AnyType, function: AnyType, count: Int) = take(generate1(start, function), count)
 
 /// Given two ranges, combine the values from the two ranges together to produce one single range
 fun zip(range1, range2: Range, function: AnyType) = ZippedRange(typeOf(range1), typeOf(range2), typeOf(function))(range1, range2, function)
@@ -197,12 +198,12 @@ fun ctor(this: !NumericRangeInc, start, end: this.RetType, closed: Bool)
     fun back(this: NumericRangeInc): RetType            = _begin + RetType(this.size-1)
     fun popBack(this: !NumericRangeInc)                 { _end -= _step }
 
-    fun size(this: NumericRangeInc): SizeType           = SizeType(ife(_closed, RetType(_end-_begin+1), _end-_begin))
+    fun size(this: NumericRangeInc): Int                = Int(ife(_closed, RetType(_end-_begin+1), _end-_begin))
 
-    fun popFront(this: !NumericRangeInc, n: SizeType)   { _begin += RetType(n) }
-    fun popBack(this: !NumericRangeInc, n: SizeType)    { _end -= RetType(n) }
+    fun popFront(this: !NumericRangeInc, n: Int)        { _begin += RetType(n) }
+    fun popBack(this: !NumericRangeInc, n: Int)         { _end -= RetType(n) }
 
-    fun ()(this: NumericRangeInc, n: SizeType): RetType = _begin + RetType(n)
+    fun ()(this: NumericRangeInc, n: Int): RetType      = _begin + RetType(n)
 
 datatype NumericRangeWithStep(valueType: Type) if Number(#$valueType)
     _begin, _end, _step: valueType
@@ -260,12 +261,12 @@ fun popFront(this: !NumericRangeWithStep)                   { _begin += _step }
 fun back(this: NumericRangeWithStep): RetType               = _begin + RetType(this.size-1)*_step
 fun popBack(this: !NumericRangeWithStep)                    { _end -= _step }
 
-fun size(this: NumericRangeWithStep): SizeType              = SizeType(math.floor(ife(_closed, _end-_begin, _end-_begin+_step)/_step))
+fun size(this: NumericRangeWithStep): Int                   = Int(math.floor(Float(ife(_closed, _end-_begin, _end-_begin+_step)/_step)))
 
-fun popFront(this: !NumericRangeWithStep, n: SizeType)      { _begin += RetType(n*_step) }
-fun popBack(this: !NumericRangeWithStep, n: SizeType)       { _end -= RetType(n*_step) }
+fun popFront(this: !NumericRangeWithStep, n: Int)           { _begin += RetType(n*_step) }
+fun popBack(this: !NumericRangeWithStep, n: Int)            { _end -= RetType(n*_step) }
 
-fun ()(this: NumericRangeWithStep, n: SizeType): RetType    = _begin + RetType(n*_step)
+fun ()(this: NumericRangeWithStep, n: Int): RetType         = _begin + RetType(n*_step)
 
 [initCtor]
 datatype RetroRange(rangeType: Type) if BidirRange(#$rangeType)
@@ -284,7 +285,7 @@ datatype RetroRange(rangeType: Type) if BidirRange(#$rangeType)
 [initCtor]
 datatype TakeRange(rangeType: Type) if Range(#$rangeType)
     _range: rangeType
-    _count: SizeType
+    _count: Int
 
     using RetType = rangeType.RetType
 
@@ -410,7 +411,7 @@ datatype ChainRange(rangeType1: Type, rangeType2: Type) \
 [initCtor]
 datatype StridedRange(rangeType: Type) if Range(#$rangeType)
     _range: rangeType
-    _strideStep: SizeType
+    _strideStep: Int
 
     using RetType = rangeType.RetType
 
@@ -426,10 +427,10 @@ datatype StridedRange(rangeType: Type) if Range(#$rangeType)
 [initCtor]
 datatype RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
     _range: rangeType
-    _index: SizeType
-    _count: SizeType = 0
-    _step: DiffType = 1
-    _sign: DiffType = 1
+    _index: Int
+    _count: Int = 0
+    _step: Int = 1
+    _sign: Int = 1
 
     using RetType = rangeType.RetType
 
@@ -466,12 +467,12 @@ fun ctor(this: !CyclicRange, range: this._RangeType)
 
 datatype CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
     _range, _base: rangeType
-    _count: SizeType
+    _count: Int
 
     using RetType = rangeType.RetType
     using _RangeType = rangeType
 
-fun ctor(this: !CyclicCountedRange, range: this._RangeType, count: SizeType)
+fun ctor(this: !CyclicCountedRange, range: this._RangeType, count: Int)
     this._range ctor range
     this._count ctor count
     this._base ctor range
@@ -548,7 +549,7 @@ datatype ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$
 [initCtor]
 datatype ValuesRange(contType: Type) if isValid((#$contType)(1))
     _values: contType
-    _idx: SizeType = 0
+    _idx: Int = 0
 
     using RetType       = contType.ValueType
 

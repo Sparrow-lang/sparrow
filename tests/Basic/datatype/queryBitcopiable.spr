@@ -32,7 +32,7 @@ datatype Vec3(t: Type)
 fun ctor(this: !Vec3, other: typeOf(this))
     [ct]
     if isBitcopiable(this.ValueType)
-        memcpy(reinterpretCast(@Byte, this), reinterpretCast(@Byte, other), sizeOf(this))
+        memcpy(reinterpretCast(@Int8, this), reinterpretCast(@Int8, other), sizeOf(this))
     else
         this.x ctor other.x
         this.y ctor other.y

@@ -23,7 +23,7 @@ fun decls
     a = 9
     b = 9
     c = 9 // ERROR
-    d = 9
+    d = 9 // ERROR
     b1 = 9
 
 fun declsInit
@@ -36,7 +36,7 @@ fun declsInit
     a = 9
     b = 9
     c = 9 // ERROR
-    d = 9
+    d = 9 // ERROR
     b1 = 9
 
 fun funCall
@@ -58,7 +58,7 @@ fun funCall
     takesMut(plainObj)
     takesMut(constObj) // ERROR
     takesMut(mutObj)
-    takesMut(tmpObj)
+    takesMut(tmpObj)   // ERROR
 
     takesTmp(plainObj) // ERROR
     takesTmp(constObj) // ERROR
@@ -72,10 +72,10 @@ fun letDecls
 
     a = 9       // ERROR
     b = 9
-    c = 9
+    c = 9       // ERROR
     takesMut(a) // ERROR
     takesMut(b)
-    takesMut(c)
+    takesMut(c) // ERROR
     takesTmp(a) // ERROR
     takesTmp(b) // ERROR
     takesTmp(c)

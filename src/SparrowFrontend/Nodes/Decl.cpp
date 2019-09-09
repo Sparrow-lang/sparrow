@@ -145,8 +145,6 @@ Type computeVarType(
             TypeWithStorage tt = TypeWithStorage(t);
             if (parent.hasProperty("addConst"))
                 t = Feather::ConstType::get(tt);
-            // else
-            //     t = Feather::MutableType::get(tt);
         }
         if (!t)
             return {};
@@ -536,10 +534,15 @@ Type VariableDecl::computeTypeImpl(VariableDecl node) {
         // Create a var-ref object to refer to the variable to be initialized/destructed.
         NodeHandle varRef = Feather::VarRefExp::create(loc, resultingVar);
 
-        // If the variable is const, cast the constness away for initialization & destruction
-        if (resultingVar.type().kind() == Feather_getConstTypeKind()) {
-            TypeWithStorage t = Feather::ConstType(resultingVar.type()).base();
-            t = Feather::MutableType::get(t);
+        // If the variable is const/temp, convert to mutable for initialization & destruction
+        auto varType = resultingVar.type();
+        if (varType.kind() == typeKindConst || varType.kind() == typeKindTemp) {
+            TypeWithStorage base;
+            if (varType.kind() == typeKindConst)
+                base = Feather::ConstType(varType).base();
+            else if (varType.kind() == typeKindTemp)
+                base = Feather::TempType(varType).base();
+            auto t = Feather::MutableType::get(base);
             auto typeNode = Feather::TypeNode::create(loc, t);
             varRef = Feather::BitcastExp::create(loc, typeNode, varRef);
         }
@@ -762,6 +765,12 @@ Type FieldDecl::computeTypeImpl(FieldDecl node) {
     if (!t)
         return {};
 
+    int origTypeKind = -1;
+    if (Feather::isCategoryType(t)) {
+        origTypeKind = t.kind();
+        t = Feather::removeCategoryIfPresent(t);
+    }
+
     // If the type of the variable indicates a variable that can only be CT, change the evalMode
     if (t.mode() == modeCt)
         node.setMode(modeCt);
@@ -772,6 +781,8 @@ Type FieldDecl::computeTypeImpl(FieldDecl node) {
     resultingVar.setMode(node.effectiveMode());
     Feather_setShouldAddToSymTab(resultingVar, 0);
     node.setProperty(propResultingDecl, resultingVar);
+    if (origTypeKind >= 0)
+        resultingVar.setProperty(propSprOrigCat, origTypeKind);
 
     // Set the context and compute the type for the resulting var
     resultingVar.setContext(node.childrenContext());

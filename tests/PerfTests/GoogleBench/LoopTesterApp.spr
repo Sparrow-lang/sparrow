@@ -239,15 +239,15 @@ using NodeList = (UnionFindNode Ptr) List
 using IntListVector = IntList Vector
 using IntSetVector = IntSet Vector
 using IntVector = Int Vector
-using CharVector = Byte Vector
+using CharVector = Int8 Vector
 
-using BB_TOP            = Byte(0)  // uninitialized
-using BB_NONHEADER      = Byte(1)  // a regular BB
-using BB_REDUCIBLE      = Byte(2)  // reducible loop
-using BB_SELF           = Byte(3)  // single BB loop
-using BB_IRREDUCIBLE    = Byte(4)  // irreducible loop
-using BB_DEAD           = Byte(5)  // a dead BB
-using BB_LAST           = Byte(6)  // Sentinel
+using BB_TOP            = Int8(0)  // uninitialized
+using BB_NONHEADER      = Int8(1)  // a regular BB
+using BB_REDUCIBLE      = Int8(2)  // reducible loop
+using BB_SELF           = Int8(3)  // single BB loop
+using BB_IRREDUCIBLE    = Int8(4)  // irreducible loop
+using BB_DEAD           = Int8(5)  // a dead BB
+using BB_LAST           = Int8(6)  // Sentinel
 
 using kUnvisited = -1              // Marker for uninitialized nodes.
 using kMaxNonBackPreds = 32*1024   // Safeguard against pathologic algorithm behavior.
@@ -270,7 +270,7 @@ fun ctor(this: !HavlakLoopFinder, cfg: !MaoCFG, lsg: !LoopStructureGraph)
 // for depth-first spanning trees. This is why DFS is the first
 // thing we run below.
 //
-fun isAncestor(w, v: SizeType, last: !IntVector) = (w <= v) && (v <= last(w))
+fun isAncestor(w, v: Int, last: !IntVector) = (w <= v) && (v <= last(w))
 
 //
 // DFS - Depth-First-Search
@@ -454,7 +454,7 @@ fun findLoops(this: !HavlakLoopFinder)
             _lsg.addLoop(loop)
 
 // External entry point.
-fun findHavlakLoops(cfg: !MaoCFG, lsg: !LoopStructureGraph): SizeType
+fun findHavlakLoops(cfg: !MaoCFG, lsg: !LoopStructureGraph): Int
     var finder = HavlakLoopFinder(cfg, lsg)
     finder.findLoops
     return lsg.numLoops
@@ -504,7 +504,7 @@ fun sprMain
 
     cout << "15000 dummy loops" << endl
     for dummyLoop = 0..15000
-        findHavlakLoops(cfg, LoopStructureGraph())
+        findHavlakLoops(cfg, tmpToMut(LoopStructureGraph()))
 
     cout << "Constructing CFG..." << endl
     var n = 2
@@ -529,10 +529,10 @@ fun sprMain
 
     cout << "Another 50 iterations..." << endl
     let numIterations = programArgs(1) asInt
-    var sum: SizeType = 0
+    var sum = 0
     for i = 0..numIterations
         cout << '.' << flush
-        sum += findHavlakLoops(cfg, LoopStructureGraph())
+        sum += findHavlakLoops(cfg, tmpToMut(LoopStructureGraph()))
     cout << endl << "Found " << numLoops << " loops (including artificial root node)(" << sum << ')' << endl
     cout << lsg
 //<<<Running(1)

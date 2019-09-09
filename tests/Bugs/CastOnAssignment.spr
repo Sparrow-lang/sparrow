@@ -2,10 +2,6 @@
 
 fun sprMain
     var dest: Int = 10
-    let otherVal: Long = 13
-    dest = otherVal
+    let otherVal: Int64 = 13
+    dest = otherVal // ERROR
     cout << dest << endl
-
-/*<<<Running KNOWN-PROBLEM()
-13
->>>*/

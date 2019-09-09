@@ -692,11 +692,13 @@ const char* NullExp::toStringImpl(NullExp node) {
 }
 
 DEFINE_NODE_COMMON_IMPL(VarRefExp, NodeHandle);
-VarRefExp VarRefExp::create(const Location& loc, VarDecl varDecl) {
+VarRefExp VarRefExp::create(const Location& loc, VarDecl varDecl, int typeCat) {
     REQUIRE_NODE(loc, varDecl);
 
     VarRefExp res = createNode<VarRefExp>(loc);
     res.setReferredNodes(NodeRange{varDecl});
+    if (typeCat != 0)
+        res.setProperty(propTypeCat, typeCat);
     return res;
 }
 VarDecl VarRefExp::varDecl() const { return {referredNodes()[0]}; }
@@ -713,8 +715,15 @@ NodeHandle VarRefExp::semanticCheckImpl(VarRefExp node) {
                 nullptr, node.location(), "Variable type doesn't have a storage type (type: %1%)") %
                 var.type();
     TypeWithStorage t = var.type();
-    if (!Feather::isCategoryType(t))
-        t = MutableType::get(t);
+    int typeCat = node.getPropertyDefaultInt(propTypeCat, 0);
+    if (!Feather::isCategoryType(t)) {
+        if (typeCat == typeKindTemp)
+            t = TempType::get(t);
+        else if (typeCat == typeKindConst)
+            t = ConstType::get(t);
+        else
+            t = MutableType::get(t);
+    }
     node.setType(Feather_adjustMode(t, node.context(), node.location()));
     Feather_checkEvalModeWithExpected(node, var.type().mode());
     return node;

@@ -4,7 +4,7 @@
 
 datatype WrapperType
     val: Int
-    d: Double
+    d: Float
     b: Bool
     p: @WrapperType = null
 
@@ -24,7 +24,7 @@ fun ctor(this: !WrapperType, other: WrapperType)
 [bitcopiable]
 datatype BCWrapperType
     val: Int
-    d: Double
+    d: Float
     b: Bool
     p: @BCWrapperType = null
 

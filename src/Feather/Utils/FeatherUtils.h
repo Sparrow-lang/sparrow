@@ -46,6 +46,7 @@ extern int nkFeatherStmtReturn;
 // The IDs for all the feather type kinds
 extern int typeKindVoid;
 extern int typeKindData;
+extern int typeKindPtr;
 extern int typeKindConst;
 extern int typeKindMutable;
 extern int typeKindTemp;

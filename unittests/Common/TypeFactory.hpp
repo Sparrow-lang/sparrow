@@ -25,7 +25,10 @@ Gen<Feather::VoidType> arbVoidType();
 
 //! Returns a generator for arbitrary data types.
 //! We would generate types with decls found in g_dataTypeDecls
-Gen<Feather::DataType> arbDataType(EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+Gen<Feather::DataType> arbDataType(EvalMode mode = modeUnspecified);
+
+//! Returns a generator for arbitrary Ptr types
+Gen<Feather::PtrType> arbPtrType(EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
 
 //! Returns a generator for arbitrary Const types
 Gen<Feather::ConstType> arbConstType(
@@ -46,7 +49,12 @@ Gen<Feather::FunctionType> arbFunctionType(
         EvalMode mode = modeUnspecified, Nest::TypeWithStorage resType = {});
 
 //! Returns a generator for arbitrary concept types
-Gen<SprFrontend::ConceptType> arbConceptType(EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+Gen<SprFrontend::ConceptType> arbConceptType(
+        EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+
+//! Returns a generator of either data or ptr type
+Gen<Feather::TypeWithStorage> arbDataOrPtrType(
+        EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
 
 //! Returns a generator of types with storage
 Gen<Nest::TypeWithStorage> arbTypeWithStorage(

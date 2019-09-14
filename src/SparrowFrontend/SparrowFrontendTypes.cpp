@@ -76,7 +76,9 @@ TypeWithStorage baseType(TypeWithStorage t) {
     while (t && t.numReferences() > 0) {
         int kind = t.kind();
         if (kind == typeKindData)
-            t = Feather::DataType::get(t.referredNode(), 0, t.mode());
+            t = Feather::DataType::get(t.referredNode(), t.mode());
+        else if (kind == typeKindPtr)
+            t = Feather::PtrType(t).base();
         else if (kind == typeKindConst)
             t = Feather::ConstType(t).base();
         else if (kind == typeKindMutable)

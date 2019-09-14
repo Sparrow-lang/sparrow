@@ -42,13 +42,13 @@ void SampleTypes::init(SparrowGeneralFixture& generalFixture, int flags) {
         g_dataTypeDecls.push_back(barTypeDecl);
     }
 
-    i8Type_ = DataType::get(i8TypeDecl, 0, modeRt);
-    i16Type_ = DataType::get(i16TypeDecl, 0, modeRt);
-    i32Type_ = DataType::get(i32TypeDecl, 0, modeRt);
-    fooType_ = DataType::get(fooTypeDecl, 0, modeRt);
-    barType_ = DataType::get(barTypeDecl, 0, modeRt);
-    nullType_ = DataType::get(nullTypeDecl, 0, modeRt);
-    boolType_ = DataType::get(boolDecl, 0, modeRt);
+    i8Type_ = DataType::get(i8TypeDecl, modeRt);
+    i16Type_ = DataType::get(i16TypeDecl, modeRt);
+    i32Type_ = DataType::get(i32TypeDecl, modeRt);
+    fooType_ = DataType::get(fooTypeDecl, modeRt);
+    barType_ = DataType::get(barTypeDecl, modeRt);
+    nullType_ = DataType::get(nullTypeDecl, modeRt);
+    boolType_ = DataType::get(boolDecl, modeRt);
 
     // Ensure we set the Null type
     SprFrontend::StdDef::typeNull = nullType_;
@@ -56,7 +56,7 @@ void SampleTypes::init(SparrowGeneralFixture& generalFixture, int flags) {
     SprFrontend::StdDef::typeBool = boolType_;
 
     // Ensure we set the Type type -- but don't add it to our conversion types
-    SprFrontend::StdDef::typeType = DataType::get(typeDecl, 0, modeCt);
+    SprFrontend::StdDef::typeType = DataType::get(typeDecl, modeCt);
     REQUIRE(typeDecl.computeType());
 
     // Create concept decls & types

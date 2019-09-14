@@ -40,32 +40,47 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
     rc::prop("Can create data types", [](EvalMode mode) {
         using TypeFactory::g_dataTypeDecls;
 
-        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int) g_dataTypeDecls.size())];
-        int numRefs = *rc::gen::inRange(0, 10);
+        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int)g_dataTypeDecls.size())];
 
-        auto type = DataType::get(decl, numRefs, mode);
+        auto type = DataType::get(decl, mode);
         REQUIRE(type);
         REQUIRE(type.kind() == Feather_getDataTypeKind());
         REQUIRE(type.mode() == mode);
         REQUIRE(type.canBeUsedAtRt());
         REQUIRE(type.hasStorage());
-        REQUIRE(type.numReferences() == numRefs);
+        REQUIRE(type.numReferences() == 0);
         REQUIRE(type.referredNode() == decl);
+    });
+    rc::prop("Can create Ptr types", [](EvalMode mode) {
+        using TypeFactory::g_dataTypeDecls;
+
+        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int)g_dataTypeDecls.size())];
+        int numRefs = *rc::gen::inRange(0, 10);
+
+        auto baseType = Feather::getDataTypeWithPtr(decl, numRefs, mode);
+        auto type = PtrType::get(baseType);
+        REQUIRE(type.mode() == mode);
+        REQUIRE(type.canBeUsedAtRt());
+        REQUIRE(type.hasStorage());
+        REQUIRE(type.numReferences() == numRefs + 1);
+        REQUIRE(type.referredNode() == decl);
+
+        REQUIRE(type.base() == baseType);
     });
     rc::prop("Can create Const types", [](EvalMode mode) {
         using TypeFactory::g_dataTypeDecls;
 
-        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int) g_dataTypeDecls.size())];
+        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int)g_dataTypeDecls.size())];
         int numRefs = *rc::gen::inRange(0, 10);
 
-        auto baseType = DataType::get(decl, numRefs, mode);
+        auto baseType = Feather::getDataTypeWithPtr(decl, numRefs, mode);
         auto type = ConstType::get(baseType);
         REQUIRE(type);
         REQUIRE(type.kind() == Feather_getConstTypeKind());
         REQUIRE(type.mode() == mode);
         REQUIRE(type.canBeUsedAtRt());
         REQUIRE(type.hasStorage());
-        REQUIRE(type.numReferences() == numRefs+1);
+        REQUIRE(type.numReferences() == numRefs + 1);
         REQUIRE(type.referredNode() == decl);
 
         REQUIRE(type.base() == baseType);
@@ -73,17 +88,17 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
     rc::prop("Can create Mutable types", [](EvalMode mode) {
         using TypeFactory::g_dataTypeDecls;
 
-        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int) g_dataTypeDecls.size())];
+        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int)g_dataTypeDecls.size())];
         int numRefs = *rc::gen::inRange(0, 10);
 
-        auto baseType = DataType::get(decl, numRefs, mode);
+        auto baseType = Feather::getDataTypeWithPtr(decl, numRefs, mode);
         auto type = MutableType::get(baseType);
         REQUIRE(type);
         REQUIRE(type.kind() == Feather_getMutableTypeKind());
         REQUIRE(type.mode() == mode);
         REQUIRE(type.canBeUsedAtRt());
         REQUIRE(type.hasStorage());
-        REQUIRE(type.numReferences() == numRefs+1);
+        REQUIRE(type.numReferences() == numRefs + 1);
         REQUIRE(type.referredNode() == decl);
 
         REQUIRE(type.base() == baseType);
@@ -91,17 +106,17 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
     rc::prop("Can create Temp types", [](EvalMode mode) {
         using TypeFactory::g_dataTypeDecls;
 
-        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int) g_dataTypeDecls.size())];
+        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int)g_dataTypeDecls.size())];
         int numRefs = *rc::gen::inRange(0, 10);
 
-        auto baseType = DataType::get(decl, numRefs, mode);
+        auto baseType = Feather::getDataTypeWithPtr(decl, numRefs, mode);
         auto type = TempType::get(baseType);
         REQUIRE(type);
         REQUIRE(type.kind() == Feather_getTempTypeKind());
         REQUIRE(type.mode() == mode);
         REQUIRE(type.canBeUsedAtRt());
         REQUIRE(type.hasStorage());
-        REQUIRE(type.numReferences() == numRefs+1);
+        REQUIRE(type.numReferences() == numRefs + 1);
         REQUIRE(type.referredNode() == decl);
 
         REQUIRE(type.base() == baseType);
@@ -109,25 +124,33 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
 }
 
 TEST_CASE_METHOD(FeatherTypesFixture, "User can add or remove references") {
-    rc::prop("Adding reference increases the number of references, and keeps type kind", []() {
-        TypeWithStorage base = *TypeFactory::arbBasicStorageType(modeUnspecified, 0, 10);
-        auto newType = addRef(base);
-        REQUIRE(newType.numReferences() == base.numReferences()+1);
-        REQUIRE(newType.kind() == base.kind());
-    });
-    rc::prop("Removing reference decreases the number of references, and keeps type kind", []() {
-        TypeWithStorage base = *TypeFactory::arbBasicStorageType(modeUnspecified, 1, 10);
-        // Ensure we have one "clean" reference to remove
-        RC_PRE(!isCategoryType(base) || base.numReferences() > 1);
+    rc::prop("Adding reference increases the number of references, and keeps type kind (if "
+             "possible)",
+            []() {
+                TypeWithStorage base = *TypeFactory::arbBasicStorageType(modeUnspecified, 0, 10);
+                auto newType = addRef(base);
+                REQUIRE(newType.numReferences() == base.numReferences() + 1);
+                auto expectedKind = base.kind() == typeKindData ? typeKindPtr : base.kind();
+                REQUIRE(newType.kind() == expectedKind);
+            });
+    rc::prop("Removing reference decreases the number of references, and keeps type kind (if "
+             "possible)",
+            []() {
+                TypeWithStorage base = *TypeFactory::arbBasicStorageType(modeUnspecified, 1, 10);
+                // Ensure we have one "clean" reference to remove
+                RC_PRE(!isCategoryType(base) || base.numReferences() > 1);
 
-        auto newType = removeRef(base);
-        REQUIRE(newType.numReferences() == base.numReferences()-1);
-        REQUIRE(newType.kind() == base.kind());
-    });
+                auto newType = removeRef(base);
+                REQUIRE(newType.numReferences() == base.numReferences() - 1);
+                auto expectedKind = base.kind() == typeKindPtr && base.numReferences() == 1
+                                            ? typeKindData
+                                            : base.kind();
+                REQUIRE(newType.kind() == expectedKind);
+            });
     rc::prop("Removing reference (old) decreases the number of references", []() {
         TypeWithStorage base = *TypeFactory::arbBasicStorageType(modeUnspecified, 1, 10);
         auto newType = removeCatOrRef(base);
-        REQUIRE(newType.numReferences() == base.numReferences()-1);
+        REQUIRE(newType.numReferences() == base.numReferences() - 1);
         // Resulting type is always a data type
         REQUIRE(newType.kind() == typeKindData);
     });
@@ -139,7 +162,7 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can add or remove references") {
         REQUIRE(newType.kind() == typeKindData);
     });
     rc::prop("categoryToRefIfPresent does nothing for data types", []() {
-        DataType base = *TypeFactory::arbDataType(modeUnspecified, 0, 10);
+        auto base = *TypeFactory::arbDataOrPtrType(modeUnspecified, 0, 10);
         Type newType = categoryToRefIfPresent(base);
         REQUIRE(newType == base);
     });

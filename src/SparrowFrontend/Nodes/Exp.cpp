@@ -90,7 +90,7 @@ Feather::FieldRefExp createFieldRef(const Location& loc, NodeHandle baseExp, Fea
         for (size_t i = 1; i < t.numReferences(); ++i) {
             baseExp = Feather::MemLoadExp::create(loc, baseExp);
         }
-        t = Feather::DataType::get(t.referredNode(), 0, t.mode()); // Zero references
+        t = Feather::DataType::get(t.referredNode(), t.mode()); // Zero references
     }
 
     // Compute the desired category of the base expression type
@@ -148,7 +148,7 @@ NodeHandle getIdentifierResult(
         Type t;
         Feather::StructDecl resDeclStruct = resDecl.kindCast<Feather::StructDecl>();
         if (resDeclStruct) {
-            t = Feather::DataType::get(resDeclStruct, 0, resDeclStruct.effectiveMode());
+            t = Feather::DataType::get(resDeclStruct, resDeclStruct.effectiveMode());
         }
         if (resDecl.kind() == nkSparrowDeclSprConcept ||
                 resDecl.kind() == nkSparrowDeclGenericDatatype)
@@ -1613,7 +1613,7 @@ NodeHandle LambdaExp::semanticCheckImpl(LambdaExp node) {
 
     // Create a resulting object: a constructor call to our class
     Feather::StructDecl datatypeDecl = Feather::StructDecl(closureDatatype.explanation());
-    auto datatype = Feather::DataType::get(datatypeDecl, 0, modeRt);
+    auto datatype = Feather::DataType::get(datatypeDecl, modeRt);
     auto classId = createTypeNode(node.context(), loc, datatype);
     return FunApplication::create(loc, classId, closureParams);
 }

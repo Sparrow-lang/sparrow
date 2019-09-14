@@ -282,7 +282,7 @@ bool ConvertServiceImpl::checkDataConversion(ConversionResult& res, CompilationC
 
 namespace {
 
-// DataType == 0, ConstType == 1, MutableType == 2, TempType == 3
+// DataType == 0, PtrType == 1, ConstType == 2, MutableType == 3, TempType == 4
 int typeKindToIndex(int typeKind) { return typeKind - typeKindData; }
 
 bool isCategoryType(int typeKind) {
@@ -294,12 +294,15 @@ TypeWithStorage changeCat(TypeWithStorage src, int typeKind, bool addRef = false
     int srcTK = src.kind();
     if (srcTK == typeKindData)
         base = src.numReferences() > 0 && !addRef ? removeRef(src) : src;
+    else if (srcTK == typeKindPtr)
+        base = PtrType(src).base();
     else if (srcTK == typeKindConst)
         base = ConstType(src).base();
     else if (srcTK == typeKindMutable)
         base = MutableType(src).base();
     else if (srcTK == typeKindTemp)
         base = TempType(src).base();
+    ASSERT(base);
 
     if (typeKind == typeKindConst)
         return ConstType::get(base);
@@ -307,6 +310,8 @@ TypeWithStorage changeCat(TypeWithStorage src, int typeKind, bool addRef = false
         return MutableType::get(base);
     else if (typeKind == typeKindTemp)
         return TempType::get(base);
+    else if (typeKind == typeKindPtr)
+        return PtrType::get(base);
     return src;
 }
 
@@ -332,13 +337,14 @@ bool ConvertServiceImpl::adjustReferences(ConversionResult& res, TypeWithStorage
     };
 
     // clang-format off
-    constexpr ConvType conversions[4][4] = {
-            {direct,    addCat,  none,    addCat},  // from plain
-            {removeCat, direct,  none,    none},    // from const
-            {removeCat, catCast, direct,  none},    // from mutable
-            {removeCat, catCast, none,    direct}   // from temp
+    constexpr ConvType conversions[5][5] = {
+            {direct,    direct,    addCat,  none,    addCat},  // from plain
+            {direct,    direct,    addCat,  addCat,  addCat},  // from ptr
+            {removeCat, removeCat, direct,  none,    none},    // from const
+            {removeCat, removeCat, catCast, direct,  none},    // from mutable
+            {removeCat, removeCat, catCast, none,    direct}   // from temp
     };
-    // to:   plain,     const,   mutable, temp
+    // to:   plain,     ptr,       const,   mutable, temp
     // clang-format on
 
     int srcIdx = typeKindToIndex(src.kind());
@@ -346,7 +352,7 @@ bool ConvertServiceImpl::adjustReferences(ConversionResult& res, TypeWithStorage
     ConvType conv = conversions[srcIdx][destIdx];
     // TODO (types): Remove this after finalizing mutables
     // A reference can be converted to mutable
-    if (srcIdx == 0 && destIdx == 2 && srcRefsBase > destRefsBase) {
+    if (srcIdx == 0 && destIdx == 3 && srcRefsBase > destRefsBase) {
         for (int i = destRefsBase; i < srcRefsBase - 1; i++) {
             src = removeCatOrRef(src);
             res.addConversion(convImplicit, ConvAction(ActionType::dereference, src));

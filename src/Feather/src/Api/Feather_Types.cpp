@@ -37,6 +37,7 @@ string getDataTypeDescription(Node* classDecl, unsigned numReferences, EvalMode 
         res += "/ct";
     return res;
 }
+string getPtrTypeDescription(TypeRef base) { return string(base->description) + " ptr"; }
 string getConstTypeDescription(TypeRef base) { return string(base->description) + " const"; }
 string getMutableTypeDescription(TypeRef base) { return string(base->description) + " mut"; }
 string getTempTypeDescription(TypeRef base) { return string(base->description) + " tmp"; }
@@ -62,6 +63,9 @@ TypeRef changeTypeModeVoid(TypeRef type, EvalMode newMode) { return Feather_getV
 TypeRef changeTypeModeData(TypeRef type, EvalMode newMode) {
     return Feather_getDataType(type->referredNode, type->numReferences, newMode);
 }
+TypeRef changeTypeModePtr(TypeRef type, EvalMode newMode) {
+    return Feather_getPtrType(Nest_changeTypeMode(Feather_baseType(type), newMode));
+}
 TypeRef changeTypeModeConst(TypeRef type, EvalMode newMode) {
     return Feather_getConstType(Nest_changeTypeMode(Feather_baseType(type), newMode));
 }
@@ -82,6 +86,7 @@ TypeRef changeTypeModeFunction(TypeRef type, EvalMode newMode) {
 
 int typeKindVoid = -1;
 int typeKindData = -1;
+int typeKindPtr = -1;
 int typeKindConst = -1;
 int typeKindMutable = -1;
 int typeKindTemp = -1;
@@ -91,6 +96,7 @@ int typeKindFunction = -1;
 void initFeatherTypeKinds() {
     typeKindVoid = Nest_registerTypeKind(&changeTypeModeVoid);
     typeKindData = Nest_registerTypeKind(&changeTypeModeData);
+    typeKindPtr = Nest_registerTypeKind(&changeTypeModePtr);
     typeKindConst = Nest_registerTypeKind(&changeTypeModeConst);
     typeKindMutable = Nest_registerTypeKind(&changeTypeModeMutable);
     typeKindTemp = Nest_registerTypeKind(&changeTypeModeTemp);
@@ -100,6 +106,7 @@ void initFeatherTypeKinds() {
 
 int Feather_getVoidTypeKind() { return typeKindVoid; }
 int Feather_getDataTypeKind() { return typeKindData; }
+int Feather_getPtrTypeKind() { return typeKindPtr; }
 int Feather_getConstTypeKind() { return typeKindConst; }
 int Feather_getMutableTypeKind() { return typeKindMutable; }
 int Feather_getTempTypeKind() { return typeKindTemp; }
@@ -144,6 +151,33 @@ TypeRef Feather_getDataType(Node* classDecl, unsigned numReferences, EvalMode mo
     TypeRef t = Nest_findStockType(&referenceType);
     if (!t)
         t = Nest_insertStockType(&referenceType);
+    return t;
+}
+
+TypeRef Feather_getPtrType(TypeRef base) {
+    Nest_Type referenceType = {0};
+    referenceType.typeKind = typeKindPtr;
+    referenceType.mode = base->mode;
+    referenceType.numSubtypes = 1;
+    referenceType.numReferences = 1 + base->numReferences;
+    referenceType.hasStorage = 1;
+    referenceType.canBeUsedAtRt = base->canBeUsedAtRt;
+    referenceType.flags = 0;
+    referenceType.referredNode = base->referredNode;
+    referenceType.description = str(getPtrTypeDescription(base));
+
+    // Temporarily use the pointer to the given parameter
+    referenceType.subTypes = &base;
+
+    TypeRef t = Nest_findStockType(&referenceType);
+    if (!t) {
+        // Allocate now new buffer to hold the subtypes
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+        referenceType.subTypes = new TypeRef[1];
+        referenceType.subTypes[0] = base;
+
+        t = Nest_insertStockType(&referenceType);
+    }
     return t;
 }
 

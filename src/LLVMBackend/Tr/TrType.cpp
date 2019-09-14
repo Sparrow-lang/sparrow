@@ -38,6 +38,10 @@ llvm::Type* transformDataType(DataType type, GlobalContext& ctx) {
     return t;
 }
 
+llvm::Type* transformPtrType(PtrType type, GlobalContext& ctx) {
+    return llvm::PointerType::get(getLLVMType(type.base(), ctx), 0);
+}
+
 llvm::Type* transformConstType(ConstType type, GlobalContext& ctx) {
     return llvm::PointerType::get(getLLVMType(type.base(), ctx), 0);
 }
@@ -84,6 +88,8 @@ llvm::Type* Tr::getLLVMType(Type type, GlobalContext& ctx) {
         llvmType = transformVoid(VoidType(type), ctx);
     else if (type.kind() == typeKindData)
         llvmType = transformDataType(DataType(type), ctx);
+    else if (type.kind() == typeKindPtr)
+        llvmType = transformPtrType(PtrType(type), ctx);
     else if (type.kind() == typeKindConst)
         llvmType = transformConstType(ConstType(type), ctx);
     else if (type.kind() == typeKindMutable)

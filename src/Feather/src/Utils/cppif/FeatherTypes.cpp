@@ -24,8 +24,20 @@ DataType::DataType(Nest::TypeRef type)
         REP_INTERNAL(NOLOC, "DataType constructed with other type kind (%1%)") % type;
 }
 
-DataType DataType::get(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode) {
-    return {Feather_getDataType(decl, numReferences, mode)};
+DataType DataType::get(Nest::NodeHandle decl, Nest::EvalMode mode) {
+    return {Feather_getDataType(decl, 0, mode)};
+}
+
+PtrType::PtrType(Nest::TypeRef type)
+    : TypeWithStorage(type) {
+    if (type && type->typeKind != Feather_getPtrTypeKind())
+        REP_INTERNAL(NOLOC, "PtrType constructed with other type kind (%1%)") % type;
+}
+
+PtrType PtrType::get(TypeWithStorage base, Nest::Location loc) {
+    if (!base)
+        REP_INTERNAL(loc, "Null type given as base to ptr type");
+    return {Feather_getPtrType(base)};
 }
 
 ConstType::ConstType(Nest::TypeRef type)
@@ -45,7 +57,9 @@ ConstType ConstType::get(TypeWithStorage base, Nest::Location loc) {
     return {Feather_getConstType(base)};
 }
 
-DataType ConstType::toRef() const { return DataType::get(referredNode(), numReferences(), mode()); }
+TypeWithStorage ConstType::toRef() const {
+    return getDataTypeWithPtr(referredNode(), numReferences(), mode());
+}
 
 MutableType::MutableType(Nest::TypeRef type)
     : TypeWithStorage(type) {
@@ -55,7 +69,7 @@ MutableType::MutableType(Nest::TypeRef type)
 
 MutableType MutableType::get(TypeWithStorage base, Nest::Location loc) {
     if (!base)
-        REP_INTERNAL(loc, "Null type given as base to const type");
+        REP_INTERNAL(loc, "Null type given as base to mutable type");
     int baseKind = base.kind();
     if (baseKind == typeKindMutable)
         return {base};
@@ -64,8 +78,8 @@ MutableType MutableType::get(TypeWithStorage base, Nest::Location loc) {
     return {Feather_getMutableType(base)};
 }
 
-DataType MutableType::toRef() const {
-    return DataType::get(referredNode(), numReferences(), mode());
+TypeWithStorage MutableType::toRef() const {
+    return getDataTypeWithPtr(referredNode(), numReferences(), mode());
 }
 
 TempType::TempType(Nest::TypeRef type)
@@ -85,7 +99,9 @@ TempType TempType::get(TypeWithStorage base, Nest::Location loc) {
     return {Feather_getTempType(base)};
 }
 
-DataType TempType::toRef() const { return DataType::get(referredNode(), numReferences(), mode()); }
+TypeWithStorage TempType::toRef() const {
+    return getDataTypeWithPtr(referredNode(), numReferences(), mode());
+}
 
 ArrayType::ArrayType(Nest::TypeRef type)
     : TypeWithStorage(type) {
@@ -110,13 +126,20 @@ FunctionType FunctionType::get(
 
 bool isDataLikeType(Type type) {
     int typeKind = type.kind();
-    return typeKind == typeKindData || typeKind == typeKindConst || typeKind == typeKindMutable ||
-           typeKind == typeKindTemp;
+    return typeKind == typeKindData || typeKind == typeKindPtr || typeKind == typeKindConst ||
+           typeKind == typeKindMutable || typeKind == typeKindTemp;
 }
 
 bool isCategoryType(Type type) {
     int typeKind = type.kind();
     return typeKind == typeKindConst || typeKind == typeKindMutable || typeKind == typeKindTemp;
+}
+
+TypeWithStorage getDataTypeWithPtr(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode) {
+    TypeWithStorage res = DataType::get(decl, mode);
+    for (int i = 0; i < numReferences; i++)
+        res = PtrType::get(res);
+    return res;
 }
 
 TypeWithStorage addRef(TypeWithStorage type) {
@@ -125,7 +148,9 @@ TypeWithStorage addRef(TypeWithStorage type) {
 
     int typeKind = type.kind();
     if (typeKind == typeKindData)
-        return DataType::get(type.referredNode(), type.numReferences() + 1, type.mode());
+        return getDataTypeWithPtr(type.referredNode(), type.numReferences() + 1, type.mode());
+    else if (typeKind == typeKindPtr)
+        return PtrType::get(type);
     else if (typeKind == typeKindConst)
         return ConstType::get(addRef(ConstType(type).base()));
     else if (typeKind == typeKindMutable)
@@ -144,8 +169,10 @@ TypeWithStorage removeRef(TypeWithStorage type) {
     if (typeKind == typeKindData) {
         if (type.numReferences() == 0)
             REP_INTERNAL(NOLOC, "Cannot remove reference from %1%") % type;
-        return DataType::get(type.referredNode(), type.numReferences() - 1, type.mode());
-    } else if (typeKind == typeKindConst)
+        return getDataTypeWithPtr(type.referredNode(), type.numReferences() - 1, type.mode());
+    } else if (typeKind == typeKindPtr)
+        return PtrType(type).base();
+    else if (typeKind == typeKindConst)
         return ConstType::get(removeRef(ConstType(type).base()));
     else if (typeKind == typeKindMutable)
         return MutableType::get(removeRef(MutableType(type).base()));
@@ -163,9 +190,9 @@ TypeWithStorage removeCatOrRef(TypeWithStorage type) {
         REP_INTERNAL(NOLOC, "Cannot remove reference from type (%1%)") % type;
 
     int typeKind = type.kind();
-    if (typeKind == typeKindData || typeKind == typeKindConst || typeKind == typeKindMutable ||
-            typeKind == typeKindTemp)
-        return DataType::get(type.referredNode(), type.numReferences() - 1, type.mode());
+    if (typeKind == typeKindData || typeKind == typeKindPtr || typeKind == typeKindConst ||
+            typeKind == typeKindMutable || typeKind == typeKindTemp)
+        return getDataTypeWithPtr(type.referredNode(), type.numReferences() - 1, type.mode());
 
     REP_INTERNAL(NOLOC, "Invalid type given when removing reference (%1%)") % type;
     return {};
@@ -176,9 +203,9 @@ TypeWithStorage removeAllRefs(TypeWithStorage type) {
         REP_INTERNAL(NOLOC, "Null type passed to removeAllRefs");
 
     int typeKind = type.kind();
-    if (typeKind == typeKindData || typeKind == typeKindConst || typeKind == typeKindMutable ||
+    if (typeKind == typeKindData || typeKind == typeKindPtr || typeKind == typeKindConst || typeKind == typeKindMutable ||
             typeKind == typeKindTemp)
-        return DataType::get(type.referredNode(), 0, type.mode());
+        return DataType::get(type.referredNode(), type.mode());
 
     REP_INTERNAL(NOLOC, "Invalid type given when removing all references (%1%)") % type;
     return {};
@@ -223,12 +250,12 @@ TypeWithStorage changeCat(TypeWithStorage type, int newCatKind) {
         REP_INTERNAL(NOLOC, "Cannot change cat of non-reference type %1%") % type;
 
     int baseKind = type.kind();
-    if (baseKind != typeKindData && baseKind != typeKindConst && baseKind != typeKindMutable &&
+    if (baseKind != typeKindData && baseKind != typeKindPtr && baseKind != typeKindConst && baseKind != typeKindMutable &&
             baseKind != typeKindTemp)
         REP_INTERNAL(NOLOC, "Invalid type given to change category: %1%") % type;
 
     TypeWithStorage base =
-            DataType::get(type.referredNode(), type.numReferences() - 1, type.mode());
+            getDataTypeWithPtr(type.referredNode(), type.numReferences() - 1, type.mode());
 
     if (newCatKind == typeKindConst)
         return ConstType::get(base);

@@ -50,10 +50,41 @@ struct DataType : TypeWithStorage {
      *
      * @return     The corresponding datatype
      */
-    static DataType get(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode);
+    static DataType get(Nest::NodeHandle decl, Nest::EvalMode mode);
 
     //! @copydoc Type::changeMode
     DataType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
+        return {Type::changeMode(mode, loc)};
+    }
+};
+
+/**
+ * @brief      A pointer type.
+ *
+ * A value of this type will hold a pointer to an object of the base type
+ *
+ * Constraints:
+ *     - must be created on top of a type with storage
+ */
+struct PtrType : TypeWithStorage {
+    PtrType() = default;
+    PtrType(Nest::TypeRef type);
+
+    /**
+     * @brief      Factory method to create a pointer type
+     *
+     * @param[in]  base  The type pointed at
+     * @param[in]  loc   Location used when reporting errors
+     *
+     * @return     The corresponding pointer type
+     */
+    static PtrType get(TypeWithStorage base, Nest::Location loc = {});
+
+    //! Returns the base type of this type
+    TypeWithStorage base() const { return {type_->subTypes[0]}; }
+
+    //! @copydoc Type::changeMode
+    PtrType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
         return {Type::changeMode(mode, loc)};
     }
 };
@@ -85,7 +116,7 @@ struct ConstType : TypeWithStorage {
     TypeWithStorage base() const { return {type_->subTypes[0]}; }
 
     //! Transform this type into a corresponding DataType with the same number of references.
-    DataType toRef() const;
+    TypeWithStorage toRef() const;
 
     //! @copydoc Type::changeMode
     ConstType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
@@ -120,7 +151,7 @@ struct MutableType : TypeWithStorage {
     TypeWithStorage base() const { return {type_->subTypes[0]}; }
 
     //! Transform this type into a corresponding DataType with the same number of references.
-    DataType toRef() const;
+    TypeWithStorage toRef() const;
 
     //! @copydoc Type::changeMode
     MutableType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
@@ -155,7 +186,7 @@ struct TempType : TypeWithStorage {
     TypeWithStorage base() const { return {type_->subTypes[0]}; }
 
     //! Transform this type into a corresponding DataType with the same number of references.
-    DataType toRef() const;
+    TypeWithStorage toRef() const;
 
     //! @copydoc Type::changeMode
     TempType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
@@ -239,6 +270,10 @@ bool isDataLikeType(Type type);
 
 //! Determines if the type is a category type: ConstType, MutableType, TempType
 bool isCategoryType(Type type);
+
+//! Returns a data type with the appropriate number of references
+//! \TODO Check if this is needed
+TypeWithStorage getDataTypeWithPtr(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode);
 
 /**
  * @brief      Adds a reference to the given type.

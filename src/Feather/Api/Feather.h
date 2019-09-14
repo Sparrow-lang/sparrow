@@ -24,6 +24,7 @@ Nest_CompilerModule* Feather_getModule();
 // The type kinds for the Feather types
 int Feather_getVoidTypeKind();
 int Feather_getDataTypeKind();
+int Feather_getPtrTypeKind();
 int Feather_getConstTypeKind();
 int Feather_getMutableTypeKind();
 int Feather_getTempTypeKind();
@@ -38,6 +39,7 @@ Nest_TypeRef Feather_getVoidType(EvalMode mode);
 /// must have a size
 Nest_TypeRef Feather_getDataType(Nest_Node* classDecl, unsigned numReferences, EvalMode mode);
 
+Nest_TypeRef Feather_getPtrType(Nest_TypeRef base);
 Nest_TypeRef Feather_getConstType(Nest_TypeRef base);
 Nest_TypeRef Feather_getMutableType(Nest_TypeRef base);
 Nest_TypeRef Feather_getTempType(Nest_TypeRef base);

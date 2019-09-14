@@ -24,7 +24,7 @@ Gen<NodeHandle> arbValueForType(TypeWithStorage t, const SampleTypes* sampleType
             RC_ASSERT(sampleTypes);
             auto compatibleTypes = sampleTypes->typesForConcept(ConceptType(t));
             type = *gen::elementOf(compatibleTypes);
-            type = DataType::get(type.referredNode(), t.numReferences(), t.mode());
+            type = Feather::getDataTypeWithPtr(type.referredNode(), t.numReferences(), t.mode());
         }
 
         RC_ASSERT(type.kind() != SprFrontend::typeKindConcept);
@@ -61,7 +61,7 @@ Gen<NodeHandle> arbValueConvertibleTo(TypeWithStorage t, const SampleTypes* samp
             RC_ASSERT(sampleTypes);
             auto compatibleTypes = sampleTypes->typesForConcept(ConceptType(t));
             type = *gen::elementOf(compatibleTypes);
-            type = DataType::get(type.referredNode(), t.numReferences(), t.mode());
+            type = Feather::getDataTypeWithPtr(type.referredNode(), t.numReferences(), t.mode());
         }
 
         // Get a type that's convertible to our type
@@ -114,11 +114,11 @@ Gen<NodeHandle> arbBoundValueForType(TypeWithStorage t, const SampleTypes& sampl
         return rc::gen::exec([&sampleTypes, t]() -> NodeHandle {
             // Get a type that matches the concept
             auto types = sampleTypes.typesForConcept(ConceptType(t));
-            auto innerType = types[*rc::gen::inRange(0, int(types.size()))];
+            TypeWithStorage innerType = types[*rc::gen::inRange(0, int(types.size()))];
 
             // Ensure it has the same shape as the concept type
             innerType =
-                    Feather::DataType::get(innerType.referredNode(), t.numReferences(), t.mode());
+                    Feather::getDataTypeWithPtr(innerType.referredNode(), t.numReferences(), t.mode());
 
             // Create a type node for this type
             return SprFrontend::createTypeNode(nullptr, Location(), innerType);

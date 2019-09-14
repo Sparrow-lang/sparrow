@@ -17,17 +17,28 @@ vector<NodeHandle> g_conceptDecls{};
 
 Gen<VoidType> arbVoidType() { return gen::apply(&VoidType::get, gen::arbitrary<EvalMode>()); }
 
-Gen<DataType> arbDataType(EvalMode mode, int minRef, int maxRef) {
+Gen<DataType> arbDataType(EvalMode mode) {
     const int numT = g_dataTypeDecls.size();
     REQUIRE(numT > 0);
     auto modeGen = mode == modeUnspecified ? gen::arbitrary<EvalMode>() : gen::just(mode);
     return gen::exec([=]() -> DataType {
         int idx = *gen::inRange(0, int(g_dataTypeDecls.size()));
-        int numReferences = *gen::inRange(minRef, maxRef);
         EvalMode genMode = mode == modeUnspecified ? *gen::arbitrary<EvalMode>() : *gen::just(mode);
         REQUIRE(idx < g_dataTypeDecls.size());
-        return DataType::get(g_dataTypeDecls[idx], numReferences, genMode);
+        return DataType::get(g_dataTypeDecls[idx], genMode);
     });
+}
+
+Gen<PtrType> arbPtrType(EvalMode mode, int minRef, int maxRef) {
+    if (minRef > 0)
+        minRef--;
+    if (maxRef > 0)
+        maxRef--;
+    auto locGen = gen::just(Location{});
+    if ( minRef > 0 )
+        return gen::apply(&PtrType::get, arbPtrType(mode, minRef, maxRef), locGen);
+    else
+        return gen::apply(&PtrType::get, arbDataType(mode), locGen);
 }
 
 Gen<ConstType> arbConstType(EvalMode mode, int minRef, int maxRef) {
@@ -36,7 +47,7 @@ Gen<ConstType> arbConstType(EvalMode mode, int minRef, int maxRef) {
     if (maxRef > 0)
         maxRef--;
     auto locGen = gen::just(Location{});
-    return gen::apply(&ConstType::get, arbDataType(mode, minRef, maxRef), locGen);
+    return gen::apply(&ConstType::get, arbDataOrPtrType(mode, minRef, maxRef), locGen);
 }
 
 Gen<MutableType> arbMutableType(EvalMode mode, int minRef, int maxRef) {
@@ -45,7 +56,7 @@ Gen<MutableType> arbMutableType(EvalMode mode, int minRef, int maxRef) {
     if (maxRef > 0)
         maxRef--;
     auto locGen = gen::just(Location{});
-    return gen::apply(&MutableType::get, arbDataType(mode, minRef, maxRef), locGen);
+    return gen::apply(&MutableType::get, arbDataOrPtrType(mode, minRef, maxRef), locGen);
 }
 
 Gen<TempType> arbTempType(EvalMode mode, int minRef, int maxRef) {
@@ -54,13 +65,13 @@ Gen<TempType> arbTempType(EvalMode mode, int minRef, int maxRef) {
     if (maxRef > 0)
         maxRef--;
     auto locGen = gen::just(Location{});
-    return gen::apply(&TempType::get, arbDataType(mode, minRef, maxRef), locGen);
+    return gen::apply(&TempType::get, arbDataOrPtrType(mode, minRef, maxRef), locGen);
 }
 
 Gen<ArrayType> arbArrayType(EvalMode mode) {
     return gen::apply(
-            [=](DataType base, unsigned count) -> ArrayType { return ArrayType::get(base, count); },
-            arbDataType(mode), gen::inRange(1, 100));
+            [=](TypeWithStorage base, unsigned count) -> ArrayType { return ArrayType::get(base, count); },
+            arbDataOrPtrType(mode), gen::inRange(1, 100));
 }
 
 Gen<FunctionType> arbFunctionType(EvalMode mode, Nest::TypeWithStorage resType) {
@@ -70,7 +81,7 @@ Gen<FunctionType> arbFunctionType(EvalMode mode, Nest::TypeWithStorage resType) 
         vector<Nest::TypeRef> types;
         types.resize(numTypes);
         for (int i = 0; i < numTypes; i++) {
-            auto t = i == 0 && resType ? resType : *arbDataType(m);
+            auto t = i == 0 && resType ? resType : *arbDataOrPtrType(m);
             types[i] = t;
         }
         return FunctionType::get(&types[0], numTypes, m);
@@ -89,15 +100,26 @@ Gen<SprFrontend::ConceptType> arbConceptType(EvalMode mode, int minRef, int maxR
             gen::inRange(0, numT), gen::inRange(minRef, maxRef), modeGen);
 }
 
+Gen<Feather::TypeWithStorage> arbDataOrPtrType(EvalMode mode, int minRef, int maxRef) {
+    int weightDataType = minRef > 0 ? 0 : 3;
+    int weightPtrType = minRef == 0 ? 0 : 2;
+    return gen::weightedOneOf<TypeWithStorage>({
+            {weightDataType, gen::cast<TypeWithStorage>(arbDataType(mode))},
+            {weightPtrType, gen::cast<TypeWithStorage>(arbPtrType(mode, minRef, maxRef))},
+    });
+}
+
 Gen<TypeWithStorage> arbTypeWithStorage(EvalMode mode, int minRef, int maxRef) {
-    int weightDataType = 5;
+    int weightDataType = minRef > 0 ? 0 : 4;
+    int weightPtrType = minRef == 0 ? 0 : 2;
     int weightConstType = minRef == 0 ? 0 : 2;
     int weightMutableType = minRef == 0 ? 0 : 2;
     int weightTempType = minRef == 0 ? 0 : 1;
     int weightArrayType = 1;
     int weightFunctionType = 1;
     return gen::weightedOneOf<TypeWithStorage>({
-            {weightDataType, gen::cast<TypeWithStorage>(arbDataType(mode, minRef, maxRef))},
+            {weightDataType, gen::cast<TypeWithStorage>(arbDataType(mode))},
+            {weightPtrType, gen::cast<TypeWithStorage>(arbPtrType(mode, minRef, maxRef))},
             {weightConstType, gen::cast<TypeWithStorage>(arbConstType(mode, minRef, maxRef))},
             {weightMutableType, gen::cast<TypeWithStorage>(arbMutableType(mode, minRef, maxRef))},
             {weightTempType, gen::cast<TypeWithStorage>(arbTempType(mode, minRef, maxRef))},
@@ -107,12 +129,14 @@ Gen<TypeWithStorage> arbTypeWithStorage(EvalMode mode, int minRef, int maxRef) {
 }
 
 Gen<TypeWithStorage> arbBasicStorageType(EvalMode mode, int minRef, int maxRef) {
-    int weightDataType = 5;
+    int weightDataType = minRef > 0 ? 0 : 5;
+    int weightPtrType = minRef == 0 ? 0 : 3;
     int weightConstType = maxRef == 0 ? 0 : 3;
     int weightMutableType = maxRef == 0 ? 0 : 3;
     int weightTempType = 1;
     return gen::weightedOneOf<TypeWithStorage>({
-            {weightDataType, gen::cast<TypeWithStorage>(arbDataType(mode, minRef, maxRef))},
+            {weightDataType, gen::cast<TypeWithStorage>(arbDataType(mode))},
+            {weightPtrType, gen::cast<TypeWithStorage>(arbPtrType(mode, minRef, maxRef))},
             {weightConstType, gen::cast<TypeWithStorage>(arbConstType(mode, std::min(minRef, 1), maxRef))},
             {weightMutableType, gen::cast<TypeWithStorage>(arbMutableType(mode, std::min(minRef, 1), maxRef))},
             {weightTempType, gen::cast<TypeWithStorage>(arbTempType(mode, std::min(minRef, 1), maxRef))},
@@ -122,6 +146,7 @@ Gen<TypeWithStorage> arbBasicStorageType(EvalMode mode, int minRef, int maxRef) 
 Gen<Type> arbType() {
     return gen::weightedOneOf<Type>({
             {5, gen::cast<Type>(arbDataType())},
+            {3, gen::cast<Type>(arbPtrType())},
             {3, gen::cast<Type>(arbConstType())},
             {3, gen::cast<Type>(arbMutableType())},
             {2, gen::cast<Type>(arbTempType())},
@@ -149,7 +174,7 @@ Gen<TypeWithStorage> arbBoolType(EvalMode mode) {
                 {1, 2},
                 {1, 3},
         });
-        TypeWithStorage t = DataType::get(boolDecl, numRefs, m);
+        TypeWithStorage t = Feather::getDataTypeWithPtr(boolDecl, numRefs, m);
         int percentage = *gen::inRange(0, 100);
         if (*gen::inRange(0, 100) < 25) // 25% return MutableType
             t = MutableType::get(t);

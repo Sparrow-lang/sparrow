@@ -53,8 +53,9 @@ Nest_StringRef Feather_nativeName(Nest_TypeRef type) {
 
 Nest_TypeRef Feather_baseType(Nest_TypeRef type) {
     ASSERT(type);
-    ASSERT(type->typeKind == typeKindConst || type->typeKind == typeKindMutable ||
-            type->typeKind == typeKindTemp || type->typeKind == typeKindArray);
+    ASSERT(type->typeKind == typeKindPtr || type->typeKind == typeKindConst ||
+            type->typeKind == typeKindMutable || type->typeKind == typeKindTemp ||
+            type->typeKind == typeKindArray);
     ASSERT(type->numSubtypes == 1);
     return type->subTypes[0];
 }

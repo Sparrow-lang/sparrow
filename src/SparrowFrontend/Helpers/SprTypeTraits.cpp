@@ -199,7 +199,7 @@ Type SprFrontend::doDereference1(Nest::NodeHandle arg, Nest::NodeHandle& cvt) {
     for (size_t i = 1; i < t.numReferences(); ++i) {
         cvt = Feather::MemLoadExp::create(arg.location(), cvt);
     }
-    return DataType::get(t.referredNode(), 0, t.mode()); // Zero references
+    return DataType::get(t.referredNode(), t.mode()); // Zero references
 }
 
 namespace {
@@ -291,7 +291,7 @@ Type SprFrontend::getAutoType(Node* typeNode, int numRefs, int kind, EvalMode ev
     // it
 
     // This is a data-like type, so we can directly reduce it to the right datatype
-    t = DataType::get(t.referredNode(), numRefs, evalMode);
+    t = getDataTypeWithPtr(t.referredNode(), numRefs, evalMode);
     if (kind == typeKindMutable)
         return MutableType::get(t);
     else if (kind == typeKindConst)
@@ -323,8 +323,8 @@ Type SprFrontend::changeRefCount(Type type, int numRef, const Location& loc) {
         type = Feather_baseType(type);
     // TODO (types): Not sure if this is the right approach
 
-    if (type.kind() == typeKindData)
-        type = Feather_getDataType(type.referredNode(), numRef, type.mode());
+    if (type.kind() == typeKindData || type.kind() == typeKindPtr)
+        type = Feather::getDataTypeWithPtr(type.referredNode(), numRef, type.mode());
     else if (type.kind() == typeKindConcept)
         type = ConceptType::get(ConceptType(type).decl(), numRef, type.mode());
     else

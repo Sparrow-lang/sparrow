@@ -161,7 +161,7 @@ NodeHandle GenericDatatypeCallable::generateCall(const CCLoc& ccloc) {
     auto structDecl = instDecl.explanation().kindCast<Feather::StructDecl>();
     ASSERT(structDecl);
     return createTypeNode(
-            decl_.context(), ccloc.loc_, Feather::DataType::get(structDecl, 0, modeRt));
+            decl_.context(), ccloc.loc_, Feather::DataType::get(structDecl, modeRt));
 }
 
 int GenericDatatypeCallable::numParams() const { return params_.size(); }

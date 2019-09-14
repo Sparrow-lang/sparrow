@@ -138,7 +138,7 @@ Node* applyOnce(Node* src, ConvAction action) {
         EvalMode destMode = destT.mode();
         Node* destClass = destT.referredNode();
         Node* refToClass = createTypeNode(
-                src->context, src->location, Feather_getDataType(destClass, 0, modeRt));
+                src->context, src->location, Feather::DataType::get(destClass, modeRt));
         return Feather_mkChangeMode(src->location,
                 mkFunApplication(src->location, refToClass, fromIniList({src})), destMode);
     }

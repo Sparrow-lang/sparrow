@@ -59,7 +59,7 @@ Node* addAssociatedFun(Node* parent, const string& name, Node* body,
     }
     Node* parameters = sprParams.empty() ? nullptr : Feather_mkNodeList(loc, all(sprParams));
     Node* ret =
-            resClass ? createTypeNode(ctx, loc, Feather_getDataType(resClass, 0, modeRt)) : nullptr;
+            resClass ? createTypeNode(ctx, loc, Feather::DataType::get(resClass, modeRt)) : nullptr;
 
     // Add the function in the context of the parent
     Node* f = mkSprFunction(loc, StringRef(name), parameters, ret, body);
@@ -204,7 +204,7 @@ Node* generateEqualityCheckFun(Node* parent) {
 
     vector<pair<Type, string>> params;
     params.reserve(2);
-    Type t = Feather::DataType::get(cls, 1, modeUnspecified);
+    Type t = Feather::getDataTypeWithPtr(cls, 1, modeUnspecified);
     params.emplace_back(t, string("this"));
     params.emplace_back(t, string("other"));
     Node* res = addAssociatedFun(parent, "==", body, params, generatedOverloadPrio, StdDef::clsBool,
@@ -317,7 +317,7 @@ void _IntModClassMembers_afterComputeType(Nest_Modifier*, Node* node) {
     Node* basicClass = Nest_explanation(node);
     basicClass = basicClass && basicClass->nodeKind == nkFeatherDeclClass ? basicClass : nullptr;
     ASSERT(basicClass);
-    Type paramType = Feather_getDataType(basicClass, 1, modeRt);
+    Type paramType = Feather::getDataTypeWithPtr(basicClass, 1, modeRt);
 
     // Initialization ctor
     bool skipDefaultCtor = false;
@@ -329,7 +329,7 @@ void _IntModClassMembers_afterComputeType(Nest_Modifier*, Node* node) {
         generateAssociatedFun(cls, "ctor", "ctor", nullptr);
     generateAssociatedFun(cls, "ctor", "ctor", paramType);
     if (Feather_effectiveEvalMode(basicClass) == modeRt) {
-        Type paramCt = Feather_getDataType(basicClass, 0, modeCt);
+        Type paramCt = Feather::DataType::get(basicClass, modeCt);
         generateAssociatedFun(cls, "ctorFromCt", "ctor", paramCt);
     }
     generateAssociatedFun(cls, "dtor", "dtor", nullptr, true);

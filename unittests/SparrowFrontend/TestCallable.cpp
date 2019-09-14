@@ -584,7 +584,7 @@ TypeWithStorage addRefs(TypeWithStorage t, int numRefs) {
         return ConceptType::get(t.referredNode(), numRefs, t.mode());
     }
     else if (t.kind() == typeKindData) {
-        return DataType::get(t.referredNode(), numRefs, t.mode());
+        return Feather::getDataTypeWithPtr(t.referredNode(), numRefs, t.mode());
     }
     else {
         for (int i=0; i<numRefs; i++)

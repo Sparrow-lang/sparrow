@@ -133,9 +133,9 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         RC_ASSERT(res.conversionType() == convNone);
     });
     rc::prop("Only void converts to void (none)", [=](Type src) {
-        RC_PRE(src.kind() != Feather_getVoidTypeKind());
-        Type voidRt = Feather_getVoidType(modeRt);
-        Type voidCt = Feather_getVoidType(modeCt);
+        RC_PRE(src.kind() != Feather::VoidType::staticKind());
+        Type voidRt = Feather::VoidType::get(modeRt);
+        Type voidCt = Feather::VoidType::get(modeCt);
         RC_ASSERT(getConvType(src, voidRt) == convNone);
         RC_ASSERT(getConvType(src, voidCt) == convNone);
         RC_ASSERT(getConvType(voidCt, src) == convNone);

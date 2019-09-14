@@ -183,7 +183,7 @@ NodeHandle impl_staticBuffer(CompilationContext* context, const Location& loc, N
     if (size < 0)
         REP_ERROR_RET(nullptr, loc, "Size of static buffer is negative (%1%)") % size;
 
-    Type arrType = Feather_getArrayType(StdDef::typeByte, (size_t)size);
+    Type arrType = ArrayType::get(StdDef::typeByte, (size_t)size);
     return createTypeNode(context, loc, arrType);
 }
 

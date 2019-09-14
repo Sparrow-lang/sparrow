@@ -29,7 +29,7 @@ llvm::Type* transformVoid(VoidType /*type*/, GlobalContext& ctx) {
 
 llvm::Type* transformDataType(DataType type, GlobalContext& ctx) {
     // Call the translation method for the class declaration
-    auto cls = Feather_classDecl(type);
+    auto cls = type.referredNode();
     ASSERT(cls);
     // TODO (backend): Sometimes we can generate only opaque structs. No need for fields.
     llvm::Type* t = Tr::translateClass(cls, ctx);

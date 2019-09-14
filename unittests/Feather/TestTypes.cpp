@@ -32,7 +32,7 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
     rc::prop("Can create VoidTypes for proper mode", [](EvalMode mode) {
         auto type = VoidType::get(mode);
         REQUIRE(type);
-        REQUIRE(type.kind() == Feather_getVoidTypeKind());
+        REQUIRE(type.kind() == Feather::VoidType::staticKind());
         REQUIRE(type.mode() == mode);
         REQUIRE(type.canBeUsedAtRt());
         REQUIRE(!type.hasStorage());
@@ -44,7 +44,7 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
 
         auto type = DataType::get(decl, mode);
         REQUIRE(type);
-        REQUIRE(type.kind() == Feather_getDataTypeKind());
+        REQUIRE(type.kind() == Feather::DataType::staticKind());
         REQUIRE(type.mode() == mode);
         REQUIRE(type.canBeUsedAtRt());
         REQUIRE(type.hasStorage());
@@ -76,7 +76,7 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
         auto baseType = Feather::getDataTypeWithPtr(decl, numRefs, mode);
         auto type = ConstType::get(baseType);
         REQUIRE(type);
-        REQUIRE(type.kind() == Feather_getConstTypeKind());
+        REQUIRE(type.kind() == Feather::ConstType::staticKind());
         REQUIRE(type.mode() == mode);
         REQUIRE(type.canBeUsedAtRt());
         REQUIRE(type.hasStorage());
@@ -94,7 +94,7 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
         auto baseType = Feather::getDataTypeWithPtr(decl, numRefs, mode);
         auto type = MutableType::get(baseType);
         REQUIRE(type);
-        REQUIRE(type.kind() == Feather_getMutableTypeKind());
+        REQUIRE(type.kind() == Feather::MutableType::staticKind());
         REQUIRE(type.mode() == mode);
         REQUIRE(type.canBeUsedAtRt());
         REQUIRE(type.hasStorage());
@@ -112,7 +112,7 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
         auto baseType = Feather::getDataTypeWithPtr(decl, numRefs, mode);
         auto type = TempType::get(baseType);
         REQUIRE(type);
-        REQUIRE(type.kind() == Feather_getTempTypeKind());
+        REQUIRE(type.kind() == Feather::TempType::staticKind());
         REQUIRE(type.mode() == mode);
         REQUIRE(type.canBeUsedAtRt());
         REQUIRE(type.hasStorage());

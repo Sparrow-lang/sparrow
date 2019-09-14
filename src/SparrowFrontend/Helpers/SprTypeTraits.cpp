@@ -320,7 +320,7 @@ Type SprFrontend::changeRefCount(Type type, int numRef, const Location& loc) {
 
     // If we have a category type, get its base
     while (Feather::isCategoryType(type))
-        type = Feather_baseType(type);
+        type = removeCategoryIfPresent(type);
     // TODO (types): Not sure if this is the right approach
 
     if (type.kind() == typeKindData || type.kind() == typeKindPtr)

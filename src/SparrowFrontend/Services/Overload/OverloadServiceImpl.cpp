@@ -317,13 +317,13 @@ Node* OverloadServiceImpl::selectCtToRtCtor(Node* ctArg) {
     ASSERT(ctArg->type);
     if (ctArg->type->mode != modeCt || !ctArg->type->hasStorage)
         return nullptr;
-    Node* cls = Feather_classDecl(ctArg->type);
-    if (Feather_effectiveEvalMode(cls) != modeRt)
+    Node* datatype = Type(ctArg->type).referredNode();
+    if (Feather_effectiveEvalMode(datatype) != modeRt)
         return nullptr;
 
     // Select the possible ct-to-rt constructors
     Callables candidates =
-            g_CallableService->getCallables(fromIniList({cls}), modeRt, {}, "ctorFromCt");
+            g_CallableService->getCallables(fromIniList({datatype}), modeRt, {}, "ctorFromCt");
     if (candidates.empty())
         return nullptr;
 

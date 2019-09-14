@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nest/Api/Type.h"
+#include "Nest/Api/TypeKindRegistrar.h"
 #include "Nest/Api/Location.h"
 #include "Nest/Utils/cppif/Fwd.hpp"
 
@@ -33,6 +34,14 @@ struct Type {
 
     //! Checks if the type is valid (not-null)
     explicit operator bool() const { return type_ != nullptr; }
+
+    //! Makes a cast based of the kind.
+    //! If the current type has the kind of the given type, then make the cast. Otherwise,
+    //! construct an empty result type.
+    //! This is somehow similar to dynamic_cast, but based on statically available info.
+    template <typename T> T kindCast() const {
+        return type_ && kind() == T::staticKind() ? T(type_) : T();
+    }
 
     //!@{ Type properties
 
@@ -101,3 +110,31 @@ template <> struct hash<Nest::Type> {
     }
 };
 } // namespace std
+
+//! To be used inside type classes to declare type boilerplate code
+#define DECLARE_TYPE_COMMON(T)                                                                     \
+private:                                                                                           \
+    static int staticKindValue;                                                                    \
+                                                                                                   \
+    static T changeTypeModeImpl(T type, Nest::EvalMode newMode);                                   \
+                                                                                                   \
+public:                                                                                            \
+    using ThisType = T;                                                                            \
+    static int registerTypeKind();                                                                 \
+    static int staticKind();                                                                       \
+    T() = default;                                                                                 \
+    T(Nest::TypeRef t);
+
+#define DEFINE_TYPE_COMMON_IMPL(T, BaseType)                                                       \
+    int T::registerTypeKind() {                                                                    \
+        auto chModeF = reinterpret_cast<FChangeTypeMode>(&T::changeTypeModeImpl); /*NOLINT*/       \
+        staticKindValue = Nest_registerTypeKind(chModeF);                                          \
+        return staticKindValue;                                                                    \
+    }                                                                                              \
+    int T::staticKindValue{-1};                                                                    \
+    T::T(TypeRef type)                                                                             \
+        : BaseType(type) {                                                                         \
+        if (type && type->typeKind != T::staticKindValue)                                          \
+            REP_INTERNAL(NOLOC, #T " constructed with other type kind (%1%)") % type;              \
+    }                                                                                              \
+    int T::staticKind() { return staticKindValue; }

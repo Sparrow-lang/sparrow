@@ -141,7 +141,7 @@ Gen<Feather::FunCallExp> FeatherNodeFactory::arbFunCallExp(Nest::TypeWithStorage
         // Get the function type
         FunctionType fType;
         if (expectedType) {
-            if (expectedType.kind() == Feather_getFunctionTypeKind())
+            if (expectedType.kind() == Feather::FunctionType::staticKind())
                 fType = FunctionType(expectedType);
             else
                 fType = *TypeFactory::arbFunctionType(expectedType.mode(), expectedType);
@@ -234,7 +234,7 @@ Gen<NodeHandle> FeatherNodeFactory::arbExp(Nest::TypeWithStorage expectedType) {
 
     if (expectedType) {
         auto kind = expectedType.kind();
-        if (kind != Feather_getDataTypeKind()) {
+        if (kind != Feather::DataType::staticKind()) {
             weightMemLoadExp = 0;
             weightConditionalExp = 0;
         }

@@ -66,7 +66,7 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::Nop node") {
         nop.setContext(globalContext_);
         auto t = nop.computeType();
         REQUIRE(t);
-        REQUIRE(t.kind() == Feather_getVoidTypeKind());
+        REQUIRE(t.kind() == Feather::VoidType::staticKind());
         REQUIRE(t == nop.type());
     }
 }
@@ -164,7 +164,7 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::FunCallExp node") {
         node.setContext(globalContext_);
         auto t = node.computeType();
         REQUIRE(t);
-        REQUIRE(node.funDecl().type().kind() == Feather_getFunctionTypeKind());
+        REQUIRE(node.funDecl().type().kind() == Feather::FunctionType::staticKind());
 
         // If the result type is CT, then all the args are CT
         if ( t.mode() == modeCt ) {
@@ -206,7 +206,7 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::MemStoreExp node") {
         node.setContext(globalContext_);
         auto t = node.computeType();
         REQUIRE(t);
-        REQUIRE(t.kind() == Feather_getVoidTypeKind());
+        REQUIRE(t.kind() == Feather::VoidType::staticKind());
     });
 }
 

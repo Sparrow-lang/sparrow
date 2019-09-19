@@ -293,9 +293,9 @@ TypeWithStorage changeCat(TypeWithStorage src, int typeKind, bool addRef = false
     TypeWithStorage base;
     int srcTK = src.kind();
     if (srcTK == typeKindData)
-        base = src.numReferences() > 0 && !addRef ? removeRef(src) : src;
+        base = src;
     else if (srcTK == typeKindPtr)
-        base = PtrType(src).base();
+        base = !addRef ? PtrType(src).base() : src;
     else if (srcTK == typeKindConst)
         base = ConstType(src).base();
     else if (srcTK == typeKindMutable)

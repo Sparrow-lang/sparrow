@@ -18,7 +18,12 @@ Nest::TypeWithStorage FeatherNodeFactory::genTypeIfNeeded(
             REQUIRE(expectedType.numReferences() > 0);
         return expectedType;
     } else
-        return *TypeFactory::arbBasicStorageType(modeUnspecified, needsRef ? 1 : 0);
+    {
+        if (needsRef)
+            return *TypeFactory::arbTypeWithRef();
+        else
+            return *TypeFactory::arbBasicStorageType();
+    }
 }
 
 NodeHandle FeatherNodeFactory::genTypeNode(Nest::TypeWithStorage type) {

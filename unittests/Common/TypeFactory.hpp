@@ -47,8 +47,7 @@ Gen<Feather::FunctionType> arbFunctionType(
         EvalMode mode = modeUnspecified, Nest::TypeWithStorage resType = {});
 
 //! Returns a generator for arbitrary concept types
-Gen<SprFrontend::ConceptType> arbConceptType(
-        EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+Gen<SprFrontend::ConceptType> arbConceptType(EvalMode mode = modeUnspecified);
 
 //! Returns an arbitrary type with storage, given the weights for each type
 Gen<Nest::TypeWithStorage> arbTypeWeighted(EvalMode mode, int weightDataType = 5,
@@ -58,6 +57,9 @@ Gen<Nest::TypeWithStorage> arbTypeWeighted(EvalMode mode, int weightDataType = 5
 
 //! Returns a generator of either data or ptr type
 Gen<Nest::TypeWithStorage> arbDataOrPtrType(EvalMode mode = modeUnspecified);
+
+//! Returns a generator of either concept or ptr-of-concept type
+Gen<Nest::TypeWithStorage> arbConceptOrPtrType(EvalMode mode = modeUnspecified, int maxRefs = 4);
 
 //! Returns a generator of types with storage
 Gen<Nest::TypeWithStorage> arbTypeWithStorage(EvalMode mode = modeUnspecified);

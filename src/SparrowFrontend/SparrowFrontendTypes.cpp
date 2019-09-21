@@ -40,16 +40,14 @@ TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode m
     referenceType.canBeUsedAtRt = 1;
     referenceType.flags = 0;
     referenceType.referredNode = conceptOrGeneric;
-    referenceType.description = getConceptTypeDescription(conceptOrGeneric, numReferences, mode);
 
     TypeRef t = Nest_findStockType(&referenceType);
-    if (!t)
-        t = Nest_insertStockType(&referenceType);
-    return t;
-}
+    if (!t) {
 
-TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode) {
-    return getConceptType(type->referredNode, type->numReferences, newMode);
+        referenceType.description = getConceptTypeDescription(conceptOrGeneric, numReferences, mode);
+        t = Nest_insertStockType(&referenceType);
+    }
+    return t;
 }
 
 } // namespace
@@ -57,20 +55,24 @@ TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode) {
 int typeKindConcept = -1;
 
 void initSparrowFrontendTypeKinds() {
-    typeKindConcept = Nest_registerTypeKind(&changeTypeModeConcept);
+    typeKindConcept = ConceptType::registerTypeKind();
 }
 
-ConceptType::ConceptType(Nest::TypeRef type)
-    : TypeWithStorage(type) {
-    if (type && type->typeKind != typeKindConcept)
-        REP_INTERNAL(NOLOC, "ConceptType constructed with other type kind (%1%)") % type;
+DEFINE_TYPE_COMMON_IMPL(ConceptType, TypeWithStorage)
+
+ConceptType ConceptType::changeTypeModeImpl(ConceptType type, Nest::EvalMode newMode) {
+    return getConceptType(type.referredNode(), type.numReferences(), newMode);
 }
 
-ConceptType ConceptType::get(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode) {
-    return {getConceptType(decl, numReferences, mode)};
+ConceptType ConceptType::get(Nest::NodeHandle decl, Nest::EvalMode mode) {
+    return {getConceptType(decl, 0, mode)};
 }
 
 Nest::NodeHandle ConceptType::decl() const { return referredNode(); }
+
+TypeWithStorage getConceptTypeWithPtr(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode) {
+    return {getConceptType(decl, numReferences, mode)};
+}
 
 TypeWithStorage baseType(TypeWithStorage t) {
     while (t && t.numReferences() > 0) {
@@ -86,7 +88,7 @@ TypeWithStorage baseType(TypeWithStorage t) {
         else if (kind == typeKindTemp)
             t = Feather::TempType(t).base();
         else if (kind == typeKindConcept)
-            t = ConceptType::get(t.referredNode(), 0, t.mode());
+            t = ConceptType::get(t.referredNode(), t.mode());
         else
             REP_INTERNAL(NOLOC, "Cannot get the base type for %1%") % t;
     }

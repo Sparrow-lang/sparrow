@@ -317,11 +317,23 @@ bool SprFrontend::isConceptType(Type t, int& numRefs, int& kind) {
     return false;
 }
 
+bool SprFrontend::isConceptType2(Type t) {
+    for (;;) {
+        if (t.kind() == typeKindConcept)
+            return true;
+        else if (t.numReferences() > 0)
+            t = Feather::removeRef(TypeWithStorage(t));
+        else
+            return false;
+    }
+}
+
+
 TypeWithStorage SprFrontend::addRefEx(TypeWithStorage type) {
     ASSERT(type);
     if (type.kind() == typeKindConcept) {
         ConceptType conceptType(type);
-        return ConceptType::get(conceptType.decl(), conceptType.numReferences()+1, type.mode());
+        return getConceptTypeWithPtr(conceptType.decl(), conceptType.numReferences()+1, type.mode());
     }
     else
         return Feather::PtrType::get(type);

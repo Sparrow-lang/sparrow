@@ -24,20 +24,17 @@ void initSparrowFrontendTypeKinds();
  * a generic represents the set of types that can be instantiated of that generic.
  */
 struct ConceptType : TypeWithStorage {
-    ConceptType() = default;
-    ConceptType(Nest::TypeRef type);
+    DECLARE_TYPE_COMMON(ConceptType)
 
     /**
      * @brief      Factory method to create ConceptType types
      *
      * @param[in]  decl           The concept/generic declaration
-     * @param[in]  numReferences  The number references for this type
      * @param[in]  mode           The mode
      *
      * @return     The corresponding ConceptType
      */
-    static ConceptType get(
-            Nest::NodeHandle decl = {}, int numReferences = 0, Nest::EvalMode mode = modeRt);
+    static ConceptType get(Nest::NodeHandle decl = {}, Nest::EvalMode mode = modeRt);
 
     //! Returns the referred concept/generic
     Nest::NodeHandle decl() const;
@@ -47,6 +44,10 @@ struct ConceptType : TypeWithStorage {
         return {Type::changeMode(mode, loc)};
     }
 };
+
+// TODO: remove this
+TypeWithStorage getConceptTypeWithPtr(
+        Nest::NodeHandle decl = {}, int numReferences = 0, Nest::EvalMode mode = modeRt);
 
 /**
  * @brief      Gets the base type of the given type

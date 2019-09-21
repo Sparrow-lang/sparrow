@@ -37,9 +37,12 @@ Node* createTypeNode(CompilationContext* context, const Location& loc, Type t);
 Type getAutoType(Node* typeNode, int numRefs = 0, int kind = 0, EvalMode evalMode = modeRt);
 
 /// Tests if this an concept type.
-/// This includes mutable or const concepts, or refenrece concepts
+/// This includes mutable or const concepts, or reference concepts
 bool isConceptType(Type t);
 bool isConceptType(Type t, int& numRefs, int& kind);
+
+/// Tests if this is a concept type, or something derived from concept (const,mut, ptr, etc)
+bool isConceptType2(Type t);
 
 /// Add a reference to the given type.
 /// Compared to Feather::addRef, this also works with concepts

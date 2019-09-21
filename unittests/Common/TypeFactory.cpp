@@ -86,15 +86,14 @@ Gen<FunctionType> arbFunctionType(EvalMode mode, Nest::TypeWithStorage resType) 
     });
 }
 
-Gen<ConceptType> arbConceptType(EvalMode mode, int minRef, int maxRef) {
+Gen<ConceptType> arbConceptType(EvalMode mode) {
     return gen::exec([=]() -> ConceptType {
         const int numT = g_conceptDecls.size();
         REQUIRE(numT > 0);
         auto idx = *gen::inRange(0, numT);
         REQUIRE(idx < g_conceptDecls.size());
-        auto numReferences = *gen::inRange(minRef, maxRef);
         EvalMode genMode = genModeIfNotSpecified(mode);
-        return ConceptType::get(g_conceptDecls[idx], numReferences, genMode);
+        return ConceptType::get(g_conceptDecls[idx], genMode);
     });
 }
 
@@ -115,6 +114,16 @@ Gen<TypeWithStorage> arbTypeWeighted(EvalMode mode, int weightDataType, int weig
 
 Gen<Feather::TypeWithStorage> arbDataOrPtrType(EvalMode mode) {
     return arbTypeWeighted(mode, 3, 2, 0, 0, 0, 0, 0, 0);
+}
+
+Gen<Feather::TypeWithStorage> arbConceptOrPtrType(EvalMode mode, int maxRefs) {
+    return gen::exec([=]() -> TypeWithStorage {
+        TypeWithStorage t = *arbConceptType(mode);
+        auto numRefs = *gen::inRange(0, maxRefs);
+        for ( int i=0; i<numRefs; i++ )
+            t = PtrType::get(t);
+        return t;
+    });
 }
 
 Gen<TypeWithStorage> arbTypeWithStorage(EvalMode mode) {

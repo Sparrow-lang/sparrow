@@ -466,7 +466,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
                 src = addRef(src);
             if (useMut)
                 src = MutableType::get(src);
-            auto dest = *TypeFactory::arbConceptType(src.mode(), 0, 1);
+            auto dest = *TypeFactory::arbConceptType(src.mode());
 
             RC_LOG() << src << " -> " << dest << endl;
             RC_ASSERT(getConvType(src, dest) != convNone);
@@ -522,8 +522,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             TypeWithStorage src2tmp = TempType::get(src2);
 
             TypeWithStorage c0 = types_.concept1Type_;
-            TypeWithStorage c1 = ConceptType::get(types_.concept1Type_.decl(), 1);
-            TypeWithStorage c2 = ConceptType::get(types_.concept1Type_.decl(), 2);
+            TypeWithStorage c1 = getConceptTypeWithPtr(types_.concept1Type_.decl(), 1);
+            TypeWithStorage c2 = getConceptTypeWithPtr(types_.concept1Type_.decl(), 2);
             TypeWithStorage c0const = ConstType::get(c0);
             TypeWithStorage c0mut = MutableType::get(c0);
             TypeWithStorage c0tmp = TempType::get(c0);

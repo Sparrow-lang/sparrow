@@ -99,7 +99,7 @@ ConversionResult ConvertServiceImpl::checkConversionImpl(
         if (isDataLikeType(srcS))
             src0 = removeAllRefs(srcS);
         else if (srcS.kind() == typeKindConcept) {
-            src0 = ConceptType::get(ConceptType(srcS).decl(), 0, srcS.mode());
+            src0 = ConceptType::get(ConceptType(srcS).decl(), srcS.mode());
         } else
             return {};
 

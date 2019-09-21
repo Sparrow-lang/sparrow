@@ -581,7 +581,7 @@ GenericFunctionCallable CallableFixture::getCallable(SprFunctionDecl funDecl) {
 
 TypeWithStorage addRefs(TypeWithStorage t, int numRefs) {
     if (t.kind() == typeKindConcept) {
-        return ConceptType::get(t.referredNode(), numRefs, t.mode());
+        return getConceptTypeWithPtr(t.referredNode(), numRefs, t.mode());
     }
     else {
         for (int i=0; i<numRefs; i++)

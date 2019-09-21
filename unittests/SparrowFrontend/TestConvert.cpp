@@ -5,6 +5,7 @@
 #include "SprCommon/SampleTypes.hpp"
 
 #include "SparrowFrontend/Services/IConvertService.h"
+#include "SparrowFrontend/Helpers/SprTypeTraits.h"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 using namespace Feather;
@@ -98,7 +99,7 @@ void checkActionsAgainstType(const ConversionResult& cvt, Type destType) {
         return;
     }
 
-    bool isConcept = destType.kind() == SprFrontend::typeKindConcept;
+    bool isConcept = isConceptType(destType);
 
     // Compute the expected conversion
     ConversionType minConv = convDirect;
@@ -229,7 +230,7 @@ void checkActionTypes(const ConversionResult& cvt, Type srcType, Type destType) 
     }
     // At the end, the resulting type must be equal to the destination type
     // (except when the destination is a concept)
-    if (destType.kind() != typeKindConcept) {
+    if (!isConceptType(destType)) {
         RC_LOG() << "  (final) " << t << " == " << destType << " ?" << endl;
 
         RC_ASSERT(Nest::sameTypeIgnoreMode(t, destType));
@@ -357,7 +358,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             RC_PRE(src.referredNode() != types_.fooType_.referredNode() ||
                     dest.referredNode() !=
                             types_.barType_.referredNode()); // Implicit conversion exception
-            RC_PRE(dest.kind() != SprFrontend::typeKindConcept);
+            RC_PRE(!isConceptType(dest));
             auto res = g_ConvertService->checkConversion(globalContext_, src, dest);
             RC_ASSERT(res.conversionType() == convNone);
         });
@@ -472,6 +473,19 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             RC_ASSERT(getConvType(src, dest) != convNone);
         });
 
+        rc::prop("if T -> U, where U=concept, then ptr/N(T) -> ptr/N(U)", [=]() {
+            TypeWithStorage src = *rc::gen::element(types_.fooType_, types_.barType_);
+            int numRefs = *rc::gen::inRange(0, 4);
+            for (int i = 0; i < numRefs; i++)
+                src = addRef(src);
+            TypeWithStorage dest = *TypeFactory::arbConceptType(src.mode());
+            for (int i = 0; i < numRefs; i++)
+                dest = addRefEx(dest);
+
+            RC_LOG() << src << " -> " << dest << endl;
+            RC_ASSERT(getConvType(src, dest) != convNone);
+        });
+
         SECTION("Concept base conversion") {
             CHECK(getConvType(types_.concept1Type_, types_.concept2Type_) == convNone);
             CHECK(getConvType(types_.concept2Type_, types_.concept1Type_) == convDirect);
@@ -522,8 +536,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             TypeWithStorage src2tmp = TempType::get(src2);
 
             TypeWithStorage c0 = types_.concept1Type_;
-            TypeWithStorage c1 = getConceptTypeWithPtr(types_.concept1Type_.decl(), 1);
-            TypeWithStorage c2 = getConceptTypeWithPtr(types_.concept1Type_.decl(), 2);
+            TypeWithStorage c1 = addRefEx(c0);
+            TypeWithStorage c2 = addRefEx(c1);
             TypeWithStorage c0const = ConstType::get(c0);
             TypeWithStorage c0mut = MutableType::get(c0);
             TypeWithStorage c0tmp = TempType::get(c0);
@@ -603,8 +617,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
 
             // Check for "concept" conversions
             // That is the destination is a concept, without the source being a concept.
-            if (src.kind() != SprFrontend::typeKindConcept &&
-                    dest.kind() == SprFrontend::typeKindConcept)
+            if (!isConceptType(src) && isConceptType(dest))
                 expectedConv = convConcept;
 
             unsigned srcBaseReferences = src.numReferences();
@@ -621,8 +634,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
 
             // We don't have a good model for const/temp -> Concept conversions
             // TODO (types)
-            if ((src.kind() == typeKindConst || src.kind() == typeKindTemp) &&
-                    dest.kind() == typeKindConcept)
+            if ((src.kind() == typeKindConst || src.kind() == typeKindTemp) && isConceptType(dest))
                 RC_PRE(false);
 
             // Check for implicit conversions.

@@ -183,10 +183,8 @@ Node* generateEqualityCheckFun(Node* parent) {
     // Construct the equality check expression
     Node* exp = nullptr;
     for (Node* field : cls->children) {
-        Node* fieldRef = Feather_mkFieldRef(
-                loc, mkIdentifier(loc, StringRef("this")), field);
-        Node* otherFieldRef = Feather_mkFieldRef(
-                loc, mkIdentifier(loc, StringRef("other")), field);
+        Node* fieldRef = Feather_mkFieldRef(loc, mkIdentifier(loc, StringRef("this")), field);
+        Node* otherFieldRef = Feather_mkFieldRef(loc, mkIdentifier(loc, StringRef("other")), field);
 
         const char* op = fieldIsRef(field) ? "===" : "==";
         Node* curExp = mkOperatorCall(loc, fieldRef, StringRef(op), otherFieldRef);

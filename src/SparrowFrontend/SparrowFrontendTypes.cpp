@@ -44,7 +44,8 @@ TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode m
     TypeRef t = Nest_findStockType(&referenceType);
     if (!t) {
 
-        referenceType.description = getConceptTypeDescription(conceptOrGeneric, numReferences, mode);
+        referenceType.description =
+                getConceptTypeDescription(conceptOrGeneric, numReferences, mode);
         t = Nest_insertStockType(&referenceType);
     }
     return t;
@@ -54,9 +55,7 @@ TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode m
 
 int typeKindConcept = -1;
 
-void initSparrowFrontendTypeKinds() {
-    typeKindConcept = ConceptType::registerTypeKind();
-}
+void initSparrowFrontendTypeKinds() { typeKindConcept = ConceptType::registerTypeKind(); }
 
 DEFINE_TYPE_COMMON_IMPL(ConceptType, TypeWithStorage)
 
@@ -70,7 +69,8 @@ ConceptType ConceptType::get(Nest::NodeHandle decl, Nest::EvalMode mode) {
 
 Nest::NodeHandle ConceptType::decl() const { return referredNode(); }
 
-TypeWithStorage getConceptTypeWithPtr(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode) {
+TypeWithStorage getConceptTypeWithPtr(
+        Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode) {
     return {getConceptType(decl, numReferences, mode)};
 }
 
@@ -78,7 +78,7 @@ TypeWithStorage baseType(TypeWithStorage t) {
     while (t && t.numReferences() > 0) {
         int kind = t.kind();
         if (kind == typeKindData)
-            t = Feather::DataType::get(t.referredNode(), t.mode());
+            return t;
         else if (kind == typeKindPtr)
             t = Feather::PtrType(t).base();
         else if (kind == typeKindConst)
@@ -88,7 +88,7 @@ TypeWithStorage baseType(TypeWithStorage t) {
         else if (kind == typeKindTemp)
             t = Feather::TempType(t).base();
         else if (kind == typeKindConcept)
-            t = ConceptType::get(t.referredNode(), t.mode());
+            return t;
         else
             REP_INTERNAL(NOLOC, "Cannot get the base type for %1%") % t;
     }

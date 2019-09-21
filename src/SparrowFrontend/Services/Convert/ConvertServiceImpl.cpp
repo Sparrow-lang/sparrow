@@ -75,7 +75,7 @@ ConversionResult ConvertServiceImpl::checkConversionImpl(
             return {};
         // For datatypes conversion, the source type must be usable at RT
         // TODO (types): check MyRange/ct -> #Range, where MyRange is ct-only
-        if (destS.kind() != typeKindConcept && !srcS.canBeUsedAtRt())
+        if (!isConceptType(destS) && !srcS.canBeUsedAtRt())
             return {};
 
         // Disallow conversion of references
@@ -98,7 +98,7 @@ ConversionResult ConvertServiceImpl::checkConversionImpl(
         TypeWithStorage src0; // same as 'src', with with zero references
         if (isDataLikeType(srcS))
             src0 = removeAllRefs(srcS);
-        else if (srcS.kind() == typeKindConcept) {
+        else if (isConceptType(srcS)) {
             src0 = ConceptType::get(ConceptType(srcS).decl(), srcS.mode());
         } else
             return {};
@@ -129,7 +129,7 @@ bool ConvertServiceImpl::checkConversionSameMode(ConversionResult& res, Compilat
     TypeWithStorage destBase = baseType(dest);
 
     // Is the destination is a concept?
-    if (destBase.kind() == typeKindConcept) {
+    if (isConceptType(destBase)) {
         return checkConversionToConcept(res, context, flags, src, dest);
     }
 
@@ -151,7 +151,7 @@ bool ConvertServiceImpl::checkConversionToConcept(ConversionResult& res,
     TypeWithStorage destBase = baseType(dest);
 
     // Case 1: concept -> concept
-    if (srcBase.kind() == typeKindConcept) {
+    if (isConceptType(srcBase)) {
         if (src.numReferences() != dest.numReferences())
             return false;
 

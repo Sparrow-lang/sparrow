@@ -75,7 +75,7 @@ void GenericsFixture::checkInst(
             RC_ASSERT(usedNodeType == expectedType);
         }
         // If the parameter was a concept, expect a var-decl
-        else if (paramsData.types_[i].kind() == typeKindConcept) {
+        else if (isConceptType(paramsData.types_[i])) {
             auto varDecl = boundVar.kindCast<Feather::VarDecl>();
             RC_ASSERT(varDecl);
             RC_ASSERT(varDecl.name() == paramsData.params_[i].name());

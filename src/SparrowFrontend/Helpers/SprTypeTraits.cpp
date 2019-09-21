@@ -292,7 +292,7 @@ Type SprFrontend::getAutoType(Node* typeNode, int numRefs, int kind, EvalMode ev
 
     // This is a data-like type, so we can directly reduce it to the right datatype
     t = Feather::DataType::get(t.referredNode(), evalMode);
-    for ( int i=0; i<numRefs; i++ )
+    for (int i = 0; i < numRefs; i++)
         t = Feather::PtrType::get(t);
     if (kind == typeKindMutable)
         return MutableType::get(t);
@@ -304,41 +304,29 @@ Type SprFrontend::getAutoType(Node* typeNode, int numRefs, int kind, EvalMode ev
 }
 
 bool SprFrontend::isConceptType(Type t) {
-    return Feather::removeCategoryIfPresent(t).kind() == typeKindConcept;
+    return t.hasStorage() ? baseType(TypeWithStorage(t)).kind() == typeKindConcept : false;
 }
+bool SprFrontend::isConceptType(TypeWithStorage t) { return baseType(t).kind() == typeKindConcept; }
 
 bool SprFrontend::isConceptType(Type t, int& numRefs, int& kind) {
     kind = t.kind();
     t = Feather::removeCategoryIfPresent(t);
-    if (t.kind() == typeKindConcept) {
+    if (isConceptType(t)) {
         numRefs = int(t.numReferences());
         return true;
     }
     return false;
 }
 
-bool SprFrontend::isConceptType2(Type t) {
-    for (;;) {
-        if (t.kind() == typeKindConcept)
-            return true;
-        else if (t.numReferences() > 0)
-            t = Feather::removeRef(TypeWithStorage(t));
-        else
-            return false;
-    }
-}
-
-
 TypeWithStorage SprFrontend::addRefEx(TypeWithStorage type) {
     ASSERT(type);
     if (type.kind() == typeKindConcept) {
         ConceptType conceptType(type);
-        return getConceptTypeWithPtr(conceptType.decl(), conceptType.numReferences()+1, type.mode());
-    }
-    else
+        return getConceptTypeWithPtr(
+                conceptType.decl(), conceptType.numReferences() + 1, type.mode());
+    } else
         return Feather::PtrType::get(type);
 }
-
 
 bool SprFrontend::isBitCopiable(Type type) {
     if (!type.hasStorage())

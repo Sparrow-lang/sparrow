@@ -30,14 +30,14 @@ Gen<NodeHandle> arbValueForType(TypeWithStorage t, const SampleTypes* sampleType
     return rc::gen::exec([=]() -> NodeHandle {
         // If t is a concept, transform it into a regular type
         TypeWithStorage type = t;
-        if (t.kind() == SprFrontend::typeKindConcept) {
+        if (SprFrontend::isConceptType(t)) {
             RC_ASSERT(sampleTypes);
             auto compatibleTypes = sampleTypes->typesForConcept(ConceptType(t));
             type = *gen::elementOf(compatibleTypes);
             type = getDataTypeWithPtr(type.referredNode(), t.numReferences(), t.mode());
         }
 
-        RC_ASSERT(type.kind() != SprFrontend::typeKindConcept);
+        RC_ASSERT(!SprFrontend::isConceptType(type));
         int weightValueForType = 5;
         int weightCtValue = type.mode() == modeCt && type.numReferences() == 0 ? 7 : 0;
         int weightOtherExp = type.numReferences() > 0 ? 2 : 0;
@@ -52,7 +52,7 @@ Gen<NodeHandle> arbValueForType(TypeWithStorage t, const SampleTypes* sampleType
 }
 
 Gen<NodeHandle> arbValueForTypeIgnoreMode(TypeWithStorage t) {
-    RC_ASSERT(t.kind() != SprFrontend::typeKindConcept);
+    RC_ASSERT(!SprFrontend::isConceptType(t));
     if (t.mode() == modeRt && t.numReferences() == 0) {
         return rc::gen::exec([t]() -> NodeHandle {
             auto mode = *gen::arbitrary<EvalMode>();
@@ -67,7 +67,7 @@ Gen<NodeHandle> arbValueConvertibleTo(TypeWithStorage t, const SampleTypes* samp
     return rc::gen::exec([=]() -> NodeHandle {
         // If t is a concept, transform it into a regular type
         TypeWithStorage type = t;
-        if (t.kind() == SprFrontend::typeKindConcept) {
+        if (SprFrontend::isConceptType(t)) {
             RC_ASSERT(sampleTypes);
             auto compatibleTypes = sampleTypes->typesForConcept(ConceptType(t));
             type = *gen::elementOf(compatibleTypes);
@@ -118,7 +118,7 @@ Gen<NodeHandle> arbValueConvertibleTo(TypeWithStorage t, const SampleTypes* samp
 }
 
 Gen<NodeHandle> arbBoundValueForType(TypeWithStorage t, const SampleTypes& sampleTypes) {
-    if (t.kind() != SprFrontend::typeKindConcept)
+    if (!SprFrontend::isConceptType(t))
         return gen::cast<NodeHandle>(FeatherNodeFactory::instance().arbCtValueExp(t));
     else {
         return rc::gen::exec([&sampleTypes, t]() -> NodeHandle {

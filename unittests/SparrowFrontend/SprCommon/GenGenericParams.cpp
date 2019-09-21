@@ -26,7 +26,7 @@ TypeWithStorage genType(ParamsGenOptions options);
 bool ParamsData::usesConcepts() const {
     for (int i = 0; i < numParams_; i++) {
         auto t = types_[i];
-        if (t && t.kind() == typeKindConcept)
+        if (t && isConceptType(t))
             return true;
     }
     return false;
@@ -35,7 +35,7 @@ bool ParamsData::usesConcepts() const {
 bool ParamsData::hasCtParams() const {
     for (int i = 0; i < numParams_; i++) {
         auto t = types_[i];
-        if (t && t.mode() == modeCt && t.kind() != typeKindConcept)
+        if (t && t.mode() == modeCt && !isConceptType(t))
             return true;
     }
     return false;
@@ -87,7 +87,7 @@ rc::Gen<vector<NodeHandle>> arbBoundValues(const ParamsData& params, const Sampl
             Type valueType = t;
 
             // If this is a regular param (RT, non-concept), don't create a bound value for it
-            if (t && t.kind() != typeKindConcept && t.mode() == modeRt) {
+            if (t && !isConceptType(t) && t.mode() == modeRt) {
                 values.emplace_back(nullptr);
                 valTypes.emplace_back(nullptr);
                 continue;
@@ -199,7 +199,7 @@ ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const L
     if (addInit) {
         if (isDependent)
             init = Identifier::create(loc, prevParamName);
-        else if (t.kind() != typeKindConcept || sampleTypes)
+        else if (!isConceptType(t) || sampleTypes)
             init = *arbValueForType(t, sampleTypes);
     }
 

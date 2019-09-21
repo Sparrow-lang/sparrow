@@ -195,9 +195,7 @@ ConstType ConstType::get(TypeWithStorage base, Nest::Location loc) {
     return {t};
 }
 
-TypeWithStorage ConstType::toRef() const {
-    return PtrType::get(base());
-}
+TypeWithStorage ConstType::toRef() const { return PtrType::get(base()); }
 
 DEFINE_TYPE_COMMON_IMPL(MutableType, TypeWithStorage)
 
@@ -240,9 +238,7 @@ MutableType MutableType::get(TypeWithStorage base, Nest::Location loc) {
     return {t};
 }
 
-TypeWithStorage MutableType::toRef() const {
-    return PtrType::get(base());
-}
+TypeWithStorage MutableType::toRef() const { return PtrType::get(base()); }
 
 DEFINE_TYPE_COMMON_IMPL(TempType, TypeWithStorage)
 
@@ -285,9 +281,7 @@ TempType TempType::get(TypeWithStorage base, Nest::Location loc) {
     return {t};
 }
 
-TypeWithStorage TempType::toRef() const {
-    return PtrType::get(base());
-}
+TypeWithStorage TempType::toRef() const { return PtrType::get(base()); }
 
 DEFINE_TYPE_COMMON_IMPL(ArrayType, TypeWithStorage)
 

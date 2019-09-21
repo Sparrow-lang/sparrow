@@ -580,14 +580,9 @@ GenericFunctionCallable CallableFixture::getCallable(SprFunctionDecl funDecl) {
 }
 
 TypeWithStorage addRefs(TypeWithStorage t, int numRefs) {
-    if (t.kind() == typeKindConcept) {
-        return getConceptTypeWithPtr(t.referredNode(), numRefs, t.mode());
-    }
-    else {
-        for (int i=0; i<numRefs; i++)
-            t = Feather::addRef(t);
-        return t;
-    }
+    for (int i=0; i<numRefs; i++)
+        t = addRefEx(t);
+    return t;
 }
 void CallableFixture::testFunctionCallable(
         Range<TypeWithStorage> paramTypes, Range<TypeWithStorage> argTypes) {

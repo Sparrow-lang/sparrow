@@ -48,7 +48,6 @@ fun dtor(this: !ScopeTracer)
 [convert]
 datatype LRef(valueType: Type)
     using ValueType = valueType
-    using ValuePassType = !@valueType
     using isLogicalRef = 1
 
     _pptr: SharedPtr(Optional(ValueType))

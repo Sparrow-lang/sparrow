@@ -10,6 +10,7 @@
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 #include "Nest/Api/Modifier.h"
 #include "Nest/Api/SourceCode.h"
@@ -94,8 +95,6 @@ Node* generateAssociatedFun(
     Node* otherRef = nullptr;
     if (otherParam) {
         otherRef = mkIdentifier(loc, StringRef("other"));
-        if (otherParam.numReferences() > 0)
-            otherRef = Feather_mkMemLoad(loc, otherRef);
     }
 
     // Construct the body
@@ -185,9 +184,9 @@ Node* generateEqualityCheckFun(Node* parent) {
     Node* exp = nullptr;
     for (Node* field : cls->children) {
         Node* fieldRef = Feather_mkFieldRef(
-                loc, Feather_mkMemLoad(loc, mkIdentifier(loc, StringRef("this"))), field);
+                loc, mkIdentifier(loc, StringRef("this")), field);
         Node* otherFieldRef = Feather_mkFieldRef(
-                loc, Feather_mkMemLoad(loc, mkIdentifier(loc, StringRef("other"))), field);
+                loc, mkIdentifier(loc, StringRef("other")), field);
 
         const char* op = fieldIsRef(field) ? "===" : "==";
         Node* curExp = mkOperatorCall(loc, fieldRef, StringRef(op), otherFieldRef);
@@ -204,9 +203,10 @@ Node* generateEqualityCheckFun(Node* parent) {
 
     vector<pair<Type, string>> params;
     params.reserve(2);
-    Type t = Feather::getDataTypeWithPtr(cls, 1, modeUnspecified);
-    params.emplace_back(t, string("this"));
-    params.emplace_back(t, string("other"));
+    auto t = Feather::DataType::get(cls);
+    auto tConst = Feather::ConstType::get(t);
+    params.emplace_back(tConst, string("this"));
+    params.emplace_back(tConst, string("other"));
     Node* res = addAssociatedFun(parent, "==", body, params, generatedOverloadPrio, StdDef::clsBool,
             Feather_effectiveEvalMode(parent), true);
     return res;
@@ -308,33 +308,32 @@ void _IntModClassMembers_afterComputeType(Nest_Modifier*, Node* node) {
     // Check to apply only to classes
     if (node->nodeKind != nkSparrowDeclSprDatatype)
         REP_INTERNAL(node->location, "IntModClassMembers modifier can be applied only to classes");
-    Node* cls = node;
-    if (!cls->type)
+    Node* datatype = node;
+    if (!datatype->type)
         REP_INTERNAL(
                 node->location, "Type was not computed for %1% when applying IntModClassMembers") %
                 Feather_getName(node);
 
-    Node* basicClass = Nest_explanation(node);
-    basicClass = basicClass && basicClass->nodeKind == nkFeatherDeclClass ? basicClass : nullptr;
-    ASSERT(basicClass);
-    Type paramType = Feather::getDataTypeWithPtr(basicClass, 1, modeRt);
+    auto structDecl = NodeHandle(node).explanation().kindCast<Feather::StructDecl>();
+    ASSERT(structDecl);
+    Type paramType = Feather::DataType::get(structDecl, modeRt);
 
     // Initialization ctor
     bool skipDefaultCtor = false;
-    if (Nest_hasProperty(cls, propGenerateInitCtor))
-        skipDefaultCtor = generateInitCtor(cls);
+    if (Nest_hasProperty(datatype, propGenerateInitCtor))
+        skipDefaultCtor = generateInitCtor(datatype);
 
     // Auto-generated functions
     if (!skipDefaultCtor)
-        generateAssociatedFun(cls, "ctor", "ctor", nullptr);
-    generateAssociatedFun(cls, "ctor", "ctor", paramType);
-    if (Feather_effectiveEvalMode(basicClass) == modeRt) {
-        Type paramCt = Feather::DataType::get(basicClass, modeCt);
-        generateAssociatedFun(cls, "ctorFromCt", "ctor", paramCt);
+        generateAssociatedFun(datatype, "ctor", "ctor", nullptr);
+    generateAssociatedFun(datatype, "ctor", "ctor", paramType);
+    if (Feather_effectiveEvalMode(structDecl) == modeRt) {
+        Type paramCt = Feather::DataType::get(structDecl, modeCt);
+        generateAssociatedFun(datatype, "ctorFromCt", "ctor", paramCt);
     }
-    generateAssociatedFun(cls, "dtor", "dtor", nullptr, true);
-    generateAssociatedFun(cls, "=", "=", paramType);
-    generateEqualityCheckFun(cls);
+    generateAssociatedFun(datatype, "dtor", "dtor", nullptr, true);
+    generateAssociatedFun(datatype, "=", "=", paramType);
+    generateEqualityCheckFun(datatype);
 }
 
 void IntModCtorMembers_beforeSemanticCheck(Nest_Modifier*, Node* fun) {

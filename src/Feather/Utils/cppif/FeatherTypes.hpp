@@ -46,7 +46,7 @@ struct DataType : TypeWithStorage {
      *
      * @return     The corresponding datatype
      */
-    static DataType get(Nest::NodeHandle decl, Nest::EvalMode mode);
+    static DataType get(Nest::NodeHandle decl, Nest::EvalMode mode = modeUnspecified);
 
     //! @copydoc Type::changeMode
     DataType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
@@ -260,10 +260,6 @@ bool isDataLikeType(Type type);
 
 //! Determines if the type is a category type: ConstType, MutableType, TempType
 bool isCategoryType(Type type);
-
-//! Returns a data type with the appropriate number of references
-//! \TODO Check if this is needed
-TypeWithStorage getDataTypeWithPtr(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode);
 
 /**
  * @brief      Adds a reference to the given type.

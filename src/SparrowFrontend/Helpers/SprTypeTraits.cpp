@@ -291,7 +291,9 @@ Type SprFrontend::getAutoType(Node* typeNode, int numRefs, int kind, EvalMode ev
     // it
 
     // This is a data-like type, so we can directly reduce it to the right datatype
-    t = getDataTypeWithPtr(t.referredNode(), numRefs, evalMode);
+    t = Feather::DataType::get(t.referredNode(), evalMode);
+    for ( int i=0; i<numRefs; i++ )
+        t = Feather::PtrType::get(t);
     if (kind == typeKindMutable)
         return MutableType::get(t);
     else if (kind == typeKindConst)
@@ -315,22 +317,16 @@ bool SprFrontend::isConceptType(Type t, int& numRefs, int& kind) {
     return false;
 }
 
-Type SprFrontend::changeRefCount(Type type, int numRef, const Location& loc) {
+TypeWithStorage SprFrontend::addRefEx(TypeWithStorage type) {
     ASSERT(type);
-
-    // If we have a category type, get its base
-    while (Feather::isCategoryType(type))
-        type = removeCategoryIfPresent(type);
-    // TODO (types): Not sure if this is the right approach
-
-    if (type.kind() == typeKindData || type.kind() == typeKindPtr)
-        type = Feather::getDataTypeWithPtr(type.referredNode(), numRef, type.mode());
-    else if (type.kind() == typeKindConcept)
-        type = ConceptType::get(ConceptType(type).decl(), numRef, type.mode());
+    if (type.kind() == typeKindConcept) {
+        ConceptType conceptType(type);
+        return ConceptType::get(conceptType.decl(), conceptType.numReferences()+1, type.mode());
+    }
     else
-        REP_INTERNAL(loc, "Cannot change reference count for type %1%") % type;
-    return type;
+        return Feather::PtrType::get(type);
 }
+
 
 bool SprFrontend::isBitCopiable(Type type) {
     if (!type.hasStorage())

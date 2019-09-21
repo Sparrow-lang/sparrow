@@ -66,17 +66,6 @@ NodeHandle impl_typeChangeMode(CompilationContext* context, const Location& loc,
     return createTypeNode(context, loc, res);
 }
 
-NodeHandle impl_typeChangeRefCount(
-        CompilationContext* context, const Location& loc, NodeRange args) {
-    CHECK(loc, args.size() == 2);
-    Type t = getType(args[0]);
-    int numRef = max(0, getIntCtValue(args[1]));
-
-    Type res = changeRefCount(t, numRef, loc);
-
-    return createTypeNode(context, loc, res);
-}
-
 NodeHandle impl_typeRemoveCat(CompilationContext* context, const Location& loc, NodeRange args) {
     CHECK(loc, args.size() == 1);
     Type t = getType(args[0]);
@@ -112,7 +101,17 @@ NodeHandle impl_typeAddRef(CompilationContext* context, const Location& loc, Nod
     Type t = getType(args[0]);
 
     t = Feather::removeCategoryIfPresent(t);
-    t = changeRefCount(t, t.numReferences() + 1, loc);
+    t = addRefEx(TypeWithStorage(t));
+    return createTypeNode(context, loc, t);
+}
+
+NodeHandle impl_typeRemoveRef(CompilationContext* context, const Location& loc, NodeRange args) {
+    CHECK(loc, args.size() == 1);
+    Type t = getType(args[0]);
+
+    t = Feather::removeCategoryIfPresent(t);
+    if (t.numReferences() > 0)
+        t = Feather::removeRef(TypeWithStorage(t));
     return createTypeNode(context, loc, t);
 }
 
@@ -250,8 +249,6 @@ NodeHandle SprFrontend::handleIntrinsic(Feather::FunctionDecl fun, CompilationCo
             return impl_typeNumRef(context, loc, args);
         if (nativeName == "$typeChangeMode")
             return impl_typeChangeMode(context, loc, args);
-        if (nativeName == "$typeChangeRefCount")
-            return impl_typeChangeRefCount(context, loc, args);
         if (nativeName == "$typeRemoveCat")
             return impl_typeRemoveCat(context, loc, args);
         if (nativeName == "$typeIsBitcopiable")
@@ -260,6 +257,8 @@ NodeHandle SprFrontend::handleIntrinsic(Feather::FunctionDecl fun, CompilationCo
             return impl_typeEQ(context, loc, args);
         if (nativeName == "$typeAddRef")
             return impl_typeAddRef(context, loc, args);
+        if (nativeName == "$typeRemoveRef")
+            return impl_typeRemoveRef(context, loc, args);
         if (nativeName == "$ct")
             return impl_ct(context, loc, args);
         if (nativeName == "$rt")

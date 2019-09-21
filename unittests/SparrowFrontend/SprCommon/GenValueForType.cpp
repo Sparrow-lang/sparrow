@@ -16,6 +16,16 @@ using Nest::NodeHandle;
 using Nest::Type;
 using Nest::TypeWithStorage;
 
+namespace {
+TypeWithStorage getDataTypeWithPtr(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode) {
+    TypeWithStorage res = DataType::get(decl, mode);
+    for (int i = 0; i < numReferences; i++)
+        res = Feather::PtrType::get(res);
+    return res;
+}
+
+} // namespace
+
 Gen<NodeHandle> arbValueForType(TypeWithStorage t, const SampleTypes* sampleTypes) {
     return rc::gen::exec([=]() -> NodeHandle {
         // If t is a concept, transform it into a regular type
@@ -24,7 +34,7 @@ Gen<NodeHandle> arbValueForType(TypeWithStorage t, const SampleTypes* sampleType
             RC_ASSERT(sampleTypes);
             auto compatibleTypes = sampleTypes->typesForConcept(ConceptType(t));
             type = *gen::elementOf(compatibleTypes);
-            type = Feather::getDataTypeWithPtr(type.referredNode(), t.numReferences(), t.mode());
+            type = getDataTypeWithPtr(type.referredNode(), t.numReferences(), t.mode());
         }
 
         RC_ASSERT(type.kind() != SprFrontend::typeKindConcept);
@@ -61,7 +71,7 @@ Gen<NodeHandle> arbValueConvertibleTo(TypeWithStorage t, const SampleTypes* samp
             RC_ASSERT(sampleTypes);
             auto compatibleTypes = sampleTypes->typesForConcept(ConceptType(t));
             type = *gen::elementOf(compatibleTypes);
-            type = Feather::getDataTypeWithPtr(type.referredNode(), t.numReferences(), t.mode());
+            type = getDataTypeWithPtr(type.referredNode(), t.numReferences(), t.mode());
         }
 
         // Get a type that's convertible to our type
@@ -117,8 +127,7 @@ Gen<NodeHandle> arbBoundValueForType(TypeWithStorage t, const SampleTypes& sampl
             TypeWithStorage innerType = types[*rc::gen::inRange(0, int(types.size()))];
 
             // Ensure it has the same shape as the concept type
-            innerType =
-                    Feather::getDataTypeWithPtr(innerType.referredNode(), t.numReferences(), t.mode());
+            innerType = getDataTypeWithPtr(innerType.referredNode(), t.numReferences(), t.mode());
 
             // Create a type node for this type
             return SprFrontend::createTypeNode(nullptr, Location(), innerType);

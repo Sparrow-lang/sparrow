@@ -111,10 +111,10 @@ fun test3
     printType(typeOf(x))
     printType(typeOf(xr))
     printType(typeOf(xrr))
-    printType(changeRefCount(Int, 0))
-    printType(changeRefCount(Int, 1))
-    printType(changeRefCount(Int, 9))
-    printType(changeRefCount(typeOf(xrr), 0))
+    printType(removeRef(Int))
+    printType(addRef(Int))
+    printType(addRef(addRef(Int)))
+    printType(removeRef(removeRef(typeOf(xrr))))
 
 /*<<<Change num references(3)
 hasStorage  Mode  rt ref  Description
@@ -124,7 +124,7 @@ storage     rt    y  1    Float ptr
 storage     rt    y  2    Float ptr ptr
 storage     rt    y  0    Int
 storage     rt    y  1    Int ptr
-storage     rt    y  9    Int ptr ptr ptr ptr ptr ptr ptr ptr ptr
+storage     rt    y  2    Int ptr ptr
 storage     rt    y  0    Float
 >>>*/
 
@@ -144,16 +144,6 @@ fun test4
     cout << description(removeRef(Int)) << endl
     cout << description(removeRef(@Int)) << endl
     cout << description(removeRef(@ @Int)) << endl
-    cout << "---\n"
-
-    cout << description(removeAllRef(Int)) << endl
-    cout << description(removeAllRef(@Int)) << endl
-    cout << description(removeAllRef(@ @Int)) << endl
-    cout << "---\n"
-
-    cout << description(atLeastOneRef(Int)) << endl
-    cout << description(atLeastOneRef(@Int)) << endl
-    cout << description(atLeastOneRef(@ @Int)) << endl
 
 /*<<<Type traits class(4)
 no ref
@@ -165,14 +155,6 @@ Int ptr ptr
 Int
 Int
 Int ptr
----
-Int
-Int
-Int
----
-Int ptr
-Int ptr
-Int ptr ptr
 >>>*/
 
 fun test5

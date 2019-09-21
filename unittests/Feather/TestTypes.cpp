@@ -118,48 +118,33 @@ TEST_CASE_METHOD(FeatherTypesFixture, "Feather storage types", "[FeatherTypes]")
 
         REQUIRE(type.base() == baseType);
     });
-    rc::prop("Can create Const types", [](EvalMode mode) {
-        using TypeFactory::g_dataTypeDecls;
-
-        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int)g_dataTypeDecls.size())];
-        int numRefs = *rc::gen::inRange(0, 10);
-
-        auto baseType = Feather::getDataTypeWithPtr(decl, numRefs, mode);
+    rc::prop("Can create Const types", []() {
+        auto baseType = *TypeFactory::arbDataOrPtrType();
         auto type = ConstType::get(baseType);
         REQUIRE(type);
         REQUIRE(type.kind() == Feather::ConstType::staticKind());
-        REQUIRE(type.numReferences() == numRefs + 1);
-        REQUIRE(type.referredNode() == decl);
+        REQUIRE(type.numReferences() == baseType.numReferences() + 1);
+        REQUIRE(type.referredNode() == baseType.referredNode());
 
         REQUIRE(type.base() == baseType);
     });
-    rc::prop("Can create Mutable types", [](EvalMode mode) {
-        using TypeFactory::g_dataTypeDecls;
-
-        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int)g_dataTypeDecls.size())];
-        int numRefs = *rc::gen::inRange(0, 10);
-
-        auto baseType = Feather::getDataTypeWithPtr(decl, numRefs, mode);
+    rc::prop("Can create Mutable types", []() {
+        auto baseType = *TypeFactory::arbDataOrPtrType();
         auto type = MutableType::get(baseType);
         REQUIRE(type);
         REQUIRE(type.kind() == Feather::MutableType::staticKind());
-        REQUIRE(type.numReferences() == numRefs + 1);
-        REQUIRE(type.referredNode() == decl);
+        REQUIRE(type.numReferences() == baseType.numReferences() + 1);
+        REQUIRE(type.referredNode() == baseType.referredNode());
 
         REQUIRE(type.base() == baseType);
     });
-    rc::prop("Can create Temp types", [](EvalMode mode) {
-        using TypeFactory::g_dataTypeDecls;
-
-        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int)g_dataTypeDecls.size())];
-        int numRefs = *rc::gen::inRange(0, 10);
-
-        auto baseType = Feather::getDataTypeWithPtr(decl, numRefs, mode);
+    rc::prop("Can create Temp types", []() {
+        auto baseType = *TypeFactory::arbDataOrPtrType();
         auto type = TempType::get(baseType);
         REQUIRE(type);
         REQUIRE(type.kind() == Feather::TempType::staticKind());
-        REQUIRE(type.numReferences() == numRefs + 1);
-        REQUIRE(type.referredNode() == decl);
+        REQUIRE(type.numReferences() == baseType.numReferences() + 1);
+        REQUIRE(type.referredNode() == baseType.referredNode());
 
         REQUIRE(type.base() == baseType);
     });

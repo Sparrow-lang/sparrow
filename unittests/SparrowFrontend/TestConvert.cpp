@@ -310,10 +310,10 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
         SECTION("MutableType examples") {
             Node* decl = TypeFactory::g_dataTypeDecls[0];
             auto t0 = DataType::get(decl, modeRt); // i8
-            auto t1 = Feather::getDataTypeWithPtr(decl, 1, modeRt); // @i8
-            auto t2 = Feather::getDataTypeWithPtr(decl, 2, modeRt); // @@i8
-            auto t0mut = MutableType::get(t0);        // i8 mut
-            auto t1mut = MutableType::get(t1);        // @i8 mut
+            auto t1 = PtrType::get(t0);            // @i8
+            auto t2 = PtrType::get(t1);            // @@i8
+            auto t0mut = MutableType::get(t0);     // i8 mut
+            auto t1mut = MutableType::get(t1);     // @i8 mut
             CHECK(getConvType(t0, t1) == convImplicit);
             CHECK(getConvType(t0mut, t0) == convDirect);
             CHECK(getConvType(t0mut, t1) == convImplicit);
@@ -331,7 +331,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
                 [=](Type src) { RC_ASSERT(getConvType(src, src) == convDirect); });
 
         // TODO: fix this; see "i8/ct mut -> i8 mut"
-        // rc::prop("Convert from CT to RT shall work, in the absence of references (direct)", [=]() {
+        // rc::prop("Convert from CT to RT shall work, in the absence of references (direct)", [=]()
+        // {
         //     Type src = *TypeFactory::arbBasicStorageType(modeCt, 0, 1);
         //     Type dest = Nest_changeTypeMode(src, modeRt);
         //     RC_LOG() << src << " -> " << dest << endl;
@@ -454,7 +455,6 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             if (c1)
                 RC_ASSERT(getConvType(src, dest) != convNone);
         });
-
     }
 
     SECTION("Concept conversions") {
@@ -490,8 +490,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
                     return t;
                 }
             };
-            for ( int i=0; i<4; i++) {
-                for ( int j=0; j<4; j++) {
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
                     auto t1 = addCat(types_.concept1Type_, i);
                     auto t2 = addCat(types_.concept2Type_, j);
                     // INFO(t1 << " -> " << t2);
@@ -509,8 +509,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
         SECTION("Concept with categories (examples)") {
             DeclNode decl = DeclNode(types_.fooType_.referredNode());
             TypeWithStorage src0 = types_.fooType_;
-            TypeWithStorage src1 = Feather::getDataTypeWithPtr(decl, 1, modeRt);
-            TypeWithStorage src2 = Feather::getDataTypeWithPtr(decl, 2, modeRt);
+            TypeWithStorage src1 = PtrType::get(src0);
+            TypeWithStorage src2 = PtrType::get(src1);
             TypeWithStorage src0const = ConstType::get(src0);
             TypeWithStorage src0mut = MutableType::get(src0);
             TypeWithStorage src0tmp = TempType::get(src0);
@@ -704,4 +704,3 @@ TEST_CASE_METHOD(ConvertFixture, "Convert actions") {
         checkActionTypes(getConvResult(src, dest), src, dest);
     });
 }
-

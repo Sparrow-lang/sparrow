@@ -61,24 +61,24 @@ void SprFrontend::checkStdClass(Node* cls) {
     StringRef clsName = Feather_getName(cls);
 
     if (clsName == "Void")
-        StdDef::typeVoid = Feather::getDataTypeWithPtr(cls, 0, modeRt);
+        StdDef::typeVoid = Feather::DataType::get(cls, modeRt);
     else if (clsName == "Null") {
         StdDef::clsNull = cls;
-        StdDef::typeNull = Feather::getDataTypeWithPtr(cls, 0, modeRt);
+        StdDef::typeNull = Feather::DataType::get(cls, modeRt);
     } else if (clsName == "Bool") {
         StdDef::clsBool = cls;
-        StdDef::typeBool = Feather::getDataTypeWithPtr(cls, 0, modeRt);
+        StdDef::typeBool = Feather::DataType::get(cls, modeRt);
     } else if (clsName == "Int8") {
-        StdDef::typeByte = Feather::getDataTypeWithPtr(cls, 0, modeRt);
-        StdDef::typeRefByte = Feather::getDataTypeWithPtr(cls, 1, modeRt);
+        StdDef::typeByte = Feather::DataType::get(cls, modeRt);
+        StdDef::typeRefByte = Feather::PtrType::get(typeByte);
     } else if (clsName == "Int") {
-        StdDef::typeInt = Feather::getDataTypeWithPtr(cls, 0, modeRt);
-        StdDef::typeRefInt = Feather::getDataTypeWithPtr(cls, 1, modeRt);
+        StdDef::typeInt = Feather::DataType::get(cls, modeRt);
+        StdDef::typeRefInt = Feather::PtrType::get(typeInt);
     } else if (clsName == "Type") {
-        StdDef::typeType = Feather::getDataTypeWithPtr(cls, 0, modeRt);
-        StdDef::typeRefType = Feather::getDataTypeWithPtr(cls, 1, modeRt);
+        StdDef::typeType = Feather::DataType::get(cls, modeRt);
+        StdDef::typeRefType = Feather::PtrType::get(typeType);
     } else if (clsName == "StringRef")
-        StdDef::typeStringRef = Feather::getDataTypeWithPtr(cls, 0, modeRt);
+        StdDef::typeStringRef = Feather::DataType::get(cls, modeRt);
 
     classesFound = StdDef::typeVoid != nullptr && StdDef::typeNull != nullptr &&
                    StdDef::typeBool != nullptr && StdDef::typeByte != nullptr &&

@@ -3,6 +3,7 @@
 #include "SparrowFrontendTypes.hpp"
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 #include "Nest/Api/TypeKindRegistrar.h"
 #include "Nest/Utils/NodeUtils.h"
@@ -14,43 +15,16 @@ namespace {
 
 using Nest::TypeRef;
 
-const char* getConceptTypeDescription(Node* concept, uint8_t numReferences, EvalMode mode) {
+const char* getConceptTypeDescription(NodeHandle decl, EvalMode mode) {
     ostringstream os;
-    for (uint8_t i = 0; i < numReferences; ++i)
-        os << '@';
-    if (concept) {
-        os << '#' << Feather_getName(concept);
-    } else {
+    if (decl)
+        os << '#' << Feather::DeclNode(decl).name();
+    else
         os << "AnyType";
-    }
     if (mode == modeCt)
         os << "/ct";
     return dupString(os.str().c_str());
 }
-
-TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode mode) {
-    ASSERT(!conceptOrGeneric || conceptOrGeneric->nodeKind == nkSparrowDeclSprConcept ||
-            conceptOrGeneric->nodeKind == nkSparrowDeclGenericDatatype);
-    Nest_Type referenceType = {0};
-    referenceType.typeKind = typeKindConcept;
-    referenceType.mode = mode;
-    referenceType.numSubtypes = 0;
-    referenceType.numReferences = numReferences;
-    referenceType.hasStorage = 1;
-    referenceType.canBeUsedAtRt = 1;
-    referenceType.flags = 0;
-    referenceType.referredNode = conceptOrGeneric;
-
-    TypeRef t = Nest_findStockType(&referenceType);
-    if (!t) {
-
-        referenceType.description =
-                getConceptTypeDescription(conceptOrGeneric, numReferences, mode);
-        t = Nest_insertStockType(&referenceType);
-    }
-    return t;
-}
-
 } // namespace
 
 int typeKindConcept = -1;
@@ -60,18 +34,39 @@ void initSparrowFrontendTypeKinds() { typeKindConcept = ConceptType::registerTyp
 DEFINE_TYPE_COMMON_IMPL(ConceptType, TypeWithStorage)
 
 ConceptType ConceptType::changeTypeModeImpl(ConceptType type, Nest::EvalMode newMode) {
-    return getConceptType(type.referredNode(), type.numReferences(), newMode);
+    return ConceptType::get(type.referredNode(), newMode);
 }
 
 ConceptType ConceptType::get(Nest::NodeHandle decl, Nest::EvalMode mode) {
-    return {getConceptType(decl, 0, mode)};
+    ASSERT(!decl || decl->nodeKind == nkSparrowDeclSprConcept ||
+            decl->nodeKind == nkSparrowDeclGenericDatatype);
+    Nest_Type referenceType = {0};
+    referenceType.typeKind = typeKindConcept;
+    referenceType.mode = mode;
+    referenceType.numSubtypes = 0;
+    referenceType.numReferences = 0;
+    referenceType.hasStorage = 1;
+    referenceType.canBeUsedAtRt = 1;
+    referenceType.flags = 0;
+    referenceType.referredNode = decl;
+
+    TypeRef t = Nest_findStockType(&referenceType);
+    if (!t) {
+
+        referenceType.description = getConceptTypeDescription(decl, mode);
+        t = Nest_insertStockType(&referenceType);
+    }
+    return {t};
 }
 
 Nest::NodeHandle ConceptType::decl() const { return referredNode(); }
 
 TypeWithStorage getConceptTypeWithPtr(
         Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode) {
-    return {getConceptType(decl, numReferences, mode)};
+    TypeWithStorage t = ConceptType::get(decl, mode);
+    for (int i = 0; i < numReferences; i++)
+        t = Feather::PtrType::get(t);
+    return t;
 }
 
 TypeWithStorage baseType(TypeWithStorage t) {

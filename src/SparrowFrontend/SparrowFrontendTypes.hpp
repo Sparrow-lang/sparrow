@@ -45,10 +45,6 @@ struct ConceptType : TypeWithStorage {
     }
 };
 
-// TODO: remove this
-TypeWithStorage getConceptTypeWithPtr(
-        Nest::NodeHandle decl = {}, int numReferences = 0, Nest::EvalMode mode = modeRt);
-
 /**
  * @brief      Gets the base type of the given type
  *

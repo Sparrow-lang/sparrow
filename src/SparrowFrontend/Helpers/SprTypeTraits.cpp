@@ -318,16 +318,6 @@ bool SprFrontend::isConceptType(Type t, int& numRefs, int& kind) {
     return false;
 }
 
-TypeWithStorage SprFrontend::addRefEx(TypeWithStorage type) {
-    ASSERT(type);
-    if (type.kind() == typeKindConcept) {
-        ConceptType conceptType(type);
-        return getConceptTypeWithPtr(
-                conceptType.decl(), conceptType.numReferences() + 1, type.mode());
-    } else
-        return Feather::PtrType::get(type);
-}
-
 bool SprFrontend::isBitCopiable(Type type) {
     if (!type.hasStorage())
         return false;

@@ -61,14 +61,6 @@ ConceptType ConceptType::get(Nest::NodeHandle decl, Nest::EvalMode mode) {
 
 Nest::NodeHandle ConceptType::decl() const { return referredNode(); }
 
-TypeWithStorage getConceptTypeWithPtr(
-        Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode) {
-    TypeWithStorage t = ConceptType::get(decl, mode);
-    for (int i = 0; i < numReferences; i++)
-        t = Feather::PtrType::get(t);
-    return t;
-}
-
 TypeWithStorage baseType(TypeWithStorage t) {
     while (t && t.numReferences() > 0) {
         int kind = t.kind();

@@ -42,10 +42,6 @@ bool isConceptType(Type t);
 bool isConceptType(TypeWithStorage t);
 bool isConceptType(Type t, int& numRefs, int& kind);
 
-/// Add a reference to the given type.
-/// Compared to Feather::addRef, this also works with concepts
-TypeWithStorage addRefEx(TypeWithStorage type);
-
 //! Checks if the given type is bitcopiable
 //! This returns true for native types and for references
 bool isBitCopiable(Type type);

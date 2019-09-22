@@ -581,7 +581,7 @@ GenericFunctionCallable CallableFixture::getCallable(SprFunctionDecl funDecl) {
 
 TypeWithStorage addRefs(TypeWithStorage t, int numRefs) {
     for (int i=0; i<numRefs; i++)
-        t = addRefEx(t);
+        t = Feather::PtrType::get(t);
     return t;
 }
 void CallableFixture::testFunctionCallable(

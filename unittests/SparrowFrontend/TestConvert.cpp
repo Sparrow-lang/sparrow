@@ -480,7 +480,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
                 src = addRef(src);
             TypeWithStorage dest = *TypeFactory::arbConceptType(src.mode());
             for (int i = 0; i < numRefs; i++)
-                dest = addRefEx(dest);
+                dest = Feather::PtrType::get(dest);
 
             RC_LOG() << src << " -> " << dest << endl;
             RC_ASSERT(getConvType(src, dest) != convNone);
@@ -536,8 +536,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             TypeWithStorage src2tmp = TempType::get(src2);
 
             TypeWithStorage c0 = types_.concept1Type_;
-            TypeWithStorage c1 = addRefEx(c0);
-            TypeWithStorage c2 = addRefEx(c1);
+            TypeWithStorage c1 = PtrType::get(c0);
+            TypeWithStorage c2 = PtrType::get(c1);
             TypeWithStorage c0const = ConstType::get(c0);
             TypeWithStorage c0mut = MutableType::get(c0);
             TypeWithStorage c0tmp = TempType::get(c0);

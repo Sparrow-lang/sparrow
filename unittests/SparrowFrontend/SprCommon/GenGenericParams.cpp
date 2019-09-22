@@ -217,8 +217,7 @@ ParameterDecl genParam(ParamsGenOptions options, ParamsData& paramsData, const L
 TypeWithStorage genType(ParamsGenOptions options) {
     bool useConcept = options.useConcept && randomChance(30);
     if (useConcept) {
-        // TODO (now): Concepts with refs
-        return *TypeFactory::arbConceptOrPtrType(modeRt, 1);    // always use RT for concepts
+        return *TypeFactory::arbConceptOrPtrType(modeRt);    // always use RT for concepts
     } else {
         EvalMode mode = modeUnspecified;
         if (!options.useCt)

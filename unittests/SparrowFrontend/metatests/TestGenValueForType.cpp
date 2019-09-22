@@ -71,9 +71,7 @@ TEST_CASE_METHOD(GenValueForTypeFixture, "genValueForType functions generate exp
 
     rc::prop("generated bound values for concepts are ok", [this]() {
         // Generate a concept type
-        // TODO (now): Concepts with refs
-        // Nest::TypeWithStorage t = *TypeFactory::arbConceptOrPtrType();
-        Nest::TypeWithStorage t = *TypeFactory::arbConceptType();
+        Nest::TypeWithStorage t = *TypeFactory::arbConceptOrPtrType();
 
         auto value = *arbBoundValueForType(t, types_);
         computeType(value);

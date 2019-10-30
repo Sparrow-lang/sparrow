@@ -47,10 +47,8 @@ private:
     //! Bring the number of references for the source type to the given value.
     //! Add all the conversions to 'res'. Returns false if conversion is impossible.
     //! The source type must be a data-like type.
-    bool adjustReferences_new(
+    bool adjustReferences(
             ConversionResult& res, TypeWithStorage src, TypeWithStorage dest, bool canAddRef);
-    bool adjustReferences_old(ConversionResult& res, TypeWithStorage src, int destKind,
-            int destNumRef, const char* destDesc, bool canAddRef);
 };
 
 } // namespace SprFrontend

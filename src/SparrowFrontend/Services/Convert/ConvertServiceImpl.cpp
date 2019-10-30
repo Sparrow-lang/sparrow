@@ -185,8 +185,8 @@ bool ConvertServiceImpl::checkConversionToConcept(ConversionResult& res,
 
         // Adjust references
         bool canAddRef = (flags & flagDontAddReference) == 0;
-        if (!adjustReferences_old(
-                    res, src, destTypeKind, dest.numReferences(), dest.description(), canAddRef))
+
+        if (!adjustReferences(res, src, dest, canAddRef))
             return false;
 
         bool isOk = false;
@@ -224,7 +224,7 @@ bool ConvertServiceImpl::checkDataConversion(ConversionResult& res, CompilationC
     if (dest.referredNode() == src.referredNode()) {
         // Adjust references
         bool canAddRef = (flags & flagDontAddReference) == 0;
-        if (!adjustReferences_new(res, src, dest, canAddRef))
+        if (!adjustReferences(res, src, dest, canAddRef))
             return false;
 
         res.addConversion(convDirect);
@@ -271,7 +271,7 @@ bool ConvertServiceImpl::checkDataConversion(ConversionResult& res, CompilationC
 
         // Ensure we have the right number of references & category
         bool canAddRef = (flags & flagDontAddReference) == 0;
-        if (!adjustReferences_new(res, resType, dest, canAddRef))
+        if (!adjustReferences(res, resType, dest, canAddRef))
             return false;
 
         return true;
@@ -285,36 +285,6 @@ namespace {
 // DataType == 0, PtrType == 1, ConstType == 2, MutableType == 3, TempType == 4
 int typeKindToIndex(int typeKind) { return typeKind - typeKindData; }
 
-bool isCategoryType(int typeKind) {
-    return typeKind == typeKindConst || typeKind == typeKindMutable || typeKind == typeKindTemp;
-}
-
-TypeWithStorage changeCat(TypeWithStorage src, int typeKind, bool addRef = false) {
-    TypeWithStorage base;
-    int srcTK = src.kind();
-    if (srcTK == typeKindData)
-        base = src;
-    else if (srcTK == typeKindPtr)
-        base = !addRef ? PtrType(src).base() : src;
-    else if (srcTK == typeKindConst)
-        base = ConstType(src).base();
-    else if (srcTK == typeKindMutable)
-        base = MutableType(src).base();
-    else if (srcTK == typeKindTemp)
-        base = TempType(src).base();
-    ASSERT(base);
-
-    if (typeKind == typeKindConst)
-        return ConstType::get(base);
-    else if (typeKind == typeKindMutable)
-        return MutableType::get(base);
-    else if (typeKind == typeKindTemp)
-        return TempType::get(base);
-    else if (typeKind == typeKindPtr)
-        return PtrType::get(base);
-    return src;
-}
-
 void analyzeType(
         TypeWithStorage type, TypeWithStorage& base, SmallVector<int>& wrapperKinds, int& numPtrs) {
     wrapperKinds.clear();
@@ -325,8 +295,7 @@ void analyzeType(
         if (type.kind() == typeKindPtr) {
             numPtrs++;
             nextType = PtrType(type).base();
-        }
-        else if (type.kind() == typeKindConst)
+        } else if (type.kind() == typeKindConst)
             nextType = ConstType(type).base();
         else if (type.kind() == typeKindMutable)
             nextType = MutableType(type).base();
@@ -341,6 +310,20 @@ void analyzeType(
     }
     std::reverse(wrapperKinds.begin(), wrapperKinds.end());
     base = type;
+}
+
+TypeWithStorage applyWrapperTypes(TypeWithStorage base, const SmallVector<int>& wrapperKinds) {
+    for (auto kind : wrapperKinds) {
+        if (kind == typeKindConst)
+            base = ConstType::get(base);
+        else if (kind == typeKindMutable)
+            base = MutableType::get(base);
+        else if (kind == typeKindTemp)
+            base = TempType::get(base);
+        else if (kind == typeKindPtr)
+            base = PtrType::get(base);
+    }
+    return base;
 }
 
 enum ElemConvType {
@@ -435,22 +418,16 @@ struct KindStack {
 
 } // namespace
 
-bool ConvertServiceImpl::adjustReferences_new(
+bool ConvertServiceImpl::adjustReferences(
         ConversionResult& res, TypeWithStorage src, TypeWithStorage dest, bool canAddRef) {
 
-    bool doDebug = src.description() == StringRef("UntypedPtr") &&
-                   dest.description() == StringRef("UntypedPtr ptr");
+    bool doDebug = src.description() == StringRef("FooType/ct") &&
+                   dest.description() == StringRef("#Concept1/ct");
     doDebug = doDebug || (src.description() == StringRef("Float32") &&
                                  dest.description() == StringRef("Float32 ptr"));
     doDebug = false;
     if (doDebug)
         cerr << "\n" << src.description() << " -> " << dest.description() << "\n";
-
-    // auto r = adjustReferences_old(
-    //         res, src, dest.kind(), dest.numReferences(), dest.description(), canAddRef);
-    // if (doDebug)
-    //     cerr << "  old fun: " << res << "\n";
-    // return r;
 
     // Analyze the two types: figure our their base type and all the wrappers
     static KindStack srcKinds;
@@ -462,6 +439,13 @@ bool ConvertServiceImpl::adjustReferences_new(
     int destPtrs = 0;
     analyzeType(src, srcBase, srcKinds.kinds, srcPtrs);
     analyzeType(dest, destBase, destKinds.kinds, destPtrs);
+
+    // Handle the case where the destination is a concept
+    // Apply the dest shape on the base source type
+    if (destBase.kind() == typeKindConcept && srcBase.kind() != typeKindConcept) {
+        dest = applyWrapperTypes(srcBase, destKinds.kinds);
+        destBase = srcBase;
+    }
 
     // Check origin
     if (srcBase != destBase)
@@ -668,121 +652,6 @@ bool ConvertServiceImpl::adjustReferences_new(
 
     if (doDebug)
         cerr << "  res: " << res << "\n";
-    return true;
-}
-
-bool ConvertServiceImpl::adjustReferences_old(ConversionResult& res, TypeWithStorage src,
-        int destKind, int destNumRef, const char* destDesc, bool canAddRef) {
-    int srcRefsBase = src.numReferences();
-    int destRefsBase = destNumRef;
-    if (isCategoryType(src.kind()))
-        --srcRefsBase;
-    if (isCategoryType(destKind))
-        --destRefsBase;
-
-    int srcNumRef = src.numReferences();
-
-    enum ConvType {
-        none = 0,  // no conversion possible
-        direct,    // same type
-        catCast,   // cast between categories (with extra refs)
-        addCat,    // plain -> category
-        removeCat, // category -> plain
-    };
-
-    // clang-format off
-    constexpr ConvType conversions[5][5] = {
-            {direct,    direct,    addCat,  none,    addCat},  // from plain
-            {direct,    direct,    addCat,  addCat,  addCat},  // from ptr
-            {removeCat, removeCat, direct,  none,    none},    // from const
-            {removeCat, removeCat, catCast, direct,  none},    // from mutable
-            {removeCat, removeCat, catCast, none,    direct}   // from temp
-    };
-    // to:   plain,     ptr,       const,   mutable, temp
-    // clang-format on
-
-    int srcIdx = typeKindToIndex(src.kind());
-    int destIdx = typeKindToIndex(destKind);
-    ConvType conv = conversions[srcIdx][destIdx];
-    // TODO (types): Remove this after finalizing mutables
-    // A reference can be converted to mutable
-    if (srcIdx == 0 && destIdx == 3 && srcRefsBase > destRefsBase) {
-        for (int i = destRefsBase; i < srcRefsBase - 1; i++) {
-            src = removeCatOrRef(src);
-            res.addConversion(convImplicit, ConvAction(ActionType::dereference, src));
-        }
-        ASSERT(src.numReferences() == destRefsBase + 1);
-        src = MutableType::get(removeRef(src));
-        res.addConversion(convImplicit, ConvAction(ActionType::bitcast, src));
-        return true;
-    }
-    if (conv == none)
-        return false;
-
-    int numDerefs = srcRefsBase - destRefsBase;
-
-    // If we are removing category, check the best way to get rid of the category
-    if (conv == removeCat) {
-        if (srcNumRef < destNumRef)
-            // If we don't have enough references at source, conversion failed
-            return false;
-        else if (srcNumRef == destNumRef) {
-            // Convert the category type to reference
-            // With this, we have the exact number of references needed
-            src = TypeWithStorage(categoryToRefIfPresent(src));
-            ++srcRefsBase;
-            ++numDerefs;
-            res.addConversion(convImplicit, ConvAction(ActionType::bitcast, src));
-        } else /*srcNumRef > destNumRef*/ {
-            // We have more references on the source
-            // Just remove the category
-            src = removeCategoryIfPresent(src);
-            res.addConversion(convDirect, ConvAction(ActionType::dereference, src));
-        }
-    }
-
-    // Need to add reference? (exactly one reference)
-    // Allowed: T -> @T, T const -> @T const, T mut -> @T const, etc.
-    // Disallowed: @T -> @@T
-    if (canAddRef && srcRefsBase == 0 && destRefsBase == 1) {
-        src = addRef(src);
-        res.addConversion(convImplicit, ConvAction(ActionType::addRef, src));
-        numDerefs = 0;
-    }
-
-    // If we are here, we can't add anymore references
-    if (numDerefs < 0)
-        return false;
-
-    // If we are adding category, try to avoid deref + addRef
-    if (conv == addCat && numDerefs > 0) {
-        --numDerefs;
-        res.addConversion(convImplicit);
-    }
-
-    // Need to remove some references?
-    for (int i = 0; i < numDerefs; i++) {
-        src = removeCatOrRef(src);
-        res.addConversion(convImplicit, ConvAction(ActionType::dereference, src));
-    }
-
-    // Ensure that we cast to the right category at the end
-    // This happens for catCast, addCat, but also when we change references
-    if (src.kind() != destKind) {
-        if (src.numReferences() == 0)
-            res.addConversion(
-                    convDirect, ConvAction(ActionType::addRef, changeCat(src, destKind, true)));
-        else {
-            bool addRef = src.numReferences() < destNumRef;
-            if (addRef)
-                res.addConversion(
-                        convDirect, ConvAction(ActionType::addRef, changeCat(src, destKind, true)));
-            else
-                res.addConversion(convDirect,
-                        ConvAction(ActionType::bitcast, changeCat(src, destKind, false)));
-        }
-    }
-
     return true;
 }
 

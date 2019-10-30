@@ -14,6 +14,7 @@
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Utils/Tuple.hpp"
+#include "Nest/Utils/cppif/SmallVector.hpp"
 #include "Nest/Utils/Profiling.h"
 
 #include <utility>
@@ -21,6 +22,7 @@
 namespace SprFrontend {
 
 using namespace Feather;
+using Nest::SmallVector;
 
 ConversionResult ConvertServiceImpl::checkConversion(
         CompilationContext* context, Type srcType, Type destType, ConversionFlags flags) {
@@ -183,7 +185,7 @@ bool ConvertServiceImpl::checkConversionToConcept(ConversionResult& res,
 
         // Adjust references
         bool canAddRef = (flags & flagDontAddReference) == 0;
-        if (!adjustReferences(
+        if (!adjustReferences_old(
                     res, src, destTypeKind, dest.numReferences(), dest.description(), canAddRef))
             return false;
 
@@ -222,8 +224,7 @@ bool ConvertServiceImpl::checkDataConversion(ConversionResult& res, CompilationC
     if (dest.referredNode() == src.referredNode()) {
         // Adjust references
         bool canAddRef = (flags & flagDontAddReference) == 0;
-        if (!adjustReferences(
-                    res, src, dest.kind(), dest.numReferences(), dest.description(), canAddRef))
+        if (!adjustReferences_new(res, src, dest, canAddRef))
             return false;
 
         res.addConversion(convDirect);
@@ -270,8 +271,7 @@ bool ConvertServiceImpl::checkDataConversion(ConversionResult& res, CompilationC
 
         // Ensure we have the right number of references & category
         bool canAddRef = (flags & flagDontAddReference) == 0;
-        if (!adjustReferences(
-                    res, resType, dest.kind(), dest.numReferences(), dest.description(), canAddRef))
+        if (!adjustReferences_new(res, resType, dest, canAddRef))
             return false;
 
         return true;
@@ -315,10 +315,364 @@ TypeWithStorage changeCat(TypeWithStorage src, int typeKind, bool addRef = false
     return src;
 }
 
+void analyzeType(
+        TypeWithStorage type, TypeWithStorage& base, SmallVector<int>& wrapperKinds, int& numPtrs) {
+    wrapperKinds.clear();
+    wrapperKinds.reserve(type.numReferences());
+    numPtrs = 0;
+    while (true) {
+        TypeWithStorage nextType;
+        if (type.kind() == typeKindPtr) {
+            numPtrs++;
+            nextType = PtrType(type).base();
+        }
+        else if (type.kind() == typeKindConst)
+            nextType = ConstType(type).base();
+        else if (type.kind() == typeKindMutable)
+            nextType = MutableType(type).base();
+        else if (type.kind() == typeKindTemp)
+            nextType = TempType(type).base();
+        else
+            break;
+
+        wrapperKinds.push_back(type.kind());
+        ASSERT(nextType);
+        type = nextType;
+    }
+    std::reverse(wrapperKinds.begin(), wrapperKinds.end());
+    base = type;
+}
+
+enum ElemConvType {
+    none = 0,  // no conversion possible
+    direct,    // same type
+    addPtr,    // add pointer
+    removePtr, // remove pointer
+    catCast,   // cast between categories (with extra refs)
+    addCat,    // plain -> category
+    removeCat, // category -> plain
+    ptr2Cat,   // ptr -> category
+    cat2Ptr,   // category -> ptr
+};
+
+ElemConvType checkElementaryCast(int srcKind, int destKind, bool canAddRef = true) {
+    int src = typeKindToIndex(srcKind);
+    int dest = typeKindToIndex(destKind);
+    // clang-format off
+    constexpr ElemConvType conversions[5][5] = {
+            {direct,    addPtr,    addCat,  none,    addCat},  // from plain
+            {removePtr, direct,    ptr2Cat, ptr2Cat, ptr2Cat}, // from ptr
+            {removeCat, cat2Ptr,   direct,  none,    none},    // from const
+            {removeCat, cat2Ptr,   catCast, direct,  none},    // from mutable
+            {removeCat, cat2Ptr,   catCast, none,    direct}   // from temp
+    };
+    // to:   plain,     ptr,       const,   mutable, temp
+    // clang-format on
+
+    auto conv = conversions[src][dest];
+    if (!canAddRef && conv == addPtr)
+        return none;
+    else
+        return conv;
+}
+
+int setPlainIfKindMissing(int kind) { return kind == 0 ? typeKindData : kind; }
+
+const char* kindToStr(int kind) {
+    if (kind == typeKindData)
+        return "data";
+    if (kind == typeKindPtr)
+        return "ptr";
+    if (kind == typeKindConst)
+        return "const";
+    if (kind == typeKindMutable)
+        return "mut";
+    if (kind == typeKindTemp)
+        return "tmp";
+    if (kind == 0)
+        return "none";
+    ASSERT(false);
+    return "???";
+}
+
+struct KindStack {
+    SmallVector<int> kinds;
+    int cur{0};
+
+    //! Get the index kind at the given index; returns 0 if going over bounds
+    int operator[](int idx) const { return cur + idx < kinds.size() ? kinds[cur + idx] : 0; }
+
+    //! Is the stack empty
+    bool empty() const { return cur >= kinds.size(); }
+
+    //! Pop group of kinds (1 is ptr, and we may have another category type)
+    //! Any of the two can be 0 -- non existent
+    void popGroup(bool& ptr, int& category) {
+        int val1 = (*this)[0];
+        int val2 = (*this)[1];
+        if (val1 == typeKindPtr) {
+            ptr = true;
+            category = 0;
+            cur++;
+        } else if (val2 == typeKindPtr) {
+            ptr = true;
+            category = val1;
+            cur += 2;
+        } else {
+            ASSERT(val2 == 0); // cannot have two consecutive cat types
+            ptr = false;
+            category = val1;
+            cur++;
+        }
+    }
+
+    //! Consume the first kind from the stack
+    void pop() {
+        if (!empty())
+            cur++;
+    }
+};
+
 } // namespace
 
-bool ConvertServiceImpl::adjustReferences(ConversionResult& res, TypeWithStorage src, int destKind,
-        int destNumRef, const char* destDesc, bool canAddRef) {
+bool ConvertServiceImpl::adjustReferences_new(
+        ConversionResult& res, TypeWithStorage src, TypeWithStorage dest, bool canAddRef) {
+
+    bool doDebug = src.description() == StringRef("UntypedPtr") &&
+                   dest.description() == StringRef("UntypedPtr ptr");
+    doDebug = doDebug || (src.description() == StringRef("Float32") &&
+                                 dest.description() == StringRef("Float32 ptr"));
+    doDebug = false;
+    if (doDebug)
+        cerr << "\n" << src.description() << " -> " << dest.description() << "\n";
+
+    // auto r = adjustReferences_old(
+    //         res, src, dest.kind(), dest.numReferences(), dest.description(), canAddRef);
+    // if (doDebug)
+    //     cerr << "  old fun: " << res << "\n";
+    // return r;
+
+    // Analyze the two types: figure our their base type and all the wrappers
+    static KindStack srcKinds;
+    static KindStack destKinds;
+    srcKinds.cur = 0;
+    destKinds.cur = 0;
+    TypeWithStorage srcBase, destBase;
+    int srcPtrs = 0;
+    int destPtrs = 0;
+    analyzeType(src, srcBase, srcKinds.kinds, srcPtrs);
+    analyzeType(dest, destBase, destKinds.kinds, destPtrs);
+
+    // Check origin
+    if (srcBase != destBase)
+        return false;
+
+    // First, treat the special case of adding a pointer
+    // Allowed conversions:
+    //  - T <cat1> -> T <cat0>? ptr <cat2>?, if T <cat1> -> T <cat2>
+    // in any other case, adding ptrs is forbidden
+    if (srcPtrs == 0 && destPtrs == 1 && canAddRef) {
+        auto cat1 = srcKinds[0];
+        ASSERT(srcKinds[1] == 0);
+        auto k = destKinds[0];
+        auto cat2 = k == typeKindPtr ? destKinds[1] : destKinds[2];
+
+        if (doDebug)
+            cerr << "  try to add ptr: " << srcBase << " " << kindToStr(cat1) << " -> " << srcBase
+                 << " cat? ptr " << kindToStr(cat2) << "\n";
+
+        auto conv = checkElementaryCast(setPlainIfKindMissing(cat1), setPlainIfKindMissing(cat2));
+        if (conv == none)
+            return false;
+        switch (conv) {
+        case direct:
+            // T <cat> -> T ptr <cat>
+            src = addRef(src);
+            res.addConversion(convImplicit, ConvAction(ActionType::addRef, src));
+            return true;
+        case catCast:
+            // T <cat1> -> T ptr <cat2>
+            src = addRef(src); // => T ptr <cat1>
+            res.addConversion(convImplicit, ConvAction(ActionType::addRef, src));
+            // now, T ptr <cat1> -> T ptr <cat2>
+            res.addConversion(convImplicit, ConvAction(ActionType::bitcast, dest));
+            return true;
+        case addCat:
+        case ptr2Cat:
+            // T -> T ptr <cat>
+            // Disallow adding two pointers
+            return false;
+        case removeCat:
+        case cat2Ptr:
+            // T <cat> -> T ptr
+            // bitcast category into pointer
+            // TODO: this should really be direct?
+            res.addConversion(convImplicit, ConvAction(ActionType::bitcast, dest));
+            return true;
+        case addPtr:
+        case removePtr:
+        default:
+            ASSERT(false);
+            return false;
+        }
+    }
+    // Cannot add ptrs in any other ptr cardinality
+    // TODO: what about T ptr mut -> T ptr ptr ?
+    if (srcPtrs < destPtrs)
+        return false;
+
+    // First clear up the pointers from both sides -- advance in tandem
+    // We match pointer to pointer
+    // We check categories at every iteration
+    // Note: between pointers we may have at most one cat type, but nothing else.
+    int numIterations = std::min(srcPtrs, destPtrs);
+    if (doDebug)
+        cerr << "  numIterations: " << numIterations << "\n";
+    bool needsCast = false;
+    for (int i = 0; i < numIterations; i++) {
+        // Get the two groups of kinds that we need to compare
+        bool srcPtr = false;
+        int srcCat = 0;
+        srcKinds.popGroup(srcPtr, srcCat);
+        bool destPtr = false;
+        int destCat = 0;
+        destKinds.popGroup(destPtr, destCat);
+        if (srcCat == 0)
+            srcCat = typeKindData;
+        if (destCat == 0)
+            destCat = typeKindData;
+
+        if (doDebug) {
+            cerr << "    src ptr:" << srcPtr << " cat:" << srcCat << "; dest ptr:" << destPtr
+                 << " cat:" << destCat << "\n";
+        }
+
+        // Check elementary casts between possible category types
+        auto conv = checkElementaryCast(srcCat, destCat);
+        if (conv == none)
+            return false;
+
+        if (conv != direct)
+            needsCast = true;
+    }
+
+    // Now the middle part, after the common pointers
+    // dest may or may not have a cat left
+    // Try to consume everything from dest
+    bool shouldAddCat = false;
+    bool needsDeref = false;
+    bool needsImplicit = false;
+    int destKind = setPlainIfKindMissing(destKinds[0]);
+    int srcKind = setPlainIfKindMissing(srcKinds[0]);
+    auto conv = checkElementaryCast(srcKind, destKind);
+    if (doDebug)
+        cerr << "  " << kindToStr(srcKind) << " -> " << kindToStr(destKind) << " => " << conv
+             << "\n";
+    if (conv == none)
+        return false;
+
+    switch (conv) {
+    case direct:
+        // T <cat> <others>* -> U <cat> (where T and U are ref-equivalent)
+        srcKinds.pop();
+        break;
+    case catCast:
+        // T <cat1> <others>* -> U <cat2> (where T and U are ref-equivalent)
+        needsCast = true;
+        // needsImplicit = true;    // TODO (now): enable this
+        srcKinds.pop();
+        break;
+    case addCat:
+        // T -> U <cat> (where T and U are ref-equivalent)
+        // the source doesn't have anymore ptrs
+        if (srcKinds.cur > 0 && destKind == typeKindTemp)
+            return false; // Forbid adding 'temp' on ptr types
+        ASSERT(srcKinds.empty());
+        needsImplicit = true;
+        shouldAddCat = true;
+        break;
+    case ptr2Cat:
+        // T ptr <others>* -> U <cat>
+        needsImplicit = true;
+        needsCast = true;
+        srcKinds.pop();
+        break;
+    case removeCat:
+        // T <cat> <others>* -> U
+        // needsImplicit = true;
+        needsDeref = true;
+        srcKinds.pop();
+        break;
+    case removePtr:
+        // T ptr <others>* -> U
+        // Don't do anything. Treat this withing general deref
+        break;
+    case cat2Ptr:
+    case addPtr:
+    default:
+        ASSERT(false);
+        return false;
+    }
+
+    // Dest should be empty now
+    destKinds.pop();
+    ASSERT(destKinds.empty());
+
+    // Do we just need to add a category?
+    if (shouldAddCat) {
+        if (doDebug)
+            cerr << "  adding cat => addRef (direct)\n";
+        ASSERT(srcKinds.empty());
+        res.addConversion(convDirect, ConvAction(ActionType::addRef, dest));
+        return true;
+    }
+
+    // We may still have some wrapper types in src.
+    // Process them in reverse order now
+    int remainingPtrs = 0;
+    for (int i = 0; /*nothing*/; i++) {
+        int kind = srcKinds[i];
+        if (kind == 0)
+            break;
+        if (kind == typeKindPtr)
+            remainingPtrs++;
+    }
+    if (doDebug) {
+        cerr << "  num remaining ptrs: " << remainingPtrs << "\n";
+        cerr << "  needsDeref: " << needsDeref << "\n";
+        cerr << "  needsCast: " << needsCast << "\n";
+    }
+    for (int i = 0; i < remainingPtrs; i++) {
+        src = removeRef(src);
+        res.addConversion(convImplicit, ConvAction(ActionType::dereference, src));
+    }
+    // TODO: remove this
+    if (Feather::isCategoryType(src) && src.numReferences() > dest.numReferences()) {
+        if (doDebug)
+            cerr << "  try extra deref by removing cat (" << src << " -> " << dest << ")\n";
+        src = removeCategoryIfPresent(src);
+        res.addConversion(convDirect, ConvAction(ActionType::dereference, src));
+        // TODO (now): Should we make this convImplicit?
+    }
+    if (src != dest) {
+        if (doDebug)
+            cerr << "  bitcast: " << src << " -> " << dest << "\n";
+        if (needsCast)
+            res.addConversion(needsImplicit ? convImplicit : convDirect,
+                    ConvAction(ActionType::bitcast, dest));
+        else if (src.numReferences() > dest.numReferences())
+            res.addConversion(convImplicit, ConvAction(ActionType::dereference, dest));
+        else
+            REP_INTERNAL(NOLOC, "Invalid conversion between %1% and %2%") % src % dest;
+    }
+
+    if (doDebug)
+        cerr << "  res: " << res << "\n";
+    return true;
+}
+
+bool ConvertServiceImpl::adjustReferences_old(ConversionResult& res, TypeWithStorage src,
+        int destKind, int destNumRef, const char* destDesc, bool canAddRef) {
     int srcRefsBase = src.numReferences();
     int destRefsBase = destNumRef;
     if (isCategoryType(src.kind()))

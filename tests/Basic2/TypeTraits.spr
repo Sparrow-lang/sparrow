@@ -42,7 +42,7 @@ fun printType(t: Type)
 fun test1
     var x: Float
     var xr: @Float = x
-    var xrr: @ @Float = xr
+    var xrr: @ @Float = mutToPtr(xr)
 
     printHeader()
     printType(Int)
@@ -105,7 +105,7 @@ storage     ct    y  0    Int/ct
 fun test3
     var x: Float
     var xr: @Float = x
-    var xrr: @ @Float = xr
+    var xrr: @ @Float = mutToPtr(xr)
 
     printHeader()
     printType(typeOf(x))
@@ -131,7 +131,7 @@ storage     rt    y  0    Float
 fun test4
     var x: Float
     var xr: @Float = x
-    var xrr: @ @Float = xr
+    var xrr: @ @Float = mutToPtr(xr)
 
     cout << ife(isRef(Int), "ref", "no ref") << endl
     cout << ife(isRef(@Int), "ref", "no ref") << endl

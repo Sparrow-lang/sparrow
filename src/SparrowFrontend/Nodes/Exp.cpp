@@ -67,10 +67,11 @@ Feather::FieldRefExp createFieldRef(const Location& loc, NodeHandle baseExp, Fea
 
     // Make sure the base is a reference
     if (baseExp.type().numReferences() == 0) {
-        ConversionResult res = g_ConvertService->checkConversion(
-                baseExp, Feather::addRef(TypeWithStorage(baseExp.type())));
+        auto srcType = TypeWithStorage(baseExp.type());
+        auto destType = Feather::addRef(srcType);
+        ConversionResult res = g_ConvertService->checkConversion(baseExp, destType);
         if (!res)
-            REP_INTERNAL(loc, "Cannot add reference to base of field access");
+            REP_INTERNAL(loc, "Cannot add reference to base of field access (%1% -> %2%)") % srcType % destType;
         baseExp = res.apply(baseExp);
         if (!baseExp.computeType())
             return {};

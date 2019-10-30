@@ -319,7 +319,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             CHECK(getConvType(t0mut, t0) == convDirect);
             CHECK(getConvType(t0mut, t1) == convImplicit);
             CHECK(getConvType(t1mut, t1) == convDirect);
-            CHECK(getConvType(t1mut, t2) == convImplicit);
+            CHECK(getConvType(t1mut, t2) == convNone);
             CHECK(getConvType(t1, t0mut) == convImplicit);
             CHECK(getConvType(t2, t1mut) == convImplicit);
             CHECK(getConvType(t1, t2) == convNone);
@@ -441,20 +441,6 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             RC_LOG() << "    " << src << " -> " << dest << " = " << int(c1) << endl;
             if (c1)
                 RC_ASSERT(getConvType(srcPtr, dest) != convNone);
-        });
-
-        rc::prop("if T ptr -> U, refs(T)==0, then T -> U", [=]() {
-            auto src = *TypeFactory::arbDataType(modeUnspecified);
-            auto dest = *TypeFactory::arbType();
-            auto srcPtr = PtrType::get(src);
-            RC_PRE(srcPtr != dest);
-            RC_PRE(dest.kind() != typeKindMutable);
-            RC_LOG() << src << " -> " << dest << endl;
-
-            auto c1 = getConvType(srcPtr, dest);
-            RC_LOG() << "    " << srcPtr << " -> " << dest << " = " << int(c1) << endl;
-            if (c1)
-                RC_ASSERT(getConvType(src, dest) != convNone);
         });
     }
 

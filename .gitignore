@@ -8,6 +8,7 @@
 callgrind.out.*
 *-alt.ll
 *-alt.opt.ll
+.DS_Store
 .out
 out
 tests/Examples/others/nqueens

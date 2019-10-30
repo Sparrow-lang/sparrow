@@ -716,6 +716,11 @@ fun move(x: !AnyType): typeOf(x) tmp = reinterpretCast(typeOf(x) tmp, x)
 fun tmpToMut(x: AnyType tmp): !typeOf(x) = reinterpretCast(!typeOf(x), x)
 fun tmpToMut(x: !AnyType): !typeOf(x) = x
 
+//! Transform a mutable value to ptr type
+fun mutToPtr(val: !AnyType): @typeOf(val) = reinterpretCast(@typeOf(val), val);
+fun mutToPtr(val: ! @AnyType): @ @typeOf(val) = reinterpretCast(@ @typeOf(val), val);
+fun mutToPtr(val: ! @ @AnyType): @ @ @typeOf(val) = reinterpretCast(@ @ @typeOf(val), val);
+
 /// Concept that is satisfied by any type
 concept AnyType(x) // Always true
 

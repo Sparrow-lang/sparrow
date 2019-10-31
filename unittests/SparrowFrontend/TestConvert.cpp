@@ -52,6 +52,12 @@ void ConvertFixture::checkCatConversions(DataType src, DataType dest) {
     if (baseConv == convNone || baseConv == convCustom)
         return;
 
+    auto baseConvImplicit = baseConv;
+    if (baseConv == convDirect)
+        baseConvImplicit = convImplicit;
+    if (baseConv == convConcept)
+        baseConvImplicit = convConceptWithImplicit;
+
     RC_LOG() << src << " -> " << dest << endl;
 
     ConstType constSrc = ConstType::get(src);
@@ -73,16 +79,16 @@ void ConvertFixture::checkCatConversions(DataType src, DataType dest) {
     RC_ASSERT(getConvType(constSrc, dest) == baseConv);
 
     // Direct: mut(T)->mut(U), if T->U
-    // RC_ASSERT(getConvType(mutSrc, mutDest) == baseConv);
+    RC_ASSERT(getConvType(mutSrc, mutDest) == baseConv);
     // Direct: mut(T)->const(U), if T->U
-    RC_ASSERT(getConvType(mutSrc, constDest) == baseConv);
+    RC_ASSERT(getConvType(mutSrc, constDest) == baseConvImplicit);
     // Direct: mut(T)->plain(U), if T->U
     RC_ASSERT(getConvType(mutSrc, dest) == baseConv);
 
     // Direct: tmp(T)->tmp(U), if T->U
     RC_ASSERT(getConvType(tmpSrc, tmpDest) == baseConv);
     // Direct: tmp(T)->const(U), if T->U
-    RC_ASSERT(getConvType(tmpSrc, constDest) == baseConv);
+    RC_ASSERT(getConvType(tmpSrc, constDest) == baseConvImplicit);
     // Direct: tmp(T)->mut(U), if T->U
     RC_ASSERT(getConvType(tmpSrc, mutDest) == convNone);
     // Direct: tmp(T)->plain(U), if T->U
@@ -539,9 +545,9 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             CHECK(getConvType(src0, c0tmp) == convConcept);
             CHECK(getConvType(src0const, c0const) == convConcept);
             CHECK(getConvType(src0mut, c0mut) == convConcept);
-            CHECK(getConvType(src0mut, c0const) == convConcept);
+            CHECK(getConvType(src0mut, c0const) == convConceptWithImplicit);
             CHECK(getConvType(src0tmp, c0tmp) == convConcept);
-            CHECK(getConvType(src0tmp, c0const) == convConcept);
+            CHECK(getConvType(src0tmp, c0const) == convConceptWithImplicit);
             CHECK(getConvType(src0tmp, c0mut) == convNone);
             CHECK(getConvType(src0tmp, c0) == convConcept);
 
@@ -631,6 +637,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
                     dest.numReferences() > 0)
                 isImplicit = true;
             if (srcBaseReferences != destBaseReferences)
+                isImplicit = true;
+            if (isCategoryType(src) && isCategoryType(dest) && src.kind() != dest.kind() && src.mode() == dest.mode())
                 isImplicit = true;
             if (isImplicit) {
                 if (expectedConv == convConcept)

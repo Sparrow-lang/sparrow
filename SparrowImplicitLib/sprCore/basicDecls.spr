@@ -688,6 +688,7 @@ package TypeOp
 
     //! Generate a mutable copy of the given value -- only type manipulation, no body
     fun copyVal(val: AnyType): !typeOf(val)
+    fun copyVal(val: !AnyType): !typeOf(val)
     fun copyVal(val: @AnyType): !removeRef(typeOf(val))
 
 /// Add reference operator

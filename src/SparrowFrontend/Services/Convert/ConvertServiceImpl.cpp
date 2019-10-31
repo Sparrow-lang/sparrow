@@ -490,7 +490,6 @@ bool ConvertServiceImpl::adjustReferences(
         case cat2Ptr:
             // T <cat> -> T ptr
             // bitcast category into pointer
-            // TODO: this should really be direct?
             res.addConversion(convImplicit, ConvAction(ActionType::bitcast, dest));
             return true;
         case addPtr:
@@ -563,7 +562,7 @@ bool ConvertServiceImpl::adjustReferences(
     case catCast:
         // T <cat1> <others>* -> U <cat2> (where T and U are ref-equivalent)
         needsCast = true;
-        // needsImplicit = true;    // TODO (now): enable this
+        needsImplicit = true;
         srcKinds.pop();
         break;
     case addCat:

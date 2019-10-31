@@ -13,6 +13,15 @@ fun typeTest(x: AnyType) if typeOf(x) == Int
 fun typeTest(x: AnyType) if typeOf(x) == Float
     writeLn("Float passed");
 
+fun typeTest(x: !AnyType) if typeOf(x) == Char
+    writeLn("Char passed");
+
+fun typeTest(x: !AnyType) if typeOf(x) == Int
+    writeLn("Int passed");
+
+fun typeTest(x: !AnyType) if typeOf(x) == Float
+    writeLn("Float passed");
+
 fun typeTest(x: @AnyType) if typeOf(x) == @Char
     writeLn("@Char passed");
 
@@ -23,6 +32,9 @@ fun typeTest(x: @AnyType) if typeOf(x) == @Float
     writeLn("Float@ passed");
 
 fun testRef(x: AnyType) //if 0==typeNumRef(typeOf(x))
+    writeLn("non-ref");
+
+fun testRef(x: !AnyType) //if 0==typeNumRef(typeOf(x))
     writeLn("non-ref");
 
 fun testRef(x: @AnyType) //if 0!=typeNumRef(typeOf(x))

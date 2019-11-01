@@ -154,7 +154,9 @@ bool ConvertServiceImpl::checkConversionToConcept(ConversionResult& res,
 
     // Case 1: concept -> concept
     if (isConceptType(srcBase)) {
-        if (src.numReferences() != dest.numReferences())
+        // Check wrapper types
+        bool canAddRef = (flags & flagDontAddReference) == 0;
+        if (!checkWrapperTypes(res, src, dest, canAddRef))
             return false;
 
         // Iteratively search the base concept to find our dest type
@@ -169,9 +171,6 @@ bool ConvertServiceImpl::checkConversionToConcept(ConversionResult& res,
             src = baseType.changeMode(src.mode(), conceptNode.location());
         }
 
-        // TODO (types): Fix this after fixing references
-
-        res.addConversion(convDirect);
         return true;
     }
 
@@ -442,7 +441,7 @@ bool ConvertServiceImpl::checkWrapperTypes(
 
     // Handle the case where the destination is a concept
     // Apply the dest shape on the base source type
-    if (destBase.kind() == typeKindConcept && srcBase.kind() != typeKindConcept) {
+    if (destBase.kind() == typeKindConcept) {
         dest = applyWrapperTypes(srcBase, destKinds.kinds);
         destBase = srcBase;
     }

@@ -482,6 +482,9 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             CHECK(getConvType(types_.concept1Type_, types_.concept2Type_) == convNone);
             CHECK(getConvType(types_.concept2Type_, types_.concept1Type_) == convDirect);
 
+            Node* decl = TypeFactory::g_dataTypeDecls[0];
+            auto datatype = DataType::get(decl, modeRt); // i8
+
             // Exhaustively test category combinations
             auto addCat = [](TypeWithStorage t, int idx) -> TypeWithStorage {
                 switch (idx) {
@@ -500,14 +503,12 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
                 for (int j = 0; j < 4; j++) {
                     auto t1 = addCat(types_.concept1Type_, i);
                     auto t2 = addCat(types_.concept2Type_, j);
+
                     // INFO(t1 << " -> " << t2);
                     CHECK(getConvType(t1, t2) == convNone);
                     INFO(t2 << " -> " << t1);
-                    if (t1.numReferences() == t2.numReferences())
-                        CHECK(getConvType(t2, t1) == convDirect);
-                    else
-                        CHECK(getConvType(t2, t1) == convNone);
-                    // TODO (types): Revisit this
+                    auto baseConv = getConvType(addCat(datatype, j), addCat(datatype, i));
+                    CHECK(getConvType(t2, t1) == baseConv);
                 }
             }
         }

@@ -183,10 +183,9 @@ bool ConvertServiceImpl::checkConversionToConcept(ConversionResult& res,
         if (destTypeKind == typeKindConcept)
             destTypeKind = typeKindData;
 
-        // Adjust references
+        // Check wrapper types
         bool canAddRef = (flags & flagDontAddReference) == 0;
-
-        if (!adjustReferences(res, src, dest, canAddRef))
+        if (!checkWrapperTypes(res, src, dest, canAddRef))
             return false;
 
         bool isOk = false;
@@ -222,9 +221,9 @@ bool ConvertServiceImpl::checkDataConversion(ConversionResult& res, CompilationC
 
     // Case 1: The datatypes have the same decl
     if (dest.referredNode() == src.referredNode()) {
-        // Adjust references
+        // Check wrapper types
         bool canAddRef = (flags & flagDontAddReference) == 0;
-        if (!adjustReferences(res, src, dest, canAddRef))
+        if (!checkWrapperTypes(res, src, dest, canAddRef))
             return false;
 
         res.addConversion(convDirect);
@@ -269,9 +268,9 @@ bool ConvertServiceImpl::checkDataConversion(ConversionResult& res, CompilationC
 
         res.addConversion(convCustom, ConvAction(ActionType::customCvt, resType), sourceCode);
 
-        // Ensure we have the right number of references & category
+        // Finally, check the wrapper types
         bool canAddRef = (flags & flagDontAddReference) == 0;
-        if (!adjustReferences(res, resType, dest, canAddRef))
+        if (!checkWrapperTypes(res, resType, dest, canAddRef))
             return false;
 
         return true;
@@ -282,9 +281,7 @@ bool ConvertServiceImpl::checkDataConversion(ConversionResult& res, CompilationC
 
 namespace {
 
-// DataType == 0, PtrType == 1, ConstType == 2, MutableType == 3, TempType == 4
-int typeKindToIndex(int typeKind) { return typeKind - typeKindData; }
-
+//! Decompose the type between a base type and a set of wrapper types
 void analyzeType(
         TypeWithStorage type, TypeWithStorage& base, SmallVector<int>& wrapperKinds, int& numPtrs) {
     wrapperKinds.clear();
@@ -312,6 +309,8 @@ void analyzeType(
     base = type;
 }
 
+//! Apply a wrapper types to the given type.
+//! Useful for transforming ConceptTypes to DataTypes of the same shape
 TypeWithStorage applyWrapperTypes(TypeWithStorage base, const SmallVector<int>& wrapperKinds) {
     for (auto kind : wrapperKinds) {
         if (kind == typeKindConst)
@@ -338,7 +337,11 @@ enum ElemConvType {
     cat2Ptr,   // category -> ptr
 };
 
-ElemConvType checkElementaryCast(int srcKind, int destKind, bool canAddRef = true) {
+// DataType == 0, PtrType == 1, ConstType == 2, MutableType == 3, TempType == 4
+int typeKindToIndex(int typeKind) { return typeKind - typeKindData; }
+
+//! Check an elementary casts; looks only at the kinds of the top-most types.
+ElemConvType checkElementaryCast(int srcKind, int destKind) {
     int src = typeKindToIndex(srcKind);
     int dest = typeKindToIndex(destKind);
     // clang-format off
@@ -352,14 +355,8 @@ ElemConvType checkElementaryCast(int srcKind, int destKind, bool canAddRef = tru
     // to:   plain,     ptr,       const,   mutable, temp
     // clang-format on
 
-    auto conv = conversions[src][dest];
-    if (!canAddRef && conv == addPtr)
-        return none;
-    else
-        return conv;
+    return conversions[src][dest];
 }
-
-int setPlainIfKindMissing(int kind) { return kind == 0 ? typeKindData : kind; }
 
 const char* kindToStr(int kind) {
     if (kind == typeKindData)
@@ -378,6 +375,7 @@ const char* kindToStr(int kind) {
     return "???";
 }
 
+//! A stack of node kinds, from which we can pop the base kinds.
 struct KindStack {
     SmallVector<int> kinds;
     int cur{0};
@@ -416,9 +414,11 @@ struct KindStack {
     }
 };
 
+int setPlainIfKindMissing(int kind) { return kind == 0 ? typeKindData : kind; }
+
 } // namespace
 
-bool ConvertServiceImpl::adjustReferences(
+bool ConvertServiceImpl::checkWrapperTypes(
         ConversionResult& res, TypeWithStorage src, TypeWithStorage dest, bool canAddRef) {
 
     bool doDebug = src.description() == StringRef("FooType/ct") &&

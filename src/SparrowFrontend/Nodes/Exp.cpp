@@ -65,14 +65,13 @@ Feather::FieldRefExp createFieldRef(const Location& loc, NodeHandle baseExp, Fea
         REP_INTERNAL(loc, "No base expression to refer to a field");
     ASSERT(baseExp);
 
-    // Make sure the base is a reference
+    // Make sure the base is a cat-type
+    // In the generated ctorFromCt, the bound 'other' value is without any cat type
     if (baseExp.type().numReferences() == 0) {
-        auto srcType = TypeWithStorage(baseExp.type());
-        auto destType = Feather::addRef(srcType);
-        ConversionResult res = g_ConvertService->checkConversion(baseExp, destType);
-        if (!res)
-            REP_INTERNAL(loc, "Cannot add reference to base of field access (%1% -> %2%)") % srcType % destType;
-        baseExp = res.apply(baseExp);
+        auto destType = Feather::ConstType::get(TypeWithStorage(baseExp.type()));
+        auto ctx = baseExp.context();
+        baseExp = createTmpForRef(baseExp, destType);
+        baseExp.setContext(ctx);
         if (!baseExp.computeType())
             return {};
     }
@@ -1586,8 +1585,7 @@ NodeHandle LambdaExp::semanticCheckImpl(LambdaExp node) {
         closureDatatype.setProperty(propGenerateInitCtor, 1);
 
     // The actual enclosed function -- ensure adding a 'this' parameter
-    auto thisParamTypeNode = OperatorCall::create(
-            loc, nullptr, "@", Identifier::create(loc, "$lambdaEnclosureData"));
+    auto thisParamTypeNode = Identifier::create(loc, "$lambdaEnclosureData");
     auto thisParam = ParameterDecl::create(loc, "this", thisParamTypeNode);
     auto parametersWithThis = NodeList::create(loc, NodeRange({thisParam}), true);
     NodeList::append(parametersWithThis, parameters);

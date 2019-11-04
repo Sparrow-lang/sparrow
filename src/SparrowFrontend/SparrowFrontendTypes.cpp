@@ -38,8 +38,8 @@ ConceptType ConceptType::changeTypeModeImpl(ConceptType type, Nest::EvalMode new
 }
 
 ConceptType ConceptType::get(Nest::NodeHandle decl, Nest::EvalMode mode) {
-    ASSERT(!decl || decl->nodeKind == nkSparrowDeclSprConcept ||
-            decl->nodeKind == nkSparrowDeclGenericDatatype);
+    ASSERT(!decl || decl.kind() == nkSparrowDeclSprConcept ||
+            decl.kind() == nkSparrowDeclGenericDatatype);
     Nest_Type referenceType = {0};
     referenceType.typeKind = typeKindConcept;
     referenceType.mode = mode;

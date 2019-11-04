@@ -646,6 +646,8 @@ datatype UntypedPtr = @Int8
         this.data := other.data
     fun ctor(this: !UntypedPtr, val: @AnyType)
         this.data := reinterpretCast(@Int8, val)
+    fun ctor(this: !UntypedPtr, val: !AnyType)
+        this.data := reinterpretCast(@Int8, val)
     fun ctor(this: !UntypedPtr, nullptr: Null)
         this.data := null
     fun asRefOf(this: UntypedPtr, t: Type): @t = reinterpretCast(@t, this.data)

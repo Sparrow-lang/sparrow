@@ -99,7 +99,10 @@ void filterCandidatesErrReport(CompilationContext* context, const Location& loc,
         CustomCvtMode customCvtMode) {
     for (auto& cand : candidates) {
         // Report the candidate
-        REP_INFO(cand->location(), "See possible candidate: %1%") % cand->toString();
+        auto candLoc = cand->location();
+        REP_INFO(candLoc, "See possible candidate: %1%") % cand->toString();
+        if (candLoc.start.line == candLoc.end.line && candLoc.start.col == candLoc.end.col)
+            printNode(cand->decl());
 
         if (args)
             cand->canCall(CCLoc{context, loc}, *args, evalMode, customCvtMode, true);

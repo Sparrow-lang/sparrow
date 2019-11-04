@@ -135,7 +135,7 @@ Node* generateAssociatedFun(
 /// Returns true if all fields were initialized with default values, and no params are needed.
 bool generateInitCtor(Node* parent) {
     vector<pair<Type, string>> params;
-    params.emplace_back(Feather::addRef(Feather::DataType(parent->type)), "this");
+    params.emplace_back(Feather::MutableType::get(Feather::DataType(parent->type)), "this");
 
     Location loc = parent->location;
     loc.end = loc.start;
@@ -162,7 +162,7 @@ bool generateInitCtor(Node* parent) {
         }
 
         // Left-hand side: field-ref to the current field
-        Node* lhs = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, thisRef), field);
+        Node* lhs = Feather_mkFieldRef(loc, thisRef, field);
 
         string oper = fieldIsRef(field) ? ":=" : "ctor";
         addOperatorCall(body, false, lhs, oper, init);

@@ -70,10 +70,9 @@ fun swap(this: !HashTable, other: !typeOf(this))
         other._buckets(other._guard.next._tableIndex(other._buckets.size)) = other._guardNode
 
 [protected]
-    fun =(this: !HashTable, other: typeOf(this)): @typeOf(this)
+    fun =(this: !HashTable, other: typeOf(this))
         var tmp: HashTable = other
         this swap tmp
-        return this
 
     fun ==(this, other: HashTable): Bool
         if !(this._tr == other._tr && _numElements == other.size)

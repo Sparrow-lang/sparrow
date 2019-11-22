@@ -175,7 +175,8 @@ fun test9()
     a2 = a1
     printSizeInfo(a2)
     printStaticArray(a2)
-    printSizeInfo(a1 = a2)
+    a1 = a2
+    printSizeInfo(a1)
     printStaticArray(a1)
 /*<<<Assignment operator(9)
 false

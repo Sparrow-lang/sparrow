@@ -101,10 +101,9 @@ datatype StaticArray(valueType: Type, arraySize: Int ct)
         for v: @ValueType = this.all
             v dtor
 
-    fun =(this: !StaticArray, other: typeOf(this)): @typeOf(this)
+    fun =(this: !StaticArray, other: typeOf(this))
         for i = 0.._arraySize
             this(i) = other(i)
-        return this
 
     fun ==(this, other: StaticArray): Bool
         for i = 0.._arraySize

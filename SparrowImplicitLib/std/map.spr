@@ -18,7 +18,7 @@ datatype Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
 [protected]
     fun ctor(this: !Map, n: Int)                                       { _hashTable.ctor(n, TraitsType()); }
     fun ctor(this: !Map, n: Int, traits: this.TraitsType)              { _hashTable.ctor(n, traits); }
-    fun ctor(this: !Map, range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()); }
+    fun ctor(this: !Map, range: Range)                                 { _hashTable.ctor(range, 0, TraitsType()); }
     fun ctor(this: !Map, range: Range, n: Int)                         { _hashTable.ctor(range, n, HashType(), CompareType()); }
     fun ctor(this: !Map, range: Range, n: Int, traits: this.TraitsType){ _hashTable.ctor(range, n, traits); }
 

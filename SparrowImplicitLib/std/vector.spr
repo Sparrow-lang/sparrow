@@ -74,12 +74,9 @@ datatype Vector(valueType: Type)
             p.value().dtor()
         _begin.freePtr()
 
-    fun =(this: !Vector, other: typeOf(this)): @typeOf(this)
+    fun =(this: !Vector, other: typeOf(this))
         var tmp = other
-
         tmp.swap(this)
-
-        return this
 
     fun ==(this, other: Vector): Bool
         if this.size() != other.size()

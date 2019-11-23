@@ -51,9 +51,9 @@ datatype MaoCFG
 
 fun dtor(this: !MaoCFG)
     for p = _basicBlockMap.values
-        p delete
+        p release
     for p = _edges.all
-        p delete
+        p release
 
 fun createNode(this: !MaoCFG, name: Int): BasicBlock Ptr
     var node: @Ptr(BasicBlock) = _basicBlockMap(name)

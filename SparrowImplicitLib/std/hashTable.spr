@@ -238,7 +238,7 @@ fun _insertPlain(this: !HashTable, value: this.ValueType): this.RangeType
     // Insert only if the element is not found in the hash
     var node = this._findNodeImpl(h, key)
     if node.isNull
-        node = new(_MyNode, _NodePtr(), h, value)
+        node reset new(_MyNode, _NodePtr(), h, value)
         ++_numElements
         this._insertNode(node)
     return RangeType(node, _NodePtr())

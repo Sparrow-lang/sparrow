@@ -32,7 +32,7 @@ fun initAsRoot(task: !TaskType)
 //! Initializes a child task
 fun initAsChildOf(task, parent: !TaskType)
     initTaskBasic(task)
-    getPrefix(task).parent = getPrefix(parent)
+    getPrefix(task).parent reset getPrefix(parent)
     getPrefix(task).depth = 1+getPrefix(parent).depth
     getPrefix(task).worker = getPrefix(parent).worker
 

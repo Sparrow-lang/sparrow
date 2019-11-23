@@ -116,7 +116,7 @@ var globalTaskSystem: TaskSystem Ptr
 fun initTaskSystem(numWorkers: Int = 0)
     // Create the task system object
     //assert(globalTaskSystem isNull)
-    globalTaskSystem = new(TaskSystem)
+    globalTaskSystem reset new(TaskSystem)
 
     // Create the required threads
     if numWorkers == 0

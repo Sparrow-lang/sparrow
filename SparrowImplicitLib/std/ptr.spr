@@ -9,8 +9,6 @@ datatype Ptr(type: Type)
     _ptr: @ValueType
 
 [protected]
-    fun =(this: !Ptr, ref: this.ValueType const) = _ptr := reinterpretCast(@ValueType, ref)
-
     fun < (this, other: Ptr)          = (UntypedPtr(_ptr) ptrDiff UntypedPtr(other._ptr)) < 0
 
     fun get(this: Ptr)         = _ptr
@@ -18,7 +16,7 @@ datatype Ptr(type: Type)
     fun isSet(this: Ptr)       = _ptr !== null
 
     fun reset(this: !Ptr)                  = _ptr := null
-    fun reset(this: !Ptr, ref: !this.ValueType)  = _ptr := mutToPtr(ref)
+    fun reset(this: !Ptr, ref: @this.ValueType)  = _ptr := ref
     fun release(this: !Ptr)    { delete(_ptr); }
 
     fun swap(this: !Ptr, other: !typeOf(this))

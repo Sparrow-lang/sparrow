@@ -1,7 +1,5 @@
 //!! -t "../SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x) if true
-
 fun myadd(x: Int, y: Int = 1) = x+y
 
 datatype Foo

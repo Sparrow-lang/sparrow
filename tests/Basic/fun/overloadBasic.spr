@@ -1,14 +1,12 @@
 //!! -t "../SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x) // Always true
-
 fun f1(x: Int)         { writeLn("f1(Int)"); }
 fun f1(x: Float)      { writeLn("f1(Float)"); }
 fun f1(x: !Int)        { writeLn("f1(!Int)"); }
 fun f1(x: !Float)     { writeLn("f1(!Float)"); }
 fun f1(x: @Int)        { writeLn("f1(@Int)"); }
 fun f1(x: @Float)     { writeLn("f1(@Float)"); }
-//fun f1(x: AnyType)        { writeLn("f1(AnyType)"); }
+fun f1(x: AnyType)        { writeLn("f1(AnyType)"); }
 fun f1(x: !AnyType)       { writeLn("f1(!AnyType)"); }
 fun f1(x: @AnyType)       { writeLn("f1(@AnyType)"); }
 
@@ -89,11 +87,11 @@ f1(!Float)
 f1(!AnyType)
 f1(!Int)
 f1(!Float)
-f1(@AnyType)
+f1(AnyType)
 f1(Int)
 f1(Float)
 ---
-f1(@AnyType)
+f1(AnyType)
 f1(Int)
 f1(Float)
 f1(!AnyType)

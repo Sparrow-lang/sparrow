@@ -29,7 +29,8 @@ fun ()(this: !Predicate): Bool = predObj()
 
 /// Logic equality: equality test + inference
 fun eq(l, r: !AnyType) = _mkEq(mkValOrRef(l), mkValOrRef(r))
-fun /=/(l, r: @AnyType) = _mkEq(mkValOrRef(l), mkValOrRef(r))
+fun /=/(l, r: !AnyType) = _mkEq(mkValOrRef(l), mkValOrRef(r))
+fun /=/(l, r: AnyType) = _mkEq(mkValOrRef(l), mkValOrRef(r))
 
 // Assignment: used for native functions instead of unification
 fun =/(out: !AnyType, in: AnyType): Bool if -@typeOf(out) == -@typeOf(in)

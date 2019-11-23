@@ -1,7 +1,5 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x) // Always true
-
 fun f1(t: Type, i: Int): Int
     var tmp: t
     tmp = i

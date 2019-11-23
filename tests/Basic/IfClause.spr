@@ -1,7 +1,5 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x) // Always true
-
 datatype Pair(t1, t2: Type)
     first: t1
     second: t2

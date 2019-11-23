@@ -99,30 +99,30 @@ fun ctor(this: !_AllocData, arg1, arg2, arg3, arg4: AnyType)
 fun mkShared(t: Type): SharedPtr(t)
     var res: SharedPtr(t)
     let d: @_AllocData(t) = new(_AllocData(t))
-    res._ref := d.data
-    res._count := d._count
+    res._ref := (d.data mutToPtr)
+    res._count := (d._count mutToPtr)
     return res
 fun mkShared(t: Type, arg1: AnyType): SharedPtr(t) if isValid((#$t).ctor(arg1))
     var res: SharedPtr(t)
     let d: @_AllocData(t) = new(_AllocData(t), arg1)
-    res._ref := d.data
-    res._count := d._count
+    res._ref := (d.data mutToPtr)
+    res._count := (d._count mutToPtr)
     return res
 fun mkShared(t: Type, arg1, arg2: AnyType): SharedPtr(t) if isValid((#$t).ctor(arg1, arg2))
     var res: SharedPtr(t)
     let d: @_AllocData(t) = new(_AllocData(t), arg1, arg2)
-    res._ref := d.data
-    res._count := d._count
+    res._ref := (d.data mutToPtr)
+    res._count := (d._count mutToPtr)
     return res
 fun mkShared(t: Type, arg1, arg2, arg3: AnyType): SharedPtr(t) if isValid((#$t).ctor(arg1, arg2, arg3))
     var res: SharedPtr(t)
     let d: @_AllocData(t) = new(_AllocData(t), arg1, arg2, arg3)
-    res._ref := d.data
-    res._count := d._count
+    res._ref := (d.data mutToPtr)
+    res._count := (d._count mutToPtr)
     return res
 fun mkShared(t: Type, arg1, arg2, arg3, arg4: AnyType): SharedPtr(t) if isValid((#$t).ctor(arg1, arg2, arg3, arg4))
     var res: SharedPtr(t)
     let d: @_AllocData(t) = new(_AllocData(t), arg1, arg2, arg3, arg4)
-    res._ref := d.data
-    res._count := d._count
+    res._ref := (d.data mutToPtr)
+    res._count := (d._count mutToPtr)
     return res

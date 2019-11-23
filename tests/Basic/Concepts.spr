@@ -1,7 +1,5 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x) // Always true
-
 datatype A
     ;
 fun f1(this: A) = 1

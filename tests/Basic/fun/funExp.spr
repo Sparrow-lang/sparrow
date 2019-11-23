@@ -1,7 +1,5 @@
 //!! -t "../SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x) // Always true
-
 fun myadd(x,y: Int) = x+y
 fun next(x: AnyType) = x+1
 

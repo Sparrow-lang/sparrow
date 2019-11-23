@@ -37,7 +37,7 @@ fun toImpl(n: Node): @NodeImpl
     if n.data.data !== null
         return reinterpretCast(@NodeImpl, n.data.data)
     else
-        return _nullNodeImpl
+        return _nullNodeImpl mutToPtr
 fun toNode(impl: !NodeImpl)    = Node(UntypedPtr(impl))
 
 fun >> (n: NodeImpl, os: !OutStream)

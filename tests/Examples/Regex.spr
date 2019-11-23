@@ -118,7 +118,7 @@ fun dtor(this: !NfaStatesFactory)
 fun getCharState(this: !NfaStatesFactory, c: Char)                   = this._alloc(Int(c), Ptr(NfaState)(), Ptr(NfaState)())
 fun getSplitState(this: !NfaStatesFactory, s1, s2: Ptr(NfaState))    = this._alloc(NfaState.split, s1, s2)
 fun getSplitState(this: !NfaStatesFactory, s1: Ptr(NfaState))        = this._alloc(NfaState.split, s1, Ptr(NfaState)())
-fun getMatchState(this: !NfaStatesFactory)                           = Ptr(NfaState)(_matchState)
+fun getMatchState(this: !NfaStatesFactory)                           = Ptr(NfaState)(_matchState mutToPtr)
 
 fun _alloc(this: !NfaStatesFactory, c: Int, out1, out2: Ptr(NfaState)): Ptr(NfaState)
     using _statesPerPage = 100
@@ -156,7 +156,7 @@ datatype OutPtrList
 
 /// Construct the out-ptr list from a single out-ptr reference
 fun ctor(this: !OutPtrList, outPtr: !Ptr(NfaState))
-    _next ctor reinterpretPtr(OutPtrList, Ptr(Ptr(NfaState))(outPtr));
+    _next ctor reinterpretPtr(OutPtrList, Ptr(Ptr(NfaState))(outPtr mutToPtr));
 
 /// Append to this list another list of out-pointers
 fun append(this: !OutPtrList, other: OutPtrList)

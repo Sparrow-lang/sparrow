@@ -36,7 +36,8 @@ fun ctor(this: !Optional, val: this.ValueType)
 
     fun isNull(this: Optional)                                      = !_constructed
     fun isSet(this: Optional)                                       = _constructed
-    fun get(this: Optional): @ValueType                             = _value
+    fun get(this: Optional): ValueType                              = _value
+    fun get(this: !Optional): @ValueType                            = _value mutToPtr
     fun getOrElse(this: Optional, default: this.ValueType): @ValueType  = ife(_constructed, cast(@ValueType, _value), default)
 
     fun reset(this: !Optional)

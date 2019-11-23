@@ -22,8 +22,8 @@ datatype SharedPtr(type: Type)
             this._count := null
         else
             let d: @_MyAllocData = new(_MyAllocData, value)
-            this._ref := d.data
-            this._count := d._count
+            this._ref := mutToPtr(d.data)
+            this._count := mutToPtr(d._count)
 
     fun ctor(this: !SharedPtr, other: typeOf(this))
         _ref := other._ref
@@ -54,7 +54,7 @@ datatype SharedPtr(type: Type)
     fun isSet(this: SharedPtr)                    = _ref !== null
 
     fun reset(this: !SharedPtr)                         { this.dtor; this.ctor }
-    fun reset(this: !SharedPtr, value: !this.ValueType) { this.dtor; this ctor value }
+    fun reset(this: !SharedPtr, value: @this.ValueType) { this.dtor; this ctor value }
     fun release(this: !SharedPtr)                       { this.reset }
 
     fun swap(this: !SharedPtr, other: !typeOf(this))

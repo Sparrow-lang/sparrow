@@ -35,10 +35,8 @@ fun new(t: Type, arg1, arg2, arg3, arg4, arg5, arg6: AnyType): @t if isValid((#$
     res.ctor(arg1, arg2, arg3, arg4, arg5, arg6)
     return res
 
-fun delete(obj: @AnyType) if !isValid(obj.release)
+// TODO: remove this; only Ptr-like datatypes should offer this
+fun delete(obj: @AnyType)
     if obj !== null
         obj dtor
         free(UntypedPtr(obj))
-
-fun delete(ptr: !AnyType) if isValid(ptr.release)
-    ptr.release

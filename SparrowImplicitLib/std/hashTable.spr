@@ -193,7 +193,7 @@ fun swap(this: !HashTable, other: !typeOf(this))
         os << ' ' << prevBi << '-' << prev.get
         os << endl
 
-fun _guardNode(this: HashTable): this._NodePtr = reinterpretPtr(_MyNode, Ptr(_MyGuardNode)(_guard))
+fun _guardNode(this: HashTable): this._NodePtr = Ptr(_MyNode)(reinterpretCast(@_MyNode, _guard))
 
 fun _findNode(this: HashTable, key: this.KeyType): this._NodePtr
     return this._findNodeImpl(_tr.hash(key), key)
@@ -324,7 +324,7 @@ datatype _HashRange(valueType: Type)
 
 [protected]
     fun isEmpty(this: _HashRange)               = _startElem == _endElem
-    fun front(this: _HashRange): this.RetType   = _startElem.data
+    fun front(this: _HashRange): this.RetType   = _startElem.data mutToPtr
     fun popFront(this: !_HashRange)             { _startElem = _startElem.next; }
 
 var _bucketCounts: StaticArray(Int, 31)

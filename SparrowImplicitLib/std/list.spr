@@ -45,7 +45,7 @@ datatype List(valueType: Type)
             p.freePtr
             p = nextNode
 
-    fun =(this: @List, other: typeOf(this))
+    fun =(this: !List, other: typeOf(this))
         var tmp = other
         this swap tmp
 

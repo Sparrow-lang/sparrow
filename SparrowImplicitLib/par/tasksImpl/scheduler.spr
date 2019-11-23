@@ -61,13 +61,13 @@ fun schedSpawnRootAndWait(task: TaskPtr)
     var waitingTask: EmptyTask
     initAsRoot(waitingTask)
     waitingTask.prefix setRefCount 2
-    task.get().parent = TaskPtr(waitingTask.prefix)
+    task.get().parent = TaskPtr(waitingTask.prefix mutToPtr)
 
     // This is the task we are waiting for
     waitingTask.prefix setWaitingWorker taskWorker
 
     // Execute the root task and wait for it
-    schedDoWait(taskWorker, task, TaskPtr(waitingTask.prefix))
+    schedDoWait(taskWorker, task, TaskPtr(waitingTask.prefix mutToPtr))
 
     // Restore the old depth
     taskWorker.curDepth = oldDepth
@@ -191,7 +191,7 @@ fun executeTask(task: !TaskPrefix): TaskPtr
     // Execute the task
     [ct] if isValidAndTrue(traceCalls)
         tracer(taskWorker) << "executing task " << task << "; parent=" << task.parent.get() << endl
-    task.executeFn(task)
+    task.executeFn(task mutToPtr)
 
     // Now check if we can execute the parent
 

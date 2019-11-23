@@ -34,7 +34,7 @@ import std.compilerInfo
         amountOfWork: Int
         useTryLock: Bool
 
-    fun ()(this: !Worker)
+    fun ()(this: Worker)
         for i = 0..amountOfWork
             doProtectedJob(normalMutex, useTryLock)
         //if !useTryLock

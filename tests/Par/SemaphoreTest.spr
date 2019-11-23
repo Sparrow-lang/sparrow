@@ -27,7 +27,7 @@ import std.compilerInfo
         sem: @Semaphore
         amountOfWork: Int
 
-    fun ()(this: !Worker)
+    fun ()(this: Worker)
         for i = 0..amountOfWork
             doJob(sem, i % 5 + 1)
         assertGe(numExecutions load, amountOfWork, "all our job should be executed")
@@ -41,7 +41,7 @@ import std.compilerInfo
         this.amountOfWork ctor amountOfWork
         this.numWorkers ctor numWorkers
         for i=0..numWorkers
-            let p: Thread Ptr = new(Thread, Worker(sem, amountOfWork))
+            let p: Thread Ptr = new(Thread, Worker(sem mutToPtr, amountOfWork))
             threads.pushBack(p)
 
     fun dtor(this: !WorkManager)

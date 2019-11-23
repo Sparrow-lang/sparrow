@@ -23,7 +23,7 @@ datatype Thread
 
 //! Construct the Thread with a functor
 //! The functor can have state, not just executing code
-fun ctor(this: !Thread, f: @AnyType) if isValid(f())
+fun ctor(this: !Thread, f: AnyType) if isValid(f())
     _handle = _Impl.startThread(f)
 
 //! Cannot copy construct or assign a Thread object

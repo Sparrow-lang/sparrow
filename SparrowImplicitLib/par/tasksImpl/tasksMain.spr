@@ -11,7 +11,7 @@ fun doExecute(T: Type, prefix: @TaskPrefix): Null
     obj execute
     return Null()
 
-fun getExecuteFn(T: Type): FunctionPtr(Null rt, @TaskPrefix) = \doExecute(T, TaskPrefix())
+fun getExecuteFn(T: Type): FunctionPtr(Null rt, @TaskPrefix) = \doExecute(T, cast(@TaskPrefix, null))
 
 //! Initializes the fields required for a task
 fun initTaskBasic(obj: !TaskType)

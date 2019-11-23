@@ -12,7 +12,7 @@
 #endif
 
 #include <boost/program_options.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include <fstream>
 #include <unordered_set>
@@ -28,9 +28,8 @@ string getExecutablePathFallback(const char* argv0) {
     if (argv0 == nullptr || argv0[0] == 0)
         return "";
 
-    boost::system::error_code ec;
-    boost::filesystem::path p(
-            boost::filesystem::canonical(argv0, boost::filesystem::current_path(), ec));
+    std::error_code ec;
+    std::filesystem::path p(std::filesystem::canonical(argv0, ec));
     return p.make_preferred().string();
 }
 
@@ -57,9 +56,8 @@ string getExecutablePath(const char* argv0) {
     if (0 != ret)
         return getExecutablePathFallback(argv0);
 
-    boost::system::error_code ec;
-    boost::filesystem::path p(
-            boost::filesystem::canonical(buf, boost::filesystem::current_path(), ec));
+    std::error_code ec;
+    std::filesystem::path p(std::filesystem::canonical(buf, ec));
     return p.make_preferred().string();
 }
 
@@ -72,10 +70,10 @@ string getExecutablePath(const char* argv0) {
     if (ret.empty())
         return getExecutablePathFallback(argv0);
 
-    boost::filesystem::path p(ret);
+    std::filesystem::path p(ret);
     if (!p.has_root_directory()) {
         boost::system::error_code ec;
-        p = boost::filesystem::canonical(p, boost::filesystem::current_path(), ec);
+        p = std::filesystem::canonical(p, std::filesystem::current_path(), ec);
         ret = p.make_preferred().string();
     }
     return ret;
@@ -99,8 +97,8 @@ string getExecutablePath(const char* argv0) {
 
     string path(buf, size);
     boost::system::error_code ec;
-    boost::filesystem::path p(
-            boost::filesystem::canonical(path, boost::filesystem::current_path(), ec));
+    std::filesystem::path p(
+            std::filesystem::canonical(path, std::filesystem::current_path(), ec));
     return p.make_preferred().string();
 }
 
@@ -116,8 +114,8 @@ string getExecutablePath(const char* argv0) {
 
     string path(buf, size);
     boost::system::error_code ec;
-    boost::filesystem::path p(
-            boost::filesystem::canonical(path, boost::filesystem::current_path(), ec));
+    std::filesystem::path p(
+            std::filesystem::canonical(path, std::filesystem::current_path(), ec));
     return p.make_preferred().string();
 }
 
@@ -383,7 +381,7 @@ bool initSettingsWithArgs(int argc, char** argv) {
 
     s.programName_ = argv[0];
     s.executableDir_ =
-            boost::filesystem::system_complete(getExecutablePath(argv[0])).parent_path().string();
+            std::filesystem::canonical(getExecutablePath(argv[0])).parent_path().string();
 
     // Default data layout & target triple
     s.dataLayout_ = "e-m:o-i64:64-f80:128-n8:16:32:64-S128";
@@ -497,7 +495,7 @@ bool initSettingsWithArgs(int argc, char** argv) {
             extension = ".bc";
 
         if (!s.filesToBeCompiled_.empty())
-            s.output_ = boost::filesystem::path(s.filesToBeCompiled_[0])
+            s.output_ = std::filesystem::path(s.filesToBeCompiled_[0])
                                 .replace_extension(extension)
                                 .string();
         else

@@ -13,7 +13,7 @@
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Api/Node.h"
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;
@@ -23,7 +23,7 @@ using namespace std;
 
 namespace {
 pair<string, string> splitFilename(const char* path) {
-    auto absPath = boost::filesystem::canonical(path);
+    auto absPath = std::filesystem::canonical(path);
     auto filename = absPath.filename().string();
     auto dir = absPath.parent_path().string();
     return make_pair(dir, filename);

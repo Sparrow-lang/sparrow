@@ -19,6 +19,7 @@ ADD_SOURCES_TO_GROUPS(sourceFiles)
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
 ADD_EXECUTABLE( SparrowCompiler ${sourceFiles} )
 TARGET_LINK_LIBRARIES(SparrowCompiler SparrowFrontend LLVMBackend Feather Nest)
+TARGET_LINK_LIBRARIES(SparrowCompiler c++fs)
 
 llvm_map_components_to_libnames(LLVM_LIBS
     support core irreader codegen linker

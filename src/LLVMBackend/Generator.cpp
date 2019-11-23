@@ -8,7 +8,7 @@
 #include "Nest/Utils/CompilerStats.hpp"
 #include "Nest/Utils/Profiling.h"
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include <algorithm>
 #include <iomanip>
@@ -33,7 +33,7 @@ namespace {
 string replaceExtension(
         const string& outputFilename, string origFilename, const string& extension) {
     string res;
-    boost::filesystem::path f = origFilename;
+    std::filesystem::path f = origFilename;
     while (true) {
         f.replace_extension(extension);
         res = f.string();
@@ -231,7 +231,7 @@ void LLVMB::generateCtAssembly(const llvm::Module& module) {
     if (!s.dumpCtAssembly_)
         return;
 
-    namespace fs = boost::filesystem;
+    namespace fs = std::filesystem;
 
     // We will create one directory per compilation containing all the CT module dumps
     static int fileCounter = 0;

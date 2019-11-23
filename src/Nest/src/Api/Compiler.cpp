@@ -15,18 +15,18 @@
 #include "Nest/Api/SourceCodeKindRegistrar.h"
 #include "Nest/Api/Backend.h"
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 
-using namespace boost::filesystem;
+using namespace std::filesystem;
 using Nest::at;
 using Nest::begin;
 using Nest::end;
 
 struct ImportInfo {
     const Nest_SourceCode* originSourceCode_;
-    boost::filesystem::path filename_;
+    std::filesystem::path filename_;
 
     ImportInfo(const Nest_SourceCode* orig, Nest_StringRef filename)
         : originSourceCode_(orig)
@@ -38,10 +38,10 @@ Nest::CompilationContext* _rootContext;
 Nest_Backend* _backend;
 
 /// The path of the current directory
-boost::filesystem::path _curPath;
+std::filesystem::path _curPath;
 
 /// List of source codes parsed by this class
-unordered_map<const Nest_SourceCode*, boost::filesystem::path> _sourceCodes;
+unordered_map<const Nest_SourceCode*, std::filesystem::path> _sourceCodes;
 
 /// The files that were handled before
 unordered_map<string, Nest_SourceCode*> _handledFiles;
@@ -159,7 +159,7 @@ Nest_SourceCode* _handleImport(const ImportInfo& import) {
 
     // Check if the filename path is absolute
     path p = import.filename_;
-    if (p.is_complete()) {
+    if (p.is_absolute()) {
         res = _handleImportFile(import);
         if (!res.first)
             REP_ERROR(NOLOC, "Cannot find input file: %1%") % import.filename_.string();
@@ -204,7 +204,7 @@ void Nest_compilerInit() {
 
     // TODO (files): Check why this breaks AssertTest.spr
     // try {
-    //     _curPath = boost::filesystem::current_path();
+    //     _curPath = std::filesystem::current_path();
     // } catch (const exception& e) {
     //     REP_INTERNAL(NOLOC, "Cannot obtain the current path; aborting (%1%") % e.what();
     // }
@@ -219,7 +219,7 @@ void Nest_compilerDestroy() {
     ;
     _backend = nullptr;
 
-    _curPath = boost::filesystem::path{};
+    _curPath = std::filesystem::path{};
 
     _sourceCodes.clear();
     _handledFiles.clear();

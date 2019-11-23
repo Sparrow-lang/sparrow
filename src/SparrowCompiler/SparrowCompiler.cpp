@@ -19,7 +19,7 @@
 #include <LLVMBackend/LLVMBackendMod.h>
 #include <SparrowFrontend/SparrowFrontend.h>
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/scoped_ptr.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -27,7 +27,7 @@
 
 using namespace Nest;
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 extern Nest_SourceCode* g_implicitLibSC;
 extern Nest_SourceCode* g_compilerArgsSC;
@@ -93,7 +93,10 @@ bool ensureImplicitLib() {
 void _handleArgDefines(const vector<string>& defines, const char* filename) {
 
     // Create the temporary filename
-    string tempFilename = fs::unique_path().native() + "-" + filename;
+    char tmpName[L_tmpnam];
+    if (!std::tmpnam(tmpName))
+        throw std::runtime_error("cannot create temp file");
+    string tempFilename = std::string(tmpName) + "-" + filename;
     fs::path tempPath = fs::temp_directory_path() / tempFilename;
     ofstream f(tempPath.native().c_str(), ofstream::out);
     if (!f.is_open()) {

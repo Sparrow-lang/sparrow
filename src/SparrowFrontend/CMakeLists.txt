@@ -85,7 +85,7 @@ ADD_LIBRARY( SparrowFrontend
     ${SparrowParser_OUTPUTS}
 )
 TARGET_LINK_LIBRARIES(SparrowFrontend ${REQ_LLVM_LIBRARIES})
-TARGET_LINK_LIBRARIES(SparrowFrontend ${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+TARGET_LINK_LIBRARIES(SparrowFrontend ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 
 # if(BOOTSTRAP_SPARROW)
 #     # Copy the generated assembly back to the source dir, so that we can commit it.

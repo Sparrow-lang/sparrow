@@ -89,6 +89,8 @@ if( NOT CMAKE_BUILD_TYPE )      # set default cmake build type to Release (None 
 endif()
 
 # Compilation flags
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(MSVC)
     add_definitions( "-W4" )        # Warning level 4
     add_definitions( -DWIN32 )
@@ -102,9 +104,6 @@ endif()
 
 if(SPARROW_PROFILING)
     add_definitions( -DSPARROW_PROFILING=1 )
-    set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++17" )
-else()
-    set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++11" )
 endif()
 
 # Add our macros

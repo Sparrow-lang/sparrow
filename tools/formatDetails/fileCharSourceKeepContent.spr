@@ -20,7 +20,7 @@ datatype FileCharSourceKeepContent
 
 using _This = FileCharSourceKeepContent
 
-fun ctor(this: @_This, filename: StringRef)
+fun ctor(this: !_This, filename: StringRef)
     _file ctor filename
     if !_file.isOpen
         reportError(Location(), toString('Cannot open source file: ', filename).asStringRef)
@@ -32,9 +32,9 @@ fun ctor(this: @_This, filename: StringRef)
     var fileSize = _file.size
     _content reserve fileSize
 
-fun isValid(this: @_This) = _file.isOpen
+fun isValid(this: !_This) = _file.isOpen
 
-fun readChars(this: @_This, dest: @String, numChars: Int)
+fun readChars(this: !_This, dest: !String, numChars: Int)
     for i = 0..numChars
         // Read into the given buffer
         var ch = _file.readChar
@@ -47,7 +47,7 @@ fun readChars(this: @_This, dest: @String, numChars: Int)
         _incrementPosition(_contentEnd, ch)
 
 //! Retrieves the content between the two given positions
-fun getContent(this: @_This, start, end: LineCol): StringRef
+fun getContent(this: !_This, start, end: LineCol): StringRef
     assert(start >= _contentStart)
     assert(end <= _contentEnd)
     assert(start < end)
@@ -60,7 +60,7 @@ fun getContent(this: @_This, start, end: LineCol): StringRef
     return _content.subrange(idxStart, idxEnd - idxStart)
 
 //! Update the start position in the content, for easier lookup
-fun updateStartPos(this: @_This, newPos: LineCol)
+fun updateStartPos(this: !_This, newPos: LineCol)
     assert(newPos >= _contentStart)
     assert(newPos <= _contentEnd)
 
@@ -68,14 +68,14 @@ fun updateStartPos(this: @_This, newPos: LineCol)
     _contentStartIdx = this._findIndexInContent(_contentStart, newPos, _contentStartIdx)
 
 //! Increments the location based on the given char
-fun _incrementPosition(pos: @LineCol, ch: Char)
+fun _incrementPosition(pos: !LineCol, ch: Char)
     if ch == '\n'.char
         pos.line++
         pos.col = 1
     else
         pos.col++
 
-fun _findIndexInContent(this: @_This, curPos: @LineCol, targetPos: LineCol, idxStart: Int): Int
+fun _findIndexInContent(this: !_This, curPos: !LineCol, targetPos: LineCol, idxStart: Int): Int
     var idx = idxStart
     while idx < _content.size && curPos < targetPos
         var ch = _content(idx)

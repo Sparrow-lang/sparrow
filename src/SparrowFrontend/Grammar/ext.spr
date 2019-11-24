@@ -11,8 +11,6 @@ using VoidType = typeOf(_returnsVoid())
 
 fun _reinterpretAssign(dest: !AnyType, src: AnyType)
     reinterpretCast(@typeOf(src), dest) = src
-fun _eraseType(obj: AnyType): UntypedPtr
-    return UntypedPtr(obj)
 
 //! Interface that models a source of characters.
 //! It allows the caller to read multiple characters at once
@@ -25,7 +23,7 @@ concept CharSourceType(x) \
 
 fun mkCharSource(obj: !CharSourceType): CharSource
     var res: CharSource
-    res.userData = _eraseType(obj)
+    res.userData = UntypedPtr(obj mutToPtr)
     res.readCharsFn _reinterpretAssign \(obj.readChars)
     return res
 
@@ -37,14 +35,14 @@ fun readChars(obj: CharSource, dest: !String, numChars: Int)
 //! Interface for the object used to report errors
 datatype ErrorReporter
     userData: UntypedPtr
-    reportErrorFn: FunctionPtr(VoidType, UntypedPtr, Location const, StringRef)
+    reportErrorFn: FunctionPtr(VoidType, UntypedPtr, Location, StringRef)
 
 concept ErrorReporterType(x) \
     if isValid(x.reportError(Location(), StringRef()))
 
-fun mkErrorReporter(obj: ErrorReporterType): ErrorReporter
+fun mkErrorReporter(obj: @ErrorReporterType): ErrorReporter
     var res: ErrorReporter
-    res.userData = _eraseType(obj)
+    res.userData = UntypedPtr(obj)
     res.reportErrorFn _reinterpretAssign \(obj.reportError)
     return res
 
@@ -61,51 +59,51 @@ datatype AstBuilder
 
     addToNodeListFn:    FunctionPtr(Node, UntypedPtr, Node, Node)
 
-    mkModifiersFn:      FunctionPtr(Node, UntypedPtr, Location const, Node, Node)
-    mkModuleFn:         FunctionPtr(Node, UntypedPtr, Location const, Node, Node)
-    mkImportNameFn:     FunctionPtr(Node, UntypedPtr, Location const, StringRef, Node, Node)
-    mkUsingFn:          FunctionPtr(Node, UntypedPtr, Location const, StringRef, Node)
-    mkPackageFn:        FunctionPtr(Node, UntypedPtr, Location const, StringRef, Node, Node, Node)
-    mkDatatypeFn:       FunctionPtr(Node, UntypedPtr, Location const, StringRef, Node, Node, Node, Node)
-    mkFieldFn:          FunctionPtr(Node, UntypedPtr, Location const, StringRef, Node, Node)
-    mkConceptFn:        FunctionPtr(Node, UntypedPtr, Location const, StringRef, StringRef, Node, Node)
-    mkLetFn:            FunctionPtr(Node, UntypedPtr, Location const, StringRef, Node, Node)
-    mkVarFn:            FunctionPtr(Node, UntypedPtr, Location const, StringRef, Node, Node)
-    mkParameterFn:      FunctionPtr(Node, UntypedPtr, Location const, StringRef, Node, Node)
-    mkFunFn:            FunctionPtr(Node, UntypedPtr, Location const, StringRef, Node, Node, Node, Node, Node)
+    mkModifiersFn:      FunctionPtr(Node, UntypedPtr, Location, Node, Node)
+    mkModuleFn:         FunctionPtr(Node, UntypedPtr, Location, Node, Node)
+    mkImportNameFn:     FunctionPtr(Node, UntypedPtr, Location, StringRef, Node, Node)
+    mkUsingFn:          FunctionPtr(Node, UntypedPtr, Location, StringRef, Node)
+    mkPackageFn:        FunctionPtr(Node, UntypedPtr, Location, StringRef, Node, Node, Node)
+    mkDatatypeFn:       FunctionPtr(Node, UntypedPtr, Location, StringRef, Node, Node, Node, Node)
+    mkFieldFn:          FunctionPtr(Node, UntypedPtr, Location, StringRef, Node, Node)
+    mkConceptFn:        FunctionPtr(Node, UntypedPtr, Location, StringRef, StringRef, Node, Node)
+    mkLetFn:            FunctionPtr(Node, UntypedPtr, Location, StringRef, Node, Node)
+    mkVarFn:            FunctionPtr(Node, UntypedPtr, Location, StringRef, Node, Node)
+    mkParameterFn:      FunctionPtr(Node, UntypedPtr, Location, StringRef, Node, Node)
+    mkFunFn:            FunctionPtr(Node, UntypedPtr, Location, StringRef, Node, Node, Node, Node, Node)
 
     mkParenthesisExprFn:FunctionPtr(Node, UntypedPtr, Node)
-    mkPostfixOpFn:      FunctionPtr(Node, UntypedPtr, Location const, Node, StringRef)
-    mkInfixOpFn:        FunctionPtr(Node, UntypedPtr, Location const, Node, StringRef, Node)
-    mkPrefixOpFn:       FunctionPtr(Node, UntypedPtr, Location const, StringRef, Node)
-    mkIdentifierFn:     FunctionPtr(Node, UntypedPtr, Location const, StringRef)
-    mkCompoundExprFn:   FunctionPtr(Node, UntypedPtr, Location const, Node, StringRef)
-    mkStarExprFn:       FunctionPtr(Node, UntypedPtr, Location const, Node, StringRef)
-    mkDotExprFn:        FunctionPtr(Node, UntypedPtr, Location const, Node, StringRef)
-    mkFunAppExprFn:     FunctionPtr(Node, UntypedPtr, Location const, Node, Node)
-    mkLambdaExprFn:     FunctionPtr(Node, UntypedPtr, Location const, Node, Node, Node, Node, Node)
-    mkNullLiteralFn:    FunctionPtr(Node, UntypedPtr, Location const)
-    mkBoolLiteralFn:    FunctionPtr(Node, UntypedPtr, Location const, Bool)
-    mkIntLiteralFn:     FunctionPtr(Node, UntypedPtr, Location const, Int)
-    mkUIntLiteralFn:    FunctionPtr(Node, UntypedPtr, Location const, UInt32)
-    mkLongLiteralFn:    FunctionPtr(Node, UntypedPtr, Location const, Int64)
-    mkULongLiteralFn:   FunctionPtr(Node, UntypedPtr, Location const, UInt64)
-    mkFloatLiteralFn:   FunctionPtr(Node, UntypedPtr, Location const, Float32)
-    mkDoubleLiteralFn:  FunctionPtr(Node, UntypedPtr, Location const, Float)
-    mkCharLiteralFn:    FunctionPtr(Node, UntypedPtr, Location const, Char)
-    mkStringLiteralFn:  FunctionPtr(Node, UntypedPtr, Location const, StringRef)
+    mkPostfixOpFn:      FunctionPtr(Node, UntypedPtr, Location, Node, StringRef)
+    mkInfixOpFn:        FunctionPtr(Node, UntypedPtr, Location, Node, StringRef, Node)
+    mkPrefixOpFn:       FunctionPtr(Node, UntypedPtr, Location, StringRef, Node)
+    mkIdentifierFn:     FunctionPtr(Node, UntypedPtr, Location, StringRef)
+    mkCompoundExprFn:   FunctionPtr(Node, UntypedPtr, Location, Node, StringRef)
+    mkStarExprFn:       FunctionPtr(Node, UntypedPtr, Location, Node, StringRef)
+    mkDotExprFn:        FunctionPtr(Node, UntypedPtr, Location, Node, StringRef)
+    mkFunAppExprFn:     FunctionPtr(Node, UntypedPtr, Location, Node, Node)
+    mkLambdaExprFn:     FunctionPtr(Node, UntypedPtr, Location, Node, Node, Node, Node, Node)
+    mkNullLiteralFn:    FunctionPtr(Node, UntypedPtr, Location)
+    mkBoolLiteralFn:    FunctionPtr(Node, UntypedPtr, Location, Bool)
+    mkIntLiteralFn:     FunctionPtr(Node, UntypedPtr, Location, Int)
+    mkUIntLiteralFn:    FunctionPtr(Node, UntypedPtr, Location, UInt32)
+    mkLongLiteralFn:    FunctionPtr(Node, UntypedPtr, Location, Int64)
+    mkULongLiteralFn:   FunctionPtr(Node, UntypedPtr, Location, UInt64)
+    mkFloatLiteralFn:   FunctionPtr(Node, UntypedPtr, Location, Float32)
+    mkDoubleLiteralFn:  FunctionPtr(Node, UntypedPtr, Location, Float)
+    mkCharLiteralFn:    FunctionPtr(Node, UntypedPtr, Location, Char)
+    mkStringLiteralFn:  FunctionPtr(Node, UntypedPtr, Location, StringRef)
 
-    mkBlockStmtFn:      FunctionPtr(Node, UntypedPtr, Location const, Node)
-    mkIfStmtFn:         FunctionPtr(Node, UntypedPtr, Location const, Node, Node, Node)
-    mkForStmtFn:        FunctionPtr(Node, UntypedPtr, Location const, StringRef, Node, Node, Node)
-    mkWhileStmtFn:      FunctionPtr(Node, UntypedPtr, Location const, Node, Node, Node)
-    mkBreakStmtFn:      FunctionPtr(Node, UntypedPtr, Location const)
-    mkContinueStmtFn:   FunctionPtr(Node, UntypedPtr, Location const)
-    mkReturnStmtFn:     FunctionPtr(Node, UntypedPtr, Location const, Node)
+    mkBlockStmtFn:      FunctionPtr(Node, UntypedPtr, Location, Node)
+    mkIfStmtFn:         FunctionPtr(Node, UntypedPtr, Location, Node, Node, Node)
+    mkForStmtFn:        FunctionPtr(Node, UntypedPtr, Location, StringRef, Node, Node, Node)
+    mkWhileStmtFn:      FunctionPtr(Node, UntypedPtr, Location, Node, Node, Node)
+    mkBreakStmtFn:      FunctionPtr(Node, UntypedPtr, Location)
+    mkContinueStmtFn:   FunctionPtr(Node, UntypedPtr, Location)
+    mkReturnStmtFn:     FunctionPtr(Node, UntypedPtr, Location, Node)
 
 fun mkAstBuilder(obj: !AnyType): AstBuilder
     var res: AstBuilder
-    res.userData = _eraseType(obj)
+    res.userData = UntypedPtr(obj mutToPtr)
     res.addToNodeListFn     _reinterpretAssign \(obj.addToNodeList)
 
     res.mkModifiersFn       _reinterpretAssign \(obj.mkModifiers)

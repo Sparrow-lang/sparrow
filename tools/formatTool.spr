@@ -7,7 +7,7 @@ import checks.returnStmt, checks.moduleName
 import os
 
 //! The type of a basic transformation function
-using TransformFun = FunctionPtr(VoidType, @SourceData)
+using TransformFun = FunctionPtr(VoidType, !SourceData)
 //! A vector of transformations to apply
 using Transforms = TransformFun Vector
 
@@ -86,12 +86,12 @@ fun _printArgsError(msg: StringRef)
     cout << '  ' << programArgs(0) << ' -i -format <sparrowSourceFile>\n\n'
     exit(1)
 
-fun _writeToStdout(tokens: @TokenVector)
+fun _writeToStdout(tokens: TokenVector)
     for token = tokens.all
         cout << token.content
         //cout << '<' << (token.parentAst kind) << '>'
 
-fun _writeToFile(tokens: @TokenVector, filename: StringRef)
+fun _writeToFile(tokens: TokenVector, filename: StringRef)
     var destFile = File(filename, 'w')
     if !destFile.isOpen
         reportError(Location(), toString('cannot open output file: ', filename).asStringRef)
@@ -99,7 +99,7 @@ fun _writeToFile(tokens: @TokenVector, filename: StringRef)
     for token = tokens.all
         destFile write token.content
 
-fun _checkDisableFormatting(src: @SourceData)
+fun _checkDisableFormatting(src: !SourceData)
     var formatOffCount = 0
     for token: @TokenData = src.tokens.all
         // Disable formatting if we are in a marked area

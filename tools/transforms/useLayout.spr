@@ -4,7 +4,7 @@ module formatTool.transforms.useLayout
 import utils
 import formatDetails.sourceData
 
-fun useLayoutFormatter(src: @SourceData)
+fun useLayoutFormatter(src: !SourceData)
     var parenCount = 0
 
     var layout: LayoutHelper

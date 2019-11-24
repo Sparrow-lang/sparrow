@@ -2,7 +2,7 @@ module formatTool.checks.moduleName
 
 import formatDetails.sourceData
 
-fun checkModuleName(src: @SourceData)
+fun checkModuleName(src: !SourceData)
     var node = src.rootNode
     if node.isNull
         return

@@ -94,11 +94,11 @@ TEST_CASE_METHOD(FeatherTypesFixture, "Feather storage types", "[FeatherTypes]")
         REQUIRE(tConst.numReferences() == 1);
         REQUIRE(tMut.numReferences() == 1);
         REQUIRE(tTemp.numReferences() == 1);
-        REQUIRE(tConstPtr.numReferences() == 2);
-        REQUIRE(tMutPtr.numReferences() == 2);
+        REQUIRE(tConstPtr.numReferences() == 1);
+        REQUIRE(tMutPtr.numReferences() == 1);
         REQUIRE(tPtrConst.numReferences() == 2);
-        REQUIRE(tConstPtrConst.numReferences() == 3);
-        REQUIRE(tConstPtrMut.numReferences() == 3);
+        REQUIRE(tConstPtrConst.numReferences() == 2);
+        REQUIRE(tConstPtrMut.numReferences() == 2);
     }
 
     rc::prop("Can create data types", [](EvalMode mode) {
@@ -113,7 +113,8 @@ TEST_CASE_METHOD(FeatherTypesFixture, "Feather storage types", "[FeatherTypes]")
     rc::prop("Can create Ptr types", []() {
         auto baseType = *TypeFactory::arbTypeWithStorage();
         auto type = PtrType::get(baseType);
-        REQUIRE(type.numReferences() == baseType.numReferences() + 1);
+        REQUIRE(type.numReferences() >= baseType.numReferences());
+        REQUIRE(type.numReferences() <= baseType.numReferences() + 1);
         REQUIRE(type.referredNode() == baseType.referredNode());
 
         REQUIRE(type.base() == baseType);
@@ -147,6 +148,21 @@ TEST_CASE_METHOD(FeatherTypesFixture, "Feather storage types", "[FeatherTypes]")
         REQUIRE(type.referredNode() == baseType.referredNode());
 
         REQUIRE(type.base() == baseType);
+    });
+
+    rc::prop("Ptr types over cat types doesn't add reference", []() {
+        auto baseType = *TypeFactory::arbTypeWeighted(modeRt, 0, 0);
+        REQUIRE(isCategoryType(baseType));
+        auto type = PtrType::get(baseType);
+        REQUIRE(type.numReferences() == baseType.numReferences());
+    });
+
+    rc::prop("Ptr types over non-cat types adds reference", []() {
+        auto baseType = *TypeFactory::arbTypeWithStorage();
+        if (!isCategoryType(baseType)) {
+            auto type = PtrType::get(baseType);
+            REQUIRE(type.numReferences() == 1+baseType.numReferences());
+        }
     });
 
     rc::prop("All feather types except Void have storage", []() {

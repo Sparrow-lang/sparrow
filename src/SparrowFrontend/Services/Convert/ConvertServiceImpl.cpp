@@ -345,7 +345,26 @@ ElemConvType checkElementaryCast(int srcKind, int destKind) {
             {removePtr, direct,    ptr2Cat, ptr2Cat, ptr2Cat}, // from ptr
             {removeCat, cat2Ptr,   direct,  none,    none},    // from const
             {removeCat, cat2Ptr,   catCast, direct,  none},    // from mutable
-            {removeCat, cat2Ptr,   catCast, none,    direct}   // from temp
+            {removeCat, cat2Ptr,   catCast, catCast, direct}   // from temp
+    };
+    // to:   plain,     ptr,       const,   mutable, temp
+    // clang-format on
+
+    return conversions[src][dest];
+}
+
+//! Check cast for cat types wrapped by ptr (both on src and dest)
+ElemConvType checkInPtrCast(int srcKind, int destKind) {
+    int src = typeKindToIndex(srcKind);
+    int dest = typeKindToIndex(destKind);
+    // In this context, plain means ptr without cat; treat it as 'mutable'
+    // clang-format off
+    constexpr ElemConvType conversions[5][5] = {
+            {direct,    none,      catCast, catCast, none},    // from plain (ptr without cat)
+            {none,      direct,    none,    none,    none},    // from ptr
+            {none,      none,      direct,  none,    none},    // from const
+            {catCast,   none,      catCast, direct,  none},    // from mutable
+            {none,      none,      catCast, catCast, direct}   // from temp
     };
     // to:   plain,     ptr,       const,   mutable, temp
     // clang-format on
@@ -354,22 +373,22 @@ ElemConvType checkElementaryCast(int srcKind, int destKind) {
 }
 
 // Used for debugging:
-// const char* kindToStr(int kind) {
-//     if (kind == typeKindData)
-//         return "data";
-//     if (kind == typeKindPtr)
-//         return "ptr";
-//     if (kind == typeKindConst)
-//         return "const";
-//     if (kind == typeKindMutable)
-//         return "mut";
-//     if (kind == typeKindTemp)
-//         return "tmp";
-//     if (kind == 0)
-//         return "none";
-//     ASSERT(false);
-//     return "???";
-// }
+const char* kindToStr(int kind) {
+    if (kind == typeKindData)
+        return "data";
+    if (kind == typeKindPtr)
+        return "ptr";
+    if (kind == typeKindConst)
+        return "const";
+    if (kind == typeKindMutable)
+        return "mut";
+    if (kind == typeKindTemp)
+        return "tmp";
+    if (kind == 0)
+        return "none";
+    ASSERT(false);
+    return "???";
+}
 
 //! A stack of node kinds, from which we can pop the base kinds.
 struct KindStack {
@@ -417,6 +436,11 @@ int setPlainIfKindMissing(int kind) { return kind == 0 ? typeKindData : kind; }
 bool ConvertServiceImpl::checkWrapperTypes(
         ConversionResult& res, TypeWithStorage src, TypeWithStorage dest) {
 
+    bool doDebug = false && StringRef(src.description()) == "i8 ptr" &&
+                   StringRef(dest.description()) == "i8 mut ptr";
+    if (doDebug)
+        cerr << src << " -> " << dest << "\n";
+
     // Analyze the two types: figure our their base type and all the wrappers
     static KindStack srcKinds;
     static KindStack destKinds;
@@ -427,6 +451,9 @@ bool ConvertServiceImpl::checkWrapperTypes(
     int destPtrs = 0;
     analyzeType(src, srcBase, srcKinds.kinds, srcPtrs);
     analyzeType(dest, destBase, destKinds.kinds, destPtrs);
+
+    if (doDebug)
+        cerr << "    srcPtrs=" << srcPtrs << ", destPtrs=" << destPtrs << "\n";
 
     // Handle the case where the destination is a concept
     // Apply the dest shape on the base source type
@@ -448,7 +475,10 @@ bool ConvertServiceImpl::checkWrapperTypes(
     // We check categories at every iteration
     // Note: between pointers we may have at most one cat type, but nothing else.
     int numIterations = std::min(srcPtrs, destPtrs);
+    if (doDebug)
+        cerr << "    numIterations=" << numIterations << "\n";
     bool needsCast = false;
+    bool needsImplicit = false;
     for (int i = 0; i < numIterations; i++) {
         // Get the two groups of kinds that we need to compare
         bool srcPtr = false;
@@ -463,12 +493,16 @@ bool ConvertServiceImpl::checkWrapperTypes(
             destCat = typeKindData;
 
         // Check elementary casts between possible category types
-        auto conv = checkElementaryCast(srcCat, destCat);
+        auto conv = checkInPtrCast(srcCat, destCat);
+        if (doDebug)
+            cerr << "    iter check: " << kindToStr(srcCat) << " -> " << kindToStr(destCat) << " = " << conv << "\n";
         if (conv == none)
             return false;
 
-        if (conv != direct)
+        if (conv != direct) {
             needsCast = true;
+            needsImplicit = true;
+        }
     }
 
     // Now the middle part, after the common pointers
@@ -476,7 +510,6 @@ bool ConvertServiceImpl::checkWrapperTypes(
     // Try to consume everything from dest
     bool shouldAddCat = false;
     bool needsDeref = false;
-    bool needsImplicit = false;
     int destKind = setPlainIfKindMissing(destKinds[0]);
     int srcKind = setPlainIfKindMissing(srcKinds[0]);
     auto conv = checkElementaryCast(srcKind, destKind);

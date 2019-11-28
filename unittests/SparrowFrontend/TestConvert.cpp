@@ -90,7 +90,7 @@ void ConvertFixture::checkCatConversions(DataType src, DataType dest) {
     // Direct: tmp(T)->const(U), if T->U
     RC_ASSERT(getConvType(tmpSrc, constDest) == baseConvImplicit);
     // Direct: tmp(T)->mut(U), if T->U
-    RC_ASSERT(getConvType(tmpSrc, mutDest) == convNone);
+    RC_ASSERT(getConvType(tmpSrc, mutDest) == baseConvImplicit);
     // Direct: tmp(T)->plain(U), if T->U
     RC_ASSERT(getConvType(tmpSrc, dest) == baseConv);
 }
@@ -317,10 +317,10 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
         SECTION("MutableType examples") {
             Node* decl = TypeFactory::g_dataTypeDecls[0];
             auto t0 = DataType::get(decl, modeRt); // i8
-            auto t1 = PtrType::get(t0);            // @i8
-            auto t2 = PtrType::get(t1);            // @@i8
+            auto t1 = PtrType::get(t0);            // i8 ptr
+            auto t2 = PtrType::get(t1);            // i8 ptr ptr
             auto t0mut = MutableType::get(t0);     // i8 mut
-            auto t1mut = MutableType::get(t1);     // @i8 mut
+            auto t1mut = MutableType::get(t1);     // i8 ptr mut
             CHECK(getConvType(t0, t1) == convNone);
             CHECK(getConvType(t0mut, t0) == convDirect);
             CHECK(getConvType(t0mut, t1) == convNone);
@@ -330,6 +330,40 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             CHECK(getConvType(t2, t1mut) == convImplicit);
             CHECK(getConvType(t1, t2) == convNone);
             CHECK(getConvType(t0, t2) == convNone);
+        }
+
+        SECTION("Examples with cat, ptr and combinations") {
+            Node* decl = TypeFactory::g_dataTypeDecls[0];
+            auto t0 = DataType::get(decl, modeRt); // i8
+            auto t0mut = MutableType::get(t0);     // i8 mut
+            auto t0const = ConstType::get(t0);     // i8 const
+            auto t0tmp = TempType::get(t0);        // i8 tmp
+            auto t1 = PtrType::get(t0);            // i8 ptr
+            auto t0mut1 = PtrType::get(t0mut);     // i8 mut ptr
+            auto t0const1 = PtrType::get(t0const); // i8 const ptr
+            auto t0tmp1 = PtrType::get(t0tmp);     // i8 tmp ptr
+
+            CHECK(getConvType(t0, t1) == convNone);
+            CHECK(getConvType(t0, t0mut) == convNone);
+            CHECK(getConvType(t0, t0const) == convDirect);
+            CHECK(getConvType(t0, t0tmp) == convDirect);
+
+            CHECK(getConvType(t0mut1, t0mut) == convImplicit);
+            CHECK(getConvType(t0const1, t0const) == convImplicit);
+            CHECK(getConvType(t0tmp1, t0tmp) == convImplicit);
+
+            CHECK(getConvType(t1, t0mut1) == convImplicit);
+            CHECK(getConvType(t1, t0const1) == convImplicit);
+            CHECK(getConvType(t1, t0tmp1) == convNone);
+            CHECK(getConvType(t0mut1, t0const1) == convImplicit);
+            CHECK(getConvType(t0mut1, t0tmp1) == convNone);
+            CHECK(getConvType(t0mut1, t1) == convImplicit);
+            CHECK(getConvType(t0const1, t0mut1) == convNone);
+            CHECK(getConvType(t0const1, t0tmp1) == convNone);
+            CHECK(getConvType(t0const1, t1) == convNone);
+            CHECK(getConvType(t0tmp1, t0const1) == convImplicit);
+            CHECK(getConvType(t0tmp1, t0mut1) == convImplicit);
+            CHECK(getConvType(t0tmp1, t1) == convNone);
         }
     }
 
@@ -549,7 +583,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             CHECK(getConvType(src0mut, c0const) == convConceptWithImplicit);
             CHECK(getConvType(src0tmp, c0tmp) == convConcept);
             CHECK(getConvType(src0tmp, c0const) == convConceptWithImplicit);
-            CHECK(getConvType(src0tmp, c0mut) == convNone);
+            CHECK(getConvType(src0tmp, c0mut) == convConceptWithImplicit);
             CHECK(getConvType(src0tmp, c0) == convConcept);
 
             CHECK(getConvType(src1const, c1) == convConcept);
@@ -639,7 +673,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
                 isImplicit = true;
             if (srcBaseReferences != destBaseReferences)
                 isImplicit = true;
-            if (isCategoryType(src) && isCategoryType(dest) && src.kind() != dest.kind() && src.mode() == dest.mode())
+            if (isCategoryType(src) && isCategoryType(dest) && src.kind() != dest.kind() &&
+                    src.mode() == dest.mode())
                 isImplicit = true;
             if (isImplicit) {
                 if (expectedConv == convConcept)

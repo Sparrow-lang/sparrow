@@ -129,11 +129,13 @@ PtrType PtrType::get(TypeWithStorage base, Nest::Location loc) {
     if (!base)
         REP_INTERNAL(loc, "Null type given as base to ptr type");
 
+    auto baseRefs = base.numReferences();
+
     Nest_Type referenceType = {0};
     referenceType.typeKind = typeKindPtr;
     referenceType.mode = base.mode();
     referenceType.numSubtypes = 1;
-    referenceType.numReferences = 1 + base.numReferences();
+    referenceType.numReferences = isCategoryType(base) ? baseRefs : 1+baseRefs;
     referenceType.hasStorage = 1;
     referenceType.canBeUsedAtRt = base.canBeUsedAtRt();
     referenceType.flags = 0;

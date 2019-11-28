@@ -96,6 +96,6 @@ fun _asString(nk: NodeKind): StringRef
     else if nk == nkReturnStmt      return 'ReturnStmt'
     else if nk == nkNULL            return '<null>'
 
-fun >>(nk: NodeKind, os: @OutStream)
+fun >>(nk: NodeKind, os: !OutStream)
     os << (nk _asString)
 

@@ -14,7 +14,7 @@ fun ctor(this: !BasicBlockEdge, cfg: !MaoCFG, fromName, toName: Int)
 
     from.addOutEdge(to)
     to.addInEdge(from)
-    cfg.addEdge(this mkPtr)
+    cfg.addEdge(mutToPtr(this) mkPtr)
 
 fun allocBBE(cfg: !MaoCFG, fromName, toName: Int): @BasicBlockEdge
     var res: @BasicBlockEdge = malloc(sizeOf(BasicBlockEdge)).asRefOf(BasicBlockEdge)
@@ -51,14 +51,14 @@ datatype MaoCFG
 
 fun dtor(this: !MaoCFG)
     for p = _basicBlockMap.values
-        p delete
+        p release
     for p = _edges.all
-        p delete
+        p release
 
 fun createNode(this: !MaoCFG, name: Int): BasicBlock Ptr
     var node: @Ptr(BasicBlock) = _basicBlockMap(name)
     if !node
-        node = new(BasicBlock, name)
+        node reset new(BasicBlock, name)
     if _basicBlockMap.size == 1
         startNode = node
     return node
@@ -95,7 +95,7 @@ fun addChildLoop(this: !SimpleLoop, loop: SimpleLoop Ptr)  = this.children += lo
 
 fun setParent(this: !SimpleLoop, parent: SimpleLoop Ptr)
     this._parent = parent
-    this._parent.addChildLoop(this mkPtr)
+    this._parent.addChildLoop(mutToPtr(this) mkPtr)
 fun setNestingLevel(this: !SimpleLoop, level: Int)
     nestingLevel = level
     isRoot = (level == 0)
@@ -183,7 +183,7 @@ datatype UnionFindNode
 // Initialize this node.
 //
 fun init(this: !UnionFindNode, bb: BasicBlock Ptr, dfsNumber: Int)
-    this._parent     ctor this
+    this._parent    ctor (this mutToPtr)
     this.bb         ctor bb
     this.dfsNumber  ctor dfsNumber
 
@@ -193,7 +193,7 @@ fun init(this: !UnionFindNode, bb: BasicBlock Ptr, dfsNumber: Int)
 // visited and collapsed once, however, deep nests would still
 // result in significant traversals).
 //
-fun findSet(this: UnionFindNode): UnionFindNode Ptr
+fun findSet(this: @UnionFindNode): UnionFindNode Ptr
     var nodeList: List(UnionFindNode Ptr)
 
     var node: UnionFindNode Ptr = this
@@ -257,8 +257,8 @@ datatype HavlakLoopFinder
     _lsg: @LoopStructureGraph
 
 fun ctor(this: !HavlakLoopFinder, cfg: !MaoCFG, lsg: !LoopStructureGraph)
-    this._cfg := cfg
-    this._lsg := lsg
+    this._cfg := (cfg mutToPtr)
+    this._lsg := (lsg mutToPtr)
 
 //
 // IsAncestor

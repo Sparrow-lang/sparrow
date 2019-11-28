@@ -174,9 +174,8 @@ Type SprFrontend::commonType(CompilationContext* context, Type t1, Type t2) {
 
     // If there is one conversion from one type to another (and not vice-versa) take the less
     // specialized type
-    ConversionFlags flags = flagDontAddReference;
-    ConversionResult c1 = g_ConvertService->checkConversion(context, t1, t2, flags);
-    ConversionResult c2 = g_ConvertService->checkConversion(context, t2, t1, flags);
+    ConversionResult c1 = g_ConvertService->checkConversion(context, t1, t2);
+    ConversionResult c2 = g_ConvertService->checkConversion(context, t2, t1);
     if (c1 && !c2) {
         return t2;
     }
@@ -199,7 +198,7 @@ Type SprFrontend::doDereference1(Nest::NodeHandle arg, Nest::NodeHandle& cvt) {
     for (size_t i = 1; i < t.numReferences(); ++i) {
         cvt = Feather::MemLoadExp::create(arg.location(), cvt);
     }
-    return DataType::get(t.referredNode(), 0, t.mode()); // Zero references
+    return DataType::get(t.referredNode(), t.mode()); // Zero references
 }
 
 namespace {
@@ -291,7 +290,9 @@ Type SprFrontend::getAutoType(Node* typeNode, int numRefs, int kind, EvalMode ev
     // it
 
     // This is a data-like type, so we can directly reduce it to the right datatype
-    t = DataType::get(t.referredNode(), numRefs, evalMode);
+    t = Feather::DataType::get(t.referredNode(), evalMode);
+    for (int i = 0; i < numRefs; i++)
+        t = Feather::PtrType::get(t);
     if (kind == typeKindMutable)
         return MutableType::get(t);
     else if (kind == typeKindConst)
@@ -302,34 +303,18 @@ Type SprFrontend::getAutoType(Node* typeNode, int numRefs, int kind, EvalMode ev
 }
 
 bool SprFrontend::isConceptType(Type t) {
-    return Feather::removeCategoryIfPresent(t).kind() == typeKindConcept;
+    return t.hasStorage() ? baseType(TypeWithStorage(t)).kind() == typeKindConcept : false;
 }
+bool SprFrontend::isConceptType(TypeWithStorage t) { return baseType(t).kind() == typeKindConcept; }
 
 bool SprFrontend::isConceptType(Type t, int& numRefs, int& kind) {
     kind = t.kind();
     t = Feather::removeCategoryIfPresent(t);
-    if (t.kind() == typeKindConcept) {
+    if (isConceptType(t)) {
         numRefs = int(t.numReferences());
         return true;
     }
     return false;
-}
-
-Type SprFrontend::changeRefCount(Type type, int numRef, const Location& loc) {
-    ASSERT(type);
-
-    // If we have a category type, get its base
-    while (Feather::isCategoryType(type))
-        type = Feather_baseType(type);
-    // TODO (types): Not sure if this is the right approach
-
-    if (type.kind() == typeKindData)
-        type = Feather_getDataType(type.referredNode(), numRef, type.mode());
-    else if (type.kind() == typeKindConcept)
-        type = ConceptType::get(ConceptType(type).decl(), numRef, type.mode());
-    else
-        REP_INTERNAL(loc, "Cannot change reference count for type %1%") % type;
-    return type;
 }
 
 bool SprFrontend::isBitCopiable(Type type) {

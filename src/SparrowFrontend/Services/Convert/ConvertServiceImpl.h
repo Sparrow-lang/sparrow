@@ -44,11 +44,12 @@ private:
     bool checkDataConversion(ConversionResult& res, CompilationContext* context, int flags,
             TypeWithStorage srcType, TypeWithStorage destType);
 
-    //! Bring the number of references for the source type to the given value.
+    //! Check the wrapper conversions between two types.
+    //!
+    //! The base types are assumed to be the same and just the wrapper types differ.
     //! Add all the conversions to 'res'. Returns false if conversion is impossible.
     //! The source type must be a data-like type.
-    bool adjustReferences(ConversionResult& res, TypeWithStorage src, int destKind, int destNumRef,
-            const char* destDesc, bool canAddRef);
+    bool checkWrapperTypes(ConversionResult& res, TypeWithStorage src, TypeWithStorage dest);
 };
 
 } // namespace SprFrontend

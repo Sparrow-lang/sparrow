@@ -17,7 +17,7 @@ datatype ScopedLock(T: Type) if Lockable(#$T)
     _theLock: @LockType
 
 fun ctor(this: !ScopedLock, theLock: !this.LockType)
-    this._theLock := theLock
+    this._theLock := (theLock mutToPtr)
     _theLock lock
 
 fun dtor(this: !ScopedLock)
@@ -32,7 +32,7 @@ datatype ScopedTryLock(T: Type) if TryLockable(#$T)
     _lockSucceeded: Bool
 
 fun ctor(this: !ScopedTryLock, theLock: !this.LockType)
-    this._theLock := theLock
+    this._theLock := (theLock mutToPtr)
     this._lockSucceeded  = (_theLock tryLock)
 
 fun dtor(this: !ScopedTryLock)

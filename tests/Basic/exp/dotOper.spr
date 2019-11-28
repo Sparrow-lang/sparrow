@@ -26,7 +26,7 @@ fun print(this: !MyObj, x: Int)
 [native("test")]
 fun test(n: Int)
     var o: MyObj = 0
-    var p: A.Ptr(MyObj) = o
+    var p: A.Ptr(MyObj) = o mutToPtr
     p.x = 10
     p print
     p.print

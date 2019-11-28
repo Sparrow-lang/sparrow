@@ -18,7 +18,7 @@ fun ctor(this: !BufferedCharSource, src: CharSource)
     _curPos ctor 0
     this._ensureBufferHasData
 
-fun all(this: @BufferedCharSource) = BufferedCharSourceRange(this)
+fun all(this: !BufferedCharSource) = BufferedCharSourceRange(this mutToPtr)
 
 fun _ensureBufferHasData(this: !BufferedCharSource)
     if _curPos >= (_buffer size)

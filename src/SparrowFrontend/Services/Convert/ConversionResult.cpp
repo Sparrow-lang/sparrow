@@ -8,6 +8,7 @@
 #include "SparrowFrontend/Helpers/DeclsHelpers.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/Helpers/Generics.h"
+#include "SparrowFrontend/Helpers/CommonCode.h"
 #include "SparrowFrontend/NodeCommonsCpp.h"
 #include "SparrowFrontend/SparrowFrontendTypes.hpp"
 #include "SparrowFrontend/Nodes/SprProperties.h"
@@ -124,21 +125,13 @@ Node* applyOnce(Node* src, ConvAction action) {
         return Feather_mkBitcast(src->location, Feather_mkTypeNode(src->location, destT), src);
     case ActionType::makeNull:
         return Feather_mkNull(src->location, Feather_mkTypeNode(src->location, destT));
-    case ActionType::addRef: {
-        Type srcT = removeCatOrRef(TypeWithStorage(destT));
-        Node* var = Feather_mkVar(
-                src->location, StringRef("$tmpForRef"), Feather_mkTypeNode(src->location, srcT));
-        Node* varRef = Feather_mkVarRef(src->location, var);
-        Node* store = Feather_mkMemStore(src->location, src, varRef);
-        Node* cast =
-                Feather_mkBitcast(src->location, Feather_mkTypeNode(src->location, destT), varRef);
-        return Feather_mkNodeList(src->location, fromIniList({var, store, cast}));
-    }
+    case ActionType::addRef:
+        return createTmpForRef(src, TypeWithStorage(destT));
     case ActionType::customCvt: {
         EvalMode destMode = destT.mode();
         Node* destClass = destT.referredNode();
         Node* refToClass = createTypeNode(
-                src->context, src->location, Feather_getDataType(destClass, 0, modeRt));
+                src->context, src->location, Feather::DataType::get(destClass, modeRt));
         return Feather_mkChangeMode(src->location,
                 mkFunApplication(src->location, refToClass, fromIniList({src})), destMode);
     }

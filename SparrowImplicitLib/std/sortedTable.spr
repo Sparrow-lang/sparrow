@@ -48,14 +48,12 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
         _less ctor other._less
         _comp ctor other._comp
 
-    fun =(this: !SortedTable, other: typeOf(this)): @typeOf(this)
+    fun =(this: !SortedTable, other: typeOf(this))
         _table = other._table
         _valToKey = other._valToKey
         _comp = other._comp
         _less = other._less
         _valToKey = other._valToKey
-
-        return this
 
     fun ==(this, other: SortedTable): Bool
         return _valToKey == other._valToKey && _less == other._less && _comp == other._comp && _table == other._table

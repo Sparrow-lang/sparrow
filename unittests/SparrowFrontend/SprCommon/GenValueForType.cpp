@@ -16,18 +16,45 @@ using Nest::NodeHandle;
 using Nest::Type;
 using Nest::TypeWithStorage;
 
+namespace {
+//! If the given type is a concept type, generate a data type with the same shape.
+//! That is, if the original type has const/mut/ptr applied to the concept type, the same wrappers
+//! are applied over data type.
+//!
+//! This should be only called from rc::gen::exec contexts
+TypeWithStorage conceptToDataType(TypeWithStorage t, const SampleTypes* sampleTypes) {
+    int kind = t.kind();
+    if (kind == typeKindData)
+        return t;
+    else if (kind == typeKindPtr)
+        t = Feather::PtrType::get(conceptToDataType(Feather::PtrType(t).base(), sampleTypes));
+    else if (kind == typeKindConst)
+        t = Feather::ConstType::get(conceptToDataType(Feather::ConstType(t).base(), sampleTypes));
+    else if (kind == typeKindMutable)
+        t = Feather::MutableType::get(
+                conceptToDataType(Feather::MutableType(t).base(), sampleTypes));
+    else if (kind == typeKindTemp)
+        t = Feather::TempType::get(conceptToDataType(Feather::TempType(t).base(), sampleTypes));
+    else if (kind == SprFrontend::typeKindConcept) {
+        RC_ASSERT(sampleTypes);
+        auto compatibleTypes = sampleTypes->typesForConcept(ConceptType(t));
+        auto dataType = *gen::elementOf(compatibleTypes);
+        return DataType::get(dataType.referredNode(), t.mode()); // keep mode
+    } else
+        REP_INTERNAL(NOLOC, "Cannot transform concept type %1% to data type") % t;
+    return t;
+}
+
+} // namespace
+
 Gen<NodeHandle> arbValueForType(TypeWithStorage t, const SampleTypes* sampleTypes) {
     return rc::gen::exec([=]() -> NodeHandle {
         // If t is a concept, transform it into a regular type
         TypeWithStorage type = t;
-        if (t.kind() == SprFrontend::typeKindConcept) {
-            RC_ASSERT(sampleTypes);
-            auto compatibleTypes = sampleTypes->typesForConcept(ConceptType(t));
-            type = *gen::elementOf(compatibleTypes);
-            type = DataType::get(type.referredNode(), t.numReferences(), t.mode());
-        }
+        if (SprFrontend::isConceptType(t))
+            type = conceptToDataType(type, sampleTypes);
 
-        RC_ASSERT(type.kind() != SprFrontend::typeKindConcept);
+        RC_ASSERT(!SprFrontend::isConceptType(type));
         int weightValueForType = 5;
         int weightCtValue = type.mode() == modeCt && type.numReferences() == 0 ? 7 : 0;
         int weightOtherExp = type.numReferences() > 0 ? 2 : 0;
@@ -42,7 +69,7 @@ Gen<NodeHandle> arbValueForType(TypeWithStorage t, const SampleTypes* sampleType
 }
 
 Gen<NodeHandle> arbValueForTypeIgnoreMode(TypeWithStorage t) {
-    RC_ASSERT(t.kind() != SprFrontend::typeKindConcept);
+    RC_ASSERT(!SprFrontend::isConceptType(t));
     if (t.mode() == modeRt && t.numReferences() == 0) {
         return rc::gen::exec([t]() -> NodeHandle {
             auto mode = *gen::arbitrary<EvalMode>();
@@ -57,12 +84,8 @@ Gen<NodeHandle> arbValueConvertibleTo(TypeWithStorage t, const SampleTypes* samp
     return rc::gen::exec([=]() -> NodeHandle {
         // If t is a concept, transform it into a regular type
         TypeWithStorage type = t;
-        if (t.kind() == SprFrontend::typeKindConcept) {
-            RC_ASSERT(sampleTypes);
-            auto compatibleTypes = sampleTypes->typesForConcept(ConceptType(t));
-            type = *gen::elementOf(compatibleTypes);
-            type = DataType::get(type.referredNode(), t.numReferences(), t.mode());
-        }
+        if (SprFrontend::isConceptType(t))
+            type = conceptToDataType(type, sampleTypes);
 
         // Get a type that's convertible to our type
         auto tk = type.kind();
@@ -108,17 +131,11 @@ Gen<NodeHandle> arbValueConvertibleTo(TypeWithStorage t, const SampleTypes* samp
 }
 
 Gen<NodeHandle> arbBoundValueForType(TypeWithStorage t, const SampleTypes& sampleTypes) {
-    if (t.kind() != SprFrontend::typeKindConcept)
+    if (!SprFrontend::isConceptType(t))
         return gen::cast<NodeHandle>(FeatherNodeFactory::instance().arbCtValueExp(t));
     else {
         return rc::gen::exec([&sampleTypes, t]() -> NodeHandle {
-            // Get a type that matches the concept
-            auto types = sampleTypes.typesForConcept(ConceptType(t));
-            auto innerType = types[*rc::gen::inRange(0, int(types.size()))];
-
-            // Ensure it has the same shape as the concept type
-            innerType =
-                    Feather::DataType::get(innerType.referredNode(), t.numReferences(), t.mode());
+            auto innerType = conceptToDataType(t, &sampleTypes);
 
             // Create a type node for this type
             return SprFrontend::createTypeNode(nullptr, Location(), innerType);

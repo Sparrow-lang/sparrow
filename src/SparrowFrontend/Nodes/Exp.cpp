@@ -65,13 +65,13 @@ Feather::FieldRefExp createFieldRef(const Location& loc, NodeHandle baseExp, Fea
         REP_INTERNAL(loc, "No base expression to refer to a field");
     ASSERT(baseExp);
 
-    // Make sure the base is a reference
+    // Make sure the base is a cat-type
+    // In the generated ctorFromCt, the bound 'other' value is without any cat type
     if (baseExp.type().numReferences() == 0) {
-        ConversionResult res = g_ConvertService->checkConversion(
-                baseExp, Feather::addRef(TypeWithStorage(baseExp.type())));
-        if (!res)
-            REP_INTERNAL(loc, "Cannot add reference to base of field access");
-        baseExp = res.apply(baseExp);
+        auto destType = Feather::ConstType::get(TypeWithStorage(baseExp.type()));
+        auto ctx = baseExp.context();
+        baseExp = createTmpForRef(baseExp, destType);
+        baseExp.setContext(ctx);
         if (!baseExp.computeType())
             return {};
     }
@@ -90,7 +90,7 @@ Feather::FieldRefExp createFieldRef(const Location& loc, NodeHandle baseExp, Fea
         for (size_t i = 1; i < t.numReferences(); ++i) {
             baseExp = Feather::MemLoadExp::create(loc, baseExp);
         }
-        t = Feather::DataType::get(t.referredNode(), 0, t.mode()); // Zero references
+        t = Feather::DataType::get(t.referredNode(), t.mode()); // Zero references
     }
 
     // Compute the desired category of the base expression type
@@ -148,7 +148,7 @@ NodeHandle getIdentifierResult(
         Type t;
         Feather::StructDecl resDeclStruct = resDecl.kindCast<Feather::StructDecl>();
         if (resDeclStruct) {
-            t = Feather::DataType::get(resDeclStruct, 0, resDeclStruct.effectiveMode());
+            t = Feather::DataType::get(resDeclStruct, resDeclStruct.effectiveMode());
         }
         if (resDecl.kind() == nkSparrowDeclSprConcept ||
                 resDecl.kind() == nkSparrowDeclGenericDatatype)
@@ -1585,8 +1585,7 @@ NodeHandle LambdaExp::semanticCheckImpl(LambdaExp node) {
         closureDatatype.setProperty(propGenerateInitCtor, 1);
 
     // The actual enclosed function -- ensure adding a 'this' parameter
-    auto thisParamTypeNode = OperatorCall::create(
-            loc, nullptr, "@", Identifier::create(loc, "$lambdaEnclosureData"));
+    auto thisParamTypeNode = Identifier::create(loc, "$lambdaEnclosureData");
     auto thisParam = ParameterDecl::create(loc, "this", thisParamTypeNode);
     auto parametersWithThis = NodeList::create(loc, NodeRange({thisParam}), true);
     NodeList::append(parametersWithThis, parameters);
@@ -1613,7 +1612,7 @@ NodeHandle LambdaExp::semanticCheckImpl(LambdaExp node) {
 
     // Create a resulting object: a constructor call to our class
     Feather::StructDecl datatypeDecl = Feather::StructDecl(closureDatatype.explanation());
-    auto datatype = Feather::DataType::get(datatypeDecl, 0, modeRt);
+    auto datatype = Feather::DataType::get(datatypeDecl, modeRt);
     auto classId = createTypeNode(node.context(), loc, datatype);
     return FunApplication::create(loc, classId, closureParams);
 }

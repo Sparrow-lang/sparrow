@@ -119,7 +119,7 @@ fun setContinuation(curTask, cont: !TaskType)
 
     // Chain the continuation to the current task
     //assert(getPrefix(curTask).cont isNull)
-    getPrefix(curTask).cont = getPrefix(cont)
+    getPrefix(curTask).cont reset getPrefix(cont)
 
 fun enqueue(task: !TaskType)
     Impl.initAsRoot(task)

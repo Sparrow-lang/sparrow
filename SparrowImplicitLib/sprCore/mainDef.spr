@@ -7,7 +7,7 @@ datatype MainParameters
     _begin, _end: _Impl.CStrPtr
 
 [protected]
-    fun ctor(this: @MainParameters, argc: Int, argv: @ @Char)
+    fun ctor(this: !MainParameters, argc: Int, argv: @ @Char)
         this._begin = (_Impl.fromArgvPtr(argv))
         this._end = (this._begin + argc)
 

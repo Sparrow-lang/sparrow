@@ -48,13 +48,12 @@ fun dtor(this: !ScopeTracer)
 [convert]
 datatype LRef(valueType: Type)
     using ValueType = valueType
-    using ValuePassType = !@valueType
     using isLogicalRef = 1
 
     _pptr: SharedPtr(Optional(ValueType))
 
 fun ctor(this: !LRef)
-    _pptr ctor Optional(this.ValueType)()
+    _pptr ctor mkShared(Optional(this.ValueType))
     [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
         cout << "ctor: " << this << "\n"
 
@@ -64,7 +63,7 @@ fun ctor(this: !LRef)
 //        cout << "value ctor: " << this << "\n"
 
 [convert] fun ctor(this: !LRef, value: AnyType) if isValid(this.ValueType(value))
-    _pptr ctor Optional(this.ValueType)(value)
+    _pptr ctor mkShared(Optional(this.ValueType), value)
     [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
         cout << "value ctor: " << this << "\n"
 
@@ -129,8 +128,8 @@ fun mkLRef(x: !LRefType) = x
 fun mkLRef(x: !StringRef) = LRef(String)(x)
 fun mkLRef(x: !AnyType): LRef(-@typeOf(x)) = x if !LRefType(x)
 
-fun mkValOrRef(x: !ValWrapper) = x
-fun mkValOrRef(x: !StringRef) = Optional(String)(x)
+fun mkValOrRef(x: ValWrapper) = x
+fun mkValOrRef(x: StringRef) = Optional(String)(x)
 fun mkValOrRef(x: !AnyType) = Optional(-@typeOf(x))(x) if !ValWrapper(x)
 
 fun /+/ (l, r: !AnyType) = _Impl.mkPlusOp(mkValOrRef(l), mkValOrRef(r))

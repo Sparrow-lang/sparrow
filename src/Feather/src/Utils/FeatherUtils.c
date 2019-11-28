@@ -39,44 +39,11 @@ Nest_Node* _getParentDecl(Nest_CompilationContext* context) {
     return 0;
 }
 
-Nest_Node* Feather_classDecl(Nest_TypeRef type) {
-    ASSERT(type && type->hasStorage);
-    return type->referredNode;
-}
-
 Nest_StringRef Feather_nativeName(Nest_TypeRef type) {
     Nest_StringRef res = {0, 0};
     if (type->referredNode && type->referredNode->nodeKind == nkFeatherDeclClass)
         res = Nest_getPropertyStringDeref(type->referredNode, propNativeName);
     return res;
-}
-
-Nest_TypeRef Feather_baseType(Nest_TypeRef type) {
-    ASSERT(type);
-    ASSERT(type->typeKind == typeKindConst || type->typeKind == typeKindMutable ||
-            type->typeKind == typeKindTemp || type->typeKind == typeKindArray);
-    ASSERT(type->numSubtypes == 1);
-    return type->subTypes[0];
-}
-
-int Feather_getArraySize(Nest_TypeRef type) {
-    ASSERT(type && type->typeKind == typeKindArray);
-    return type->flags;
-}
-
-unsigned Feather_numFunParameters(Nest_TypeRef type) {
-    ASSERT(type && type->typeKind == typeKindFunction);
-    return type->numSubtypes - 1;
-}
-
-Nest_TypeRef Feather_getFunParameter(Nest_TypeRef type, unsigned idx) {
-    ASSERT(type && type->typeKind == typeKindFunction);
-    return type->subTypes[idx + 1];
-}
-
-Nest_TypeRef Feather_getFunResultType(Nest_TypeRef type) {
-    ASSERT(type && type->typeKind == typeKindFunction);
-    return type->subTypes[0];
 }
 
 Nest_Node* Feather_getParentFun(Nest_CompilationContext* context) {

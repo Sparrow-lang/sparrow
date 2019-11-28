@@ -23,20 +23,20 @@ datatype TokenDataSource
     //! The current token
     _curToken: TokenData
 
-fun ctor(this: @TokenDataSource, filename: StringRef)
+fun ctor(this: !TokenDataSource, filename: StringRef)
     var loc = mkLocation()
 
     _source ctor filename
     if !_source.isValid
         _errorReporter.reportError(loc, toString("Cannot open input file: ", filename).asStringRef)
 
-    _sparrowScanner.ctor(mkCharSource(_source), mkErrorReporter(_errorReporter), loc, true)
+    _sparrowScanner.ctor(mkCharSource(_source), mkErrorReporter(_errorReporter mutToPtr), loc, true)
 
     this._popFront
 
-fun all(this: @TokenDataSource) = TokenDataSourceRange(this)
+fun all(this: !TokenDataSource) = TokenDataSourceRange(this mutToPtr)
 
-fun _popFront(this: @TokenDataSource)
+fun _popFront(this: !TokenDataSource)
     var token = (_sparrowScanner++)
     var tokenData = _source.getContent(token.loc.start, token.loc.end)
     _curToken = TokenData(token.type, token.loc, tokenData, Node())
@@ -49,16 +49,16 @@ datatype TokenDataSourceRange
 
     _data: @TokenDataSource
 
-fun isEmpty(this: @TokenDataSourceRange) = _data._atEnd
-fun front(this: @TokenDataSourceRange)   = _data._curToken
-fun popFront(this: @TokenDataSourceRange) = _data._popFront
+fun isEmpty(this: TokenDataSourceRange)   = _data._atEnd
+fun front(this: TokenDataSourceRange)     = _data._curToken
+fun popFront(this: !TokenDataSourceRange) = _data._popFront
 
 fun readAst(filename: StringRef): Node
     var loc = mkLocation()
     var astBuilder: SimpleAstBuilder
     var errorReporter: ConsoleErrorReporter
     var fileCharSource = FileCharSource(filename)
-    var parser: @ParserContext = createParser(mkCharSource(fileCharSource), loc, mkAstBuilder(astBuilder), mkErrorReporter(errorReporter))
+    var parser: @ParserContext = createParser(mkCharSource(fileCharSource), loc, mkAstBuilder(astBuilder), mkErrorReporter(errorReporter mutToPtr))
 
     var rootNode = parser parseModule
     return rootNode

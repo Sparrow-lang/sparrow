@@ -70,10 +70,9 @@ fun swap(this: !HashTable, other: !typeOf(this))
         other._buckets(other._guard.next._tableIndex(other._buckets.size)) = other._guardNode
 
 [protected]
-    fun =(this: !HashTable, other: typeOf(this)): @typeOf(this)
+    fun =(this: !HashTable, other: typeOf(this))
         var tmp: HashTable = other
         this swap tmp
-        return this
 
     fun ==(this, other: HashTable): Bool
         if !(this._tr == other._tr && _numElements == other.size)
@@ -194,7 +193,7 @@ fun swap(this: !HashTable, other: !typeOf(this))
         os << ' ' << prevBi << '-' << prev.get
         os << endl
 
-fun _guardNode(this: HashTable): this._NodePtr = reinterpretPtr(_MyNode, Ptr(_MyGuardNode)(_guard))
+fun _guardNode(this: HashTable): this._NodePtr = Ptr(_MyNode)(reinterpretCast(@_MyNode, _guard))
 
 fun _findNode(this: HashTable, key: this.KeyType): this._NodePtr
     return this._findNodeImpl(_tr.hash(key), key)
@@ -239,7 +238,7 @@ fun _insertPlain(this: !HashTable, value: this.ValueType): this.RangeType
     // Insert only if the element is not found in the hash
     var node = this._findNodeImpl(h, key)
     if node.isNull
-        node = new(_MyNode, _NodePtr(), h, value)
+        node reset new(_MyNode, _NodePtr(), h, value)
         ++_numElements
         this._insertNode(node)
     return RangeType(node, _NodePtr())
@@ -325,7 +324,7 @@ datatype _HashRange(valueType: Type)
 
 [protected]
     fun isEmpty(this: _HashRange)               = _startElem == _endElem
-    fun front(this: _HashRange): this.RetType   = _startElem.data
+    fun front(this: _HashRange): this.RetType   = _startElem.data mutToPtr
     fun popFront(this: !_HashRange)             { _startElem = _startElem.next; }
 
 var _bucketCounts: StaticArray(Int, 31)

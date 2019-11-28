@@ -40,22 +40,6 @@ fun sprMain
     else if n == 7; test7
     else if n == 8; test8
 
-[native("malloc")] fun mallocRt(size: Int): UntypedPtr
-[native("free")] fun freeRt(p: UntypedPtr)
-
-fun newObj(x: Int): @MyObj
-    var ptr = mallocRt(sizeOf(MyObj))
-
-    var oPtr: @MyObj = ptr asRefOf MyObj
-
-    oPtr.ctor(x)
-
-    return oPtr
-
-fun delObj(oPtr: !MyObj)
-    oPtr.dtor()
-    freeRt(UntypedPtr(oPtr))
-
 fun test1()
     var p: Ptr(MyObj)
     var scp: ScopedPtr(MyObj)
@@ -71,8 +55,8 @@ fun test1()
 >>>*/
 
 fun test2()
-    var obj: @MyObj = newObj(42)
-    var obj2: @MyObj = newObj(84)
+    var obj: @MyObj = new(MyObj, 42)
+    var obj2: @MyObj = new(MyObj, 84)
     var p = Ptr(MyObj)(obj)
     var pp = Ptr(MyObj)(obj2)
 
@@ -105,14 +89,14 @@ fun test2()
 >>>*/
 
 fun test3()
-    var obj: @MyObj = newObj(42)
+    var obj: @MyObj = new(MyObj, 42)
     var p = ScopedPtr(MyObj)(obj)
 
     cout << p.get().x << endl
     p.reset()
     if ( !isNullRef(reinterpretCast(@Int8, p.get())) || !p.isNull() )
         cout << "test failed" << endl;
-    obj := newObj(42)
+    obj := new(MyObj, 42)
     p.reset(obj)
     cout << p.get().x << endl
     p.get().x = p.get().x + 1
@@ -126,7 +110,7 @@ fun test3()
 >>>*/
 
 fun test4()
-    var obj: @MyObj = newObj(42)
+    var obj: @MyObj = new(MyObj, 42)
     var p = SharedPtr(MyObj)(obj)
 
     if ( !p.isUnique() )
@@ -145,7 +129,7 @@ fun test4()
     p.reset()
     if ( !isNullRef(reinterpretCast(@Int8, p.get())) || !p.isNull() )
         cout << "test failed" << endl;
-    obj := newObj(42)
+    obj := new(MyObj, 42)
     p.reset(obj)
     cout << p.get().x << endl
     p.get().x += 1
@@ -161,7 +145,7 @@ fun test4()
 >>>*/
 
 fun test5()
-    var obj: @MyObj = newObj(42)
+    var obj: @MyObj = new(MyObj, 42)
     let p = Ptr(MyObj)(obj)
     let sp = SharedPtr(MyObj)(obj)
 
@@ -184,15 +168,15 @@ MyObj.print(some argument)
 >>>*/
 
 fun test6()
-    var obj: @MyObj = newObj(42)
+    var obj: @MyObj = new(MyObj, 42)
     var p = Ptr(MyObj)(obj)
     cout << p.x << endl
-    p delete
+    p release
 
-    var obj2: @MyObj = newObj(55)
+    var obj2: @MyObj = new(MyObj, 55)
     var sp = SharedPtr(MyObj)(obj2)
     cout << sp.x << endl
-    sp delete
+    sp release
     cout << "---" << endl
 /*<<<Delete on a Ptr(6)
 42
@@ -204,14 +188,14 @@ fun test6()
 
 fun test7
     var v: Vector(Ptr(MyObj))
-    v += Ptr(MyObj)(newObj(10))
-    v += Ptr(MyObj)(newObj(11))
-    v += Ptr(MyObj)(newObj(12))
-    v += Ptr(MyObj)(newObj(13))
+    v += Ptr(MyObj)(new(MyObj, 10))
+    v += Ptr(MyObj)(new(MyObj, 11))
+    v += Ptr(MyObj)(new(MyObj, 12))
+    v += Ptr(MyObj)(new(MyObj, 13))
     for x = v.all()
         cout << x.x << endl;
     for p = v.all
-        p delete
+        p release
     cout << "---" << endl
 
 /*<<<Delete on a Ptr range (7)
@@ -227,7 +211,7 @@ fun test7
 >>>*/
 
 fun test8
-    var v: Ptr(MyObj) = newObj(10)
+    var v: Ptr(MyObj) = new(MyObj, 10)
     cout << (v get).x << endl
     cout << v.x << endl
     (v.get) print

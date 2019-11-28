@@ -46,6 +46,7 @@ extern int nkFeatherStmtReturn;
 // The IDs for all the feather type kinds
 extern int typeKindVoid;
 extern int typeKindData;
+extern int typeKindPtr;
 extern int typeKindConst;
 extern int typeKindMutable;
 extern int typeKindTemp;
@@ -64,25 +65,9 @@ extern const char* propNoInline;
 extern const char* propEmptyBody; ///< Node will not generate meaningful instructions
 extern const char* propTypeCat;
 
-/// Getter for the class that introduces this data type - can be null
-/// Works for only for storage types (data-like and array)
-Nest_Node* Feather_classDecl(Nest_TypeRef type);
-
 /// If the class associated with the given type has an associated name this will return it;
 /// otherwise it returns nullptr Works for only for storage types (data-like, array)
 Nest_StringRef Feather_nativeName(Nest_TypeRef type);
-
-/// Returns the base type of this type
-/// Works for category and array types
-Nest_TypeRef Feather_baseType(Nest_TypeRef type);
-
-/// Getter for the number of units in the buffer type
-/// Works only for array types
-int Feather_getArraySize(Nest_TypeRef type);
-
-unsigned Feather_numFunParameters(Nest_TypeRef type);
-Nest_TypeRef Feather_getFunParameter(Nest_TypeRef type, unsigned idx);
-Nest_TypeRef Feather_getFunResultType(Nest_TypeRef type);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Context

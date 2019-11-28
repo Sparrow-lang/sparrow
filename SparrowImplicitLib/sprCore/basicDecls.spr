@@ -646,6 +646,8 @@ datatype UntypedPtr = @Int8
         this.data := other.data
     fun ctor(this: !UntypedPtr, val: @AnyType)
         this.data := reinterpretCast(@Int8, val)
+    fun ctor(this: !UntypedPtr, val: !AnyType)
+        this.data := reinterpretCast(@Int8, val)
     fun ctor(this: !UntypedPtr, nullptr: Null)
         this.data := null
     fun asRefOf(this: UntypedPtr, t: Type): @t = reinterpretCast(@t, this.data)
@@ -678,28 +680,23 @@ package TypeOp
         [native("$typeCanBeUsedAtRt")] fun canBeUsedAtRt(t: Type): Bool
         [native("$typeNumRef")] fun numRef(t: Type): Int
         [native("$typeChangeMode")] fun changeMode(t: Type, mode: Int): Type
-        [native("$typeChangeRefCount")] fun changeRefCount(t: Type, numRef: Int): Type
+        [native("$typeAddRef")] fun addRef(t: Type): Type
+        [native("$typeRemoveRef")] fun removeRef(t: Type): Type
         [native("$typeRemoveCat")] fun removeCat(t: Type): Type
         [native("$typeIsBitcopiable")] fun isBitcopiable(t: Type): Bool
 
     [ctGeneric]
         fun isRef(t: Type) = 0<numRef(t)
-        fun addRef(t: Type) = changeRefCount(t, numRef(t)+1)
-        fun removeRef(t: Type) = ife(isRef(t), changeRefCount(t, numRef(t)-1), t)
-        fun removeAllRef(t: Type) = changeRefCount(t, 0)
-        fun atLeastOneRef(t: Type): Type = ife(isRef(t), t, addRef(t))
 
     //! Generate a mutable copy of the given value -- only type manipulation, no body
     fun copyVal(val: AnyType): !typeOf(val)
+    fun copyVal(val: !AnyType): !typeOf(val)
     fun copyVal(val: @AnyType): !removeRef(typeOf(val))
 
 /// Add reference operator
 [ct, native("$typeAddRef")] fun pre_@ (t: Type): Type
-//[ctGeneric] fun pre_@ (t: Type) = TypeOp.addRef(t)
 /// Remove reference operator
-[ctGeneric] fun pre_-@ (t: Type) = TypeOp.removeRef(t)
-/// Operator to ensure at least one refenrence
-[ctGeneric] fun pre_!@ (t: Type) = TypeOp.atLeastOneRef(t)
+[ct, native("$typeRemoveRef")] fun pre_-@ (t: Type): Type
 
 /// Comparison between types
 [ct, native("$typeEQ")] fun == (x, y: Type): Bool
@@ -721,6 +718,11 @@ fun move(x: !AnyType): typeOf(x) tmp = reinterpretCast(typeOf(x) tmp, x)
 //! Transform from temp to mutable (for genericity, also accept mut->mut)
 fun tmpToMut(x: AnyType tmp): !typeOf(x) = reinterpretCast(!typeOf(x), x)
 fun tmpToMut(x: !AnyType): !typeOf(x) = x
+
+//! Transform a mutable value to ptr type
+fun mutToPtr(val: !AnyType): @typeOf(val) = reinterpretCast(@typeOf(val), val);
+fun mutToPtr(val: ! @AnyType): @ @typeOf(val) = reinterpretCast(@ @typeOf(val), val);
+fun mutToPtr(val: ! @ @AnyType): @ @ @typeOf(val) = reinterpretCast(@ @ @typeOf(val), val);
 
 /// Concept that is satisfied by any type
 concept AnyType(x) // Always true

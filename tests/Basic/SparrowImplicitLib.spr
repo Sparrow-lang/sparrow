@@ -1276,6 +1276,12 @@ fun construct()
 [ct, native("$staticBuffer")] fun static_buffer(n: Int): Type
 [ct, native("$commonType")] fun commonType(t, u: Type): Type
 
+concept AnyType(x)
+
+fun mutToPtr(val: !AnyType): @typeOf(val) = reinterpretCast(@typeOf(val), val);
+fun mutToPtr(val: ! @AnyType): @ @typeOf(val) = reinterpretCast(@ @typeOf(val), val);
+fun mutToPtr(val: ! @ @AnyType): @ @ @typeOf(val) = reinterpretCast(@ @ @typeOf(val), val);
+
 using oper_precedence_default   = 100
 using oper_precedence___dot__   = 10000
 using oper_precedence___fapp__  = 10000

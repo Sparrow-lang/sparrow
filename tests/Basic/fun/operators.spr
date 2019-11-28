@@ -182,12 +182,12 @@ fun = (x: MyInt2@, y: MyInt2)
     assert(doi !== trei)
 
     var r1, r2: MyInt@
-    r1 := doi
+    r1 := (doi mutToPtr)
     r2 := r1
     assert(r1 === r2)
-    r2 := doi
+    r2 := (doi mutToPtr)
     assert(r1 === r2)
-    r2 := trei
+    r2 := (trei mutToPtr)
     assert(r1 !== r2)
 
         write('='); write('='); writeLn('=')
@@ -215,12 +215,12 @@ fun = (x: MyInt2@, y: MyInt2)
         assert(doi !== trei)
 
         var r1, r2: MyInt2@
-        r1 := doi
+        r1 := (doi mutToPtr)
         r2 := r1
         assert(r1 === r2)
-        r2 := doi
+        r2 := (doi mutToPtr)
         assert(r1 === r2)
-        r2 := trei
+        r2 := (trei mutToPtr)
         assert(r1 !== r2)
 
     write('O'); writeLn('K')

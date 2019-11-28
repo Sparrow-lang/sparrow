@@ -14,7 +14,7 @@ fun ctor(this: !A, a: A)
 fun dtor(this: !A)
     writeLn("A.dtor")
 
-fun =(this, other: !A)
+fun =(this: !A, other: A)
     writeLn("A.=")
 
 datatype B

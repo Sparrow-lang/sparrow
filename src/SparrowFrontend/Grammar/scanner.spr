@@ -63,7 +63,7 @@ fun ctor(this: !SparrowScanner, chars: CharSource, errorReporter: ErrorReporter,
         iniLocation: Location, emitWitespace: Bool = false)
     this._curLocation ctor iniLocation
     this._bufferedSource ctor chars
-    this._src.ctor(RangeWithLookahead(BufferedCharSourceRange)(_bufferedSource.all), _curLocation)
+    this._src.ctor(RangeWithLookahead(BufferedCharSourceRange)(_bufferedSource.all), _curLocation mutToPtr)
     this._curToken ctor
     this._tokenIsComputed ctor false
     this._errorReporter ctor errorReporter

@@ -40,8 +40,8 @@ import std.compilerInfo
             else
                 // Create the children tasks
                 var x, y: Int64
-                let t1 = FibTask(task.n-1, x)
-                let t2 = FibTask(task.n-2, y)
+                let t1 = FibTask(task.n-1, x mutToPtr)
+                let t2 = FibTask(task.n-2, y mutToPtr)
 
                 spawnAndWait(task, t1, t2)
 
@@ -50,18 +50,18 @@ import std.compilerInfo
 
         fun parFib(n: Int): Int64
             var res: Int64
-            spawnRootAndWait(tmpToMut(FibTask(n, res)))
+            spawnRootAndWait(tmpToMut(FibTask(n, res mutToPtr)))
             return res
 
     package DynSpawnStyle
         datatype FibTask
             prefix: TaskPrefix
             n: Int
-            result: @Int64
+            result: Int64 Ptr
 
-        fun ctor(this: !FibTask, n: Int, result: @Int64)
+        fun ctor(this: !FibTask, n: Int, result: Int64 Ptr)
             this.n ctor n
-            this.result := result
+            this.result ctor result
 
         [ct] if isValidAndTrue(useDescriptions)
         fun description(task: !FibTask): String
@@ -71,12 +71,12 @@ import std.compilerInfo
 
         fun execute(task: !FibTask)
             if task.n < cutoff
-                task.result = serialFib(task.n)
+                task.result.get = serialFib(task.n)
             else
                 // Create the children tasks
                 var x, y: Int64
-                var t1: @FibTask = new(FibTask, task.n-1, x)
-                var t2: @FibTask = new(FibTask, task.n-2, y)
+                var t1: @FibTask = new(FibTask, task.n-1, (Int64 Ptr)(x mutToPtr))
+                var t2: @FibTask = new(FibTask, task.n-2, (Int64 Ptr)(y mutToPtr))
 
                 spawnAndWait(task, t1, t2)
 
@@ -84,11 +84,11 @@ import std.compilerInfo
                 delete(t1)
 
                 // Do the sum
-                task.result = x + y
+                task.result.get = x + y
 
         fun parFib(n: Int): Int64
             var res: Int64
-            spawnRootAndWait(tmpToMut(FibTask(n, res)))
+            spawnRootAndWait(tmpToMut(FibTask(n, (Int64 Ptr)(res mutToPtr))))
             return res
 
     package ContStyle
@@ -114,8 +114,8 @@ import std.compilerInfo
                 var cont: @FibContTask = new(FibContTask, task.n, task.result)
                 setContinuation(task, cont)
 
-                var t1: @FibTask = new(FibTask, task.n-1, (Int64 Ptr)(cont.s1))
-                var t2: @FibTask = new(FibTask, task.n-2, (Int64 Ptr)(cont.s2))
+                var t1: @FibTask = new(FibTask, task.n-1, (Int64 Ptr)(cont.s1 mutToPtr))
+                var t2: @FibTask = new(FibTask, task.n-2, (Int64 Ptr)(cont.s2 mutToPtr))
                 spawn(cont, t1, t2)
 
         datatype FibContTask
@@ -139,7 +139,7 @@ import std.compilerInfo
 
         fun parFib(n: Int): Int64
             var res: Int64
-            spawnRootAndWait(tmpToMut(FibTask(n, (Int64 Ptr)(res))))
+            spawnRootAndWait(tmpToMut(FibTask(n, (Int64 Ptr)(res mutToPtr))))
             return res
 
     fun sprMain

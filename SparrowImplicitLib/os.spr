@@ -74,7 +74,7 @@ datatype FileRange
     _cur: Char
 
 fun ctor(this: !FileRange, file: !File)
-    this._file := file
+    this._file := (file mutToPtr)
     _isEmpty = true
     _cur ctor
     if !_file.isEof

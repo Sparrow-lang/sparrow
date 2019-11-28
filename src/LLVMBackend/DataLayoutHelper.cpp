@@ -26,9 +26,9 @@ llvm::Type* getLLVMTypeForSize(Type type, llvm::LLVMContext& llvmContext) {
 
     // Check array types
     if (type.kind() == typeKindArray) {
+        Feather::ArrayType arrayType{type};
         return llvm::ArrayType::get(
-                getLLVMTypeForSize(Feather::ArrayType(type).unitType(), llvmContext),
-                Feather_getArraySize(type));
+                getLLVMTypeForSize(arrayType.unitType(), llvmContext), arrayType.count());
     }
 
     if (!type.hasStorage())

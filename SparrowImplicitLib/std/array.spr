@@ -111,12 +111,9 @@ datatype Array(valueType: Type)
     fun subrange(this: Array, index: Int, num: Int): RangeType
         return RangeType(_begin.advance(index), _begin.advance(index + num))
 
-    fun =(this: !Array, other: typeOf(this)): @typeOf(this)
+    fun =(this: !Array, other: typeOf(this))
         var tmp = other
-
         tmp.swap(this)
-
-        return this
 
     fun ==(this, other: Array): Bool
         if this.size != other.size

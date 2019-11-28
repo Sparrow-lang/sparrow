@@ -3,12 +3,12 @@ module formatTool.transforms.removeExtraSpaces
 import utils
 import formatDetails.sourceData
 
-fun removeExtraSpaces(src: @SourceData)
+fun removeExtraSpaces(src: !SourceData)
     _removeEndSpaces(src)
     _removeMultipleEmptyLines(src)
 
 //! Remove spaces at the end of the line
-fun _removeEndSpaces(src: @SourceData)
+fun _removeEndSpaces(src: !SourceData)
     for i = 0..Int(src.tokens.size)
         var tok: @TokenData = src.tokens(i)
         var remaining = src.tokens.subrange(i+1)
@@ -17,7 +17,7 @@ fun _removeEndSpaces(src: @SourceData)
             tok.content = ''
 
 //! Remove multiple consecutive empty lines
-fun _removeMultipleEmptyLines(src: @SourceData)
+fun _removeMultipleEmptyLines(src: !SourceData)
     var lastLineWithVisible = 0
     var numNewlines = 0
     for i = 0..Int(src.tokens.size)

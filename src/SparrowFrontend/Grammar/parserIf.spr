@@ -34,7 +34,7 @@ fun ctor(this: !ParserContext, chars: CharSource, loc: Location, astBuilder: Ast
 
     [native("spr_parserIf_destroyParser")]
     fun destroyParser(ctx: !ParserContext)
-        delete(ctx)
+        delete(ctx mutToPtr)
 
     [native("spr_parserIf_nextToken")]
     fun nextToken(ctx: !ParserContext, outToken: !Token)

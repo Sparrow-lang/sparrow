@@ -34,7 +34,7 @@ fun sprMain
 datatype MyObj
     x: Int;
 
-fun =(this, other: !MyObj): @MyObj { x = other.x; return this; }
+fun =(this, other: !MyObj) { x = other.x }
 fun ==(this, other: MyObj): Bool = x == other.x
 fun <(this, other: MyObj): Bool = x < other.x
 
@@ -451,7 +451,7 @@ fun test18()
 
 fun test19()
     var count = 0
-    var rcount: @Int = count
+    var rcount: @Int = mutToPtr(count)
     printRange( (0..10) map (fun.{rcount} (n: Int): Int { ++rcount; return n; }) )
     cout << count << endl
 /*<<<Map doesn't call the function too often (19)

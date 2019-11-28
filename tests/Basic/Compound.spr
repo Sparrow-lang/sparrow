@@ -9,13 +9,13 @@ fun ctor(this: !MyObj, other: MyObj) { a = other.a; }
 
 fun print(this: MyObj) { write("MyObj: "); writeLn(a); }
 
-let go = MyObj(10)
+var go = MyObj(10)
 
 fun f1(): MyObj
     return MyObj(13);
 
 fun f2(): @MyObj
-    return go;
+    return go mutToPtr;
 
 [native("test")] fun test(n: Int)
     writeLn(go.a)

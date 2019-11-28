@@ -2,7 +2,6 @@
 
 // Test purpose: checks that 'temp' types are working ok in various contexts
 
-concept AnyType(x)
 fun move(x: !AnyType): typeOf(x) tmp = reinterpretCast(typeOf(x) tmp, x)
 [ct, native("$meta.ife")] fun ife()
 

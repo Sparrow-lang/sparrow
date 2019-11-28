@@ -17,7 +17,7 @@ fun ctor(this: !Tracer, val: Int)
     write(val)
     writeLn(')')
 
-fun ctor(this, other: !Tracer)
+fun ctor(this: !Tracer, other: Tracer)
     _val ctor other._val
     write('Tracer.copy_ctor(')
     write(_val)
@@ -69,6 +69,7 @@ Tracer.ctor()
 Tracer.ctor(20)
 -
 Tracer.ctor(100)
+Tracer.copy_ctor(100)
 Tracer.ctor(20)
 Tracer.dtor 100
 -
@@ -84,6 +85,8 @@ Tracer.dtor 10
 ------
 Tracer.ctor(50)
 Tracer.ctor(60)
+Tracer.copy_ctor(50)
+Tracer.copy_ctor(60)
 Tracer.dtor 60
 Tracer.dtor 50
 -

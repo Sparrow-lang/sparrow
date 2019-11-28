@@ -1,7 +1,5 @@
 //!! -t "../SparrowImplicitLib.spr" -fno-main
 
-concept AnyType(x) if true
-
 fun printAndReturn(str: StringRef, val: Int): Int
     writeLn(str)
     return val

@@ -244,7 +244,8 @@ NodeHandle SprFrontend::createTmpForRef(NodeHandle src, TypeWithStorage destType
             src.location(), StringRef("$tmpForRef"), TypeNode::create(src.location(), srcT));
     auto varRef = VarRefExp::create(src.location(), var);
     auto store = MemStoreExp::create(src.location(), src, varRef);
-    auto cast = BitcastExp::create(src.location(), TypeNode::create(src.location(), destType), varRef);
+    auto cast =
+            BitcastExp::create(src.location(), TypeNode::create(src.location(), destType), varRef);
     return NodeList::create(src.location(), fromIniList({var, store, cast}));
 }
 

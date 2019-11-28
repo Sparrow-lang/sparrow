@@ -49,8 +49,7 @@ private:
     //! The base types are assumed to be the same and just the wrapper types differ.
     //! Add all the conversions to 'res'. Returns false if conversion is impossible.
     //! The source type must be a data-like type.
-    bool checkWrapperTypes(
-            ConversionResult& res, TypeWithStorage src, TypeWithStorage dest, bool canAddRef);
+    bool checkWrapperTypes(ConversionResult& res, TypeWithStorage src, TypeWithStorage dest);
 };
 
 } // namespace SprFrontend

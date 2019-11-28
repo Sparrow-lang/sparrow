@@ -442,7 +442,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             RC_PRE(srcPtr != dest);
             RC_LOG() << srcPtr << " -> " << dest << endl;
 
-            int flags = flagDontAddReference | flagDontCallConversionCtor;
+            int flags = flagDontCallConversionCtor;
             auto c1 = getConvType(src, dest, ConversionFlags(flags));
             RC_LOG() << "    " << src << " -> " << dest << " = " << int(c1) << endl;
             if (c1)

@@ -8,7 +8,6 @@ namespace SprFrontend {
 enum ConversionFlags {
     flagsDefault = 0,
     flagDontCallConversionCtor = 1,
-    flagDontAddReference = 2,
 };
 
 //! The interface for the service that deals with conversions between types.

@@ -174,9 +174,8 @@ Type SprFrontend::commonType(CompilationContext* context, Type t1, Type t2) {
 
     // If there is one conversion from one type to another (and not vice-versa) take the less
     // specialized type
-    ConversionFlags flags = flagDontAddReference;
-    ConversionResult c1 = g_ConvertService->checkConversion(context, t1, t2, flags);
-    ConversionResult c2 = g_ConvertService->checkConversion(context, t2, t1, flags);
+    ConversionResult c1 = g_ConvertService->checkConversion(context, t1, t2);
+    ConversionResult c2 = g_ConvertService->checkConversion(context, t2, t1);
     if (c1 && !c2) {
         return t2;
     }

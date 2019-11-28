@@ -155,8 +155,7 @@ bool ConvertServiceImpl::checkConversionToConcept(ConversionResult& res,
     // Case 1: concept -> concept
     if (isConceptType(srcBase)) {
         // Check wrapper types
-        bool canAddRef = (flags & flagDontAddReference) == 0;
-        if (!checkWrapperTypes(res, src, dest, canAddRef))
+        if (!checkWrapperTypes(res, src, dest))
             return false;
 
         // Iteratively search the base concept to find our dest type
@@ -183,8 +182,7 @@ bool ConvertServiceImpl::checkConversionToConcept(ConversionResult& res,
             destTypeKind = typeKindData;
 
         // Check wrapper types
-        bool canAddRef = (flags & flagDontAddReference) == 0;
-        if (!checkWrapperTypes(res, src, dest, canAddRef))
+        if (!checkWrapperTypes(res, src, dest))
             return false;
 
         bool isOk = false;
@@ -221,8 +219,7 @@ bool ConvertServiceImpl::checkDataConversion(ConversionResult& res, CompilationC
     // Case 1: The datatypes have the same decl
     if (dest.referredNode() == src.referredNode()) {
         // Check wrapper types
-        bool canAddRef = (flags & flagDontAddReference) == 0;
-        if (!checkWrapperTypes(res, src, dest, canAddRef))
+        if (!checkWrapperTypes(res, src, dest))
             return false;
 
         res.addConversion(convDirect);
@@ -268,8 +265,7 @@ bool ConvertServiceImpl::checkDataConversion(ConversionResult& res, CompilationC
         res.addConversion(convCustom, ConvAction(ActionType::customCvt, resType), sourceCode);
 
         // Finally, check the wrapper types
-        bool canAddRef = (flags & flagDontAddReference) == 0;
-        if (!checkWrapperTypes(res, resType, dest, canAddRef))
+        if (!checkWrapperTypes(res, resType, dest))
             return false;
 
         return true;
@@ -419,7 +415,7 @@ int setPlainIfKindMissing(int kind) { return kind == 0 ? typeKindData : kind; }
 } // namespace
 
 bool ConvertServiceImpl::checkWrapperTypes(
-        ConversionResult& res, TypeWithStorage src, TypeWithStorage dest, bool canAddRef) {
+        ConversionResult& res, TypeWithStorage src, TypeWithStorage dest) {
 
     // Analyze the two types: figure our their base type and all the wrappers
     static KindStack srcKinds;
@@ -555,11 +551,10 @@ bool ConvertServiceImpl::checkWrapperTypes(
         src = removeRef(src);
         res.addConversion(convImplicit, ConvAction(ActionType::dereference, src));
     }
-    // TODO: remove this
+    // Handle cases like T mut -> T or T ptr mut -> T ptr
     if (Feather::isCategoryType(src) && src.numReferences() > dest.numReferences()) {
         src = removeCategoryIfPresent(src);
         res.addConversion(convDirect, ConvAction(ActionType::dereference, src));
-        // TODO (now): Should we make this convImplicit?
     }
     if (src != dest) {
         if (needsCast)

@@ -321,9 +321,9 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             auto t2 = PtrType::get(t1);            // @@i8
             auto t0mut = MutableType::get(t0);     // i8 mut
             auto t1mut = MutableType::get(t1);     // @i8 mut
-            CHECK(getConvType(t0, t1) == convImplicit);
+            CHECK(getConvType(t0, t1) == convNone);
             CHECK(getConvType(t0mut, t0) == convDirect);
-            CHECK(getConvType(t0mut, t1) == convImplicit);
+            CHECK(getConvType(t0mut, t1) == convNone);
             CHECK(getConvType(t1mut, t1) == convDirect);
             CHECK(getConvType(t1mut, t2) == convNone);
             CHECK(getConvType(t1, t0mut) == convImplicit);

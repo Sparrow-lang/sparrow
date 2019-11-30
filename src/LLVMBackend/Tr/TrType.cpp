@@ -14,7 +14,6 @@
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 
-#include <boost/bind.hpp>
 #include <algorithm>
 
 using namespace LLVMB;

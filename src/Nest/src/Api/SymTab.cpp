@@ -4,8 +4,6 @@
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/NodeUtils.h"
 
-#include <boost/bind.hpp>
-
 using MMap = unordered_multimap<string, Nest_Node*>;
 using MMapPair = MMap::value_type;
 

@@ -16,7 +16,7 @@
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/Debug.h>
 
-#include <boost/bind.hpp>
+#include <functional>
 
 using namespace LLVMB;
 using Nest::TypeRef;
@@ -64,7 +64,7 @@ void _llvmBeInit(Nest_Backend* backend, const char* mainFilename) {
 void _llvmBeGenerateMachineCode(Nest_Backend* backend, const Nest_SourceCode* code) {
     ASSERT(_llvmBackend.rtModule);
 
-    _llvmBackend.rtModule->setCtToRtTranslator(boost::bind(&Nest_translateCtToRt, code, _1));
+    _llvmBackend.rtModule->setCtToRtTranslator(std::bind(&Nest_translateCtToRt, code, placeholders::_1));
 
     // Translate the root node
     Node* rootNode = code->mainNode;

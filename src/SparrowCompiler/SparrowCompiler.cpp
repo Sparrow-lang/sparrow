@@ -20,7 +20,6 @@
 #include <SparrowFrontend/SparrowFrontend.h>
 
 #include <filesystem>
-#include <boost/scoped_ptr.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
 #include <fstream>

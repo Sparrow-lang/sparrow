@@ -11,7 +11,6 @@
 #pragma warning(disable : 4239)
 #endif
 
-#include <boost/program_options.hpp>
 #include <filesystem>
 
 #include <fstream>
@@ -19,8 +18,6 @@
 #include <unordered_map>
 
 using namespace std;
-
-namespace po = boost::program_options;
 
 static const int bufferSize = 1024;
 

@@ -23,6 +23,8 @@ template <typename T, int staticSize = 7> struct SmallVector {
     using value_type = T;
     using iterator = T*;
     using const_iterator = const T*;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+    using reverse_iterator = std::reverse_iterator<iterator>;
 
     //! Default ctor
     SmallVector() {}
@@ -63,6 +65,11 @@ template <typename T, int staticSize = 7> struct SmallVector {
     T* begin() { return isSmall() ? staticArr(0) : &dynamicData_[0]; }
     const T* end() const { return isSmall() ? staticArr(numStaticElems_) : &*dynamicData_.end(); }
     T* end() { return isSmall() ? staticArr(numStaticElems_) : &*dynamicData_.end(); }
+
+    const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
+    reverse_iterator rbegin() { return reverse_iterator(end()); }
+    const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
+    reverse_iterator rend() { return reverse_iterator(begin()); }
 
     //! Returns a range with all the elements
     Range<T> all() const { return Range<T>(begin(), end()); }

@@ -83,7 +83,7 @@ string getExecutablePath(const char* argv0) {
 
     std::filesystem::path p(ret);
     if (!p.has_root_directory()) {
-        boost::system::error_code ec;
+        std::error_code ec;
         p = std::filesystem::canonical(p, std::filesystem::current_path(), ec);
         ret = p.make_preferred().string();
     }
@@ -107,7 +107,7 @@ string getExecutablePath(const char* argv0) {
         return getExecutablePathFallback(argv0);
 
     string path(buf, size);
-    boost::system::error_code ec;
+    std::error_code ec;
     std::filesystem::path p(
             std::filesystem::canonical(path, std::filesystem::current_path(), ec));
     return p.make_preferred().string();
@@ -124,7 +124,7 @@ string getExecutablePath(const char* argv0) {
         return getExecutablePathFallback(argv0);
 
     string path(buf, size);
-    boost::system::error_code ec;
+    std::error_code ec;
     std::filesystem::path p(
             std::filesystem::canonical(path, std::filesystem::current_path(), ec));
     return p.make_preferred().string();

@@ -16,9 +16,9 @@
 #include "Nest/Utils/Tuple.hpp"
 #include "Nest/Utils/cppif/SmallVector.hpp"
 #include "Nest/Utils/Profiling.h"
+#include "Nest/Utils/Reverse.hpp"
 
 #include <utility>
-#include <boost/range/adaptor/reversed.hpp>
 
 namespace SprFrontend {
 
@@ -391,7 +391,7 @@ TypeWithStorage replaceBaseType(TypeWithStorage type, TypeWithStorage newBase) {
         kinds.push_back(kind);
     }
     TypeWithStorage res = newBase;
-    for (auto k : boost::adaptors::reverse(kinds)) {
+    for (auto k : reverse(kinds)) {
         if (k == typeKindPtr)
             res = PtrType::get(res);
         else if (k == typeKindConst)

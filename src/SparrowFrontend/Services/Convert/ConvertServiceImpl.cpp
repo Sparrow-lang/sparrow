@@ -18,6 +18,7 @@
 #include "Nest/Utils/Profiling.h"
 
 #include <utility>
+#include <boost/range/adaptor/reversed.hpp>
 
 namespace SprFrontend {
 
@@ -276,48 +277,131 @@ bool ConvertServiceImpl::checkDataConversion(ConversionResult& res, CompilationC
 
 namespace {
 
+//! A logical type wrapper
+enum TypeWrapper {
+    twPlain = 0,  //!< T
+    twPtr,        //!< Ptr(T), T != cat
+    twConst,      //!< Const(T)
+    twMutable,    //!< Mutable(T)
+    twTemp,       //!< Temp(T)
+    twPtrConst,   //!< Ptr(Const(T))
+    twPtrMutable, //!< Ptr(Mutable(T))
+    twPtrTemp,    //!< Ptr(Temp(T))
+};
+
+ostream& operator<<(ostream& os, TypeWrapper tw) {
+    switch (tw) {
+    case twPlain:
+        os << "Plain";
+        break;
+    case twPtr:
+        os << "Ptr";
+        break;
+    case twConst:
+        os << "Const";
+        break;
+    case twMutable:
+        os << "Mutable";
+        break;
+    case twTemp:
+        os << "Temp";
+        break;
+    case twPtrConst:
+        os << "PtrConst";
+        break;
+    case twPtrMutable:
+        os << "PtrMutable";
+        break;
+    case twPtrTemp:
+        os << "PtrTemp";
+        break;
+    default:
+        os << "UnknownWrapper";
+    }
+    return os;
+}
+
+//! Checks if the type wrapper is a ptr-like (with or without cat)
+bool isPtr(TypeWrapper t) {
+    return t == twPtr || t == twPtrConst || t == twPtrMutable || t == twPtrTemp;
+}
+
 //! Decompose the type between a base type and a set of wrapper types
-void analyzeType(
-        TypeWithStorage type, TypeWithStorage& base, SmallVector<int>& wrapperKinds, int& numPtrs) {
-    wrapperKinds.clear();
-    wrapperKinds.reserve(type.numReferences());
-    numPtrs = 0;
+//! Note: we have distinct wrappers for ptr, ptr(const), ptr(mutable) and ptr(temp)
+void analyzeType(TypeWithStorage type, TypeWithStorage& base, SmallVector<TypeWrapper>& wrappers) {
+    wrappers.clear();
+    wrappers.reserve(type.numReferences());
+    TypeWrapper twPtrDefault = twPtrMutable;
     while (true) {
         TypeWithStorage nextType;
+        TypeWrapper tw;
         if (type.kind() == typeKindPtr) {
-            numPtrs++;
+            tw = twPtrDefault;
             nextType = PtrType(type).base();
-        } else if (type.kind() == typeKindConst)
+            if (nextType.kind() == typeKindConst) {
+                tw = twPtrConst;
+                nextType = ConstType(nextType).base();
+            } else if (nextType.kind() == typeKindMutable) {
+                tw = twPtrMutable;
+                nextType = MutableType(nextType).base();
+            } else if (nextType.kind() == typeKindTemp) {
+                tw = twPtrTemp;
+                nextType = TempType(nextType).base();
+            }
+        } else if (type.kind() == typeKindConst) {
+            tw = twConst;
+            // twPtrDefault = twPtrConst;
             nextType = ConstType(type).base();
-        else if (type.kind() == typeKindMutable)
+        } else if (type.kind() == typeKindMutable) {
+            tw = twMutable;
+            // twPtrDefault = twPtrMutable;
             nextType = MutableType(type).base();
-        else if (type.kind() == typeKindTemp)
+        } else if (type.kind() == typeKindTemp) {
+            tw = twTemp;
+            // twPtrDefault = twPtrTemp;
             nextType = TempType(type).base();
-        else
+        } else
             break;
 
-        wrapperKinds.push_back(type.kind());
+        wrappers.push_back(tw);
         ASSERT(nextType);
         type = nextType;
     }
-    std::reverse(wrapperKinds.begin(), wrapperKinds.end());
+    std::reverse(wrappers.begin(), wrappers.end());
     base = type;
 }
 
-//! Apply a wrapper types to the given type.
-//! Useful for transforming ConceptTypes to DataTypes of the same shape
-TypeWithStorage applyWrapperTypes(TypeWithStorage base, const SmallVector<int>& wrapperKinds) {
-    for (auto kind : wrapperKinds) {
-        if (kind == typeKindConst)
-            base = ConstType::get(base);
-        else if (kind == typeKindMutable)
-            base = MutableType::get(base);
-        else if (kind == typeKindTemp)
-            base = TempType::get(base);
-        else if (kind == typeKindPtr)
-            base = PtrType::get(base);
+//! Replace the base type from the given type; all the other wrappers remain exactly the same
+TypeWithStorage replaceBaseType(TypeWithStorage type, TypeWithStorage newBase) {
+    SmallVector<int> kinds;
+    kinds.reserve(type.numReferences());
+
+    while (true) {
+        auto kind = type.kind();
+        if (type.kind() == typeKindPtr) {
+            type = PtrType(type).base();
+        } else if (type.kind() == typeKindConst) {
+            type = ConstType(type).base();
+        } else if (type.kind() == typeKindMutable) {
+            type = MutableType(type).base();
+        } else if (type.kind() == typeKindTemp) {
+            type = TempType(type).base();
+        } else
+            break;
+        kinds.push_back(kind);
     }
-    return base;
+    TypeWithStorage res = newBase;
+    for (auto k : boost::adaptors::reverse(kinds)) {
+        if (k == typeKindPtr)
+            res = PtrType::get(res);
+        else if (k == typeKindConst)
+            res = ConstType::get(res);
+        else if (k == typeKindMutable)
+            res = MutableType::get(res);
+        else if (k == typeKindTemp)
+            res = TempType::get(res);
+    }
+    return res;
 }
 
 enum ElemConvType {
@@ -332,133 +416,134 @@ enum ElemConvType {
     cat2Ptr,   // category -> ptr
 };
 
-// DataType == 0, PtrType == 1, ConstType == 2, MutableType == 3, TempType == 4
-int typeKindToIndex(int typeKind) { return typeKind - typeKindData; }
+ostream& operator<<(ostream& os, ElemConvType tw) {
+    switch (tw) {
+    case none:
+        os << "none";
+        break;
+    case direct:
+        os << "direct";
+        break;
+    case addPtr:
+        os << "addPtr";
+        break;
+    case removePtr:
+        os << "removePtr";
+        break;
+    case catCast:
+        os << "catCast";
+        break;
+    case addCat:
+        os << "addCat";
+        break;
+    case removeCat:
+        os << "removeCat";
+        break;
+    case ptr2Cat:
+        os << "ptr2Cat";
+        break;
+    case cat2Ptr:
+        os << "cat2Ptr";
+        break;
+    }
+    return os;
+}
 
 //! Check an elementary casts; looks only at the kinds of the top-most types.
-ElemConvType checkElementaryCast(int srcKind, int destKind) {
-    int src = typeKindToIndex(srcKind);
-    int dest = typeKindToIndex(destKind);
+ElemConvType checkElementaryCast(TypeWrapper src, TypeWrapper dest) {
     // clang-format off
-    constexpr ElemConvType conversions[5][5] = {
-            {direct,    addPtr,    addCat,  none,    addCat},  // from plain
-            {removePtr, direct,    ptr2Cat, ptr2Cat, ptr2Cat}, // from ptr
-            {removeCat, cat2Ptr,   direct,  none,    none},    // from const
-            {removeCat, cat2Ptr,   catCast, direct,  none},    // from mutable
-            {removeCat, cat2Ptr,   catCast, catCast, direct}   // from temp
+    constexpr ElemConvType conversions[8][8] = {
+        {direct,    addPtr,  addCat,  none,    addCat,  addPtr,  addPtr,  addPtr },// from plain
+        {removePtr, direct,  ptr2Cat, ptr2Cat, ptr2Cat, catCast, direct,  none   },// from ptr
+        {removeCat, cat2Ptr, direct,  none,    none,    cat2Ptr, none,    none   },// from const
+        {removeCat, cat2Ptr, catCast, direct,  none,    cat2Ptr, cat2Ptr, none   },// from mutable
+        {removeCat, cat2Ptr, catCast, catCast, direct,  cat2Ptr, cat2Ptr, cat2Ptr},// from temp
+        {removePtr, none,    ptr2Cat, none,    none,    direct,  none,    none   },// from ptr const
+        {removePtr, direct,  ptr2Cat, ptr2Cat, none,    catCast, direct,  none   },// from ptr mutable
+        {removePtr, catCast, catCast, catCast, catCast, catCast, catCast, direct },// from ptr temp
     };
-    // to:   plain,     ptr,       const,   mutable, temp
+    // to: plain,   ptr,     const,   mutable, temp,    p-const, p-mut,   p-temp
     // clang-format on
 
     return conversions[src][dest];
 }
 
 //! Check cast for cat types wrapped by ptr (both on src and dest)
-ElemConvType checkInPtrCast(int srcKind, int destKind) {
-    int src = typeKindToIndex(srcKind);
-    int dest = typeKindToIndex(destKind);
-    // In this context, plain means ptr without cat; treat it as 'mutable'
-    // clang-format off
-    constexpr ElemConvType conversions[5][5] = {
-            {direct,    none,      catCast, catCast, none},    // from plain (ptr without cat)
-            {none,      direct,    none,    none,    none},    // from ptr
-            {none,      none,      direct,  none,    none},    // from const
-            {catCast,   none,      catCast, direct,  none},    // from mutable
-            {none,      none,      catCast, catCast, direct}   // from temp
-    };
-    // to:   plain,     ptr,       const,   mutable, temp
-    // clang-format on
+ElemConvType checkInPtrCast(TypeWrapper src, TypeWrapper dest) {
+    ASSERT(isPtr(src));
+    ASSERT(isPtr(dest));
 
+    // clang-format off
+    constexpr ElemConvType conversions[8][8] = {
+        {none, none,    none, none, none, none,    none,    none   },// from plain
+        {none, direct,  none, none, none, catCast, direct,  none   },// from ptr
+        {none, none,    none, none, none, none,    none,    none   },// from const
+        {none, none,    none, none, none, none,    none,    none   },// from mutable
+        {none, none,    none, none, none, none,    none,    none   },// from temp
+        {none, none,    none, none, none, direct,  none,    none   },// from ptr const
+        {none, direct,  none, none, none, catCast, direct,  none   },// from ptr mutable
+        {none, catCast, none, none, none, catCast, catCast, direct },// from ptr temp
+    };
+    // to: plain, ptr,  const,mut,  temp, p-const, p-mut,   p-temp
+    // clang-format on
     return conversions[src][dest];
 }
 
-// Used for debugging:
-const char* kindToStr(int kind) {
-    if (kind == typeKindData)
-        return "data";
-    if (kind == typeKindPtr)
-        return "ptr";
-    if (kind == typeKindConst)
-        return "const";
-    if (kind == typeKindMutable)
-        return "mut";
-    if (kind == typeKindTemp)
-        return "tmp";
-    if (kind == 0)
-        return "none";
-    ASSERT(false);
-    return "???";
-}
-
 //! A stack of node kinds, from which we can pop the base kinds.
-struct KindStack {
-    SmallVector<int> kinds;
+struct WrappersStack {
+    SmallVector<TypeWrapper> wrappers;
     int cur{0};
 
-    //! Get the index kind at the given index; returns 0 if going over bounds
-    int operator[](int idx) const { return cur + idx < kinds.size() ? kinds[cur + idx] : 0; }
+    //! Get the index kind at the given index; returns twPlain if going over bounds
+    TypeWrapper operator[](int idx) const {
+        return cur + idx < wrappers.size() ? wrappers[cur + idx] : twPlain;
+    }
 
     //! Is the stack empty
-    bool empty() const { return cur >= kinds.size(); }
+    bool empty() const { return cur >= wrappers.size(); }
 
-    //! Pop group of kinds (1 is ptr, and we may have another category type)
-    //! Any of the two can be 0 -- non existent
-    void popGroup(bool& ptr, int& category) {
-        int val1 = (*this)[0];
-        int val2 = (*this)[1];
-        if (val1 == typeKindPtr) {
-            ptr = true;
-            category = 0;
-            cur++;
-        } else if (val2 == typeKindPtr) {
-            ptr = true;
-            category = val1;
-            cur += 2;
-        } else {
-            ASSERT(val2 == 0); // cannot have two consecutive cat types
-            ptr = false;
-            category = val1;
-            cur++;
-        }
-    }
+    //! The number of elements remaining in the stack
+    int size() const { return int(wrappers.size()) - cur; }
 
     //! Consume the first kind from the stack
-    void pop() {
-        if (!empty())
-            cur++;
+    TypeWrapper pop() {
+        assert(!empty());
+        auto res = wrappers[cur];
+        cur++;
+        return res;
     }
 };
-
-int setPlainIfKindMissing(int kind) { return kind == 0 ? typeKindData : kind; }
 
 } // namespace
 
 bool ConvertServiceImpl::checkWrapperTypes(
         ConversionResult& res, TypeWithStorage src, TypeWithStorage dest) {
 
-    bool doDebug = false && StringRef(src.description()) == "i8 ptr" &&
-                   StringRef(dest.description()) == "i8 mut ptr";
-    if (doDebug)
-        cerr << src << " -> " << dest << "\n";
-
     // Analyze the two types: figure our their base type and all the wrappers
-    static KindStack srcKinds;
-    static KindStack destKinds;
-    srcKinds.cur = 0;
-    destKinds.cur = 0;
+    WrappersStack srcWrappers;
+    WrappersStack destWrappers;
     TypeWithStorage srcBase, destBase;
-    int srcPtrs = 0;
-    int destPtrs = 0;
-    analyzeType(src, srcBase, srcKinds.kinds, srcPtrs);
-    analyzeType(dest, destBase, destKinds.kinds, destPtrs);
+    analyzeType(src, srcBase, srcWrappers.wrappers);
+    analyzeType(dest, destBase, destWrappers.wrappers);
 
-    if (doDebug)
-        cerr << "    srcPtrs=" << srcPtrs << ", destPtrs=" << destPtrs << "\n";
+    bool doDebug = false; // StringRef(src.description()) == "i8/ct ptr ptr ptr mut";// &&
+                          // StringRef(dest.description()) == "i8 mut ptr";
+    if (doDebug) {
+        cerr << src << " -> " << dest << "\n";
+        cerr << "    src: base=" << srcBase << " wrappers =";
+        for (auto w : srcWrappers.wrappers)
+            cerr << " " << w;
+        cerr << "\n";
+        cerr << "    dest: base=" << destBase << " wrappers =";
+        for (auto w : destWrappers.wrappers)
+            cerr << " " << w;
+        cerr << "\n";
+    }
 
     // Handle the case where the destination is a concept
     // Apply the dest shape on the base source type
     if (destBase.kind() == typeKindConcept) {
-        dest = applyWrapperTypes(srcBase, destKinds.kinds);
+        dest = replaceBaseType(dest, srcBase);
         destBase = srcBase;
     }
 
@@ -466,73 +551,73 @@ bool ConvertServiceImpl::checkWrapperTypes(
     if (srcBase != destBase)
         return false;
 
-    // Cannot add ptrs
-    if (srcPtrs < destPtrs)
-        return false;
-
     // First clear up the pointers from both sides -- advance in tandem
     // We match pointer to pointer
     // We check categories at every iteration
     // Note: between pointers we may have at most one cat type, but nothing else.
-    int numIterations = std::min(srcPtrs, destPtrs);
-    if (doDebug)
-        cerr << "    numIterations=" << numIterations << "\n";
     bool needsCast = false;
     bool needsImplicit = false;
-    for (int i = 0; i < numIterations; i++) {
-        // Get the two groups of kinds that we need to compare
-        bool srcPtr = false;
-        int srcCat = 0;
-        srcKinds.popGroup(srcPtr, srcCat);
-        bool destPtr = false;
-        int destCat = 0;
-        destKinds.popGroup(destPtr, destCat);
-        if (srcCat == 0)
-            srcCat = typeKindData;
-        if (destCat == 0)
-            destCat = typeKindData;
+    while (!srcWrappers.empty() && !destWrappers.empty()) {
+        TypeWrapper srcW = srcWrappers[0];
+        TypeWrapper destW = destWrappers[0];
+
+        bool srcIsPtr = isPtr(srcW);
+        bool destIsPtr = isPtr(destW);
+        if (destIsPtr && !srcIsPtr)
+            return false; // cannot add ptr
+        if (!destIsPtr || !srcIsPtr)
+            break;
+
+        srcWrappers.pop();
+        destWrappers.pop();
 
         // Check elementary casts between possible category types
-        auto conv = checkInPtrCast(srcCat, destCat);
+        auto conv = checkInPtrCast(srcW, destW);
         if (doDebug)
-            cerr << "    iter check: " << kindToStr(srcCat) << " -> " << kindToStr(destCat) << " = " << conv << "\n";
+            cerr << "    iter check: " << srcW << " -> " << destW << " = " << conv << "\n";
         if (conv == none)
             return false;
 
+        // TODO (now): Check possible values of ElemConvType
         if (conv != direct) {
             needsCast = true;
             needsImplicit = true;
         }
     }
+    // Ensure there are no more pointers on the dest side
+    if (!destWrappers.empty() && isPtr(destWrappers[0]))
+        return false;
 
     // Now the middle part, after the common pointers
     // dest may or may not have a cat left
     // Try to consume everything from dest
     bool shouldAddCat = false;
     bool needsDeref = false;
-    int destKind = setPlainIfKindMissing(destKinds[0]);
-    int srcKind = setPlainIfKindMissing(srcKinds[0]);
-    auto conv = checkElementaryCast(srcKind, destKind);
-    if (conv == none)
-        return false;
-
+    auto srcW = srcWrappers[0];
+    auto destW = destWrappers[0];
+    auto conv = checkElementaryCast(srcW, destW);
+    if (doDebug)
+        cerr << "    top check: " << srcW << " -> " << destW << " = " << conv << "\n";
     switch (conv) {
+    case none:
+        return false;
     case direct:
         // T <cat> <others>* -> U <cat> (where T and U are ref-equivalent)
-        srcKinds.pop();
+        if (!srcWrappers.empty())
+            srcWrappers.pop();
         break;
     case catCast:
         // T <cat1> <others>* -> U <cat2> (where T and U are ref-equivalent)
         needsCast = true;
         needsImplicit = true;
-        srcKinds.pop();
+        srcWrappers.pop();
         break;
     case addCat:
         // T -> U <cat> (where T and U are ref-equivalent)
         // the source doesn't have anymore ptrs
-        if (srcKinds.cur > 0 && destKind == typeKindTemp)
+        if (srcWrappers.cur > 0 && destW == twTemp)
             return false; // Forbid adding 'temp' on ptr types
-        ASSERT(srcKinds.empty());
+        ASSERT(srcWrappers.empty());
         needsImplicit = true;
         shouldAddCat = true;
         break;
@@ -540,19 +625,21 @@ bool ConvertServiceImpl::checkWrapperTypes(
         // T ptr <others>* -> U <cat>
         needsImplicit = true;
         needsCast = true;
-        srcKinds.pop();
+        srcWrappers.pop();
         break;
     case removeCat:
         // T <cat> <others>* -> U
         // needsImplicit = true;
         needsDeref = true;
-        srcKinds.pop();
+        if (!srcWrappers.empty())
+            srcWrappers.pop();
         break;
     case removePtr:
         // T ptr <others>* -> U
         // Don't do anything. Treat this withing general deref
         break;
     case cat2Ptr:
+        return false;
     case addPtr:
     default:
         ASSERT(false);
@@ -560,28 +647,25 @@ bool ConvertServiceImpl::checkWrapperTypes(
     }
 
     // Dest should be empty now
-    destKinds.pop();
-    ASSERT(destKinds.empty());
+    if (!destWrappers.empty()) {
+        destWrappers.pop();
+        ASSERT(destWrappers.empty());
+    }
 
     // Do we just need to add a category?
     if (shouldAddCat) {
-        ASSERT(srcKinds.empty());
+        ASSERT(srcWrappers.empty());
         res.addConversion(convDirect, ConvAction(ActionType::addRef, dest));
         return true;
     }
 
     // We may still have some wrapper types in src.
     // Process them in reverse order now
-    int remainingPtrs = 0;
-    for (int i = 0; /*nothing*/; i++) {
-        int kind = srcKinds[i];
-        if (kind == 0)
-            break;
-        if (kind == typeKindPtr)
-            remainingPtrs++;
-    }
-    for (int i = 0; i < remainingPtrs; i++) {
-        src = removeRef(src);
+    int numDerefs = srcWrappers.size() - destWrappers.size();
+    if (doDebug)
+        cerr << "    num derefs=" << numDerefs << "\n";
+    for (int i = 0; i < numDerefs; i++) {
+        src = dereferenceType(src);
         res.addConversion(convImplicit, ConvAction(ActionType::dereference, src));
     }
     // Handle cases like T mut -> T or T ptr mut -> T ptr
@@ -589,16 +673,25 @@ bool ConvertServiceImpl::checkWrapperTypes(
         src = removeCategoryIfPresent(src);
         res.addConversion(convDirect, ConvAction(ActionType::dereference, src));
     }
+    if (doDebug)
+        cerr << "    src=" << src << " dest=" << dest << "\n";
     if (src != dest) {
         if (needsCast)
             res.addConversion(needsImplicit ? convImplicit : convDirect,
                     ConvAction(ActionType::bitcast, dest));
         else if (src.numReferences() > dest.numReferences())
             res.addConversion(convImplicit, ConvAction(ActionType::dereference, dest));
-        else
+        else if (src.numReferences() == dest.numReferences()) {
+            res.addConversion(convImplicit, ConvAction(ActionType::bitcast, dest));
+        } else
             REP_INTERNAL(NOLOC, "Invalid conversion between %1% and %2%") % src % dest;
     }
 
+    if (doDebug) {
+        cerr << "    conv ok:\n";
+        for (auto p : res.convertActions())
+            cerr << "        " << p.first << " => " << p.second << "\n";
+    }
     return true;
 }
 

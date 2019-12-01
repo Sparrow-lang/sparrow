@@ -950,8 +950,8 @@ NodeHandle MemLoadExp::semanticCheckImpl(MemLoadExp node) {
         REP_ERROR_RET(nullptr, node.location(),
                 "Cannot use atomic acquire-release with a load instruction");
 
-    // Remove the 'ref' from the type and get the base type
-    node.setType(removeCatOrRef(TypeWithStorage(exp.type())));
+    // Deference the type (remove one reference)
+    node.setType(dereferenceType(TypeWithStorage(exp.type())));
     node.setType(Feather_adjustMode(node.type(), node.context(), node.location()));
     return node;
 }

@@ -100,7 +100,6 @@ NodeHandle impl_typeAddRef(CompilationContext* context, const Location& loc, Nod
     CHECK(loc, args.size() == 1);
     Type t = getType(args[0]);
 
-    t = Feather::removeCategoryIfPresent(t);
     t = Feather::PtrType::get(TypeWithStorage(t));
     return createTypeNode(context, loc, t);
 }

@@ -363,7 +363,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             CHECK(getConvType(t0const1, t1) == convNone);
             CHECK(getConvType(t0tmp1, t0const1) == convImplicit);
             CHECK(getConvType(t0tmp1, t0mut1) == convImplicit);
-            CHECK(getConvType(t0tmp1, t1) == convNone);
+            CHECK(getConvType(t0tmp1, t1) == convImplicit);
         }
     }
 
@@ -469,11 +469,12 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
         //     }
         // });
 
-        rc::prop("if T -> U (don't add ref, don't cvt), T=datatype, then T ptr -> U", [=]() {
+        rc::prop("if T -> U (don't cvt), T=datatype, U!=tmp then T ptr -> U", [=]() {
             auto src = *TypeFactory::arbDataType();
             auto dest = *TypeFactory::arbType();
             auto srcPtr = PtrType::get(src);
             RC_PRE(srcPtr != dest);
+            RC_PRE(dest.kind() != typeKindTemp);
             RC_LOG() << srcPtr << " -> " << dest << endl;
 
             int flags = flagDontCallConversionCtor;
@@ -586,7 +587,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             CHECK(getConvType(src0tmp, c0mut) == convConceptWithImplicit);
             CHECK(getConvType(src0tmp, c0) == convConcept);
 
-            CHECK(getConvType(src1const, c1) == convConcept);
+            // CHECK(getConvType(src1const, c1) == convNone);  // transient const
             CHECK(getConvType(src1const, c1const) == convConcept);
             CHECK(getConvType(src1mut, c1mut) == convConcept);
             CHECK(getConvType(src1tmp, c1tmp) == convConcept);
@@ -594,22 +595,22 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             CHECK(getConvType(src1const, c0) == convConceptWithImplicit);
             CHECK(getConvType(src1const, c0const) == convConceptWithImplicit);
             CHECK(getConvType(src1mut, c0mut) == convConceptWithImplicit);
-            CHECK(getConvType(src1tmp, c0tmp) == convConceptWithImplicit);
+            // CHECK(getConvType(src1tmp, c0tmp) == convConceptWithImplicit); // transient temp
 
-            CHECK(getConvType(src2const, c2) == convConcept);
+            // CHECK(getConvType(src2const, c2) == convNone);  // transient const
             CHECK(getConvType(src2const, c2const) == convConcept);
             CHECK(getConvType(src2mut, c2mut) == convConcept);
             CHECK(getConvType(src2tmp, c2tmp) == convConcept);
 
-            CHECK(getConvType(src2const, c1) == convConceptWithImplicit);
+            // CHECK(getConvType(src2const, c1) == convNone);  // transient const
             CHECK(getConvType(src2const, c1const) == convConceptWithImplicit);
             CHECK(getConvType(src2mut, c1mut) == convConceptWithImplicit);
-            CHECK(getConvType(src2tmp, c1tmp) == convConceptWithImplicit);
+            // CHECK(getConvType(src2tmp, c1tmp) == convConceptWithImplicit); // transient temp
 
             CHECK(getConvType(src2const, c0) == convConceptWithImplicit);
             CHECK(getConvType(src2const, c0const) == convConceptWithImplicit);
             CHECK(getConvType(src2mut, c0mut) == convConceptWithImplicit);
-            CHECK(getConvType(src2tmp, c0tmp) == convConceptWithImplicit);
+            // CHECK(getConvType(src2tmp, c0tmp) == convConceptWithImplicit); // transient temp
         }
     }
 

@@ -350,15 +350,15 @@ void analyzeType(TypeWithStorage type, TypeWithStorage& base, SmallVector<TypeWr
             }
         } else if (type.kind() == typeKindConst) {
             tw = twConst;
-            // twPtrDefault = twPtrConst;
+            // twPtrDefault = twPtrConst;   // transient category types?
             nextType = ConstType(type).base();
         } else if (type.kind() == typeKindMutable) {
             tw = twMutable;
-            // twPtrDefault = twPtrMutable;
+            // twPtrDefault = twPtrMutable; // transient category types?
             nextType = MutableType(type).base();
         } else if (type.kind() == typeKindTemp) {
             tw = twTemp;
-            // twPtrDefault = twPtrTemp;
+            // twPtrDefault = twPtrTemp;    // transient category types?
             nextType = TempType(type).base();
         } else
             break;

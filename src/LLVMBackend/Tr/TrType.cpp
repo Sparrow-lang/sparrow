@@ -39,7 +39,10 @@ llvm::Type* transformDataType(DataType type, GlobalContext& ctx) {
 }
 
 llvm::Type* transformPtrType(PtrType type, GlobalContext& ctx) {
-    return llvm::PointerType::get(getLLVMType(type.base(), ctx), 0);
+    // Translate T ptr, T const ptr, T mut ptr the same way: a simple pointer
+    auto base = type.base();
+    base = Feather::removeCategoryIfPresent(base);
+    return llvm::PointerType::get(getLLVMType(base, ctx), 0);
 }
 
 llvm::Type* transformConstType(ConstType type, GlobalContext& ctx) {

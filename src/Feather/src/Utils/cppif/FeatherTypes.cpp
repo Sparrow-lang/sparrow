@@ -129,11 +129,13 @@ PtrType PtrType::get(TypeWithStorage base, Nest::Location loc) {
     if (!base)
         REP_INTERNAL(loc, "Null type given as base to ptr type");
 
+    auto baseRefs = base.numReferences();
+
     Nest_Type referenceType = {0};
     referenceType.typeKind = typeKindPtr;
     referenceType.mode = base.mode();
     referenceType.numSubtypes = 1;
-    referenceType.numReferences = 1 + base.numReferences();
+    referenceType.numReferences = isCategoryType(base) ? baseRefs : 1 + baseRefs;
     referenceType.hasStorage = 1;
     referenceType.canBeUsedAtRt = base.canBeUsedAtRt();
     referenceType.flags = 0;
@@ -422,6 +424,33 @@ TypeWithStorage removeCatOrRef(TypeWithStorage type) {
 
     REP_INTERNAL(NOLOC, "Invalid type given when removing reference (%1%)") % type;
     return {};
+}
+TypeWithStorage dereferenceType(TypeWithStorage type) {
+    if (!type)
+        REP_INTERNAL(NOLOC, "Null type passed to removeRef");
+    if (type.numReferences() < 1)
+        REP_INTERNAL(NOLOC, "Cannot remove reference from type (%1%)") % type;
+
+    TypeWithStorage base;
+    int numRefs = type.numReferences();
+    do {
+        int typeKind = type.kind();
+        if (typeKind == typeKindConst)
+            base = ConstType(type).base();
+        else if (typeKind == typeKindMutable)
+            base = MutableType(type).base();
+        else if (typeKind == typeKindTemp)
+            base = TempType(type).base();
+        else if (typeKind == typeKindPtr)
+            base = PtrType(type).base();
+        else {
+            REP_INTERNAL(NOLOC, "Invalid type given when removing reference (%1%)") % type;
+            return {};
+        }
+        type = base;
+    } while (base.numReferences() == numRefs);
+
+    return base;
 }
 
 TypeWithStorage removeAllRefs(TypeWithStorage type) {

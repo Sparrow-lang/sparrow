@@ -1,0 +1,81 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+
+// Test purpose: checks how ptr of cat types can work
+
+[ct, native("$typeDescription")] fun description(t: Type): StringRef
+
+using IntMut = !Int
+using IntConst = Int const
+using IntTmp = Int tmp
+using IntPtr = @Int
+using IntMutPtr = @IntMut
+using IntConstPtr = @IntConst
+using IntTmpPtr = @IntTmp
+
+fun fm(x: IntMut) {}
+fun fc(x: IntConst) {}
+fun ft(x: IntTmp) {}
+fun fp(x: IntPtr) {}
+fun fmp(x: IntMutPtr) {}
+fun fcp(x: IntConstPtr) {}
+fun ftp(x: IntTmpPtr) {}
+
+[native("test")]
+fun test(n: Int)
+    var x = 10
+    var y: Int tmp = 11
+    var p: IntPtr = x mutToPtr
+    var mp: IntMutPtr = p
+    var cp: IntConstPtr = p
+    //var tp: IntTmpPtr = y mutToPtr // cannot construct an IntTmpPtr
+
+    writeLn(x)
+    writeLn(p)
+    writeLn(mp)
+    writeLn(cp)
+
+    x = 20
+    writeLn(x)
+    writeLn(p)
+    writeLn(mp)
+    writeLn(cp)
+
+    mp = 30
+    writeLn(x)
+    writeLn(p)
+    writeLn(mp)
+    writeLn(cp)
+
+    //cp = 40 // forbidden to assign to const ptr
+
+    writeLn('---')
+
+    fm(x)
+    fc(x)
+    ft(Int(x))
+    fp(p)
+    fmp(p)
+    fcp(p)
+    //ftp(p)
+
+    writeLn(description(typeOf(mp)))
+    writeLn(description(typeOf(cp)))
+
+
+/*<<<Running()
+10
+10
+10
+10
+20
+20
+20
+20
+30
+30
+30
+30
+---
+Int mut ptr
+Int const ptr
+>>>*/

@@ -301,6 +301,9 @@ TypeWithStorage removeRef(TypeWithStorage type);
 TypeWithStorage removeCatOrRef(TypeWithStorage type);
 // TODO (types): Remove this
 
+//! Dereference the types; ensure that the number of references is less with 1
+TypeWithStorage dereferenceType(TypeWithStorage type);
+
 /**
  * @brief      Removes all references from this type
  *

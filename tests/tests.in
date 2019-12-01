@@ -152,6 +152,7 @@ Basic/fun/operators.spr:                Basic features - fun - Operators
 Basic/types/typeTraits.spr:             Basic features - types - Type traits
 Basic/types/temp.spr:                   Basic features - types - temp types
 Basic/types/returnsTemp.spr:            Basic features - types - Functions return temp types
+Basic/types/ptrOfCat.spr:               Basic features - types - Ptr of cat types
 
 Imports/ImportTwice.spr:                Import twice the same file
 Imports/ImportComplex.spr:              Import a complex hierarchy of files, some of them twice

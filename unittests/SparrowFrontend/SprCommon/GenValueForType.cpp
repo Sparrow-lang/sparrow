@@ -92,15 +92,16 @@ Gen<NodeHandle> arbValueConvertibleTo(TypeWithStorage t, const SampleTypes* samp
         int weightSameType = 1;
         int weightCtType = type.mode() == modeRt && type.numReferences() == 0 ? 1 : 0;
         int weightAddRef = 1;
+        int weightAddMutRef = tk == typeKindPtr ? 1 : 0;
         int weightFromPlain = tk == typeKindConst ? 1 : 0;
         int weightFromConst = tk == typeKindData ? 1 : 0;
         int weightFromMutable = tk != typeKindTemp ? 1 : 0;
         int weightFromTmp = tk != typeKindMutable ? 1 : 0;
 
         TypeWithStorage newType;
-        auto alt = *gen::weightedElement<int>(
-                {{weightSameType, 0}, {weightCtType, 1}, {weightAddRef, 2}, {weightFromPlain, 3},
-                        {weightFromConst, 4}, {weightFromMutable, 5}, {weightFromTmp, 6}});
+        auto alt = *gen::weightedElement<int>({{weightSameType, 0}, {weightCtType, 1},
+                {weightAddRef, 2}, {weightAddMutRef, 3}, {weightFromPlain, 4}, {weightFromConst, 5},
+                {weightFromMutable, 6}, {weightFromTmp, 7}});
         switch (alt) {
         case 0:
             newType = type;
@@ -109,18 +110,21 @@ Gen<NodeHandle> arbValueConvertibleTo(TypeWithStorage t, const SampleTypes* samp
             newType = type.changeMode(modeCt);
             break;
         case 2:
-            newType = Feather::addRef(type);
+            newType = Feather::PtrType::get(type);
             break;
         case 3:
-            newType = Feather::removeCategoryIfPresent(type);
+            newType = Feather::PtrType::get(Feather::MutableType::get(type));
             break;
         case 4:
-            newType = Feather::ConstType::get(type);
+            newType = Feather::removeCategoryIfPresent(type);
             break;
         case 5:
-            newType = Feather::MutableType::get(Feather::removeCategoryIfPresent(type));
+            newType = Feather::ConstType::get(type);
             break;
         case 6:
+            newType = Feather::MutableType::get(Feather::removeCategoryIfPresent(type));
+            break;
+        case 7:
             newType = Feather::TempType::get(Feather::removeCategoryIfPresent(type));
             break;
         }

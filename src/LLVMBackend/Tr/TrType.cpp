@@ -111,7 +111,7 @@ llvm::Type* Tr::getNativeLLVMType(
         else if (nativeName.size() > 1 &&
                  (nativeName.begin[0] == 'i' || nativeName.begin[0] == 'u')) {
             try {
-                auto noBits = boost::lexical_cast<int>(nativeName.begin + 1);
+                auto noBits = atoi(nativeName.begin + 1);
                 return llvm::IntegerType::get(llvmContext, noBits);
             } catch (...) {
             }

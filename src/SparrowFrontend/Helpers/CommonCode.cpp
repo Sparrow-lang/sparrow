@@ -384,7 +384,7 @@ Node* _createFunPtrForDecl(Node* funNode) {
         NodeVector paramIds(numParams, nullptr);
         NodeVector args(numParams, nullptr);
         for (int i = 0; i < numParams; ++i) {
-            string name = "p" + boost::lexical_cast<string>(i);
+            string name = "p" + std::to_string(i);
             paramIds[i] = mkSprParameter(loc, StringRef(name), paramsType, nullptr);
             args[i] = mkIdentifier(loc, StringRef(name));
         }

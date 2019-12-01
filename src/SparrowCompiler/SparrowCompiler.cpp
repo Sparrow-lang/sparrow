@@ -11,6 +11,7 @@
 #include "Nest/Utils/PrintTimer.hpp"
 #include "Nest/Utils/Profiling.h"
 #include "Nest/Utils/cppif/StringRef.hpp"
+#include "Nest/Utils/Reverse.hpp"
 #include "Nest/Api/Backend.h"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/SourceCode.h"
@@ -20,7 +21,6 @@
 #include <SparrowFrontend/SparrowFrontend.h>
 
 #include <filesystem>
-#include <boost/range/adaptor/reversed.hpp>
 
 #include <fstream>
 
@@ -236,7 +236,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Destroy the modules (in reverse order of initialization)
-    for (Nest_CompilerModule* mod : boost::adaptors::reverse(modules)) {
+    for (Nest_CompilerModule* mod : reverse(modules)) {
         if (mod->destroyFun)
             mod->destroyFun();
     }

@@ -5,6 +5,7 @@
 #include "TrLocal.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/Reverse.hpp"
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;
@@ -34,7 +35,7 @@ void Instruction::addTempDestructAction(Node* destructAction) {
 }
 
 void Instruction::outputDestructActions() {
-    for (Node* n : boost::adaptors::reverse(destructActions_)) {
+    for (Node* n : reverse(destructActions_)) {
         translateNode(n, scope_.context());
     }
 }

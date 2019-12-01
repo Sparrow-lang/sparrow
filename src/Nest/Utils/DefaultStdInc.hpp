@@ -14,11 +14,9 @@
 #include <functional>
 #include <unordered_map>
 #include <unordered_set>
+#include <sstream>
 
 #include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/optional.hpp>
-#include <boost/range/adaptor/reversed.hpp>
 
 #include "Nest/Utils/Fwd.hpp"
 #include "Nest/Utils/Assert.h"

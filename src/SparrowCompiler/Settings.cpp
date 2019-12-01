@@ -19,6 +19,20 @@
 
 using namespace std;
 
+#if (defined(linux) || defined(__linux) || defined(__linux__) || defined(__GNU__) || defined(__GLIBC__)) && !defined(_CRAYC)
+#define OS_LINUX 1
+#elif defined(sun) || defined(__sun)
+#define OS_SOLARIS 1
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
+#define OS_BSD 1
+#elif defined(__CYGWIN__)
+#define OS_CYGWIN 1
+#elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+#define OS_WINDOWS 1
+#elif defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__)
+#define OS_MACOS 1
+#endif
+
 static const int bufferSize = 1024;
 
 string getExecutablePathFallback(const char* argv0) {
@@ -30,7 +44,7 @@ string getExecutablePathFallback(const char* argv0) {
     return p.make_preferred().string();
 }
 
-#if (BOOST_OS_CYGWIN || BOOST_OS_WINDOWS)
+#if (OS_CYGWIN || OS_WINDOWS)
 
 #include <Windows.h>
 
@@ -42,7 +56,7 @@ string getExecutablePath(const char* argv0) {
     return buf;
 }
 
-#elif (BOOST_OS_MACOS)
+#elif (OS_MACOS)
 
 #include <mach-o/dyld.h>
 
@@ -58,7 +72,7 @@ string getExecutablePath(const char* argv0) {
     return p.make_preferred().string();
 }
 
-#elif (BOOST_OS_SOLARIS)
+#elif (OS_SOLARIS)
 
 #include <stdlib.h>
 
@@ -76,7 +90,7 @@ string getExecutablePath(const char* argv0) {
     return ret;
 }
 
-#elif (BOOST_OS_BSD)
+#elif (OS_BSD)
 
 #include <sys/sysctl.h>
 
@@ -99,7 +113,7 @@ string getExecutablePath(const char* argv0) {
     return p.make_preferred().string();
 }
 
-#elif (BOOST_OS_LINUX)
+#elif (OS_LINUX)
 
 #include <unistd.h>
 
@@ -185,7 +199,7 @@ public:
             *val_.boolVal = false;
             break;
         case storeInt:
-            *val_.intVal = boost::lexical_cast<int>(arg);
+            *val_.intVal = atoi(arg);
             break;
         case storeString:
             *val_.stringVal = arg;
@@ -244,7 +258,7 @@ void tryRetrieveOptionValue(const ParsedArgs& args, const char* optionTag, int& 
     if (it != args.optionsWithArgs.end()) {
         const auto& values = it->second;
         if (!values.empty()) {
-            res = boost::lexical_cast<int>(values.back());
+            res = atoi(values.back().c_str());
         }
     }
 }
@@ -382,7 +396,7 @@ bool initSettingsWithArgs(int argc, char** argv) {
 
     // Default data layout & target triple
     s.dataLayout_ = "e-m:o-i64:64-f80:128-n8:16:32:64-S128";
-#if (BOOST_OS_MACOS)
+#if (OS_MACOS)
     s.targetTriple_ = "x86_64-apple-macosx10.9.0";
 #else
     s.targetTriple_ = "x86_64-linux-gnu";

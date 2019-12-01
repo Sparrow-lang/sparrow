@@ -7,6 +7,7 @@
 #include "Module.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/Reverse.hpp"
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;
@@ -49,12 +50,12 @@ void Scope::addScopeDestructAction(Node* destructAction) {
 
 void Scope::outputDestructActions() {
     // If we have some instructions on the stack, write their temp destruct actions
-    for (Instruction* i : boost::adaptors::reverse(instructionsStack_)) {
+    for (Instruction* i : reverse(instructionsStack_)) {
         i->outputDestructActions();
     }
 
     // Now write the scope destruct actions
-    for (Node* n : boost::adaptors::reverse(destructActions_)) {
+    for (Node* n : reverse(destructActions_)) {
         translateNode(n, context_);
     }
 }

@@ -41,7 +41,7 @@ bool getNumericProperties(Type t, int& numBits, bool& isUnsigned, bool& isFloati
     } else if (nativeName.size() > 1 &&
                (nativeName.begin[0] == 'i' || nativeName.begin[0] == 'u')) {
         try {
-            numBits = boost::lexical_cast<int>(nativeName.begin + 1);
+            numBits = atoi(nativeName.begin + 1);
             isUnsigned = nativeName.begin[0] == 'u';
             isFloating = false;
             return true;

@@ -15,7 +15,6 @@
 #include "Nest/Api/SourceCodeKindRegistrar.h"
 
 #include <fstream>
-#include <boost/algorithm/string.hpp>
 
 using namespace SprFrontend;
 
@@ -44,15 +43,26 @@ pair<Node*, Node*> parseFunToCall(Location loc, const char* funInfo) {
         funInfo = p + 1;
     }
 
-    vector<string> funNameParts;
-    boost::split(funNameParts, funInfo, boost::is_any_of("."));
-    for (string& partName : funNameParts) {
-        if (partName.empty())
-            continue;
-        if (!toCall)
-            toCall = mkIdentifier(loc, StringRef(partName));
-        else
-            toCall = mkCompoundExp(loc, toCall, StringRef(partName));
+    const char* p2 = p;
+    const char* end = p + strlen(p);
+    while (p2 != end) {
+        p2 = strchr(p, '.');
+        StringRef partName;
+        if (p2) {
+            partName = StringRef{p, p2};
+            p = p2+1;
+        }
+        else {
+            partName = StringRef{p, end};
+            p = end;
+        }
+
+        if (!partName) {
+            if (!toCall)
+                toCall = mkIdentifier(loc, partName);
+            else
+                toCall = mkCompoundExp(loc, toCall, partName);
+        }
     }
 
     return make_pair(toImport, toCall);

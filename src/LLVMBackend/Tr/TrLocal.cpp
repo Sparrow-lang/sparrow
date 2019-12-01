@@ -16,6 +16,7 @@
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/cppif/NodeHandle.hpp"
+#include "Nest/Utils/Reverse.hpp"
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
@@ -44,7 +45,7 @@ llvm::Value* translateNodeCheck(Node* node, TrContext& context) {
 /// the destruct actions for everything on the stack until that scope are written; the destruct
 /// actions of the scope itself are not written.
 void unwind(TrContext& context, Scope* lastScope = nullptr) {
-    for (Scope* s : boost::adaptors::reverse(context.scopesStack())) {
+    for (Scope* s : reverse(context.scopesStack())) {
         if (s == lastScope)
             break;
 

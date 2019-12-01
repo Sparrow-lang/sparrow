@@ -3,7 +3,7 @@
 #include "Nest/Utils/cppif/Type.hpp"
 #include "Nest/Utils/cppif/StringRef.hpp"
 
-#include <boost/function.hpp>
+#include <functional>
 #include <string>
 #include <unordered_map>
 
@@ -64,7 +64,7 @@ struct TranslatedGVarInfo {
 /// It is responsible for the translation of an intermediate code into LLVM bitcode
 class Module {
 public:
-    typedef boost::function<Node*(Node*)> NodeFun;
+    typedef std::function<Node*(Node*)> NodeFun;
 
 public:
     explicit Module(const string& name);

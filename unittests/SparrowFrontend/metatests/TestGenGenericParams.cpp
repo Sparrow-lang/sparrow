@@ -7,6 +7,7 @@
 #include "SparrowFrontend/SprDebug.h"
 #include "SparrowFrontend/Nodes/Decl.hpp"
 #include "SparrowFrontend/Helpers/StdDef.h"
+#include "SparrowFrontend/Helpers/SprTypeTraits.h"
 #include "Nest/Utils/cppif/NodeRange.hpp"
 
 using namespace Nest;
@@ -58,7 +59,7 @@ TEST_CASE_METHOD(GenGenericParamsFixture, "Test GenGenericParams.genParams") {
         for (int i = 0; i < res.numParams_; i++) {
             auto t = res.types_[i];
             if (t)
-                RC_ASSERT(t.kind() != typeKindConcept);
+                RC_ASSERT(!isConceptType(t));
         }
 
         RC_ASSERT(!res.usesConcepts());
@@ -75,7 +76,7 @@ TEST_CASE_METHOD(GenGenericParamsFixture, "Test GenGenericParams.genParams") {
         for (int i = 0; i < res.numParams_; i++) {
             auto t = res.types_[i];
             if (t)
-                RC_ASSERT(t.mode() == modeRt || t.kind() == typeKindConcept);
+                RC_ASSERT(t.mode() == modeRt || isConceptType(t));
         }
 
         RC_ASSERT(!res.hasCtParams());
@@ -88,11 +89,10 @@ TEST_CASE_METHOD(GenGenericParamsFixture, "Test GenGenericParams.genParams") {
 
         // Now check the returned parameters
 
-        // No returned param should be concept
         for (int i = 0; i < res.numParams_; i++) {
             auto t = res.types_[i];
             if (t)
-                RC_ASSERT(t.mode() == modeCt || t.kind() == typeKindConcept);
+                RC_ASSERT(t.mode() == modeCt || isConceptType(t));
         }
     });
 
@@ -192,7 +192,7 @@ TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genBoundValues") {
             }
 
             // Concept type => bound value is a type
-            else if (t.kind() == typeKindConcept) {
+            else if (isConceptType(t)) {
                 RC_ASSERT(values[i].type() == StdDef::typeType);
             }
 

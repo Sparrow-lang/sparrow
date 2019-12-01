@@ -116,7 +116,7 @@ var globalTaskSystem: TaskSystem Ptr
 fun initTaskSystem(numWorkers: Int = 0)
     // Create the task system object
     //assert(globalTaskSystem isNull)
-    globalTaskSystem = new(TaskSystem)
+    globalTaskSystem reset new(TaskSystem)
 
     // Create the required threads
     if numWorkers == 0
@@ -136,7 +136,7 @@ fun getInitTaskSystem: TaskSystem Ptr
 
 fun createWorker(ts: TaskSystem Ptr): Worker Ptr
     let id: Int = ts.get().workers size
-    let p: Worker Ptr = new(Worker, ts, id, (IdleCounter Ptr)(ts.get().idleCounter))
+    let p: Worker Ptr = new(Worker, ts, id, (IdleCounter Ptr)(ts.get().idleCounter mutToPtr))
     ts.get().workers.pushBack(p)
     return p
 
@@ -146,7 +146,7 @@ var cnt: Int = 0
 fun getRandomTaskQueue(ts: !TaskSystem): @TaskQueue
     // TODO: make the selection truly random
     let worker: Worker Ptr = ts.workers(++cnt % (ts.workers size))
-    return worker.get().work
+    return worker.get().work mutToPtr
 
 fun onTaskAvailable(ts: !TaskSystem)
     // Do something only if we have at least one idle worker
@@ -169,7 +169,7 @@ fun numAvailableWorkers(ts: !TaskSystem): Int = (ts.workers size) - (ts.idleCoun
     //! The worker associated with this thread
     _worker: Worker Ptr
 
-fun ()(this: !InternalWorkerThread)
+fun ()(this: InternalWorkerThread)
     setLocalWorker(_worker)
     schedDoWait(_worker.get(), TaskPtr(), TaskPtr())
 

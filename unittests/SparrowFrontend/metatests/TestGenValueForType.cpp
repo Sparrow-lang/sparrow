@@ -50,6 +50,7 @@ TEST_CASE_METHOD(GenValueForTypeFixture, "genValueForType functions generate exp
         value = *arbValueConvertibleTo(t);
         computeType(value);
         auto cvt = g_ConvertService->checkConversion(globalContext_, value.type(), t);
+        RC_LOG() << value.type() << " -> " << t;
         RC_ASSERT(cvt.conversionType() != convNone);
 
         // Generate value compatible with bound values
@@ -71,7 +72,7 @@ TEST_CASE_METHOD(GenValueForTypeFixture, "genValueForType functions generate exp
 
     rc::prop("generated bound values for concepts are ok", [this]() {
         // Generate a concept type
-        Nest::TypeWithStorage t = *TypeFactory::arbConceptType();
+        Nest::TypeWithStorage t = *TypeFactory::arbConceptOrPtrType();
 
         auto value = *arbBoundValueForType(t, types_);
         computeType(value);

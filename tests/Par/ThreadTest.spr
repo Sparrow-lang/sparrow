@@ -30,13 +30,13 @@ import std.compilerInfo
         doPrint: Bool
         lastCounter: @Int
 
-    fun ctor(this: !TwiddleThumbs, message: StringRef, count: Int, lastCounter: !Int, doPrint: Bool = false)
+    fun ctor(this: !TwiddleThumbs, message: StringRef, count: Int, lastCounter: @Int, doPrint: Bool = false)
         this.message construct message
         this.count construct count
         this.lastCounter := lastCounter
         this.doPrint construct doPrint
 
-    fun ()(this: !TwiddleThumbs)
+    fun ()(this: TwiddleThumbs)
         for i = 0..count
             let cnt: Int = gCounter++
             if i == count-1
@@ -56,8 +56,8 @@ import std.compilerInfo
         cout << "Before creating threads" << endl
         let count = 10
         var cnt1, cnt2: Int
-        var t1 = Thread(TwiddleThumbs("worker 1", count, cnt1, true))
-        var t2 = Thread(TwiddleThumbs("worker 2", count, cnt2, true))
+        var t1 = Thread(TwiddleThumbs("worker 1", count, cnt1 mutToPtr, true))
+        var t2 = Thread(TwiddleThumbs("worker 2", count, cnt2 mutToPtr, true))
         sleepMs(50)
         cout << "After creating the threads" << endl
         t1 join
@@ -67,8 +67,8 @@ import std.compilerInfo
     fun test4
         let count = 10
         var cnt1, cnt2: Int
-        var t1 = Thread(TwiddleThumbs("worker 1", count, cnt1))
-        var t2 = Thread(TwiddleThumbs("worker 2", count, cnt2))
+        var t1 = Thread(TwiddleThumbs("worker 1", count, cnt1 mutToPtr))
+        var t2 = Thread(TwiddleThumbs("worker 2", count, cnt2 mutToPtr))
         sleepMs(50)
         t1 join
         t2 join

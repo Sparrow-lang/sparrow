@@ -28,13 +28,20 @@ llvm::Type* transformVoid(VoidType /*type*/, GlobalContext& ctx) {
 
 llvm::Type* transformDataType(DataType type, GlobalContext& ctx) {
     // Call the translation method for the class declaration
-    auto cls = Feather_classDecl(type);
+    auto cls = type.referredNode();
     ASSERT(cls);
     // TODO (backend): Sometimes we can generate only opaque structs. No need for fields.
     llvm::Type* t = Tr::translateClass(cls, ctx);
     for (size_t i = 0; i < type.numReferences(); ++i)
         t = llvm::PointerType::get(t, 0);
     return t;
+}
+
+llvm::Type* transformPtrType(PtrType type, GlobalContext& ctx) {
+    // Translate T ptr, T const ptr, T mut ptr the same way: a simple pointer
+    auto base = type.base();
+    base = Feather::removeCategoryIfPresent(base);
+    return llvm::PointerType::get(getLLVMType(base, ctx), 0);
 }
 
 llvm::Type* transformConstType(ConstType type, GlobalContext& ctx) {
@@ -83,6 +90,8 @@ llvm::Type* Tr::getLLVMType(Type type, GlobalContext& ctx) {
         llvmType = transformVoid(VoidType(type), ctx);
     else if (type.kind() == typeKindData)
         llvmType = transformDataType(DataType(type), ctx);
+    else if (type.kind() == typeKindPtr)
+        llvmType = transformPtrType(PtrType(type), ctx);
     else if (type.kind() == typeKindConst)
         llvmType = transformConstType(ConstType(type), ctx);
     else if (type.kind() == typeKindMutable)

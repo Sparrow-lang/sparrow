@@ -2,7 +2,7 @@ module formatTool.transforms.refToMut
 
 import formatDetails.sourceData
 
-fun refToMut(src: @SourceData)
+fun refToMut(src: !SourceData)
     if src.tokens.size < 3
         return
     var prev2: @TokenData = src.tokens(0)

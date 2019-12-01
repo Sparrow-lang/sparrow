@@ -25,7 +25,7 @@ datatype SourceData
 
 //! Load the source data from the given filename.
 //! Ensures that all the tokens are link to their appropriate AST nodes
-fun load(res: @SourceData, filename: StringRef)
+fun load(res: !SourceData, filename: StringRef)
     res.filename = filename
 
     // Open the source filename & read the tokens
@@ -37,10 +37,10 @@ fun load(res: @SourceData, filename: StringRef)
     // printAst(res.rootNode)
 
     // Set the parents for the AST nodes
-    _setAstParents(res.rootNode)
+    _setAstParents(res.rootNode mutToPtr)
 
     // Link AST nodes to the tokens
-    _setAstToTokens(res.tokens, res.rootNode)
+    _setAstToTokens(res.tokens, res.rootNode mutToPtr)
 
 fun _setAstParents(node: @Node)
     if node.isNull
@@ -49,7 +49,7 @@ fun _setAstParents(node: @Node)
         child setParent = node
         _setAstParents(child)
 
-fun _setAstToTokens(tokens: @TokenVector, rootNode: Node)
+fun _setAstToTokens(tokens: TokenVector, rootNode: Node)
     var startToken = 0
     if rootNode.isSet && !tokens.isEmpty
         while startToken < (tokens size)
@@ -58,7 +58,7 @@ fun _setAstToTokens(tokens: @TokenVector, rootNode: Node)
             // We increase the startToken and repeat, as we might have tokens that are outside the
             // whole module; i.e., initial comments
 
-fun _astToTokensImpl(node: Node, tokens: @TokenVector, startToken: @Int)
+fun _astToTokensImpl(node: Node, tokens: TokenVector, startToken: !Int)
     while startToken < tokens.size
         // Basic overlap check; we have to overlap the token before our children
         var tok: @TokenData = tokens(startToken)

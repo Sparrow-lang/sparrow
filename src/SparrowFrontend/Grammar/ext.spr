@@ -11,8 +11,6 @@ using VoidType = typeOf(_returnsVoid())
 
 fun _reinterpretAssign(dest: !AnyType, src: AnyType)
     reinterpretCast(@typeOf(src), dest) = src
-fun _eraseType(obj: AnyType): UntypedPtr
-    return UntypedPtr(obj)
 
 //! Interface that models a source of characters.
 //! It allows the caller to read multiple characters at once
@@ -25,7 +23,7 @@ concept CharSourceType(x) \
 
 fun mkCharSource(obj: !CharSourceType): CharSource
     var res: CharSource
-    res.userData = _eraseType(obj)
+    res.userData = UntypedPtr(obj mutToPtr)
     res.readCharsFn _reinterpretAssign \(obj.readChars)
     return res
 
@@ -42,16 +40,16 @@ datatype ErrorReporter
 concept ErrorReporterType(x) \
     if isValid(x.reportError(Location(), StringRef()))
 
-fun mkErrorReporter(obj: ErrorReporterType): ErrorReporter
+fun mkErrorReporter(obj: @ErrorReporterType): ErrorReporter
     var res: ErrorReporter
-    res.userData = _eraseType(obj)
+    res.userData = UntypedPtr(obj)
     res.reportErrorFn _reinterpretAssign \(obj.reportError)
     return res
 
-fun reportError(obj: ErrorReporter, loc: Location, msg: StringRef)
+fun reportError(obj: ErrorReporter, loc: Location const, msg: StringRef)
     obj.reportErrorFn(obj.userData, loc, msg)
 
-fun reportError(obj: ErrorReporter, loc: Location, msg: String)
+fun reportError(obj: ErrorReporter, loc: Location const, msg: String)
     obj.reportErrorFn(obj.userData, loc, msg.asStringRef)
 
 
@@ -105,7 +103,7 @@ datatype AstBuilder
 
 fun mkAstBuilder(obj: !AnyType): AstBuilder
     var res: AstBuilder
-    res.userData = _eraseType(obj)
+    res.userData = UntypedPtr(obj mutToPtr)
     res.addToNodeListFn     _reinterpretAssign \(obj.addToNodeList)
 
     res.mkModifiersFn       _reinterpretAssign \(obj.mkModifiers)
@@ -156,83 +154,83 @@ fun mkAstBuilder(obj: !AnyType): AstBuilder
 fun addToNodeList(obj: !AstBuilder, nl, newNode: Node): Node
     return obj.addToNodeListFn(obj.userData, nl, newNode)
 
-fun mkModifiers(obj: !AstBuilder, loc: Location, main, mods: Node): Node
+fun mkModifiers(obj: !AstBuilder, loc: Location const, main, mods: Node): Node
     return obj.mkModifiersFn(obj.userData, loc, main, mods)
-fun mkModule(obj: !AstBuilder, loc: Location, moduleName, decls: Node): Node
+fun mkModule(obj: !AstBuilder, loc: Location const, moduleName, decls: Node): Node
     return obj.mkModuleFn(obj.userData, loc, moduleName, decls)
-fun mkImportName(obj: !AstBuilder, loc: Location, alias: StringRef, toImport, decls: Node): Node
+fun mkImportName(obj: !AstBuilder, loc: Location const, alias: StringRef, toImport, decls: Node): Node
     return obj.mkImportNameFn(obj.userData, loc, alias, toImport, decls)
-fun mkUsing(obj: !AstBuilder, loc: Location, alias: StringRef, usingNode: Node): Node
+fun mkUsing(obj: !AstBuilder, loc: Location const, alias: StringRef, usingNode: Node): Node
     return obj.mkUsingFn(obj.userData, loc, alias, usingNode)
-fun mkPackage(obj: !AstBuilder, loc: Location, name: StringRef, children, params, ifClause: Node): Node
+fun mkPackage(obj: !AstBuilder, loc: Location const, name: StringRef, children, params, ifClause: Node): Node
     return obj.mkPackageFn(obj.userData, loc, name, children, params, ifClause)
-fun mkDatatype(obj: !AstBuilder, loc: Location, name: StringRef, params, underlyingData, ifClause, children: Node): Node
+fun mkDatatype(obj: !AstBuilder, loc: Location const, name: StringRef, params, underlyingData, ifClause, children: Node): Node
     return obj.mkDatatypeFn(obj.userData, loc, name, params, underlyingData, ifClause, children)
-fun mkField(obj: !AstBuilder, loc: Location, name: StringRef, typeNode, init: Node): Node
+fun mkField(obj: !AstBuilder, loc: Location const, name: StringRef, typeNode, init: Node): Node
     return obj.mkFieldFn(obj.userData, loc, name, typeNode, init)
-fun mkConcept(obj: !AstBuilder, loc: Location, name, paramName: StringRef, baseConcept, ifClause: Node): Node
+fun mkConcept(obj: !AstBuilder, loc: Location const, name, paramName: StringRef, baseConcept, ifClause: Node): Node
     return obj.mkConceptFn(obj.userData, loc, name, paramName, baseConcept, ifClause)
-fun mkLet(obj: !AstBuilder, loc: Location, name: StringRef, typeNode, init: Node): Node
+fun mkLet(obj: !AstBuilder, loc: Location const, name: StringRef, typeNode, init: Node): Node
     return obj.mkLetFn(obj.userData, loc, name, typeNode, init)
-fun mkVar(obj: !AstBuilder, loc: Location, name: StringRef, typeNode, init: Node): Node
+fun mkVar(obj: !AstBuilder, loc: Location const, name: StringRef, typeNode, init: Node): Node
     return obj.mkVarFn(obj.userData, loc, name, typeNode, init)
-fun mkParameter(obj: !AstBuilder, loc: Location, name: StringRef, typeNode, init: Node): Node
+fun mkParameter(obj: !AstBuilder, loc: Location const, name: StringRef, typeNode, init: Node): Node
     return obj.mkParameterFn(obj.userData, loc, name, typeNode, init)
-fun mkFun(obj: !AstBuilder, loc: Location, name: StringRef, formals, retType, body, bodyExp, ifClause: Node): Node
+fun mkFun(obj: !AstBuilder, loc: Location const, name: StringRef, formals, retType, body, bodyExp, ifClause: Node): Node
     return obj.mkFunFn(obj.userData, loc, name, formals, retType, body, bodyExp, ifClause)
 
 fun mkParenthesisExpr(obj: !AstBuilder, expr: Node): Node
     return obj.mkParenthesisExprFn(obj.userData, expr)
-fun mkPostfixOp(obj: !AstBuilder, loc: Location, base: Node, op: StringRef): Node
+fun mkPostfixOp(obj: !AstBuilder, loc: Location const, base: Node, op: StringRef): Node
     return obj.mkPostfixOpFn(obj.userData, loc, base, op)
-fun mkInfixOp(obj: !AstBuilder, loc: Location, lhs: Node, op: StringRef, rhs: Node): Node
+fun mkInfixOp(obj: !AstBuilder, loc: Location const, lhs: Node, op: StringRef, rhs: Node): Node
     return obj.mkInfixOpFn(obj.userData, loc, lhs, op, rhs)
-fun mkPrefixOp(obj: !AstBuilder, loc: Location, op: StringRef, base: Node): Node
+fun mkPrefixOp(obj: !AstBuilder, loc: Location const, op: StringRef, base: Node): Node
     return obj.mkPrefixOpFn(obj.userData, loc, op, base)
-fun mkIdentifier(obj: !AstBuilder, loc: Location, id: StringRef): Node
+fun mkIdentifier(obj: !AstBuilder, loc: Location const, id: StringRef): Node
     return obj.mkIdentifierFn(obj.userData, loc, id)
-fun mkCompoundExpr(obj: !AstBuilder, loc: Location, base: Node, id: StringRef): Node
+fun mkCompoundExpr(obj: !AstBuilder, loc: Location const, base: Node, id: StringRef): Node
     return obj.mkCompoundExprFn(obj.userData, loc, base, id)
-fun mkStarExpr(obj: !AstBuilder, loc: Location, base: Node, id: StringRef): Node
+fun mkStarExpr(obj: !AstBuilder, loc: Location const, base: Node, id: StringRef): Node
     return obj.mkStarExprFn(obj.userData, loc, base, id)
-fun mkDotExpr(obj: !AstBuilder, loc: Location, base: Node, id: StringRef): Node
+fun mkDotExpr(obj: !AstBuilder, loc: Location const, base: Node, id: StringRef): Node
     return obj.mkDotExprFn(obj.userData, loc, base, id)
-fun mkFunAppExpr(obj: !AstBuilder, loc: Location, base, args: Node): Node
+fun mkFunAppExpr(obj: !AstBuilder, loc: Location const, base, args: Node): Node
     return obj.mkFunAppExprFn(obj.userData, loc, base, args)
-fun mkLambdaExpr(obj: !AstBuilder, loc: Location, closureParams, formals, retType, body, bodyExpr: Node): Node
+fun mkLambdaExpr(obj: !AstBuilder, loc: Location const, closureParams, formals, retType, body, bodyExpr: Node): Node
     return obj.mkLambdaExprFn(obj.userData, loc, closureParams, formals, retType, body, bodyExpr)
-fun mkNullLiteral(obj: !AstBuilder, loc: Location): Node
+fun mkNullLiteral(obj: !AstBuilder, loc: Location const): Node
     return obj.mkNullLiteralFn(obj.userData, loc)
-fun mkBoolLiteral(obj: !AstBuilder, loc: Location, val: Bool): Node
+fun mkBoolLiteral(obj: !AstBuilder, loc: Location const, val: Bool): Node
     return obj.mkBoolLiteralFn(obj.userData, loc, val)
-fun mkIntLiteral(obj: !AstBuilder, loc: Location, val: Int): Node
+fun mkIntLiteral(obj: !AstBuilder, loc: Location const, val: Int): Node
     return obj.mkIntLiteralFn(obj.userData, loc, val)
-fun mkUIntLiteral(obj: !AstBuilder, loc: Location, val: UInt32): Node
+fun mkUIntLiteral(obj: !AstBuilder, loc: Location const, val: UInt32): Node
     return obj.mkUIntLiteralFn(obj.userData, loc, val)
-fun mkLongLiteral(obj: !AstBuilder, loc: Location, val: Int64): Node
+fun mkLongLiteral(obj: !AstBuilder, loc: Location const, val: Int64): Node
     return obj.mkLongLiteralFn(obj.userData, loc, val)
-fun mkULongLiteral(obj: !AstBuilder, loc: Location, val: UInt64): Node
+fun mkULongLiteral(obj: !AstBuilder, loc: Location const, val: UInt64): Node
     return obj.mkULongLiteralFn(obj.userData, loc, val)
-fun mkFloatLiteral(obj: !AstBuilder, loc: Location, val: Float32): Node
+fun mkFloatLiteral(obj: !AstBuilder, loc: Location const, val: Float32): Node
     return obj.mkFloatLiteralFn(obj.userData, loc, val)
-fun mkDoubleLiteral(obj: !AstBuilder, loc: Location, val: Float): Node
+fun mkDoubleLiteral(obj: !AstBuilder, loc: Location const, val: Float): Node
     return obj.mkDoubleLiteralFn(obj.userData, loc, val)
-fun mkCharLiteral(obj: !AstBuilder, loc: Location, val: Char): Node
+fun mkCharLiteral(obj: !AstBuilder, loc: Location const, val: Char): Node
     return obj.mkCharLiteralFn(obj.userData, loc, val)
-fun mkStringLiteral(obj: !AstBuilder, loc: Location, data: StringRef): Node
+fun mkStringLiteral(obj: !AstBuilder, loc: Location const, data: StringRef): Node
     return obj.mkStringLiteralFn(obj.userData, loc, data)
 
-fun mkBlockStmt(obj: !AstBuilder, loc: Location, stmts: Node): Node
+fun mkBlockStmt(obj: !AstBuilder, loc: Location const, stmts: Node): Node
     return obj.mkBlockStmtFn(obj.userData, loc, stmts)
-fun mkIfStmt(obj: !AstBuilder, loc: Location, expr, thenClause, elseClause: Node): Node
+fun mkIfStmt(obj: !AstBuilder, loc: Location const, expr, thenClause, elseClause: Node): Node
     return obj.mkIfStmtFn(obj.userData, loc, expr, thenClause, elseClause)
-fun mkForStmt(obj: !AstBuilder, loc: Location, id: StringRef, typeNode, range, action: Node): Node
+fun mkForStmt(obj: !AstBuilder, loc: Location const, id: StringRef, typeNode, range, action: Node): Node
     return obj.mkForStmtFn(obj.userData, loc, id, typeNode, range, action)
-fun mkWhileStmt(obj: !AstBuilder, loc: Location, expr, stepAction, body: Node): Node
+fun mkWhileStmt(obj: !AstBuilder, loc: Location const, expr, stepAction, body: Node): Node
     return obj.mkWhileStmtFn(obj.userData, loc, expr, stepAction, body)
-fun mkBreakStmt(obj: !AstBuilder, loc: Location): Node
+fun mkBreakStmt(obj: !AstBuilder, loc: Location const): Node
     return obj.mkBreakStmtFn(obj.userData, loc)
-fun mkContinueStmt(obj: !AstBuilder, loc: Location): Node
+fun mkContinueStmt(obj: !AstBuilder, loc: Location const): Node
     return obj.mkContinueStmtFn(obj.userData, loc)
-fun mkReturnStmt(obj: !AstBuilder, loc: Location, expr: Node): Node
+fun mkReturnStmt(obj: !AstBuilder, loc: Location const, expr: Node): Node
     return obj.mkReturnStmtFn(obj.userData, loc, expr)

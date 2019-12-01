@@ -2,8 +2,6 @@
 
 // Test purpose: Ensure we can detect the difference between types
 
-concept AnyType(x) // Always true
-
 fun typeTest(x: AnyType) if typeOf(x) == Char
     writeLn("Char passed");
 
@@ -11,6 +9,15 @@ fun typeTest(x: AnyType) if typeOf(x) == Int
     writeLn("Int passed");
 
 fun typeTest(x: AnyType) if typeOf(x) == Float
+    writeLn("Float passed");
+
+fun typeTest(x: !AnyType) if typeOf(x) == Char
+    writeLn("Char passed");
+
+fun typeTest(x: !AnyType) if typeOf(x) == Int
+    writeLn("Int passed");
+
+fun typeTest(x: !AnyType) if typeOf(x) == Float
     writeLn("Float passed");
 
 fun typeTest(x: @AnyType) if typeOf(x) == @Char
@@ -25,6 +32,9 @@ fun typeTest(x: @AnyType) if typeOf(x) == @Float
 fun testRef(x: AnyType) //if 0==typeNumRef(typeOf(x))
     writeLn("non-ref");
 
+fun testRef(x: !AnyType) //if 0==typeNumRef(typeOf(x))
+    writeLn("non-ref");
+
 fun testRef(x: @AnyType) //if 0!=typeNumRef(typeOf(x))
     writeLn("ref");
 
@@ -32,9 +42,9 @@ fun testRef(x: @AnyType) //if 0!=typeNumRef(typeOf(x))
     let a = 'a'.getChar(0)
     let b = 10
     let c = 3.14
-    let ra: @Char = a
-    let rb: Int@ = b
-    let rc: Float@ = c
+    let ra: @Char = a mutToPtr
+    let rb: Int@ = b mutToPtr
+    let rc: Float@ = c mutToPtr
 
     writeLn(sizeOf('a'.getChar(0)))
     writeLn(sizeOf(10))

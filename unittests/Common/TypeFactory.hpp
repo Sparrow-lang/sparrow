@@ -25,18 +25,19 @@ Gen<Feather::VoidType> arbVoidType();
 
 //! Returns a generator for arbitrary data types.
 //! We would generate types with decls found in g_dataTypeDecls
-Gen<Feather::DataType> arbDataType(EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+Gen<Feather::DataType> arbDataType(EvalMode mode = modeUnspecified);
+
+//! Returns a generator for arbitrary Ptr types
+Gen<Feather::PtrType> arbPtrType(EvalMode mode = modeUnspecified);
 
 //! Returns a generator for arbitrary Const types
-Gen<Feather::ConstType> arbConstType(
-        EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+Gen<Feather::ConstType> arbConstType(EvalMode mode = modeUnspecified);
 
 //! Returns a generator for arbitrary Mutable types
-Gen<Feather::MutableType> arbMutableType(
-        EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+Gen<Feather::MutableType> arbMutableType(EvalMode mode = modeUnspecified);
 
 //! Returns a generator for arbitrary Temp types
-Gen<Feather::TempType> arbTempType(EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+Gen<Feather::TempType> arbTempType(EvalMode mode = modeUnspecified);
 
 //! Returns a generator for arbitrary array types
 Gen<Feather::ArrayType> arbArrayType(EvalMode mode = modeUnspecified);
@@ -46,20 +47,34 @@ Gen<Feather::FunctionType> arbFunctionType(
         EvalMode mode = modeUnspecified, Nest::TypeWithStorage resType = {});
 
 //! Returns a generator for arbitrary concept types
-Gen<SprFrontend::ConceptType> arbConceptType(EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+Gen<SprFrontend::ConceptType> arbConceptType(EvalMode mode = modeUnspecified);
+
+//! Returns an arbitrary type with storage, given the weights for each type
+Gen<Nest::TypeWithStorage> arbTypeWeighted(EvalMode mode, int weightDataType = 5,
+        int weightPtrType = 2, int weightConstType = 3, int weightMutableType = 3,
+        int weightTempType = 1, int weightArrayType = 0, int weightFunctionType = 0,
+        int weightConceptType = 0);
+
+//! Returns a generator of either data or ptr type
+Gen<Nest::TypeWithStorage> arbDataOrPtrType(EvalMode mode = modeUnspecified);
+
+//! Returns a generator of either concept or ptr-of-concept type
+Gen<Nest::TypeWithStorage> arbConceptOrPtrType(EvalMode mode = modeUnspecified, int maxRefs = 4);
 
 //! Returns a generator of types with storage
-Gen<Nest::TypeWithStorage> arbTypeWithStorage(
-        EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+Gen<Nest::TypeWithStorage> arbTypeWithStorage(EvalMode mode = modeUnspecified);
 
 //! Returns a generator for arbitrary basic storage types (data-like type)
-Gen<Nest::TypeWithStorage> arbBasicStorageType(
-        EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+Gen<Nest::TypeWithStorage> arbBasicStorageType(EvalMode mode = modeUnspecified);
+
+//! Returns a generator for types that have at least one reference
+Gen<Nest::TypeWithStorage> arbTypeWithRef(EvalMode mode = modeUnspecified);
 
 //! Returns a generator for arbitrary types (or all kinds)
 Gen<Nest::Type> arbType();
 
-//! Returns a generator for Bool types; it will generate DataType or MutableType for a struct that
+//! Returns a generator for Bool types.
+//! It will generate DataType, PtrType, ConstType or MutableType for a struct that
 //! has 'i8' native name
 Gen<Nest::TypeWithStorage> arbBoolType(EvalMode mode = modeUnspecified);
 

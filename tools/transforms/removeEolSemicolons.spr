@@ -5,13 +5,13 @@ import utils
 import formatDetails.sourceData
 
 //! Remove end-of-line semicolons that we don't need
-fun removeEolSemicolons(src: @SourceData)
+fun removeEolSemicolons(src: !SourceData)
     src _removePass1
     src _removePass2
 
 //! Remove all the semicolons at the end of line, if:
 //!     - indent of prev line is the same as cur line
-fun _removePass1(src: @SourceData)
+fun _removePass1(src: !SourceData)
     var layout: LayoutHelper
     for i = 0..Int(src.tokens.size)
         var tok: @TokenData = src.tokens(i)
@@ -30,7 +30,7 @@ fun _removePass1(src: @SourceData)
 //!     - indent of next line is the same as cur line
 //! This pass is used to clear any semicolons that are followed by a non-semicolon line of the same
 //! indent
-fun _removePass2(src: @SourceData)
+fun _removePass2(src: !SourceData)
     var layout: LayoutHelper
     for i = 0..Int(src.tokens.size)
         var tok: @TokenData = src.tokens(i)

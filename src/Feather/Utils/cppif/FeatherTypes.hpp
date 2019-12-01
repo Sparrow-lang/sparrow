@@ -19,10 +19,7 @@ using Nest::TypeWithStorage;
  * @see     TypeWithStorage
  */
 struct VoidType : Type {
-    //! Constructor that initializes this with a null type
-    VoidType() = default;
-    //! Constructor from the raw Nest::TypeRef
-    explicit VoidType(Nest::TypeRef type);
+    DECLARE_TYPE_COMMON(VoidType)
 
     //! Returns an instance of this type, corresponding to the given mode
     static VoidType get(Nest::EvalMode mode);
@@ -38,8 +35,7 @@ struct VoidType : Type {
  * a datatype declaration, possible with a different number of references.
  */
 struct DataType : TypeWithStorage {
-    DataType() = default;
-    DataType(Nest::TypeRef type);
+    DECLARE_TYPE_COMMON(DataType)
 
     /**
      * @brief      Factory method to create datatype types
@@ -50,10 +46,40 @@ struct DataType : TypeWithStorage {
      *
      * @return     The corresponding datatype
      */
-    static DataType get(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode);
+    static DataType get(Nest::NodeHandle decl, Nest::EvalMode mode = modeUnspecified);
 
     //! @copydoc Type::changeMode
     DataType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
+        return {Type::changeMode(mode, loc)};
+    }
+};
+
+/**
+ * @brief      A pointer type.
+ *
+ * A value of this type will hold a pointer to an object of the base type
+ *
+ * Constraints:
+ *     - must be created on top of a type with storage
+ */
+struct PtrType : TypeWithStorage {
+    DECLARE_TYPE_COMMON(PtrType)
+
+    /**
+     * @brief      Factory method to create a pointer type
+     *
+     * @param[in]  base  The type pointed at
+     * @param[in]  loc   Location used when reporting errors
+     *
+     * @return     The corresponding pointer type
+     */
+    static PtrType get(TypeWithStorage base, Nest::Location loc = {});
+
+    //! Returns the base type of this type
+    TypeWithStorage base() const { return {type_->subTypes[0]}; }
+
+    //! @copydoc Type::changeMode
+    PtrType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
         return {Type::changeMode(mode, loc)};
     }
 };
@@ -68,8 +94,7 @@ struct DataType : TypeWithStorage {
  *     - cannot be created on top of a MutableType/TempType
  */
 struct ConstType : TypeWithStorage {
-    ConstType() = default;
-    ConstType(Nest::TypeRef type);
+    DECLARE_TYPE_COMMON(ConstType)
 
     /**
      * @brief      Factory method to create a const type
@@ -85,7 +110,7 @@ struct ConstType : TypeWithStorage {
     TypeWithStorage base() const { return {type_->subTypes[0]}; }
 
     //! Transform this type into a corresponding DataType with the same number of references.
-    DataType toRef() const;
+    TypeWithStorage toRef() const;
 
     //! @copydoc Type::changeMode
     ConstType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
@@ -103,8 +128,7 @@ struct ConstType : TypeWithStorage {
  *     - cannot be created on top of a ConstType/TempType
  */
 struct MutableType : TypeWithStorage {
-    MutableType() = default;
-    MutableType(Nest::TypeRef type);
+    DECLARE_TYPE_COMMON(MutableType)
 
     /**
      * @brief      Factory method to create a mutable type
@@ -120,7 +144,7 @@ struct MutableType : TypeWithStorage {
     TypeWithStorage base() const { return {type_->subTypes[0]}; }
 
     //! Transform this type into a corresponding DataType with the same number of references.
-    DataType toRef() const;
+    TypeWithStorage toRef() const;
 
     //! @copydoc Type::changeMode
     MutableType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
@@ -138,8 +162,7 @@ struct MutableType : TypeWithStorage {
  *     - cannot be created on top of a ConstType/MutableType
  */
 struct TempType : TypeWithStorage {
-    TempType() = default;
-    TempType(Nest::TypeRef type);
+    DECLARE_TYPE_COMMON(TempType)
 
     /**
      * @brief      Factory method to create a temp type
@@ -155,7 +178,7 @@ struct TempType : TypeWithStorage {
     TypeWithStorage base() const { return {type_->subTypes[0]}; }
 
     //! Transform this type into a corresponding DataType with the same number of references.
-    DataType toRef() const;
+    TypeWithStorage toRef() const;
 
     //! @copydoc Type::changeMode
     TempType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
@@ -171,8 +194,7 @@ struct TempType : TypeWithStorage {
  *     - the count must be greater than 0
  */
 struct ArrayType : TypeWithStorage {
-    ArrayType() = default;
-    ArrayType(Nest::TypeRef type);
+    DECLARE_TYPE_COMMON(ArrayType)
 
     /**
      * @brief      Factory method to create an array type
@@ -206,8 +228,7 @@ struct ArrayType : TypeWithStorage {
  *     - all parameter types, must be with storage
  */
 struct FunctionType : TypeWithStorage {
-    FunctionType() = default;
-    FunctionType(Nest::TypeRef type);
+    DECLARE_TYPE_COMMON(FunctionType)
 
     /**
      * @brief      Factory method to create a function type
@@ -279,6 +300,9 @@ TypeWithStorage removeRef(TypeWithStorage type);
 //! Equivalent to removeRef(categoryToRefIfPresent(type))
 TypeWithStorage removeCatOrRef(TypeWithStorage type);
 // TODO (types): Remove this
+
+//! Dereference the types; ensure that the number of references is less with 1
+TypeWithStorage dereferenceType(TypeWithStorage type);
 
 /**
  * @brief      Removes all references from this type

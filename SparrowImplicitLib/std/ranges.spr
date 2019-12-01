@@ -291,7 +291,7 @@ datatype TakeRange(rangeType: Type) if Range(#$rangeType)
 
 [protected]
     fun isEmpty(this: TakeRange): Bool     = _count == 0 || _range.isEmpty
-    fun front(this: @TakeRange): RetType    = _range.front
+    fun front(this: TakeRange): RetType    = _range.front
     fun popFront(this: !TakeRange)          { _range.popFront; --_count }
 
 datatype TakeWhileRange(rangeType: Type, predType: Type) \
@@ -311,7 +311,7 @@ datatype TakeWhileRange(rangeType: Type, predType: Type) \
         _isEmpty = _range.isEmpty || !_pred(_range.front)
 
     fun isEmpty(this: TakeWhileRange): Bool    = _isEmpty
-    fun front(this: !TakeWhileRange): RetType        = _range.front
+    fun front(this: TakeWhileRange): RetType   = _range.front
     fun popFront(this: !TakeWhileRange)
         _range.popFront
         _isEmpty = _range.isEmpty || !_pred(_range.front)
@@ -366,14 +366,14 @@ datatype TransformedRange(rangeType, funType: Type) \
         if Range(#$rangeType) && isValid((#$funType)(#$rangeType front))
     _range: rangeType
     _function: funType
-    _curVal: RetType = RetType()
-    _hasValue: Bool = false
+    _curVal: !RetType = RetType()
+    _hasValue: !Bool = false
 
     using RetType = -@typeOf((#$funType)(#$rangeType front))
 
 [protected]
     fun isEmpty(this: TransformedRange)    = _range.isEmpty
-    fun front(this: !TransformedRange): RetType
+    fun front(this: TransformedRange): RetType
         if !_hasValue
             _curVal = _function(_range.front)
             _hasValue = true
@@ -401,7 +401,7 @@ datatype ChainRange(rangeType1: Type, rangeType2: Type) \
 
 [protected]
     fun isEmpty(this: ChainRange)          = _range1.isEmpty && _range2.isEmpty
-    fun front(this: !ChainRange): RetType   = ife(_range1.isEmpty, _range2.front, _range1.front)
+    fun front(this: ChainRange): RetType   = ife(_range1.isEmpty, _range2.front, _range1.front)
     fun popFront(this: !ChainRange)
         if _range1.isEmpty
             _range2.popFront
@@ -530,17 +530,17 @@ datatype ZippedRange(rangeType1, rangeType2: Type, functionType: Type) if Range(
 
 [initCtor]
 datatype ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$rangeType)
-    _acc: accType
+    _acc: !accType
     _range: rangeType
     _function: functionType
-    _valComputed: Bool = false
+    _valComputed: !Bool = false
 
     using RetType = accType
 
 [protected]
     fun isEmpty(this: ScanLeftRange)    = _range.isEmpty
     fun popFront(this: !ScanLeftRange)  { _range.popFront; _valComputed=false }
-    fun front(this: @ScanLeftRange): RetType
+    fun front(this: ScanLeftRange): RetType
         if !_valComputed
             _acc = _function(_acc, _range.front)
         _valComputed=true

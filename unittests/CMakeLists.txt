@@ -3,6 +3,7 @@
 SET(sourceFiles
     "StdInc.h"
     "UnitTestsMain.cpp"
+    "DetailConsoleReporter.cpp"
     "Common/BackendMock.cpp"
     "Common/BackendMock.hpp"
     "Common/FeatherNodeFactory.cpp"

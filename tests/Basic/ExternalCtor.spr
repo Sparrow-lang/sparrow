@@ -7,8 +7,6 @@ datatype Book4 = Book
 
 datatype Pair(t: Type) { first, second: t }
 
-concept AnyType(x)
-
 fun ctor(this: !Book)
     this.author ctor
     this.name ctor

@@ -306,7 +306,7 @@ llvm::DIType* DebugInfo::createDiStructType(GlobalContext& ctx, Type type) {
 
 llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, Type type) {
     // For datatypes, type caching is implemented in createDiStructType
-    if (type.numReferences() == 0 && type.kind() == Feather_getDataTypeKind())
+    if (type.numReferences() == 0 && type.kind() == Feather::DataType::staticKind())
         return createDiStructType(ctx, type);
 
     // Check the cache first
@@ -323,16 +323,17 @@ llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, Type type) {
         int sizeInBits = dataLayout.getTypeAllocSizeInBits(t);
         auto baseType = createDiType(ctx, removeCatOrRef(TypeWithStorage(type)));
         res = diBuilder_.createPointerType(baseType, sizeInBits);
-    } else if (type.kind() == Feather_getArrayTypeKind()) {
-        auto baseType = createDiType(ctx, Feather_baseType(type));
-        auto numElements = (uint64_t)Feather_getArraySize(type);
+    } else if (type.kind() == Feather::ArrayType::staticKind()) {
+        Feather::ArrayType arrayType{type};
+        auto baseType = createDiType(ctx, arrayType.unitType());
+        auto numElements = arrayType.count();
         uint32_t alignInBits = dataLayout.getPrefTypeAlignment(t);
         llvm::DINodeArray subscripts;
         return diBuilder_.createArrayType(numElements, alignInBits, baseType, subscripts);
 
-    } else if (type.kind() == Feather_getFunctionTypeKind()) {
+    } else if (type.kind() == Feather::FunctionType::staticKind()) {
         res = createDiFunType(ctx, type);
-    } else /*if ( type.kind() == Feather_getVoidTypeKind() )*/ {
+    } else /*if (type.kind() == Feather::VoidType::staticKind())*/ {
         return diBuilder_.createBasicType("void", 0, llvm::dwarf::DW_ATE_address);
     }
 

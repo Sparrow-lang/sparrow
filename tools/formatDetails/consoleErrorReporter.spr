@@ -9,36 +9,36 @@ import os
 //! An error reporter that prints errors to the console
 datatype ConsoleErrorReporter
 
-fun reportError(loc: @Location, msg: StringRef)
+fun reportError(loc: Location const, msg: StringRef)
     if loc.end.line > 1 || loc.end.col > 1
         cout << loc << ' '
     cout << 'ERROR: ' << msg << '\n'    // IGNORE-ERROR for test.py
     exit(1)
 
-fun reportWarning(loc: @Location, msg: AnyType)
+fun reportWarning(loc: Location const, msg: AnyType)
     if loc.end.line > 1 || loc.end.col > 1
         cout << loc << ' '
     cout << 'WARNING: ' << msg << '\n'
 
-fun reportWarning(loc: @Location, m1, m2: AnyType)
+fun reportWarning(loc: Location const, m1, m2: AnyType)
     if loc.end.line > 1 || loc.end.col > 1
         cout << loc << ' '
     cout << 'WARNING: ' << m1 << m2 << '\n'
 
-fun reportWarning(loc: @Location, m1, m2, m3: AnyType)
+fun reportWarning(loc: Location const, m1, m2, m3: AnyType)
     if loc.end.line > 1 || loc.end.col > 1
         cout << loc << ' '
     cout << 'WARNING: ' << m1 << m2 << m3 << '\n'
 
-fun reportWarning(loc: @Location, m1, m2, m3, m4: AnyType)
+fun reportWarning(loc: Location const, m1, m2, m3, m4: AnyType)
     if loc.end.line > 1 || loc.end.col > 1
         cout << loc << ' '
     cout << 'WARNING: ' << m1 << m2 << m3 << m4 << '\n'
 
-fun reportWarning(loc: @Location, m1, m2, m3, m4, m5: AnyType)
+fun reportWarning(loc: Location const, m1, m2, m3, m4, m5: AnyType)
     if loc.end.line > 1 || loc.end.col > 1
         cout << loc << ' '
     cout << 'WARNING: ' << m1 << m2 << m3 << m4 << m5 << '\n'
 
-fun reportError(this: @ConsoleErrorReporter, loc: @Location, msg: StringRef)
+fun reportError(this: ConsoleErrorReporter, loc: Location const, msg: StringRef)
     reportError(loc, msg)

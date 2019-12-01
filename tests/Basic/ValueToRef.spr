@@ -11,7 +11,7 @@ fun value(this: MyVal): Int
 fun print(this: MyVal)
     writeLn(x);
 
-fun increment(this: !MyVal): MyVal@
+fun increment(this: !MyVal): MyVal
     x += 1
     return this
 

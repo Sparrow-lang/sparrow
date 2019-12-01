@@ -56,7 +56,7 @@ datatype SortedMap(keyType, dataType, lessType, compareType: Type)
 
             let data: DataType
             r = _sortedTable.insert(ValueType(key, data))
-        return r.front().v2;
+        return r.front().v2 mutToPtr;
 
     fun clear(this: !SortedMap)                                 { _sortedTable.clear(); }
 

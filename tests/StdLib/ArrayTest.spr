@@ -185,7 +185,8 @@ fun test10()
     a2 = a1
     printSizeInfo(a2)
     printArray(a2)
-    printSizeInfo(a1 = a2)
+    a1 = a2
+    printSizeInfo(a1)
     printArray(a1)
 /*<<<Assignment operator(10)
 false

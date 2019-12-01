@@ -7,13 +7,13 @@ import formatDetails.sourceData
 using TokensRange = TokenVector.RangeType
 
 //! Clears the given token; transforms it into a whitespace without any content
-fun clearToken(token: @TokenData)
+fun clearToken(token: !TokenData)
     token.type = tkWHITESPACE
     token.content = ''
 
 //! Clears the token; if this is the only printable token from the line, remove the entire line.
 //! Note that comments would prevent deleting the line
-fun clearTokenLine(idx: Int, tokens: @TokenVector)
+fun clearTokenLine(idx: Int, tokens: !TokenVector)
     var tok: @TokenData = tokens(idx)
     clearToken(tok)
 
@@ -60,18 +60,18 @@ datatype LayoutHelper
     _curLineIndent: Int = 1
     _lastLine: Int = 0
 
-fun onToken(this: @LayoutHelper, tok: @TokenData)
+fun onToken(this: !LayoutHelper, tok: !TokenData)
     if tok.type != tkWHITESPACE && tok.type != tkCOMMENT && tok.type != tkEOL
         if tok.loc.start.line != _lastLine
             _prevLineIndent = _curLineIndent
             _curLineIndent = Int(tok.loc.start.col)
             _lastLine = Int(tok.loc.start.line)
 
-fun curLineIndent(this: @LayoutHelper) = _curLineIndent
-fun prevLineIndent(this: @LayoutHelper) = _prevLineIndent
+fun curLineIndent(this: LayoutHelper) = _curLineIndent
+fun prevLineIndent(this: LayoutHelper) = _prevLineIndent
 
 //! Gets the indent of the next line
-fun nextLineIndent(this: @LayoutHelper, remaining: TokensRange): Int
+fun nextLineIndent(this: LayoutHelper, remaining: TokensRange): Int
     if remaining.isEmpty
         return 1
     var line = remaining.front().loc.start.line

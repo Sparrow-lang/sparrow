@@ -45,7 +45,7 @@ datatype List(valueType: Type)
             p.freePtr
             p = nextNode
 
-    fun =(this: @List, other: typeOf(this))
+    fun =(this: !List, other: typeOf(this))
         var tmp = other
         this swap tmp
 
@@ -68,8 +68,8 @@ datatype List(valueType: Type)
     fun size(this: List): Int          = _listSize
     fun isEmpty(this: List)                 = _listSize == 0
 
-    fun front(this: List): RetType          = _head.next.value().data
-    fun back(this: List): RetType           = _head.prev.value().data
+    fun front(this: List): RetType          = _head.next.value().data mutToPtr
+    fun back(this: List): RetType           = _head.prev.value().data mutToPtr
 
     fun all(this: List): RangeType          = RangeType(_head.next, this._headNode)
 
@@ -403,7 +403,8 @@ datatype List(valueType: Type)
         _head.prev = _head.next
         _head.next = tmp
 
-    fun _headNode(this: @List) = mkRawPtr(reinterpretCast(@_MyNodeType, _head))
+    fun _headNode(this: List const) = mkRawPtr(reinterpretCast(@_MyNodeType, _head))
+    fun _headNode(this: List mut) = mkRawPtr(reinterpretCast(@_MyNodeType, _head))
 
     fun _transfer(pos, begin, end: /*_NodeTypePtr*/ AnyType)
         var posc = pos
@@ -435,8 +436,8 @@ datatype _NodeType(valueType: Type)
 [protected]
     fun isEmpty(this: _ListRange)         = _begin == _end
 
-    fun front(this: _ListRange): RetType  = _begin.value().data
-    fun back(this: _ListRange): RetType   = _end.value().prev.value().data
+    fun front(this: _ListRange): RetType  = _begin.value().data mutToPtr
+    fun back(this: _ListRange): RetType   = _end.value().prev.value().data mutToPtr
 
     fun popFront(this: !_ListRange)        { _begin = _begin.value().next }
     fun popBack(this: !_ListRange)         { _end = _end.value().prev }

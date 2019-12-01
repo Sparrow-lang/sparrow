@@ -2,7 +2,7 @@ module formatTool.checks.returnStmt
 
 import formatDetails.sourceData
 
-fun checkReturnInFunctions(src: @SourceData)
+fun checkReturnInFunctions(src: !SourceData)
     _findFun(src.rootNode)
 
 fun _findFun(node: Node)

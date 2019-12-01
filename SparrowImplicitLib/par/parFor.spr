@@ -67,7 +67,7 @@ package Impl
         // Create a root task and wait until it's executed
         var range: part.RangeType = r
         using PartType = typeOf(part)
-        tasks.spawnRootAndWait(Impl.mkParForTask(range, f, (PartType Ptr)(part), 0))
+        tasks.spawnRootAndWait(Impl.mkParForTask(range, f, (PartType Ptr)(part mutToPtr), 0))
 
     datatype ParForTask(rangeType, funcType, partType: Type)
         prefix: tasks.TaskPrefix

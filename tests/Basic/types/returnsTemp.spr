@@ -4,7 +4,6 @@
 
 datatype MyObj = Int
 
-concept AnyType(x)
 fun move(x: !AnyType): typeOf(x) tmp = reinterpretCast(typeOf(x) tmp, x)
 
 

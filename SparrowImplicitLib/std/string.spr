@@ -59,10 +59,9 @@ fun ctor(this: !String, range: Range) if typeOf(range) != String
     fun dtor(this: !String)
         _begin.freePtr
 
-    fun =(this: !String, other: String): @String
+    fun =(this: !String, other: String)
         let tmp = other
         tmp.swap(this)
-        return this
 
     fun ==(this, other: String): Bool
         if this.size != other.size

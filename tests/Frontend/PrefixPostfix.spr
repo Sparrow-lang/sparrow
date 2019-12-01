@@ -1,17 +1,17 @@
 
-fun +++(x: !Int): @Int
+fun +++(x: !Int): !Int
     x += 1
     return x
 
-fun ---(x: !Int): @Int
+fun ---(x: !Int): !Int
     x -= 1
     return x
 
-fun pre_+++(x: !Int): @Int
+fun pre_+++(x: !Int): !Int
     x += 1
     return x
 
-fun pre_---(x: !Int): @Int
+fun pre_---(x: !Int): !Int
     x -= 1
     return x
 

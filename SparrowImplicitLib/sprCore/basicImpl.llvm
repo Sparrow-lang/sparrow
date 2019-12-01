@@ -69,6 +69,10 @@ define i32 @ptrDiff(i8* %p1, i8* %p2) alwaysinline
     %4 = trunc i64 %3 to i32
     ret i32 %4
 }
+define i8* @ptrIdentity(i8* %src) alwaysinline
+{
+    ret i8* %src
+}
 
 define void @_spr_memcpy(i8* %dest, i8* %src, i64 %size) alwaysinline
 {

@@ -14,7 +14,7 @@ bool OverloadServiceMock::selectConversionCtor(
     if (argType.mode() != destMode)
         return false;
     // If we know about the conversion, we return true
-    Nest::Type destType = Feather::DataType::get(destClass, 0, destMode);
+    Nest::Type destType = Feather::DataType::get(destClass, destMode);
     for (const auto& p : implicitConversions_) {
         if (p.first == argType && p.second == destType)
             return true;

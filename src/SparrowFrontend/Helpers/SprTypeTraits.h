@@ -37,12 +37,10 @@ Node* createTypeNode(CompilationContext* context, const Location& loc, Type t);
 Type getAutoType(Node* typeNode, int numRefs = 0, int kind = 0, EvalMode evalMode = modeRt);
 
 /// Tests if this an concept type.
-/// This includes mutable or const concepts, or refenrece concepts
+/// This includes mutable or const concepts, or reference concepts
 bool isConceptType(Type t);
+bool isConceptType(TypeWithStorage t);
 bool isConceptType(Type t, int& numRefs, int& kind);
-
-/// Creates a new type from the original type, with the specified reference count
-Type changeRefCount(Type type, int numRef, const Location& loc = Location());
 
 //! Checks if the given type is bitcopiable
 //! This returns true for native types and for references

@@ -687,7 +687,7 @@ Type DataTypeDecl::computeTypeImpl(DataTypeDecl node) {
     checkStdClass(resultingStruct);
 
     // We now have a type - from now on we can safely compute the types of the children
-    node.setType(Feather::DataType::get(resultingStruct, 0, evalMode));
+    node.setType(Feather::DataType::get(resultingStruct, evalMode));
 
     // Get the fields from the current datatype
     NodeVector fields = getFields(node.childrenContext()->currentSymTab);

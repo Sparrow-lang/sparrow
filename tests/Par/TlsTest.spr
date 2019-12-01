@@ -42,8 +42,8 @@ import std.compilerInfo
 
         let i1 = 10
         let i2 = 20
-        var pi1: @Int = i1
-        var pi2: @Int = i2
+        var pi1: @Int = i1 mutToPtr
+        var pi2: @Int = i2 mutToPtr
 
         for i=0..numThreads
             let p: Thread Ptr = new(Thread, IntWorker(i1, i2))

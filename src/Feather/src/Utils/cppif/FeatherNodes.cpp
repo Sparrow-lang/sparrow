@@ -539,7 +539,7 @@ void StructDecl::setContextForChildrenImpl(StructDecl node) {
 Type StructDecl::computeTypeImpl(StructDecl node) {
     if (node.name().empty())
         REP_ERROR_RET(nullptr, node.location(), "No name given to struct");
-    return DataType::get(node, 0, Feather_effectiveEvalMode(node));
+    return DataType::get(node, Feather_effectiveEvalMode(node));
 }
 NodeHandle StructDecl::semanticCheckImpl(StructDecl node) {
     if (!node.computeType())
@@ -950,8 +950,8 @@ NodeHandle MemLoadExp::semanticCheckImpl(MemLoadExp node) {
         REP_ERROR_RET(nullptr, node.location(),
                 "Cannot use atomic acquire-release with a load instruction");
 
-    // Remove the 'ref' from the type and get the base type
-    node.setType(removeCatOrRef(TypeWithStorage(exp.type())));
+    // Deference the type (remove one reference)
+    node.setType(dereferenceType(TypeWithStorage(exp.type())));
     node.setType(Feather_adjustMode(node.type(), node.context(), node.location()));
     return node;
 }

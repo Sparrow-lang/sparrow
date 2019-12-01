@@ -7,7 +7,9 @@
 [ct] let y: t = 2
 let z = 3
 
-[ct] let c1: Int@ = x
+[ct] var v: Int = 1
+
+[ct] let c1: Int@ = v mutToPtr
 
 [ct] fun testCt(a: Int)
 {

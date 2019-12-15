@@ -629,7 +629,7 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.GenericFunctionCallable") {
                         types_.i8Type_,
                 },
                 Range<TypeWithStorage>{ // arg types
-                        addRef(types_.barType_),
+                        PtrType::get(types_.barType_),
                         types_.i8Type_,
                 });
 
@@ -640,7 +640,7 @@ TEST_CASE_METHOD(CallableFixture, "CallableFixture.GenericFunctionCallable") {
                         types_.concept1Type_,
                 },
                 Range<TypeWithStorage>{ // arg types
-                        addRef(types_.barType_),
+                        PtrType::get(types_.barType_),
                         MutableType::get(addRefs(types_.fooType_, 2)),
                         types_.fooType_,
                 });

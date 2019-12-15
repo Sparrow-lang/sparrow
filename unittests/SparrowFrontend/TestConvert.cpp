@@ -453,21 +453,22 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
                 RC_ASSERT(getConvType(mutT, u) != convNone);
         });
 
-        // rc::prop("if @T->U (T=datatype) then mut(T)->U", [=]() {
-        //     auto t = *TypeFactory::arbDataType();
-        //     auto u = *TypeFactory::arbBasicStorageType();
-        //     RC_PRE(t.referredNode() == u.referredNode()); // increase the chance of matching
-        //     Type mutT = MutableType::get(t);
-        //     RC_LOG() << mutT << " -> " << u << endl;
+        rc::prop("if @T->U (T=datatype), numRef(T) >= numRef(U) then mut(T)->U", [=]() {
+            auto t = *TypeFactory::arbDataType();
+            auto u = *TypeFactory::arbBasicStorageType();
+            RC_PRE(t.numReferences() >= u.numReferences());
+            RC_PRE(t.referredNode() == u.referredNode()); // increase the chance of matching
+            Type mutT = MutableType::get(t);
+            RC_LOG() << mutT << " -> " << u << endl;
 
-        //     Type rt = addRef(DataType(t));
-        //     ConversionType c1 = getConvType(rt, u);
-        //     RC_LOG() << "    " << rt << " -> " << u << " = " << int(c1) << endl;
+            Type rt = PtrType::get(DataType(t));
+            ConversionType c1 = getConvType(rt, u);
+            RC_LOG() << "    " << rt << " -> " << u << " = " << int(c1) << endl;
 
-        //     if (c1 && u.kind() != typeKindConst) {
-        //         RC_ASSERT(getConvType(mutT, u) != convNone);
-        //     }
-        // });
+            if (c1 && u.kind() != typeKindConst) {
+                RC_ASSERT(getConvType(mutT, u) != convNone);
+            }
+        });
 
         rc::prop("if T -> U (don't cvt), T=datatype, U!=tmp then T ptr -> U", [=]() {
             auto src = *TypeFactory::arbDataType();
@@ -491,7 +492,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             int numRefs = *rc::gen::inRange(0, 4);
             bool useMut = *rc::gen::element(0, 1) != 0;
             for (int i = 0; i < numRefs; i++)
-                src = addRef(src);
+                src = PtrType::get(src);
             if (useMut)
                 src = MutableType::get(src);
             auto dest = *TypeFactory::arbConceptType(src.mode());
@@ -504,7 +505,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules") {
             TypeWithStorage src = *rc::gen::element(types_.fooType_, types_.barType_);
             int numRefs = *rc::gen::inRange(0, 4);
             for (int i = 0; i < numRefs; i++)
-                src = addRef(src);
+                src = PtrType::get(src);
             TypeWithStorage dest = *TypeFactory::arbConceptType(src.mode());
             for (int i = 0; i < numRefs; i++)
                 dest = Feather::PtrType::get(dest);

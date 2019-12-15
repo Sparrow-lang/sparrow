@@ -262,24 +262,6 @@ bool isDataLikeType(Type type);
 bool isCategoryType(Type type);
 
 /**
- * @brief      Adds a reference to the given type.
- *
- * The total number of references for the resulting type will be 1 + the total number of references
- * of the given type.
- *
- * Constraints:
- *     - given type must be Data-like type (DataType, ConstType, MutableType or TempType)
- *
- * Postconditions:
- *     - the category of the type is kept
- *
- * @param[in]  type  The type to add reference to
- *
- * @return     The resulting type, with one more reference
- */
-TypeWithStorage addRef(TypeWithStorage type);
-
-/**
  * @brief      Removes a reference from the given type.
  *
  * Constraints:

@@ -182,16 +182,7 @@ TEST_CASE_METHOD(FeatherTypesFixture, "Feather storage types", "[FeatherTypes]")
     });
 }
 
-TEST_CASE_METHOD(FeatherTypesFixture, "Add or remove references", "[FeatherTypes]") {
-    rc::prop("Adding reference increases the number of references, and keeps type kind (if "
-             "possible)",
-            []() {
-                TypeWithStorage base = *TypeFactory::arbBasicStorageType();
-                auto newType = addRef(base);
-                REQUIRE(newType.numReferences() == base.numReferences() + 1);
-                auto expectedKind = base.kind() == typeKindData ? typeKindPtr : base.kind();
-                REQUIRE(newType.kind() == expectedKind);
-            });
+TEST_CASE_METHOD(FeatherTypesFixture, "Remove references", "[FeatherTypes]") {
     rc::prop("Removing reference decreases the number of references, and keeps type kind (if "
              "possible)",
             []() {

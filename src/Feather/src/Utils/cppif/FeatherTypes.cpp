@@ -366,25 +366,6 @@ bool isCategoryType(Type type) {
     return typeKind == typeKindConst || typeKind == typeKindMutable || typeKind == typeKindTemp;
 }
 
-TypeWithStorage addRef(TypeWithStorage type) {
-    if (!type)
-        REP_INTERNAL(NOLOC, "Null type passed to addRef");
-
-    int typeKind = type.kind();
-    if (typeKind == typeKindData)
-        return PtrType::get(type);
-    else if (typeKind == typeKindPtr)
-        return PtrType::get(type);
-    else if (typeKind == typeKindConst)
-        return ConstType::get(addRef(ConstType(type).base()));
-    else if (typeKind == typeKindMutable)
-        return MutableType::get(addRef(MutableType(type).base()));
-    else if (typeKind == typeKindTemp)
-        return TempType::get(addRef(TempType(type).base()));
-
-    REP_INTERNAL(NOLOC, "Invalid type given when adding reference (%1%)") % type;
-    return {};
-}
 TypeWithStorage removeRef(TypeWithStorage type) {
     if (!type)
         REP_INTERNAL(NOLOC, "Null type passed to removeRef");

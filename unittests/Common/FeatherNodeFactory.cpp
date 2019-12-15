@@ -185,7 +185,7 @@ Gen<Feather::MemLoadExp> FeatherNodeFactory::arbMemLoadExp(Nest::TypeWithStorage
     return gen::exec([=] {
         auto t = expectedType;
         if (expectedType) {
-            t = addRef(expectedType);
+            t = PtrType::get(expectedType);
             REQUIRE(t.numReferences() > 0);
         } else
             t = genTypeIfNeeded({}, true);
@@ -198,7 +198,7 @@ Gen<Feather::MemStoreExp> FeatherNodeFactory::arbMemStoreExp() {
     return gen::exec([=] {
         auto tVal = genTypeIfNeeded({}, true);
         NodeHandle value = *arbExp(tVal);
-        NodeHandle address = *arbExp(addRef(tVal));
+        NodeHandle address = *arbExp(PtrType::get(tVal));
         return MemStoreExp::create(g_LocationGen(), value, address);
     });
 }

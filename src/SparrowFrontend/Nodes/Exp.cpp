@@ -254,12 +254,11 @@ NodeHandle checkReinterpretCast(NodeHandle node) {
     Type destType = getType(destTypeArg);
     Type srcType = srcArg.type();
 
-    ASSERT(destType);
-    ASSERT(destType.hasStorage());
+    if (!destType || !destType.hasStorage())
+        REP_ERROR_RET(nullptr, destTypeArg.location(), "Invalid type node (got %1%)") % destTypeArg;
+    // If the dest type has no references, assume const
     if (destType.numReferences() == 0)
-        REP_ERROR_RET(nullptr, destTypeArg.location(),
-                "Destination type must be a reference (currently: %1%)") %
-                destType;
+        destType = Feather::ConstType::get(TypeWithStorage(destType));
 
     // If source is a category type and the number of source reference is greater than the
     // destination references, remove category

@@ -278,11 +278,6 @@ bool isCategoryType(Type type);
  */
 TypeWithStorage removeRef(TypeWithStorage type);
 
-//! Old version of removeRef.
-//! Equivalent to removeRef(categoryToRefIfPresent(type))
-TypeWithStorage removeCatOrRef(TypeWithStorage type);
-// TODO (types): Remove this
-
 //! Dereference the types; ensure that the number of references is less with 1
 TypeWithStorage dereferenceType(TypeWithStorage type);
 

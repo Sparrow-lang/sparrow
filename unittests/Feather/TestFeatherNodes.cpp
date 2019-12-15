@@ -195,7 +195,7 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::MemLoadExp node") {
         REQUIRE(t);
         REQUIRE(tAddr);
         REQUIRE(tAddr.hasStorage());
-        REQUIRE(sameTypeIgnoreMode(t, removeCatOrRef(TypeWithStorage(tAddr))));
+        REQUIRE(sameTypeIgnoreMode(t, dereferenceType(TypeWithStorage(tAddr))));
         REQUIRE(t.kind() != typeKindMutable);
     });
 }

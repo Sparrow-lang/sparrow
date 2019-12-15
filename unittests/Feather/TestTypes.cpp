@@ -197,9 +197,9 @@ TEST_CASE_METHOD(FeatherTypesFixture, "Remove references", "[FeatherTypes]") {
                                             : base.kind();
                 REQUIRE(newType.kind() == expectedKind);
             });
-    rc::prop("Removing reference (old) decreases the number of references", []() {
+    rc::prop("dereferenceType decreases the number of references", []() {
         TypeWithStorage base = *TypeFactory::arbTypeWithRef();
-        auto newType = removeCatOrRef(base);
+        auto newType = dereferenceType(base);
         REQUIRE(newType.numReferences() == base.numReferences() - 1);
     });
     rc::prop("Removing all references decreases the number of references to 0", []() {

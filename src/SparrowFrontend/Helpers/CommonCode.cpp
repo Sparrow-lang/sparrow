@@ -166,7 +166,7 @@ Node* SprFrontend::createFunctionCall(
 
         // Create a temporary variable for the result
         Node* tmpVar = Feather_mkVar(
-                loc, StringRef("$tmpC"), Feather_mkTypeNode(loc, removeCatOrRef(resType)));
+                loc, StringRef("$tmpC"), Feather_mkTypeNode(loc, removeCategoryIfPresent(resType)));
         Nest_setContext(tmpVar, context);
         tmpVarRef = Feather_mkVarRef(loc, tmpVar);
         Nest_setContext(tmpVarRef, context);
@@ -239,7 +239,7 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
 
 NodeHandle SprFrontend::createTmpForRef(NodeHandle src, TypeWithStorage destType) {
     ASSERT(src);
-    auto srcT = removeCatOrRef(destType);
+    auto srcT = removeCategoryIfPresent(destType);
     auto var = VarDecl::create(
             src.location(), StringRef("$tmpForRef"), TypeNode::create(src.location(), srcT));
     auto varRef = VarRefExp::create(src.location(), var);
@@ -263,7 +263,7 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
     // Try to instantiate the corresponding FunctionPtr class
     NodeVector parameters;
     parameters.reserve(1 + FunctionDecl(fun).parameters().size());
-    Type resType = resParam ? (Type)removeCatOrRef(TypeWithStorage(resParam->type))
+    Type resType = resParam ? (Type)removeCategoryIfPresent(TypeWithStorage(resParam->type))
                             : FunctionDecl(fun).resTypeNode().type();
     parameters.push_back(createTypeNode(ctx, loc, resType));
     for (size_t i = resParam ? 1 : 0; i < FunctionDecl(fun).parameters().size(); ++i) {

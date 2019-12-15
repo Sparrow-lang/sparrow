@@ -493,7 +493,7 @@ const char* FunctionDecl::toStringImpl(FunctionDecl node) {
         Type resultType = node.resTypeNode().type();
         if (node.hasProperty(propResultParam)) {
             resultType = params[0].type();
-            resultType = removeCatOrRef(TypeWithStorage(resultType));
+            resultType = removeCategoryIfPresent(resultType);
             params = params.skip(1); // Keep only the non-result params
         }
 
@@ -981,12 +981,12 @@ NodeHandle MemStoreExp::semanticCheckImpl(MemStoreExp node) {
         return {};
 
     // Check if the type of the address is a ref
-    if (numRefs(address.type()) < 1)
+    auto addrType = address.type().kindCast<MutableType>();
+    if (!addrType)
         REP_ERROR_RET(nullptr, node.location(),
-                "The address of a memory store is not a reference, nor VarRef nor FieldRef (type: "
-                "%1%)") %
+                "The address of a memory store needs to be a mutable object (type: %1%)") %
                 address.type();
-    Type baseAddressType = removeCatOrRef(TypeWithStorage(address.type()));
+    Type baseAddressType = addrType.base();
 
     // Check the equivalence of types
     if (!sameTypeIgnoreMode(value.type(), baseAddressType)) {

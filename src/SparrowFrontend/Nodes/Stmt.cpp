@@ -132,7 +132,7 @@ NodeHandle ReturnStmt::semanticCheckImpl(ReturnStmt node) {
     Feather::VarDecl resultParam = getResultParam(parentFun);
     if (resultParam) // Does this function have a result param?
     {
-        resType = Feather::removeCatOrRef(TypeWithStorage(resultParam.type()));
+        resType = Feather::removeCategoryIfPresent(resultParam.type());
         // As the result is passed as param-ref, the function should have void result
         ASSERT(!parentFun.resTypeNode().type().hasStorage());
     } else {

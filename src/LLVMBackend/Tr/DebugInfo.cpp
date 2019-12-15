@@ -318,10 +318,15 @@ llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, Type type) {
     const auto& dataLayout = ctx.llvmModule_.getDataLayout();
 
     llvm::DIType* res = nullptr;
-    if (type.numReferences() > 0) {
-        // Pointer type (Datatype & category type)
+    if (type.kind() == typeKindPtr) {
+        // Pointer type
         int sizeInBits = dataLayout.getTypeAllocSizeInBits(t);
-        auto baseType = createDiType(ctx, removeCatOrRef(TypeWithStorage(type)));
+        auto baseType = createDiType(ctx, PtrType(TypeWithStorage(type)).base());
+        res = diBuilder_.createPointerType(baseType, sizeInBits);
+    } else if (isCategoryType(type)) {
+        // Category type
+        int sizeInBits = dataLayout.getTypeAllocSizeInBits(t);
+        auto baseType = createDiType(ctx, removeCategoryIfPresent(type));
         res = diBuilder_.createPointerType(baseType, sizeInBits);
     } else if (type.kind() == Feather::ArrayType::staticKind()) {
         Feather::ArrayType arrayType{type};

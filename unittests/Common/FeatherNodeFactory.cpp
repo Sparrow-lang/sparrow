@@ -197,8 +197,9 @@ Gen<Feather::MemLoadExp> FeatherNodeFactory::arbMemLoadExp(Nest::TypeWithStorage
 Gen<Feather::MemStoreExp> FeatherNodeFactory::arbMemStoreExp() {
     return gen::exec([=] {
         auto tVal = genTypeIfNeeded({}, true);
+        tVal = removeCategoryIfPresent(tVal);
         NodeHandle value = *arbExp(tVal);
-        NodeHandle address = *arbExp(PtrType::get(tVal));
+        NodeHandle address = *arbExp(MutableType::get(tVal));
         return MemStoreExp::create(g_LocationGen(), value, address);
     });
 }

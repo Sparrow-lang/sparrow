@@ -387,25 +387,6 @@ TypeWithStorage removeRef(TypeWithStorage type) {
     return {};
 }
 
-TypeWithStorage removeCatOrRef(TypeWithStorage type) {
-    if (!type)
-        REP_INTERNAL(NOLOC, "Null type passed to removeRef");
-    if (type.numReferences() < 1)
-        REP_INTERNAL(NOLOC, "Cannot remove reference from type (%1%)") % type;
-
-    int typeKind = type.kind();
-    if (typeKind == typeKindConst)
-        return ConstType(type).base();
-    else if (typeKind == typeKindMutable)
-        return MutableType(type).base();
-    else if (typeKind == typeKindTemp)
-        return TempType(type).base();
-    else if (typeKind == typeKindPtr)
-        return PtrType(type).base();
-
-    REP_INTERNAL(NOLOC, "Invalid type given when removing reference (%1%)") % type;
-    return {};
-}
 TypeWithStorage dereferenceType(TypeWithStorage type) {
     if (!type)
         REP_INTERNAL(NOLOC, "Null type passed to removeRef");

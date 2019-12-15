@@ -23,7 +23,6 @@
 
 namespace SprFrontend {
 
-using Feather::removeCatOrRef;
 using Nest::TypeWithStorage;
 
 ConversionType combine(ConversionType lhs, ConversionType rhs) {
